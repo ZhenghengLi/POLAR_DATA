@@ -1,8 +1,8 @@
-crc_data_class: crc_data_class.o SciFrame.o
-	g++ -Wall -O2 crc_data_class.o SciFrame.o -o crc_data_class
+main: main.o SciFrame.o
+	g++ -Wall -O2 main.o SciFrame.o -o main
 
-crc_data_class.o: crc_data_class.cpp SciFrame.hpp SciFrame.cpp
-	g++ -Wall -O2 -c crc_data_class.cpp -o crc_data_class.o
+main.o: main.cpp SciFrame.hpp SciFrame.cpp
+	g++ -Wall -O2 -c main.cpp -o main.o
 
 SciFrame.o: SciFrame.hpp SciFrame.cpp
 	g++ -Wall -O2 -c SciFrame.cpp -o SciFrame.o

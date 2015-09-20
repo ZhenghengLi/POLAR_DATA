@@ -18,15 +18,22 @@ int main(int argc, char** argv) {
 
 	int frame_cnt = 0;
 	int crc_error_cnt = 0;
+	int invalid_cnt = 0;
 
 	char buffer[2052];
 	SciFrame frame(buffer);
-	while (!infile.eof()) {
+	while (true) {
 		infile.read(buffer, 2052);
-		if (!infile.good())
+		if (infile.eof())
 			break;
 		if (!frame.check_valid()) {
 			cout << "This frame is not valid" << endl;
+			cout << "----" << endl;
+			invalid_cnt++;
+			if (invalid_cnt > 10) {
+				cout << "The file may be not a SCI data file or it is broken!" << endl;
+				break;
+			}
 			continue;
 		}
 		cout << "bits: " << frame.get_bits() << endl;
@@ -44,5 +51,6 @@ int main(int argc, char** argv) {
 	cout << "==============" << endl;
 	cout << "frame count: " << frame_cnt << endl;
 	cout << "crc error count: " << crc_error_cnt << endl;
+	cout << "invalid count: " << invalid_cnt << endl;
 	return 0;
 }

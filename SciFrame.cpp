@@ -1,32 +1,44 @@
 #include "SciFrame.hpp"
+#include <cstring>
 
+using namespace std;
 using boost::crc_optimal;
 
 SciFrame::SciFrame() {
 	frame_data_ = NULL;
-	pre_half_packet_ = new char[200];
-	has_pre_ = false;
+	pre_half_packet_ = new uint8_t[200];
+	pre_half_packet_len_ = 0;
+	cur_packet_buffer_ = new uint8_t[200];
+	start_packet_pos_ = 22;
+	cur_is_cross_ = true;
+	reach_end_ = false;
 }
 
 SciFrame::SciFrame(const char* data) {
 	frame_data_ = data;
-	pre_half_packet_ = new char[200];
-	has_pre_ = false;
+	pre_half_packet_ = new uint8_t[200];
+	pre_half_packet_len_ = 0;
+	cur_packet_buffer_ = new uint8_t[200];
+	start_packet_pos_ = 22;
+	cur_is_cross_ = true;
+	reach_end_ = false;
 }
 
-SciFrame::~SciFrame()
-{
+SciFrame::~SciFrame() {
 	delete [] pre_half_packet_;
+	delete [] cur_packet_buffer_;
 }
 
 void SciFrame::setdata(const char* data) {
 	frame_data_ = data;
 }
 
-void SciFrame::reset()
-{
+void SciFrame::reset() {
 	frame_data_ = NULL;
-	has_pre_ = false;
+	pre_half_packet_len_ = 0;
+	start_packet_pos_ = 22;
+	cur_is_cross_ = true;
+	reach_end_ = false;
 }
 
 bool SciFrame::check_valid() const {
@@ -76,24 +88,214 @@ uint16_t SciFrame::get_index() const {
 
 bool SciFrame::check_crc() {
 	assert(frame_data_ != NULL);
-	uint32_t expected, res;
+	uint32_t expected, result;
 	expected = 0;
 	for (int i = 0; i < 4; i++) {
 		expected <<= 8;
 		expected += static_cast<uint8_t>(frame_data_[2048 + i]);
 	}
+	cout << expected << endl;
 	crc_32_.reset();
 	crc_32_.process_bytes( frame_data_, 2048 );
-	res = crc_32_.checksum();
-	if (res == expected)
+	result = crc_32_.checksum();
+	cout << result << endl;
+	if (result == expected)
 		return true;
 	else
 		return false;
 }
 
-void SciFrame::write_root()
-{
+void SciFrame::write_root() {
 	// todo : split and make correlation
 }
 
+void SciFrame::updated() {
+	reach_end_ = false;
+}
+
+bool SciFrame::next_packet() {
+	if (reach_end_) {
+		return false;
+	} else if (pre_half_packet_len_ > 0) {
+		cout << "** half ** " << pre_half_packet_len_ << endl; //for debug
+		memcpy(cur_packet_buffer_, pre_half_packet_, pre_half_packet_len_);
+		memcpy(cur_packet_buffer_ + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
+			   - pre_half_packet_len_);
+		pre_half_packet_len_ = 0;
+		return true;
+	} else if (cur_is_cross_) {
+		cout << "** frame start ** " << start_packet_pos_ - 22 << endl; //for debug
+		cur_is_cross_ = false;
+		cur_packet_pos_ = start_packet_pos_;
+		cur_packet_len_ = get_cur_packet_len_();
+		memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+		return true;
+	} else {
+		cur_packet_pos_ += cur_packet_len_;
+		cur_packet_len_ = get_cur_packet_len_();
+		if (cur_packet_pos_ + cur_packet_len_ < 2048) {
+			memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+			return true;
+		} else if (cur_packet_pos_ + cur_packet_len_ == 2048) {
+			cout << "** this **" << endl; //for debug
+			reach_end_ = true;
+			cur_is_cross_ = true;
+			pre_half_packet_len_ = 0;			
+			start_packet_pos_ = 22;
+			memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+			return true;
+		} else {
+			cout << "** end **" << endl; //for debug
+			reach_end_ = true;
+			cur_is_cross_ = true;
+			pre_half_packet_len_ = 2048 - cur_packet_pos_;
+			start_packet_pos_ = 22 + cur_packet_len_ - pre_half_packet_len_;
+			memcpy(pre_half_packet_, frame_data_ + cur_packet_pos_, pre_half_packet_len_);
+			return false;
+		}
+	}
+}
+
+bool SciFrame::cur_is_trigger() const {
+	if (cur_packet_buffer_[1] != 0x18)
+		return false;
+	uint16_t tail = 0;
+	for (int i = 0; i < 2; i++) {
+		tail <<= 8;
+		tail += cur_packet_buffer_[48 + i];
+	}
+	if (tail == 0xFFFF)
+		return false;
+	return true;
+}
+
+uint16_t SciFrame::cur_get_mode() const {
+	if (cur_is_trigger())
+		return 0xFFFF;
+	uint16_t modeBit = 0;
+	for (int i = 0; i < 2; i++) {
+		modeBit <<= 8;
+		modeBit += cur_packet_buffer_[6 + i];
+	}
+	modeBit &= 0x180;
+	modeBit >>= 7;
+	return modeBit;
+}
+
+bool SciFrame::cur_check_crc() {
+	uint16_t expected, result;	
+	if (cur_is_trigger()) {
+		expected = 0;
+		for (int i = 0; i < 2; i++) {
+			expected <<= 8;
+			expected += cur_packet_buffer_[48 + i];
+		}
+		cout << hex << expected << dec << endl;
+		crc_ccitt_.reset();
+		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, 44);
+		result = crc_ccitt_.checksum();
+		cout << hex << result << dec << endl;
+		if (result == expected)
+			return true;
+	} else {
+		expected = 0;
+		for (int i = 0; i < 2; i++) {
+			expected <<= 8;
+			expected += cur_packet_buffer_[cur_packet_len_ - 4 + i];
+		}
+		cout << hex << expected << dec << endl;
+		crc_ccitt_.reset();
+		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, cur_packet_len_ - 8);
+		result = crc_ccitt_.checksum();
+		cout << hex << result << dec << endl;
+		if (result == expected)
+			return true;
+	}
+	return false;
+}
+
+uint16_t SciFrame::cur_get_ctNum() const {
+	if (cur_is_trigger()) 
+		return 0xFFFF;
+	uint16_t ctNum = 0;
+	for (int i = 0; i < 2; i++) {
+		ctNum <<= 8;
+		ctNum += cur_packet_buffer_[2 + i];
+	}
+	return ctNum;
+}
+
+bool SciFrame::cur_check_valid() const {
+	uint16_t tmp;
+	if (cur_is_trigger()) {
+		tmp = 0;
+		for (int i = 0; i < 2; i++) {
+			tmp <<= 8;
+			tmp += cur_packet_buffer_[2 + i];
+		}
+		if (!(tmp == 0x00F0 || tmp == 0x00FF))
+			return false;
+	} else {
+		if (cur_get_ctNum() > 25)
+			return false;
+		tmp = 0;
+		for (int i = 0; i < 2; i++) {
+			tmp <<= 8;
+			tmp += cur_packet_buffer_[cur_packet_len_ - 2 + i];
+		}
+		if (tmp != 0xFFFF)
+			return false;
+	}
+	return true;
+}
+
+void SciFrame::process(int* counts) {
+	cout << "==== Frame: " << get_index() << " ==========================" << endl;
+	if (check_valid()) {
+		cout << "This frame is valid." << endl;
+	} else {
+		cout << "This frame is not valid." << endl;
+		cout << "====================" << endl;
+		return;
+	}
+	if (check_crc()) {
+		cout << "frame crc check passed." << endl;
+	} else {
+		cout << "frame CRC Error!" << endl;
+		cout << "====================" << endl;
+		return;
+	}
+	cout << "++++++++++++++++++++" << endl;
+	int pkt_cnt = 0;
+	while(next_packet()) {
+		pkt_cnt++;
+		cout << "packet count: " << pkt_cnt << endl;
+		cout << "packet type: ";
+		if (cur_is_trigger()) {
+			cout << "trigger" << endl;
+			counts[0]++;
+		} else {
+			cout << "event" << endl;
+			counts[1]++;
+		}
+		if (!cur_is_trigger()) {
+			cout << "CT Number: " << cur_get_ctNum() << endl;
+			cout << "Mode: " << cur_get_mode() << endl;
+		}
+		cout << "headBit: " << hex << (int)cur_packet_buffer_[0] << (int)cur_packet_buffer_[1] << dec << endl;
+		if (cur_check_valid())
+			cout << "packet is valid" << endl;
+		else
+			cout << "packet is invalid" << endl;
+		if (cur_check_crc()) {
+			cout << "packet crc passed" << endl;
+			counts[2]++;
+		} else {
+			cout << "packet crc error!" << endl;
+			counts[3]++;
+		}
+		cout << "----" << endl;
+	}
+	cout << "++++++++++++++++++++" << endl;
+}
 
