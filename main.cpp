@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 
 	char buffer[2052];
 	SciFrame frame(buffer);
-	for(int i = 0; true; i++) {
+	for(int i = 0; i < 7; i++) {
 		infile.read(buffer, 2052);
 		if (infile.eof())
 			break;

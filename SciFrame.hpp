@@ -15,12 +15,12 @@ private:
 	const char* frame_data_;	
  	crc_optimal<32, 0x04C11DB7> crc_32_;
 	crc_optimal<16, 0x1021, 0xFFFF>  crc_ccitt_;
-	uint8_t* pre_half_packet_;	
+	char* pre_half_packet_;	
 	uint16_t pre_half_packet_len_;
 	uint16_t start_packet_pos_;
 	uint16_t cur_packet_pos_;
 	uint16_t cur_packet_len_;
-	uint8_t* cur_packet_buffer_;
+	const char* cur_packet_buffer_;
 	bool cur_is_cross_;
 	bool reach_end_;
 	

@@ -6,9 +6,9 @@ using boost::crc_optimal;
 
 SciFrame::SciFrame() {
 	frame_data_ = NULL;
-	pre_half_packet_ = new uint8_t[200];
+	pre_half_packet_ = new char[200];
 	pre_half_packet_len_ = 0;
-	cur_packet_buffer_ = new uint8_t[200];
+	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
 	reach_end_ = false;
@@ -16,9 +16,9 @@ SciFrame::SciFrame() {
 
 SciFrame::SciFrame(const char* data) {
 	frame_data_ = data;
-	pre_half_packet_ = new uint8_t[200];
+	pre_half_packet_ = new char[200];
 	pre_half_packet_len_ = 0;
-	cur_packet_buffer_ = new uint8_t[200];
+	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
 	reach_end_ = false;
@@ -26,7 +26,6 @@ SciFrame::SciFrame(const char* data) {
 
 SciFrame::~SciFrame() {
 	delete [] pre_half_packet_;
-	delete [] cur_packet_buffer_;
 }
 
 void SciFrame::setdata(const char* data) {
@@ -36,6 +35,7 @@ void SciFrame::setdata(const char* data) {
 void SciFrame::reset() {
 	frame_data_ = NULL;
 	pre_half_packet_len_ = 0;
+	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
 	reach_end_ = false;
@@ -118,23 +118,23 @@ bool SciFrame::next_packet() {
 		return false;
 	} else if (pre_half_packet_len_ > 0) {
 		cout << "** half ** " << pre_half_packet_len_ << endl; //for debug
-		memcpy(cur_packet_buffer_, pre_half_packet_, pre_half_packet_len_);
-		memcpy(cur_packet_buffer_ + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
+		memcpy(pre_half_packet_ + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
 			   - pre_half_packet_len_);
+		cur_packet_buffer_ = pre_half_packet_;		
 		pre_half_packet_len_ = 0;
 		return true;
 	} else if (cur_is_cross_) {
 		cout << "** frame start ** " << start_packet_pos_ - 22 << endl; //for debug
 		cur_is_cross_ = false;
 		cur_packet_pos_ = start_packet_pos_;
-		cur_packet_len_ = get_cur_packet_len_();
-		memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+		cur_packet_len_ = get_cur_packet_len_();		
+		cur_packet_buffer_ = frame_data_ + cur_packet_pos_;
 		return true;
 	} else {
 		cur_packet_pos_ += cur_packet_len_;
 		cur_packet_len_ = get_cur_packet_len_();
 		if (cur_packet_pos_ + cur_packet_len_ < 2048) {
-			memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+			cur_packet_buffer_ = frame_data_ + cur_packet_pos_;
 			return true;
 		} else if (cur_packet_pos_ + cur_packet_len_ == 2048) {
 			cout << "** this **" << endl; //for debug
@@ -142,7 +142,7 @@ bool SciFrame::next_packet() {
 			cur_is_cross_ = true;
 			pre_half_packet_len_ = 0;			
 			start_packet_pos_ = 22;
-			memcpy(cur_packet_buffer_, frame_data_ + cur_packet_pos_, cur_packet_len_);
+			cur_packet_buffer_ = frame_data_ + cur_packet_pos_;			
 			return true;
 		} else {
 			cout << "** end **" << endl; //for debug
@@ -157,12 +157,13 @@ bool SciFrame::next_packet() {
 }
 
 bool SciFrame::cur_is_trigger() const {
+	assert(cur_packet_buffer_ != NULL);
 	if (cur_packet_buffer_[1] != 0x18)
 		return false;
 	uint16_t tail = 0;
 	for (int i = 0; i < 2; i++) {
 		tail <<= 8;
-		tail += cur_packet_buffer_[48 + i];
+		tail += static_cast<uint8_t>(cur_packet_buffer_[48 + i]);
 	}
 	if (tail == 0xFFFF)
 		return false;
@@ -170,12 +171,13 @@ bool SciFrame::cur_is_trigger() const {
 }
 
 uint16_t SciFrame::cur_get_mode() const {
+	assert(cur_packet_buffer_ != NULL);
 	if (cur_is_trigger())
 		return 0xFFFF;
 	uint16_t modeBit = 0;
 	for (int i = 0; i < 2; i++) {
 		modeBit <<= 8;
-		modeBit += cur_packet_buffer_[6 + i];
+		modeBit += static_cast<uint8_t>(cur_packet_buffer_[6 + i]);
 	}
 	modeBit &= 0x180;
 	modeBit >>= 7;
@@ -183,12 +185,13 @@ uint16_t SciFrame::cur_get_mode() const {
 }
 
 bool SciFrame::cur_check_crc() {
+	assert(cur_packet_buffer_ != NULL);
 	uint16_t expected, result;	
 	if (cur_is_trigger()) {
 		expected = 0;
 		for (int i = 0; i < 2; i++) {
 			expected <<= 8;
-			expected += cur_packet_buffer_[48 + i];
+			expected += static_cast<uint8_t>(cur_packet_buffer_[48 + i]);
 		}
 		cout << hex << expected << dec << endl;
 		crc_ccitt_.reset();
@@ -201,7 +204,7 @@ bool SciFrame::cur_check_crc() {
 		expected = 0;
 		for (int i = 0; i < 2; i++) {
 			expected <<= 8;
-			expected += cur_packet_buffer_[cur_packet_len_ - 4 + i];
+			expected += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 4 + i]);
 		}
 		cout << hex << expected << dec << endl;
 		crc_ccitt_.reset();
@@ -215,23 +218,25 @@ bool SciFrame::cur_check_crc() {
 }
 
 uint16_t SciFrame::cur_get_ctNum() const {
+	assert(cur_packet_buffer_ != NULL);
 	if (cur_is_trigger()) 
 		return 0xFFFF;
 	uint16_t ctNum = 0;
 	for (int i = 0; i < 2; i++) {
 		ctNum <<= 8;
-		ctNum += cur_packet_buffer_[2 + i];
+		ctNum += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
 	}
 	return ctNum;
 }
 
 bool SciFrame::cur_check_valid() const {
+	assert(cur_packet_buffer_ != NULL);
 	uint16_t tmp;
 	if (cur_is_trigger()) {
 		tmp = 0;
 		for (int i = 0; i < 2; i++) {
 			tmp <<= 8;
-			tmp += cur_packet_buffer_[2 + i];
+			tmp += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
 		}
 		if (!(tmp == 0x00F0 || tmp == 0x00FF))
 			return false;
@@ -241,7 +246,7 @@ bool SciFrame::cur_check_valid() const {
 		tmp = 0;
 		for (int i = 0; i < 2; i++) {
 			tmp <<= 8;
-			tmp += cur_packet_buffer_[cur_packet_len_ - 2 + i];
+			tmp += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 2 + i]);
 		}
 		if (tmp != 0xFFFF)
 			return false;
