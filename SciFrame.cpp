@@ -293,6 +293,14 @@ bool SciFrame::find_start_pos() {
 	return false;
 }
 
+const char* SciFrame::get_cur_pkt_buf() {
+	return cur_packet_buffer_;
+}
+
+size_t SciFrame::get_cur_pkt_len() {
+	return static_cast<size_t>(cur_packet_len_);
+}
+
 void SciFrame::process(int* counts) {
 	cout << "==== Frame: " << get_index() << " ==========================" << endl;
 	if (check_valid()) {

@@ -51,6 +51,8 @@ public:
 	bool cur_check_valid() const;
 	void process(int* counts);
 	bool find_start_pos();
+	const char* get_cur_pkt_buf();
+	size_t get_cur_pkt_len();
 };
 
 #endif
