@@ -23,7 +23,15 @@ int main(int argc, char** argv) {
 
 	char buffer[BUFFERSIZE];
 	SciFrame frame(buffer);
-	while(!infile.eof()) {
+	infile.read(buffer, 2052);
+	if (frame.find_start_pos()) {
+		frame.process(counts);
+		frame_cnt++;
+	} else {
+		cout << "This file may be not a SCI data file." << endl;
+		exit(1);
+	}
+	while (!infile.eof()) {
 		infile.read(buffer, BUFFERSIZE);
 		int bf_frame_cnt = infile.gcount() / 2052;
 		if (bf_frame_cnt < 1)

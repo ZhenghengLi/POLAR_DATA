@@ -158,6 +158,8 @@ bool SciFrame::next_packet() {
 
 bool SciFrame::cur_is_trigger() const {
 	assert(cur_packet_buffer_ != NULL);
+	if (cur_packet_buffer_[1] != 0x18)
+		return false;
 	uint16_t second = 0;
 	for (int i = 0; i < 2; i++) {
 		second <<= 8;
@@ -241,9 +243,15 @@ bool SciFrame::cur_check_valid() const {
 			cout << "flag789: " << hex << tmp << dec << endl; //for debug
 			return false;
 		}
+		return true;
 	} else {
 		if (cur_get_ctNum() > 25) {
 			cout << "flag123" << endl; //for debug
+			cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
+			for (int i = 0; i < cur_packet_len_; i++)
+				cout << hex << uppercase << setfill('0') << setw(2)
+					 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
+			cout << dec << endl;
 			return false;
 		}
 		tmp = 0;
@@ -253,10 +261,36 @@ bool SciFrame::cur_check_valid() const {
 		}
 		if (tmp != 0xFFFF) {
 			cout << "flag456" << endl; //for debug
+			cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
+			for (int i = 0; i < cur_packet_len_; i++)
+				cout << hex << uppercase << setfill('0') << setw(2)
+					 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
+			cout << dec << endl;
 			return false;
 		}
+		return true;
 	}
-	return true;
+}
+
+bool SciFrame::find_start_pos() {
+	assert(frame_data_ != NULL);
+	start_packet_pos_ = 21;
+	for (int i = 0; i < 200; i++) {
+		start_packet_pos_ += 1;
+		cout << "*-----*" << endl;
+		cout << start_packet_pos_ - 22 << endl;
+		cur_packet_pos_ = start_packet_pos_;
+		cur_packet_len_ = get_cur_packet_len_();
+		cur_packet_buffer_ = frame_data_ + cur_packet_pos_;		
+		if (cur_check_valid() && cur_check_crc()) {
+			pre_half_packet_len_ = 0;
+			cur_is_cross_ = true;
+			reach_end_ = false;
+			cout << "####################################################################" << endl;
+			return true;
+		}
+	}
+	return false;
 }
 
 void SciFrame::process(int* counts) {
@@ -277,6 +311,7 @@ void SciFrame::process(int* counts) {
 	}
 	cout << "++++++++++++++++++++" << endl;
 	int pkt_cnt = 0;
+	uint16_t headBit = 0;
 	while(next_packet()) {
 		pkt_cnt++;
 		cout << "packet count: " << pkt_cnt << endl;
@@ -292,12 +327,17 @@ void SciFrame::process(int* counts) {
 			cout << "CT Number: " << cur_get_ctNum() << endl;
 			cout << "Mode: " << cur_get_mode() << endl;
 		}
-		cout << "headBit: " << hex << (int)cur_packet_buffer_[0] << (int)cur_packet_buffer_[1] << dec << endl;
+		headBit = 0;
+		for (int i = 0; i < 2; i++) {
+			headBit <<= 8;
+			headBit += static_cast<uint8_t>(cur_packet_buffer_[0 + i]);
+		}
+		cout << "headBit: " << hex << uppercase << setfill('0') << setw(4) << headBit << dec << endl;
 		if (cur_check_valid()) {
 			cout << "packet is valid" << endl;
 			counts[2]++;
 		} else {
-			cout << "packet is invalid" << endl;
+			cout << "packet is invalid!" << endl;
 			counts[3]++;
 		}
 		if (cur_check_crc()) {

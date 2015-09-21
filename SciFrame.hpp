@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstddef>
 #include <cassert>
+#include <iomanip>
 #include <stdint.h>
 #include <boost/crc.hpp>
 
@@ -49,6 +50,7 @@ public:
 	bool cur_check_crc();
 	bool cur_check_valid() const;
 	void process(int* counts);
+	bool find_start_pos();
 };
 
 #endif
