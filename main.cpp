@@ -2,6 +2,8 @@
 #include <fstream>
 #include "SciFrame.hpp"
 
+#define BUFFERSIZE (2052 * 1)
+
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -17,24 +19,30 @@ int main(int argc, char** argv) {
 	}
 
 	int frame_cnt = 0;
-	int counts[] = {0, 0, 0, 0};
+	int counts[] = {0, 0, 0, 0, 0, 0};
 
-	char buffer[2052];
+	char buffer[BUFFERSIZE];
 	SciFrame frame(buffer);
-	for(int i = 0; i < 7; i++) {
-		infile.read(buffer, 2052);
-		if (infile.eof())
+	while(!infile.eof()) {
+		infile.read(buffer, BUFFERSIZE);
+		int bf_frame_cnt = infile.gcount() / 2052;
+		if (bf_frame_cnt < 1)
 			break;
-		frame.updated();
-		frame.process(counts);
-		frame_cnt++;
+		for (int i = 0; i < bf_frame_cnt; i++) {
+			frame.setdata(buffer + 2052 * i);
+			frame.updated();
+			frame.process(counts);
+			frame_cnt++;
+		}
 	}
 	infile.close();
 	cout << "***************************" << endl;
 	cout << "frame count: " << frame_cnt << endl;
 	cout << "trigger count: " << counts[0] << endl;
 	cout << "event count: " << counts[1] << endl;
-	cout << "packet crc pass count: " << counts[2] << endl;
-	cout << "packet crc err count: " << counts[3] << endl;
+	cout << "packet valid count: " << counts[2] << endl;
+	cout << "packet invalid count: " << counts[3] << endl;
+	cout << "packet crc pass count: " << counts[4] << endl;
+	cout << "packet crc err count: " << counts[5] << endl;
 	return 0;
 }

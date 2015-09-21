@@ -94,11 +94,11 @@ bool SciFrame::check_crc() {
 		expected <<= 8;
 		expected += static_cast<uint8_t>(frame_data_[2048 + i]);
 	}
-	cout << expected << endl;
+	cout << expected << endl; //for debug
 	crc_32_.reset();
 	crc_32_.process_bytes( frame_data_, 2048 );
 	result = crc_32_.checksum();
-	cout << result << endl;
+	cout << result << endl; //for debug
 	if (result == expected)
 		return true;
 	else
@@ -158,22 +158,21 @@ bool SciFrame::next_packet() {
 
 bool SciFrame::cur_is_trigger() const {
 	assert(cur_packet_buffer_ != NULL);
-	if (cur_packet_buffer_[1] != 0x18)
-		return false;
-	uint16_t tail = 0;
+	uint16_t second = 0;
 	for (int i = 0; i < 2; i++) {
-		tail <<= 8;
-		tail += static_cast<uint8_t>(cur_packet_buffer_[48 + i]);
+		second <<= 8;
+		second += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
 	}
-	if (tail == 0xFFFF)
+	if (second > 25)
+		return true;
+	else
 		return false;
-	return true;
 }
 
 uint16_t SciFrame::cur_get_mode() const {
 	assert(cur_packet_buffer_ != NULL);
 	if (cur_is_trigger())
-		return 0xFFFF;
+		return 0x0F00;
 	uint16_t modeBit = 0;
 	for (int i = 0; i < 2; i++) {
 		modeBit <<= 8;
@@ -193,11 +192,11 @@ bool SciFrame::cur_check_crc() {
 			expected <<= 8;
 			expected += static_cast<uint8_t>(cur_packet_buffer_[48 + i]);
 		}
-		cout << hex << expected << dec << endl;
+		cout << hex << expected << dec << endl; //for debug
 		crc_ccitt_.reset();
 		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, 44);
 		result = crc_ccitt_.checksum();
-		cout << hex << result << dec << endl;
+		cout << hex << result << dec << endl; //for debug
 		if (result == expected)
 			return true;
 	} else {
@@ -206,11 +205,11 @@ bool SciFrame::cur_check_crc() {
 			expected <<= 8;
 			expected += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 4 + i]);
 		}
-		cout << hex << expected << dec << endl;
+		cout << hex << expected << dec << endl; //for debug
 		crc_ccitt_.reset();
 		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, cur_packet_len_ - 8);
 		result = crc_ccitt_.checksum();
-		cout << hex << result << dec << endl;
+		cout << hex << result << dec << endl;  //for debug
 		if (result == expected)
 			return true;
 	}
@@ -220,7 +219,7 @@ bool SciFrame::cur_check_crc() {
 uint16_t SciFrame::cur_get_ctNum() const {
 	assert(cur_packet_buffer_ != NULL);
 	if (cur_is_trigger()) 
-		return 0xFFFF;
+		return 0xFF00;
 	uint16_t ctNum = 0;
 	for (int i = 0; i < 2; i++) {
 		ctNum <<= 8;
@@ -238,18 +237,24 @@ bool SciFrame::cur_check_valid() const {
 			tmp <<= 8;
 			tmp += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
 		}
-		if (!(tmp == 0x00F0 || tmp == 0x00FF))
+		if (!(tmp == 0x00F0 || tmp == 0x00FF || tmp == 0xFF00 || tmp == 0xF000)) {
+			cout << "flag789: " << hex << tmp << dec << endl; //for debug
 			return false;
+		}
 	} else {
-		if (cur_get_ctNum() > 25)
+		if (cur_get_ctNum() > 25) {
+			cout << "flag123" << endl; //for debug
 			return false;
+		}
 		tmp = 0;
 		for (int i = 0; i < 2; i++) {
 			tmp <<= 8;
 			tmp += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 2 + i]);
 		}
-		if (tmp != 0xFFFF)
+		if (tmp != 0xFFFF) {
+			cout << "flag456" << endl; //for debug
 			return false;
+		}
 	}
 	return true;
 }
@@ -288,16 +293,19 @@ void SciFrame::process(int* counts) {
 			cout << "Mode: " << cur_get_mode() << endl;
 		}
 		cout << "headBit: " << hex << (int)cur_packet_buffer_[0] << (int)cur_packet_buffer_[1] << dec << endl;
-		if (cur_check_valid())
+		if (cur_check_valid()) {
 			cout << "packet is valid" << endl;
-		else
-			cout << "packet is invalid" << endl;
-		if (cur_check_crc()) {
-			cout << "packet crc passed" << endl;
 			counts[2]++;
 		} else {
-			cout << "packet crc error!" << endl;
+			cout << "packet is invalid" << endl;
 			counts[3]++;
+		}
+		if (cur_check_crc()) {
+			cout << "packet crc passed" << endl;
+			counts[4]++;
+		} else {
+			cout << "packet crc error!" << endl;
+			counts[5]++;
 		}
 		cout << "----" << endl;
 	}
