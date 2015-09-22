@@ -158,8 +158,6 @@ bool SciFrame::next_packet() {
 
 bool SciFrame::cur_is_trigger() const {
 	assert(cur_packet_buffer_ != NULL);
-	if (cur_packet_buffer_[1] != 0x18)
-		return false;
 	uint16_t second = 0;
 	for (int i = 0; i < 2; i++) {
 		second <<= 8;
@@ -192,11 +190,11 @@ bool SciFrame::cur_check_crc() {
 		expected = 0;
 		for (int i = 0; i < 2; i++) {
 			expected <<= 8;
-			expected += static_cast<uint8_t>(cur_packet_buffer_[48 + i]);
+			expected += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 2 + i]);
 		}
 		cout << hex << expected << dec << endl; //for debug
 		crc_ccitt_.reset();
-		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, 44);
+		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, cur_packet_len_ - 6);
 		result = crc_ccitt_.checksum();
 		cout << hex << result << dec << endl; //for debug
 		if (result == expected)
