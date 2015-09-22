@@ -226,6 +226,8 @@ uint16_t SciFrame::cur_get_ctNum() const {
 bool SciFrame::cur_check_valid() const {
 	assert(cur_packet_buffer_ != NULL);
 	uint16_t tmp;
+	if (cur_packet_len_ < 28)
+		return false;
 	if (cur_is_trigger()) {
 		tmp = 0;
 		for (int i = 0; i < 2; i++) {
@@ -359,7 +361,7 @@ void SciFrame::process(int* counts) {
 			cout << "packet crc error!" << endl;
 			counts[5]++;
 		}
-		if (cur_packet_len_ < 10) {
+		if (cur_packet_len_ < 28) {
 			counts[6]++;
 		}
 		cout << "----" << endl;
