@@ -353,6 +353,9 @@ void SciFrame::process(int* counts) {
 			cout << "packet crc error!" << endl;
 			counts[5]++;
 		}
+		if (cur_packet_len_ < 10) {
+			counts[6]++;
+		}
 		cout << "----" << endl;
 	}
 	cout << "++++++++++++++++++++" << endl;

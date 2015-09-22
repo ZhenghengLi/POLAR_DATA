@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 	}
 	
 	int frame_cnt = 0;
-	int counts[] = {0, 0, 0, 0, 0, 0};
+	int counts[] = {0, 0, 0, 0, 0, 0, 0};
 	
 	ifstream infile;
 	char buffer[BUFFERSIZE];
@@ -79,5 +79,6 @@ int main(int argc, char** argv) {
 	cout << "packet invalid count: " << counts[3] << endl;
 	cout << "packet crc pass count: " << counts[4] << endl;
 	cout << "packet crc err count: " << counts[5] << endl;
+	cout << "small length count: " << counts[6] << endl;
 	return 0;
 }
