@@ -55,6 +55,7 @@ public:
 	const char* get_cur_pkt_buf();
 	size_t get_cur_pkt_len();
 	bool can_connect();
+	void print_packet();
 };
 
 #endif

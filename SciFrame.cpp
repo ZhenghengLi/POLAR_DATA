@@ -307,65 +307,54 @@ bool SciFrame::can_connect() {
 	}
 }
 
+void SciFrame::print_packet() {
+	cout << "^^^^^^^^^^" << endl;
+	cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
+	for (int i = 0; i < cur_packet_len_; i++)
+		cout << hex << uppercase << setfill('0') << setw(2)
+			 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
+	cout << dec << endl;
+	cout << ".........." << endl;
+}
+
 void SciFrame::process(int* counts) {
-	cout << "==== Frame: " << get_index() << " ==========================" << endl;
 	if (check_valid()) {
-		cout << "This frame is valid." << endl;
 	} else {
 		cout << "This frame is not valid." << endl;
-		cout << "====================" << endl;
 		return;
 	}
 	if (check_crc()) {
-		cout << "frame crc check passed." << endl;
 	} else {
 		cout << "frame CRC Error!" << endl;
-		cout << "====================" << endl;
 		return;
 	}
-	cout << "++++++++++++++++++++" << endl;
 	int pkt_cnt = 0;
-	uint16_t headBit = 0;
 	while(next_packet()) {
 		pkt_cnt++;
-		cout << "packet count: " << pkt_cnt << endl;
-		cout << "packet type: ";
 		if (cur_is_trigger()) {
-			cout << "trigger" << endl;
 			counts[0]++;
 		} else {
-			cout << "event" << endl;
 			counts[1]++;
 		}
-		if (!cur_is_trigger()) {
-			cout << "CT Number: " << cur_get_ctNum() << endl;
-			cout << "Mode: " << cur_get_mode() << endl;
-		}
-		headBit = 0;
-		for (int i = 0; i < 2; i++) {
-			headBit <<= 8;
-			headBit += static_cast<uint8_t>(cur_packet_buffer_[0 + i]);
-		}
-		cout << "headBit: " << hex << uppercase << setfill('0') << setw(4) << headBit << dec << endl;
 		if (cur_check_valid()) {
-			cout << "packet is valid" << endl;
 			counts[2]++;
 		} else {
-			cout << "packet is invalid!" << endl;
+			cout << endl;
+			cout << "packet invalid" << endl;
+			print_packet();
 			counts[3]++;
 		}
 		if (cur_check_crc()) {
-			cout << "packet crc passed" << endl;
 			counts[4]++;
 		} else {
-			cout << "packet crc error!" << endl;
+			cout << endl;
+			cout << "packet crc error" << endl;
+			print_packet();
 			counts[5]++;
 		}
 		if (cur_packet_len_ < 28) {
 			counts[6]++;
 		}
-		cout << "----" << endl;
 	}
-	cout << "++++++++++++++++++++" << endl;
 }
 
