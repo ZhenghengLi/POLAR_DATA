@@ -4,6 +4,8 @@
 #include "SciFrame.hpp"
 #include "FileList.hpp"
 
+#define BUFFERSIZE (2052 * 1)
+
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -22,7 +24,7 @@ int main(int argc, char** argv) {
 	int counts[] = {0, 0, 0, 0, 0, 0, 0};
 	
 	ifstream infile;
-	char buffer[2052];
+	char buffer[BUFFERSIZE];
 
 	// process the first file
 	filelist.next();
@@ -37,19 +39,16 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	while (!infile.eof()) {
-		infile.read(buffer, 2052);
-		if (infile.gcount() < 2052)
+		infile.read(buffer, BUFFERSIZE);
+		int bf_frame_cnt = infile.gcount() / 2052;
+		if (bf_frame_cnt < 1)
 			break;
-		frame.updated();
-		if (!frame.can_connect()) {
-			cout << "frame connection error" << endl;
-			if (!frame.find_start_pos()) {
-				cout << " find_start_pos error" << endl;
-				break;
-			}
+		for (int i = 0; i < bf_frame_cnt; i++) {
+			frame.setdata(buffer + 2052 * i);
+			frame.updated();
+			frame.process(counts);
+			frame_cnt++;
 		}
-		frame.process(counts);
-		frame_cnt++;
 	}
 	infile.close();
 
@@ -58,19 +57,16 @@ int main(int argc, char** argv) {
 		cout << "new_file_start_flag" << endl;
 		infile.open(filelist.cur_file(), ios::in|ios::binary);
 		while (!infile.eof()) {
-			infile.read(buffer, 2052);
-			if (infile.gcount() < 2052)
+			infile.read(buffer, BUFFERSIZE);
+			int bf_frame_cnt = infile.gcount() / 2052;
+			if (bf_frame_cnt < 1)
 				break;
-			frame.updated();
-			if (!frame.can_connect()) {
-				cout << "frame connection error" << endl;
-				if (!frame.find_start_pos()) {
-					cout << " find_start_pos error" << endl;
-					break;
-				}
+			for (int i = 0; i < bf_frame_cnt; i++) {
+				frame.setdata(buffer + 2052 * i);
+				frame.updated();
+				frame.process(counts);
+				frame_cnt++;
 			}
-			frame.process(counts);
-			frame_cnt++;
 		}
 		infile.close();
 	}

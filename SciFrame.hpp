@@ -18,6 +18,7 @@ private:
 	crc_optimal<16, 0x1021, 0xFFFF>  crc_ccitt_;
 	char* pre_half_packet_;	
 	uint16_t pre_half_packet_len_;
+	uint16_t pre_frame_index_;
 	uint16_t start_packet_pos_;
 	uint16_t cur_packet_pos_;
 	uint16_t cur_packet_len_;
@@ -53,6 +54,7 @@ public:
 	bool find_start_pos();
 	const char* get_cur_pkt_buf();
 	size_t get_cur_pkt_len();
+	bool can_connect();
 };
 
 #endif

@@ -8,6 +8,7 @@ SciFrame::SciFrame() {
 	frame_data_ = NULL;
 	pre_half_packet_ = new char[200];
 	pre_half_packet_len_ = 0;
+	pre_frame_index_ = 0;
 	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
@@ -18,6 +19,7 @@ SciFrame::SciFrame(const char* data) {
 	frame_data_ = data;
 	pre_half_packet_ = new char[200];
 	pre_half_packet_len_ = 0;
+	pre_frame_index_ = 0;
 	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
@@ -35,6 +37,7 @@ void SciFrame::setdata(const char* data) {
 void SciFrame::reset() {
 	frame_data_ = NULL;
 	pre_half_packet_len_ = 0;
+	pre_frame_index_ = 0;
 	cur_packet_buffer_ = NULL;
 	start_packet_pos_ = 22;
 	cur_is_cross_ = true;
@@ -94,11 +97,9 @@ bool SciFrame::check_crc() {
 		expected <<= 8;
 		expected += static_cast<uint8_t>(frame_data_[2048 + i]);
 	}
-	cout << expected << endl; //for debug
 	crc_32_.reset();
 	crc_32_.process_bytes( frame_data_, 2048 );
 	result = crc_32_.checksum();
-	cout << result << endl; //for debug
 	if (result == expected)
 		return true;
 	else
@@ -114,18 +115,18 @@ void SciFrame::updated() {
 }
 
 bool SciFrame::next_packet() {
+	assert(frame_data_ != NULL);
 	if (reach_end_) {
 		return false;
 	} else if (pre_half_packet_len_ > 0) {
-		cout << "** half ** " << pre_half_packet_len_ << endl; //for debug
 		memcpy(pre_half_packet_ + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
 			   - pre_half_packet_len_);
 		cur_packet_buffer_ = pre_half_packet_;		
 		pre_half_packet_len_ = 0;
 		return true;
 	} else if (cur_is_cross_) {
-		cout << "** frame start ** " << start_packet_pos_ - 22 << endl; //for debug
 		cur_is_cross_ = false;
+		pre_frame_index_ = get_index();
 		cur_packet_pos_ = start_packet_pos_;
 		cur_packet_len_ = get_cur_packet_len_();		
 		cur_packet_buffer_ = frame_data_ + cur_packet_pos_;
@@ -137,7 +138,6 @@ bool SciFrame::next_packet() {
 			cur_packet_buffer_ = frame_data_ + cur_packet_pos_;
 			return true;
 		} else if (cur_packet_pos_ + cur_packet_len_ == 2048) {
-			cout << "** this **" << endl; //for debug
 			reach_end_ = true;
 			cur_is_cross_ = true;
 			pre_half_packet_len_ = 0;			
@@ -145,7 +145,6 @@ bool SciFrame::next_packet() {
 			cur_packet_buffer_ = frame_data_ + cur_packet_pos_;			
 			return true;
 		} else {
-			cout << "** end **" << endl; //for debug
 			reach_end_ = true;
 			cur_is_cross_ = true;
 			pre_half_packet_len_ = 2048 - cur_packet_pos_;
@@ -192,11 +191,9 @@ bool SciFrame::cur_check_crc() {
 			expected <<= 8;
 			expected += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 2 + i]);
 		}
-		cout << hex << expected << dec << endl; //for debug
 		crc_ccitt_.reset();
 		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, cur_packet_len_ - 6);
 		result = crc_ccitt_.checksum();
-		cout << hex << result << dec << endl; //for debug
 		if (result == expected)
 			return true;
 	} else {
@@ -205,11 +202,9 @@ bool SciFrame::cur_check_crc() {
 			expected <<= 8;
 			expected += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 4 + i]);
 		}
-		cout << hex << expected << dec << endl; //for debug
 		crc_ccitt_.reset();
 		crc_ccitt_.process_bytes(cur_packet_buffer_ + 4, cur_packet_len_ - 8);
 		result = crc_ccitt_.checksum();
-		cout << hex << result << dec << endl;  //for debug
 		if (result == expected)
 			return true;
 	}
@@ -238,18 +233,11 @@ bool SciFrame::cur_check_valid() const {
 			tmp += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
 		}
 		if (!(tmp == 0x00F0 || tmp == 0x00FF || tmp == 0xFF00 || tmp == 0xF000)) {
-			cout << "flag789: " << hex << tmp << dec << endl; //for debug
 			return false;
 		}
 		return true;
 	} else {
 		if (cur_get_ctNum() > 25) {
-			cout << "flag123" << endl; //for debug
-			cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
-			for (int i = 0; i < cur_packet_len_; i++)
-				cout << hex << uppercase << setfill('0') << setw(2)
-					 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
-			cout << dec << endl;
 			return false;
 		}
 		tmp = 0;
@@ -258,12 +246,6 @@ bool SciFrame::cur_check_valid() const {
 			tmp += static_cast<uint8_t>(cur_packet_buffer_[cur_packet_len_ - 2 + i]);
 		}
 		if (tmp != 0xFFFF) {
-			cout << "flag456" << endl; //for debug
-			cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
-			for (int i = 0; i < cur_packet_len_; i++)
-				cout << hex << uppercase << setfill('0') << setw(2)
-					 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
-			cout << dec << endl;
 			return false;
 		}
 		return true;
@@ -275,8 +257,6 @@ bool SciFrame::find_start_pos() {
 	start_packet_pos_ = 21;
 	for (int i = 0; i < 200; i++) {
 		start_packet_pos_ += 1;
-		cout << "*-----*" << endl;
-		cout << start_packet_pos_ - 22 << endl;
 		cur_packet_pos_ = start_packet_pos_;
 		cur_packet_len_ = get_cur_packet_len_();
 		cur_packet_buffer_ = frame_data_ + cur_packet_pos_;		
@@ -284,7 +264,6 @@ bool SciFrame::find_start_pos() {
 			pre_half_packet_len_ = 0;
 			cur_is_cross_ = true;
 			reach_end_ = false;
-			cout << "####################################################################" << endl;
 			return true;
 		}
 	}
@@ -297,6 +276,33 @@ const char* SciFrame::get_cur_pkt_buf() {
 
 size_t SciFrame::get_cur_pkt_len() {
 	return static_cast<size_t>(cur_packet_len_);
+}
+
+bool SciFrame::can_connect() {
+	assert(frame_data_ != NULL);
+	uint16_t cur_frm_index = get_index();
+	assert(cur_is_cross_);
+	if (pre_half_packet_len_ == 0) {
+		if (cur_frm_index == pre_frame_index_ + 1
+			|| ((pre_frame_index_ == 16383) && (cur_frm_index == 0)))
+			return true;
+		else
+			return false;
+	} else {
+		char tmp_packet[200];
+		const char* tmp_pointer = cur_packet_buffer_;
+		memcpy(tmp_packet, pre_half_packet_, pre_half_packet_len_);
+		memcpy(tmp_packet + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
+			   - pre_half_packet_len_);
+		cur_packet_buffer_ = tmp_packet;
+		if (cur_check_valid() && cur_check_crc()) {
+			cur_packet_buffer_ = tmp_pointer;
+			return true;
+		} else {
+			cur_packet_buffer_ = tmp_pointer;
+			return false;
+		}
+	}
 }
 
 void SciFrame::process(int* counts) {
