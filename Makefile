@@ -1,8 +1,6 @@
 
-className = SciFrame
-
-main: main.cpp $(className).cpp $(className).hpp
-	g++ -Wall -O2 main.cpp $(className).cpp -o main
+main: main.cpp SciFrame.cpp SciFrame.hpp FileList.cpp FileList.hpp
+	g++ -Wall -O2 main.cpp SciFrame.cpp FileList.cpp -o main
 
 clean:
 	rm *.o

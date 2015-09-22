@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 #include "SciFrame.hpp"
+#include "FileList.hpp"
 
 #define BUFFERSIZE (2052 * 1)
 
@@ -8,20 +10,26 @@ using namespace std;
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
-		cout << "USAGE: " << argv[0] << " " << "<sci-file-name>" << endl;
+		cout << "USAGE: " << argv[0] << " " << "<list-file-name>" << endl;
 		return 0;
 	}
 
-	ifstream infile(argv[1], ios::in|ios::binary);
-	if (!infile) {
-		cout << "Can not open file!" << endl;
+	FileList filelist;
+	if (!filelist.initialize(argv[1])) {
+		cout << "filelist initialization failed!" << endl;
 		exit(1);
 	}
-
+	
 	int frame_cnt = 0;
 	int counts[] = {0, 0, 0, 0, 0, 0};
-
+	
+	ifstream infile;
 	char buffer[BUFFERSIZE];
+
+	// process the first file.
+	filelist.next();
+	infile.open(filelist.cur_file(), ios::in);
+	infile.read(buffer, 2052);
 	SciFrame frame(buffer);
 	infile.read(buffer, 2052);
 	if (frame.find_start_pos()) {
@@ -44,6 +52,26 @@ int main(int argc, char** argv) {
 		}
 	}
 	infile.close();
+
+	// if there are other files
+	while (filelist.next()) {
+		cout << "new_file_start_flag" << endl;
+		infile.open(filelist.cur_file(), ios::in);
+		while (!infile.eof()) {
+			infile.read(buffer, BUFFERSIZE);
+			int bf_frame_cnt = infile.gcount() / 2052;
+			if (bf_frame_cnt < 1)
+				break;
+			for (int i = 0; i < bf_frame_cnt; i++) {
+				frame.setdata(buffer + 2052 * i);
+				frame.updated();
+				frame.process(counts);
+				frame_cnt++;
+			}
+		}
+		infile.close();
+	}
+	
 	cout << "***************************" << endl;
 	cout << "frame count: " << frame_cnt << endl;
 	cout << "trigger count: " << counts[0] << endl;
