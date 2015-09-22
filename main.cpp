@@ -26,12 +26,11 @@ int main(int argc, char** argv) {
 	ifstream infile;
 	char buffer[BUFFERSIZE];
 
-	// process the first file.
+	// process the first file
 	filelist.next();
-	infile.open(filelist.cur_file(), ios::in);
+	infile.open(filelist.cur_file(), ios::in|ios::binary);
 	infile.read(buffer, 2052);
-	SciFrame frame(buffer);
-	infile.read(buffer, 2052);
+	SciFrame frame(buffer);	
 	if (frame.find_start_pos()) {
 		frame.process(counts);
 		frame_cnt++;
@@ -56,7 +55,7 @@ int main(int argc, char** argv) {
 	// if there are other files
 	while (filelist.next()) {
 		cout << "new_file_start_flag" << endl;
-		infile.open(filelist.cur_file(), ios::in);
+		infile.open(filelist.cur_file(), ios::in|ios::binary);
 		while (!infile.eof()) {
 			infile.read(buffer, BUFFERSIZE);
 			int bf_frame_cnt = infile.gcount() / 2052;
