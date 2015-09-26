@@ -30,6 +30,34 @@ SciFrame::~SciFrame() {
 	delete [] pre_half_packet_;
 }
 
+SciFrame::SciFrame(const SciFrame& other_frame) {
+	pre_half_packet_ = new char[200];
+	copy_frame_(other_frame);
+}
+
+const SciFrame& SciFrame::operator=(const SciFrame& other_frame) {
+	if (this != &other_frame)
+		copy_frame_(other_frame);
+	return *this;
+}
+
+void SciFrame::copy_frame_(const SciFrame& other_frame) {
+	frame_data_ = other_frame.frame_data_;
+	pre_half_packet_len_ = other_frame.pre_half_packet_len_;
+	pre_frame_index_ = other_frame.pre_frame_index_;
+	start_packet_pos_ = other_frame.start_packet_pos_;
+	cur_packet_pos_ = other_frame.cur_packet_pos_;
+	cur_packet_len_ = other_frame.cur_packet_len_;
+	cur_is_cross_ = other_frame.cur_is_cross_;
+	reach_end_ = other_frame.reach_end_;
+	for (int i = 0; i < pre_half_packet_len_; i++)
+		pre_half_packet_[i] = other_frame.pre_half_packet_[i];
+	if (other_frame.cur_packet_buffer_ == other_frame.pre_half_packet_)
+		cur_packet_buffer_ = pre_half_packet_;
+	else
+		cur_packet_buffer_ = other_frame.cur_packet_buffer_;
+}
+
 void SciFrame::setdata(const char* data) {
 	frame_data_ = data;
 }

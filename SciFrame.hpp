@@ -32,10 +32,13 @@ private:
 			static_cast<uint8_t>(
 				frame_data_[cur_packet_pos_ + 1])) + 1);
 	}
+	void copy_frame_(const SciFrame& other_frame);
 public:
 	SciFrame();
 	SciFrame(const char*);
+	SciFrame(const SciFrame& other_frame);
 	~SciFrame();
+	const SciFrame& operator=(const SciFrame& other_frame);
 	void setdata(const char*);
 	void reset();
 	bool check_valid() const;
