@@ -24,6 +24,10 @@ void SciTrigger::set_packet_num_(const char* packet_buffer, size_t packet_len) {
 		packet_num <<= 8;
 		packet_num += static_cast<uint8_t>(packet_buffer[10 + i]);
 	}
+} 
+
+void SciTrigger::set_trig_accepted_(const char* packet_buffer, size_t packet_len) {
+	
 }
 
 void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
@@ -31,3 +35,4 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_timestamp_(packet_buffer, packet_len);
 	set_packet_num_(packet_buffer, packet_len);
 }
+
