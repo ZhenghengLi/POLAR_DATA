@@ -6,8 +6,9 @@
 #include <cassert>
 #include <iomanip>
 #include <stdint.h>
+#include "Decoder.hpp"
 
-class SciEvent {
+class SciEvent: private Decoder {
 public:
 	uint16_t mode;	
 	uint16_t ct_num;

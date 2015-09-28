@@ -6,8 +6,9 @@
 #include <cassert>
 #include <iomanip>
 #include <stdint.h>
+#include "Decoder.hpp"
 
-class SciTrigger {
+class SciTrigger: private Decoder {
 public:
 	uint16_t mode;
 	uint32_t timestamp;

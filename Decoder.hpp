@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <stdint.h>
 
+using namespace std;
+
 class Decoder {
 public:
 	template <typename T>
@@ -24,28 +26,28 @@ T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
 	int end_pos = end % 8;
 	switch (begin_pos) {
 	case 0:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0xFF);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0xFF;
 		break;
 	case 1:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x7F);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x7F;
 		break;
 	case 2:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x3F);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x3F;
 		break;
 	case 3:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x1F);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x1F;
 		break;
 	case 4:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x0F);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x0F;
 		break;
 	case 5:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x07);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x07;
 		break;
 	case 6:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x03);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x03;
 		break;
 	case 7:
-		sum = static_cast<uint8_t>(buffer[begin_byte] & 0x01);
+		sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x01;
 		break;
 	}
 	if (begin_byte == end_byte) {
@@ -57,7 +59,7 @@ T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
 			sum += static_cast<uint8_t>(buffer[begin_byte + i]);
 		}
 		sum <<= (end_pos + 1);
-		sum += static_cast<uint8>(buffer[end_byte] >> (8 - end_pos - 1));
+		sum += static_cast<uint8_t>(buffer[end_byte]) >> (8 - end_pos -1);
 		return sum;
 	}
 }
@@ -66,7 +68,7 @@ template <typename T>
 T Decoder::decode_byte(const char* buffer, size_t begin, size_t end) {
 	T sum = 0;
 	for (int i = 0; begin + i <= end; i++) {
-		sum <<= 0;
+		sum <<= 8;
 		sum += static_cast<uint8_t>(buffer[begin + i]);
 	}
 	return sum;
