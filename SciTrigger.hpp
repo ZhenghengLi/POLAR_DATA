@@ -1,5 +1,5 @@
-#ifndef SCIEVENT_H
-#define SCIEVENT_H
+#ifndef SCITRIGGER_H
+#define SCITRIGGER_H
 
 #include <iostream>
 #include <cstddef>
@@ -18,12 +18,12 @@ public:
 	uint16_t trig_rejected[25];
 	
 private:
-	void set_mode_(const char* packet_buffer, uint16_t packet_len);
-	void set_timestamp_(const char* packet_buffer, uint16_t packet_len);
-	void set_packet_num_(const char* packet_buffer, uint16_t packet_len);
+	void set_mode_(const char* packet_buffer, size_t packet_len);
+	void set_timestamp_(const char* packet_buffer, size_t packet_len);
+	void set_packet_num_(const char* packet_buffer, size_t packet_len);
 	
 public:
-	void update(const char* packet_buffer, uint16_t packet_len);
+	void update(const char* packet_buffer, size_t packet_len);
 
 };
 

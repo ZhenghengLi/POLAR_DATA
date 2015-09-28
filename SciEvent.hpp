@@ -21,13 +21,13 @@ public:
 	uint16_t common_noise;
 	
 private:
-	void set_mode_(const char* packet_buffer, uint16_t packet_len);
-	void set_ct_num_(const char* packet_buffer, uint16_t packet_len);
-	void set_timestamp_(const char* packet_buffer, uint16_t packet_len);
-	void set_deadtime_(const char* packet_buffer, uint16_t packet_len);
+	void set_mode_(const char* packet_buffer, size_t packet_len);
+	void set_ct_num_(const char* packet_buffer, size_t packet_len);
+	void set_timestamp_(const char* packet_buffer, size_t packet_len);
+	void set_deadtime_(const char* packet_buffer, size_t packet_len);
 	
 public:
-	void update(const char* packet_buffer, uint16_t packet_len);
+	void update(const char* packet_buffer, size_t packet_len);
 
 };
 

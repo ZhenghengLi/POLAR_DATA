@@ -5,6 +5,8 @@
 #include "FileList.hpp"
 #include "process_packet.hpp"
 
+#define TOTAL_FRAME 100000
+
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -45,6 +47,8 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	while (!infile.eof()) {
+		if (cnt.frame > TOTAL_FRAME)
+			break;
 		infile.read(buffer, 2052);
 		if (infile.gcount() < 2052)
 			break;
@@ -74,6 +78,8 @@ int main(int argc, char** argv) {
 		cout << filelist.cur_file() << endl;
 		infile.open(filelist.cur_file(), ios::in|ios::binary);
 		while (!infile.eof()) {
+			if (cnt.frame > TOTAL_FRAME)
+				break;
 			infile.read(buffer, 2052);
 			if (infile.gcount() < 2052)
 				break;
@@ -101,6 +107,7 @@ int main(int argc, char** argv) {
 
 	cout << "***************************" << endl;
 	cout << "frame count: " << cnt.frame << endl;
+	cout << "packet count: " << cnt.packet << endl;
 	cout << "trigger count: " << cnt.trigger << endl;
 	cout << "event count: " << cnt.event << endl;
 	cout << "packet valid count: " << cnt.pkt_valid << endl;

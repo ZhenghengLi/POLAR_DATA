@@ -335,7 +335,7 @@ bool SciFrame::can_connect() {
 	}
 }
 
-void SciFrame::print_packet() {
+void SciFrame::cur_print_packet() {
 	cout << "^^^^^^^^^^" << endl;
 	cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
 	for (int i = 0; i < cur_packet_len_; i++)
@@ -369,7 +369,7 @@ void SciFrame::process(int* counts) {
 		} else {
 			cout << endl;
 			cout << "packet invalid" << endl;
-			print_packet();
+			cur_print_packet();
 			counts[3]++;
 		}
 		if (cur_check_crc()) {
@@ -377,7 +377,7 @@ void SciFrame::process(int* counts) {
 		} else {
 			cout << endl;
 			cout << "packet crc error" << endl;
-			print_packet();
+			cur_print_packet();
 			counts[5]++;
 		}
 		if (cur_packet_len_ < 28) {
