@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include "Decoder.hpp"
+#include "Counter.hpp"
 
 class SciEvent: private Decoder {
 public:
@@ -29,6 +30,7 @@ private:
 	
 public:
 	void update(const char* packet_buffer, size_t packet_len);
+	void print(const Counter& cnt);
 
 };
 

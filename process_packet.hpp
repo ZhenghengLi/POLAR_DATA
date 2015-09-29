@@ -7,24 +7,12 @@
 #include "SciFrame.hpp"
 #include "SciEvent.hpp"
 #include "SciTrigger.hpp"
+#include "Counter.hpp"
 
 using namespace std;
 
 SciEvent gSciEvent;
 SciTrigger gSciTrigger;
-
-
-struct Counter {
-	int frame;
-	int packet;
-	int trigger;
-	int event;
-	int pkt_valid;
-	int pkt_invalid;
-	int pkt_crc_passed;
-	int pkt_crc_error;
-	int pkt_too_short;
-};
 
 void process_packet(SciFrame& frame, Counter& cnt) {
 	cnt.packet++;
@@ -62,20 +50,12 @@ void process_packet(SciFrame& frame, Counter& cnt) {
 		return;
 	
 	// start process packet
-	cout << uppercase;
 	if (is_trigger) {
 		gSciTrigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-		cout << cnt.packet << " trigger ";
-		cout << hex << setfill('0') << setw(4) << gSciTrigger.mode << dec << " ";
-		cout << hex << setfill('0') << setw(8) << gSciTrigger.timestamp << dec << " ";
-		cout << gSciTrigger.packet_num << endl;
+		gSciTrigger.print(cnt);
 	} else {
 		gSciEvent.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-		cout << cnt.packet << " event ";
-		cout << gSciEvent.mode << " ";
-		cout << hex << setfill('0') << setw(6) << gSciEvent.timestamp << dec << " ";
-		cout << gSciEvent.ct_num << " ";
-		cout << gSciEvent.deadtime << endl;
+		gSciEvent.print(cnt);
 	}
 	
 	

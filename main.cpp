@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "SciFrame.hpp"
 #include "FileList.hpp"
-#include "process_packet.hpp"
+#include "Processor.hpp"
 
 #define TOTAL_FRAME 100000
 
@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 	
-	Counter cnt = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-	
+	Processor pro;
+
 	ifstream infile;
 	char buffer[2052];
 
@@ -40,36 +40,24 @@ int main(int argc, char** argv) {
 			cout << "frame CRC Error! " << frame.get_index() <<  endl;
 		else
 			while (frame.next_packet())
-				process_packet(frame, cnt);
-		cnt.frame++;
+				pro.process_packet(frame);
+		pro.cnt.frame++;
 	} else {
 		cout << "This file may be not a SCI data file." << endl;
 		exit(1);
 	}
+	// process other frames in the first file
 	while (!infile.eof()) {
-		if (cnt.frame > TOTAL_FRAME)
+		if (pro.cnt.frame > TOTAL_FRAME)
 			break;
 		infile.read(buffer, 2052);
 		if (infile.gcount() < 2052)
 			break;
 		frame.updated();
-		if (!frame.check_valid()) {
-			cout << "This frame is invalid! " << frame.get_index() << endl;
+		if (!pro.process_frame(frame))
 			break;
-		} else if (!frame.check_crc()) {
-			cout << "frame CRC Error! " << frame.get_index() << endl;
-			break;
-		}
-		if (!frame.can_connect()) {
-			cout << "frame connection error" << endl;
-			if (!frame.find_start_pos()) {
-				cout << " find_start_pos error" << endl;
-				break;
-			}
-		}
 		while (frame.next_packet())
-			process_packet(frame, cnt);
-		cnt.frame++;
+			pro.process_packet(frame);
 	}
 	infile.close();
 
@@ -78,43 +66,31 @@ int main(int argc, char** argv) {
 		cout << filelist.cur_file() << endl;
 		infile.open(filelist.cur_file(), ios::in|ios::binary);
 		while (!infile.eof()) {
-			if (cnt.frame > TOTAL_FRAME)
+			if (pro.cnt.frame > TOTAL_FRAME)
 				break;
 			infile.read(buffer, 2052);
 			if (infile.gcount() < 2052)
 				break;
 			frame.updated();
-			if (!frame.check_valid()) {
-				cout << "This frame is invalid! " << frame.get_index() << endl;
+			if (!pro.process_frame(frame))
 				break;
-			} else if (!frame.check_crc()) {
-				cout << "frame CRC Error! " << frame.get_index() << endl;
-				break;
-			}
-			if (!frame.can_connect()) {
-				cout << "frame connection error" << endl;
-				if (!frame.find_start_pos()) {
-					cout << " find_start_pos error" << endl;
-					break;
-				}
-			}
 			while (frame.next_packet())
-				process_packet(frame, cnt);
-			cnt.frame++;
+				pro.process_packet(frame);
 		}
 		infile.close();
 	}
 
 	cout << "***************************" << endl;
-	cout << "frame count: " << cnt.frame << endl;
-	cout << "packet count: " << cnt.packet << endl;
-	cout << "trigger count: " << cnt.trigger << endl;
-	cout << "event count: " << cnt.event << endl;
-	cout << "packet valid count: " << cnt.pkt_valid << endl;
-	cout << "packet invalid count: " << cnt.pkt_invalid << endl;
-	cout << "packet crc pass count: " << cnt.pkt_crc_passed << endl;
-	cout << "packet crc err count: " << cnt.pkt_crc_error << endl;
-	cout << "small length count: " << cnt.pkt_too_short << endl;
+	cout << "frame count: " << pro.cnt.frame << endl;
+	cout << "packet count: " << pro.cnt.packet << endl;
+	cout << "trigger count: " << pro.cnt.trigger << endl;
+	cout << "event count: " << pro.cnt.event << endl;
+	cout << "packet valid count: " << pro.cnt.pkt_valid << endl;
+	cout << "packet invalid count: " << pro.cnt.pkt_invalid << endl;
+	cout << "packet crc pass count: " << pro.cnt.pkt_crc_passed << endl;
+	cout << "packet crc err count: " << pro.cnt.pkt_crc_error << endl;
+	cout << "small length count: " << pro.cnt.pkt_too_short << endl;
+	cout << "frame connection error count: " << pro.cnt.frm_con_error << endl;
 
 	return 0;
 }

@@ -28,3 +28,13 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
 	set_timestamp_(packet_buffer, packet_len);
 	set_deadtime_(packet_buffer, packet_len);
 }
+
+void SciEvent::print(const Counter& cnt) {
+	if (mode == 2) {
+		cout << cnt.packet << " event ";
+		cout << mode << " ";
+		cout << (timestamp & 0x1FFFFF) << " ";
+		cout << ct_num << " ";
+		cout << endl;
+	}
+}

@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <stdint.h>
 #include "Decoder.hpp"
+#include "Counter.hpp"
 
 class SciTrigger: private Decoder {
 public:
@@ -23,9 +24,11 @@ private:
 	void set_timestamp_(const char* packet_buffer, size_t packet_len);
 	void set_packet_num_(const char* packet_buffer, size_t packet_len);
 	void set_trig_accepted_(const char* packet_buffer, size_t packet_len);
+	void set_trig_rejected_(const char* packet_buffer, size_t packet_len);
 	
 public:
 	void update(const char* packet_buffer, size_t packet_len);
+	void print(const Counter& cnt);
 
 };
 
