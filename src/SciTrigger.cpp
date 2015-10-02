@@ -16,13 +16,13 @@ void SciTrigger::set_packet_num_(const char* packet_buffer, size_t packet_len) {
 
 void SciTrigger::set_trig_accepted_(const char* packet_buffer, size_t packet_len) {
 	for (int i = 0; i < 25; i++) {
-		trig_accepted[i] = decode_bit<uint16_t>(packet_buffer + 37, i, i);
+		trig_accepted[i] = decode_bit<uint16_t>(packet_buffer + 37, 24 - i, 24 - i);
 	}
 }
 
 void SciTrigger::set_trig_rejected_(const char* packet_buffer, size_t packet_len) {
 	for (int i = 0; i < 25; i++) {
-		trig_rejected[i] = decode_bit<uint16_t>(packet_buffer + 40, 1 + i, 1 + i);
+		trig_rejected[i] = decode_bit<uint16_t>(packet_buffer + 40, 25 - i, 25 - i);
 	}
 }
 
@@ -35,19 +35,17 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciTrigger::print(const Counter& cnt) {
-	if (mode == 0x00F0) {
-		cout << uppercase;
-		cout << cnt.packet << " trigger ";
-		cout << hex << setfill('0') << setw(4) << mode << dec << " ";
-		cout << (timestamp >> 11) << " ";
-		cout << packet_num << " > ";
-		cout << "|";
-		for (int i = 0; i < 25; i++)
-			if (trig_accepted[i] == 1)
-				cout << i + 1 << "|";
-		cout << " < ";
-		cout << " | " << timestamp << " ";
-		cout << endl;
-		cout << nouppercase;
-	}
+	cout << uppercase;
+	cout << cnt.packet << " trigger ";
+	cout << hex << setfill('0') << setw(4) << mode << dec << " ";
+	cout << (timestamp >> 11) << " ";
+	cout << packet_num << " > ";
+	cout << "|";
+	for (int i = 0; i < 25; i++)
+		if (trig_accepted[i] == 1)
+			cout << i + 1 << "|";
+	cout << " < ";
+	cout << " | " << timestamp << " ";
+	cout << endl;
+	cout << nouppercase;
 }

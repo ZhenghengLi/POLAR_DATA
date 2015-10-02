@@ -16,6 +16,11 @@ public:
 	Counter cnt;
 	SciEvent sci_event;
 	SciTrigger sci_trigger;
+	int64_t ped_trig[25];
+	int64_t ped_event[25];
+	int64_t noped_trig[25];
+	int64_t noped_event[25];
+	
 public:
 	Processor();
 	~Processor();

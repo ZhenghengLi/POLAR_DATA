@@ -11,6 +11,12 @@ Processor::Processor() {
 	cnt.pkt_crc_passed = 0;
 	cnt.pkt_crc_error = 0;
 	cnt.pkt_too_short = 0;
+	for (int i = 0; i < 25; i++) {
+		ped_trig[i] = 0;
+		ped_event[i] = 0;
+		noped_trig[i] = 0;
+		noped_event[i] = 0;
+	}
 }
 
 Processor::~Processor() {
@@ -28,6 +34,12 @@ void Processor::initialize() {
 	cnt.pkt_crc_passed = 0;
 	cnt.pkt_crc_error = 0;
 	cnt.pkt_too_short = 0;
+	for (int i = 0; i < 25; i++) {
+		ped_trig[i] = 0;
+		ped_event[i] = 0;
+		noped_trig[i] = 0;
+		noped_event[i] = 0;
+	}
 }
 
 bool Processor::process_frame(SciFrame& frame) {
@@ -89,9 +101,29 @@ void Processor::process_packet(SciFrame& frame) {
     // start process packet
     if (is_trigger) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-        sci_trigger.print(cnt);
+		if (sci_trigger.mode == 0x00F0) {
+			for (int i = 0; i < 25; i++) {
+				if (sci_trigger.trig_accepted[i] == 1)
+					ped_trig[i]++;
+				if (sci_trigger.trig_accepted[i] < 1) {
+					cout << "======= trigger bit < 1 ==== " << sci_trigger.packet_num << " == " << i + 1 << endl;
+					frame.cur_print_packet();
+					cout << "=======================================" << endl;
+				}
+//			sci_trigger.print(cnt);
+			}
+		} else {
+			for (int i = 0; i < 25; i++)
+				if (sci_trigger.trig_accepted[i] == 1)
+					noped_trig[i]++;
+		}
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-        sci_event.print(cnt);
+		if (sci_event.mode == 2) {
+			ped_event[sci_event.ct_num - 1]++;
+//			sci_event.print(cnt);
+		} else {
+			noped_event[sci_event.ct_num - 1]++;
+		}
     }
 }

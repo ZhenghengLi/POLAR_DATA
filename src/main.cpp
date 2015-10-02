@@ -5,7 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 
-#define TOTAL_FRAME 100000
+#define TOTAL_FRAME 100000000
 
 using namespace std;
 
@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
 		cout << "This file may be not a SCI data file." << endl;
 		exit(1);
 	}
+
 	// process other frames in the first file
 	while (!infile.eof()) {
 		if (pro.cnt.frame > TOTAL_FRAME)
@@ -91,6 +92,43 @@ int main(int argc, char** argv) {
 	cout << "packet crc err count: " << pro.cnt.pkt_crc_error << endl;
 	cout << "small length count: " << pro.cnt.pkt_too_short << endl;
 	cout << "frame connection error count: " << pro.cnt.frm_con_error << endl;
+	cout << "---------------------------" << endl;
+	cout << "ped lost:" << endl;
+	int64_t trigg_sum = 0;
+	int64_t event_sum = 0;
+	cout << setfill(' ');
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) << pro.ped_trig[i];
+		trigg_sum += pro.ped_trig[i];
+	}
+	cout << endl;
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) << pro.ped_event[i];
+		event_sum += pro.ped_event[i];
+	}
+	cout << endl;
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) << pro.ped_trig[i] - pro.ped_event[i];
+	}
+	cout << endl;
+	cout << "noped lost:" << endl;
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) << pro.noped_trig[i];
+		trigg_sum += pro.noped_trig[i];
+	}
+	cout << endl;
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) <<  pro.noped_event[i];
+		event_sum += pro.noped_event[i];
+	}
+	cout << endl;
+	for (int i = 0; i < 25; i++) {
+		cout << setw(7) << pro.noped_trig[i] - pro.noped_event[i];
+	}
+	cout << endl;
+
+	cout << "trigg_sum: " << trigg_sum << endl;
+	cout << "event_sum: " << event_sum << endl;
 
 	return 0;
 }

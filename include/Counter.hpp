@@ -2,16 +2,16 @@
 #define COUNTER_H
 
 struct Counter {
-    int frame;
-    int packet;
-    int trigger;
-    int event;
-	int frm_con_error;
-    int pkt_valid;
-    int pkt_invalid;
-    int pkt_crc_passed;
-    int pkt_crc_error;
-    int pkt_too_short;
+    int64_t frame;
+    int64_t packet;
+    int64_t trigger;
+    int64_t event;
+	int64_t frm_con_error;
+    int64_t pkt_valid;
+    int64_t pkt_invalid;
+    int64_t pkt_crc_passed;
+    int64_t pkt_crc_error;
+    int64_t pkt_too_short;
 };
 
 #endif
