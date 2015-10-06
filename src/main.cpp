@@ -5,7 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 
-#define TOTAL_FRAME 100000000
+#define TOTAL_FRAME 10000
 
 using namespace std;
 
@@ -93,39 +93,31 @@ int main(int argc, char** argv) {
 	cout << "small length count: " << pro.cnt.pkt_too_short << endl;
 	cout << "frame connection error count: " << pro.cnt.frm_con_error << endl;
 	cout << "---------------------------" << endl;
-	cout << "ped lost:" << endl;
 	int64_t trigg_sum = 0;
 	int64_t event_sum = 0;
 	cout << setfill(' ');
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) << pro.ped_trig[i];
-		trigg_sum += pro.ped_trig[i];
-	}
-	cout << endl;
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) << pro.ped_event[i];
-		event_sum += pro.ped_event[i];
-	}
-	cout << endl;
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) << pro.ped_trig[i] - pro.ped_event[i];
-	}
-	cout << endl;
-	cout << "noped lost:" << endl;
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) << pro.noped_trig[i];
-		trigg_sum += pro.noped_trig[i];
-	}
-	cout << endl;
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) <<  pro.noped_event[i];
-		event_sum += pro.noped_event[i];
-	}
-	cout << endl;
-	for (int i = 0; i < 25; i++) {
-		cout << setw(7) << pro.noped_trig[i] - pro.noped_event[i];
-	}
-	cout << endl;
+    cout << setw(13) << "ped_trig"
+         << setw(13) << "ped_event"
+         << setw(13) << "ped_lost"
+         << setw(5) << "   | "
+         << setw(13) << "noped_trig"
+         << setw(13) << "noped_event"
+         << setw(13) << "noped_lost"
+         << endl;
+            
+    for (int i = 0; i < 25; i++) {
+        cout << setw(13) << pro.ped_trig[i]
+             << setw(13) << pro.ped_event[i]
+             << setw(13) << pro.ped_trig[i] - pro.ped_event[i]
+             << setw(5) << "   | "
+             << setw(13) << pro.noped_trig[i]
+             << setw(13) << pro.noped_event[i]
+             << setw(13) << pro.noped_trig[i] - pro.noped_event[i]
+             << endl;
+		trigg_sum += (pro.ped_trig[i] + pro.noped_trig[i]);
+		event_sum += (pro.ped_event[i] + pro.noped_event[i]);
+    }   
+
 
 	cout << "trigg_sum: " << trigg_sum << endl;
 	cout << "event_sum: " << event_sum << endl;

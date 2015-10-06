@@ -14,7 +14,7 @@ public:
 	uint16_t mode;	
 	uint16_t ct_num;
 	uint32_t timestamp;
-	uint16_t status;
+//	uint16_t status;
 	uint16_t trigger_bit[64];
 	uint16_t rate;
 	uint16_t deadtime;
