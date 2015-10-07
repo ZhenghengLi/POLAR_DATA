@@ -68,7 +68,7 @@ bool Processor::file_open(const char* filename) {
 	t_trigg_tree_ = new TTree("t_trigg", "trigger packet with index");
 	t_trigg_tree_->SetDirectory(t_file_out_);
 	t_ped_trigg_tree_ = new TTree("t_ped_trigg", "pedestal trigger packet with index");
-	t_ped_event_tree_->SetDirectory(t_file_out_);
+	t_ped_trigg_tree_->SetDirectory(t_file_out_);
 	// set branch for each tree
 	// for event
 	t_event_tree_->Branch("trigg_index", &b_trigg_index_, "trigg_index/L");
@@ -79,6 +79,8 @@ bool Processor::file_open(const char* filename) {
 	t_ped_event_tree_->Branch("ct_num", &b_event_ct_num_, "ct_num/I");
 	t_event_tree_->Branch("timestamp", &b_event_timestamp_, "timestamp/i");
 	t_ped_event_tree_->Branch("timestamp", &b_event_timestamp_, "timestamp/i");
+	t_event_tree_->Branch("time_align", &b_event_time_align_, "time_align/i");
+	t_ped_event_tree_->Branch("time_align", &b_event_time_align_, "time_align/i");
 	t_event_tree_->Branch("trigger_bit", b_event_trigger_bit_, "trigger_bit[64]/O");
 	t_ped_event_tree_->Branch("trigger_bit", b_event_trigger_bit_, "trigger_bit[64]/O");
 	t_event_tree_->Branch("energy_ch", b_event_energy_ch_, "energy_ch[64]/I");
@@ -90,10 +92,14 @@ bool Processor::file_open(const char* filename) {
 	t_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
 	t_ped_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
 	// for trigger
+	t_trigg_tree_->Branch("trigg_index", &b_trigg_index_, "trigg_index/L");
+	t_ped_trigg_tree_->Branch("trigg_index", &b_ped_trigg_index_, "trigg_index/L");
 	t_trigg_tree_->Branch("mode", &b_trigg_mode_, "mode/I");
 	t_ped_trigg_tree_->Branch("mode", &b_trigg_mode_, "mode/I");
 	t_trigg_tree_->Branch("timestamp", &b_trigg_timestamp_, "timestamp/i");
 	t_ped_trigg_tree_->Branch("timestamp", &b_trigg_timestamp_, "timestamp/i");
+	t_trigg_tree_->Branch("time_align", &b_trigg_time_align_, "time_align/i");
+	t_ped_trigg_tree_->Branch("time_align", &b_trigg_time_align_, "time_align/i");
 	t_trigg_tree_->Branch("packet_num", &b_trigg_packet_num_, "packet_num/I");
 	t_ped_trigg_tree_->Branch("packet_num", &b_trigg_packet_num_, "packet_num/I");
 	t_trigg_tree_->Branch("trig_accepted", b_trigg_trig_accepted_, "trig_accepted[25]/O");
@@ -106,28 +112,80 @@ bool Processor::file_open(const char* filename) {
 
 void Processor::file_close() {
 	t_event_tree_->Write();
-	t_ped_event_tree_->Write();	
-	t_trigg_tree_->Write();	
-	t_ped_trigg_tree_->Write();
-	t_file_out_->Close();
 	delete t_event_tree_;
-	delete t_ped_event_tree_;
-	delete t_trigg_tree_;
-	delete t_ped_trigg_tree_;
-	delete t_file_out_;
 	t_event_tree_ = NULL;
+	t_ped_event_tree_->Write();
+	delete t_ped_event_tree_;
 	t_ped_event_tree_ = NULL;
+	t_trigg_tree_->Write();
+	delete t_trigg_tree_;
 	t_trigg_tree_ = NULL;
-	t_ped_trigg_tree_ = NULL;
+	t_ped_trigg_tree_->Write();
+	delete t_ped_trigg_tree_;
+	t_ped_event_tree_ = NULL;
+	t_file_out_->Close();
+	delete t_file_out_;
 	t_file_out_ = NULL;
 }
 
 void Processor::br_trigg_update_(const SciTrigger& trigger) {
-
+	b_trigg_mode_ = static_cast<Int_t>(trigger.mode);
+	b_trigg_timestamp_ = static_cast<UInt_t>(trigger.timestamp);
+	b_trigg_time_align_ = static_cast<UInt_t>(trigger.timestamp >> 11);
+	b_trigg_packet_num_ = static_cast<Int_t>(trigger.packet_num);
+	for (int i = 0; i < 25; i++) {
+		if (trigger.trig_accepted[i] == 1)
+			b_trigg_trig_accepted_[i] = kTRUE;
+		else
+			b_trigg_trig_accepted_[i] = kFALSE;
+	}
+	for (int i = 0; i < 25; i++) {
+		if (trigger.trig_rejected[i] == 1)
+			b_trigg_trig_rejected_[i] = kTRUE;
+		else
+			b_trigg_trig_rejected_[i] = kFALSE;
+	}
 }
 
 void Processor::br_event_update_(const SciEvent& event) {
+	b_event_mode_ = static_cast<Int_t>(event.mode);
+	b_event_ct_num_ = static_cast<Int_t>(event.ct_num);
+	b_event_timestamp_ = static_cast<UInt_t>(event.timestamp);
+	b_event_time_align_ = static_cast<UInt_t>(event.timestamp & 0x1FFFFF);
+	for (int i = 0; i < 64; i++) {
+		if (event.trigger_bit[i] == 1)
+			b_event_trigger_bit_[i] = kTRUE;
+		else
+			b_event_trigger_bit_[i] = kFALSE;
+	}
+	for (int i = 0; i < 64; i++) {
+		b_event_energy_ch_[i] = static_cast<Int_t>(event.energy_ch[i]);
+	}
+	b_event_rate_ = static_cast<Int_t>(event.rate);
+	b_event_deadtime_ = static_cast<Int_t>(event.deadtime);
+	b_event_common_noise_ = static_cast<Int_t>(event.common_noise);
+}
 
+void Processor::trigg_write_tree_(const SciTrigger& trigger) {
+	br_trigg_update_(trigger);
+	b_trigg_index_++;           // write trigger first!
+	t_trigg_tree_->Fill();
+}
+
+void Processor::ped_trigg_write_tree_(const SciTrigger& trigger) {
+	br_trigg_update_(trigger);
+	b_ped_trigg_index_++;       // write trigger first!
+	t_ped_trigg_tree_->Fill();
+}
+
+void Processor::event_write_tree_(const SciEvent& event) {
+	br_event_update_(event);
+	t_event_tree_->Fill();
+}
+
+void Processor::ped_event_write_tree_(const SciEvent& event) {
+	br_event_update_(event);
+	t_ped_event_tree_->Fill();
 }
 
 bool Processor::process_frame(SciFrame& frame) {

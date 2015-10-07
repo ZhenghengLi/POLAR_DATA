@@ -22,6 +22,11 @@ int main(int argc, char** argv) {
 	}
 	
 	Processor pro;
+	if (pro.file_open("output/test.root"))
+		cerr << "file open successfull" << endl;
+	else
+		cerr << "file open failed" << endl;
+	pro.file_close();
 
 	ifstream infile;
 	char buffer[2052];

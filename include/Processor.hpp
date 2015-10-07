@@ -31,6 +31,7 @@ private:
 	Int_t b_event_mode_;
 	Int_t b_event_ct_num_;
 	UInt_t b_event_timestamp_;
+	UInt_t b_event_time_align_;
 	Bool_t b_event_trigger_bit_[64];
 	Int_t b_event_energy_ch_[64];
 	Int_t b_event_rate_;
@@ -39,12 +40,17 @@ private:
 	// for trigger
 	Int_t b_trigg_mode_;
 	UInt_t b_trigg_timestamp_;
+	UInt_t b_trigg_time_align_;
 	Int_t b_trigg_packet_num_;
 	Bool_t b_trigg_trig_accepted_[25];
 	Bool_t b_trigg_trig_rejected_[25];
 private:
 	void br_trigg_update_(const SciTrigger& trigger);
 	void br_event_update_(const SciEvent& event);
+	void trigg_write_tree_(const SciTrigger& trigger);
+	void ped_trigg_write_tree_(const SciTrigger& trigger);
+	void event_write_tree_(const SciEvent& event);
+	void ped_event_write_tree_(const SciEvent& event);
 public:
 	Counter cnt;
 	int64_t ped_trig[25];
