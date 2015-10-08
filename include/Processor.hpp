@@ -2,6 +2,7 @@
 #define PROCESSOR_H
 
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <iomanip>
 #include "SciFrame.hpp"
@@ -14,6 +15,8 @@ using namespace std;
 
 class Processor {
 private:
+	// for test
+	ofstream os_outfile_;
 	// output settings
 	TFile* t_file_out_;
 	TTree* t_event_tree_;
@@ -64,6 +67,9 @@ public:
 	void process_packet(SciFrame& frame);
 	bool rootfile_open(const char* filename);
 	void rootfile_close();
+	// for test
+	bool outfile_open(const char* filename);
+	void outfile_close();
 	
 };
 

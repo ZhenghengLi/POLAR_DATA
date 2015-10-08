@@ -189,6 +189,15 @@ void Processor::ped_event_write_tree_(const SciEvent& event) {
 	t_ped_event_tree_->Fill();
 }
 
+bool Processor::outfile_open(const char* filename) {
+	os_outfile_.open(filename);
+	return static_cast<bool>(os_outfile_);
+}
+
+void Processor::outfile_close() {
+	os_outfile_.close();
+}
+
 bool Processor::process_frame(SciFrame& frame) {
 	cnt.frame++;
 	bool result = true;
