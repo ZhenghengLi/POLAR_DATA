@@ -10,5 +10,6 @@
 #include <root/TROOT.h>
 #include <root/TMath.h>
 #include <root/TStyle.h>
+#include <root/TGraph.h>
 
 #endif

@@ -5,7 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 
-#define TOTAL_FRAME 10000
+#define TOTAL_FRAME 1000000000
 
 using namespace std;
 
@@ -22,11 +22,12 @@ int main(int argc, char** argv) {
 	}
 	
 	Processor pro;
-	if (pro.file_open("output/test.root"))
+	if (pro.file_open("output/test.root")) {
 		cerr << "file open successfull" << endl;
-	else
+	} else {
 		cerr << "file open failed" << endl;
-	pro.file_close();
+		exit(1);
+	}
 
 	ifstream infile;
 	char buffer[2052];
@@ -85,6 +86,8 @@ int main(int argc, char** argv) {
 		}
 		infile.close();
 	}
+
+	pro.file_close();
 
 	cout << "***************************" << endl;
 	cout << "frame count: " << pro.cnt.frame << endl;

@@ -60,7 +60,8 @@ bool Processor::file_open(const char* filename) {
 		return false;
 	// open file and tree
 	t_file_out_ = new TFile(filename, "RECREATE");
-	bool flag = !(t_file_out_->IsZombie());
+	if (t_file_out_->IsZombie())
+		return false;
 	t_event_tree_ = new TTree("t_event", "event packet of 25 modules");
 	t_event_tree_->SetDirectory(t_file_out_);
 	t_ped_event_tree_ = new TTree("t_ped_event", "pedestal event packet of 25 modules");
@@ -107,7 +108,7 @@ bool Processor::file_open(const char* filename) {
 	t_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
 	t_ped_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
 	// return 
-	return flag;
+	return true;
 }
 
 void Processor::file_close() {
@@ -209,7 +210,6 @@ bool Processor::process_frame(SciFrame& frame) {
 	return result;
 }
 
-
 void Processor::process_packet(SciFrame& frame) {
     cnt.packet++;
     // check packet
@@ -249,12 +249,14 @@ void Processor::process_packet(SciFrame& frame) {
     if (is_trigger) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_trigger.mode == 0x00F0) {
+			ped_trigg_write_tree_(sci_trigger);
 			for (int i = 0; i < 25; i++) {
 				if (sci_trigger.trig_accepted[i] == 1)
 					ped_trig[i]++;
 			}
 			sci_trigger.print(cnt);
 		} else {
+			trigg_write_tree_(sci_trigger);
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
 					noped_trig[i]++;
@@ -263,9 +265,15 @@ void Processor::process_packet(SciFrame& frame) {
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_event.mode == 2) {
+//			if (sci_event.ct_num == 15) {
+				ped_event_write_tree_(sci_event);
+//			}
 			ped_event[sci_event.ct_num - 1]++;
 			sci_event.print(cnt);
 		} else {
+//			if (sci_event.ct_num == 15) {
+				event_write_tree_(sci_event);
+//			}
 			noped_event[sci_event.ct_num - 1]++;
 			sci_event.print(cnt);
 		}
