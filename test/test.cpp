@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char** argv) {
 	TApplication* rootapp = new TApplication("POLAR", &argc, argv);
 	TFile* fin = new TFile("../output/test.root", "READ");
-	TTree* t_event = static_cast<TTree*>(fin->Get("t_trigg"));
+	TTree* t_event = static_cast<TTree*>(fin->Get("t_event"));
 	UInt_t time_align;
 	t_event->SetBranchAddress("time_align", &time_align);	
 	Int_t tot_entries = t_event->GetEntries();

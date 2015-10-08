@@ -28,7 +28,7 @@ Processor::Processor() {
 
 Processor::~Processor() {
 	if (t_file_out_ != NULL)
-		file_close();
+		rootfile_close();
 }
 
 void Processor::initialize() {	
@@ -51,11 +51,11 @@ void Processor::initialize() {
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
 	if (t_file_out_ != NULL)
-		file_close();
+		rootfile_close();
 }
 
 
-bool Processor::file_open(const char* filename) {
+bool Processor::rootfile_open(const char* filename) {
 	if (t_file_out_ != NULL)
 		return false;
 	// open file and tree
@@ -111,7 +111,7 @@ bool Processor::file_open(const char* filename) {
 	return true;
 }
 
-void Processor::file_close() {
+void Processor::rootfile_close() {
 	t_event_tree_->Write();
 	delete t_event_tree_;
 	t_event_tree_ = NULL;

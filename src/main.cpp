@@ -22,10 +22,10 @@ int main(int argc, char** argv) {
 	}
 	
 	Processor pro;
-	if (pro.file_open("output/test.root")) {
-		cerr << "file open successfull" << endl;
+	if (pro.rootfile_open("output/test.root")) {
+		cerr << "root file open successfull" << endl;
 	} else {
-		cerr << "file open failed" << endl;
+		cerr << "root file open failed" << endl;
 		exit(1);
 	}
 
@@ -36,6 +36,10 @@ int main(int argc, char** argv) {
 	filelist.next();
 	cout << filelist.cur_file() << endl;
 	infile.open(filelist.cur_file(), ios::in|ios::binary);
+	if (!infile) {
+		cerr << "data file open failed" << endl;
+		exit(1);
+	}
 	infile.read(buffer, 2052);
 	SciFrame frame(buffer);
 	// process the first frame
@@ -72,6 +76,10 @@ int main(int argc, char** argv) {
 	while (filelist.next()) {
 		cout << filelist.cur_file() << endl;
 		infile.open(filelist.cur_file(), ios::in|ios::binary);
+		if (!infile) {
+			cerr << "data file open failed" << endl;
+			exit(1);
+		}
 		while (!infile.eof()) {
 			if (pro.cnt.frame > TOTAL_FRAME)
 				break;
@@ -87,7 +95,7 @@ int main(int argc, char** argv) {
 		infile.close();
 	}
 
-	pro.file_close();
+	pro.rootfile_close();
 
 	cout << "***************************" << endl;
 	cout << "frame count: " << pro.cnt.frame << endl;

@@ -15,7 +15,6 @@ using namespace std;
 class Processor {
 private:
 	// output settings
-	string t_filename_;
 	TFile* t_file_out_;
 	TTree* t_event_tree_;
 	TTree* t_ped_event_tree_;
@@ -63,8 +62,8 @@ public:
 	void initialize();
 	bool process_frame(SciFrame& frame);	
 	void process_packet(SciFrame& frame);
-	bool file_open(const char* filename);
-	void file_close();
+	bool rootfile_open(const char* filename);
+	void rootfile_close();
 	
 };
 
