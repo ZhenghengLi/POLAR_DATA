@@ -54,7 +54,6 @@ void Processor::initialize() {
 		rootfile_close();
 }
 
-
 bool Processor::rootfile_open(const char* filename) {
 	if (t_file_out_ != NULL)
 		return false;
@@ -132,7 +131,7 @@ void Processor::rootfile_close() {
 void Processor::br_trigg_update_(const SciTrigger& trigger) {
 	b_trigg_mode_ = static_cast<Int_t>(trigger.mode);
 	b_trigg_timestamp_ = static_cast<UInt_t>(trigger.timestamp);
-	b_trigg_time_align_ = static_cast<UInt_t>(trigger.timestamp >> 11);
+	b_trigg_time_align_ = static_cast<UInt_t>(trigger.time_align);
 	b_trigg_packet_num_ = static_cast<Int_t>(trigger.packet_num);
 	for (int i = 0; i < 25; i++) {
 		if (trigger.trig_accepted[i] == 1)
@@ -152,7 +151,7 @@ void Processor::br_event_update_(const SciEvent& event) {
 	b_event_mode_ = static_cast<Int_t>(event.mode);
 	b_event_ct_num_ = static_cast<Int_t>(event.ct_num);
 	b_event_timestamp_ = static_cast<UInt_t>(event.timestamp);
-	b_event_time_align_ = static_cast<UInt_t>(event.timestamp & 0x1FFFFF);
+	b_event_time_align_ = static_cast<UInt_t>(event.time_align);
 	for (int i = 0; i < 64; i++) {
 		if (event.trigger_bit[i] == 1)
 			b_event_trigger_bit_[i] = kTRUE;
@@ -189,13 +188,13 @@ void Processor::ped_event_write_tree_(const SciEvent& event) {
 	t_ped_event_tree_->Fill();
 }
 
-bool Processor::outfile_open(const char* filename) {
-	os_outfile_.open(filename);
-	return static_cast<bool>(os_outfile_);
+bool Processor::logfile_open(const char* filename) {
+	os_logfile_.open(filename);
+	return os_logfile_.is_open();
 }
 
-void Processor::outfile_close() {
-	os_outfile_.close();
+void Processor::logfile_close() {
+	os_logfile_.close();
 }
 
 bool Processor::process_frame(SciFrame& frame) {

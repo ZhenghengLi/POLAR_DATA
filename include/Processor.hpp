@@ -16,7 +16,7 @@ using namespace std;
 class Processor {
 private:
 	// for test
-	ofstream os_outfile_;
+	ofstream os_logfile_;
 	// output settings
 	TFile* t_file_out_;
 	TTree* t_event_tree_;
@@ -68,8 +68,8 @@ public:
 	bool rootfile_open(const char* filename);
 	void rootfile_close();
 	// for test
-	bool outfile_open(const char* filename);
-	void outfile_close();
+	bool logfile_open(const char* filename);
+	void logfile_close();
 	
 };
 

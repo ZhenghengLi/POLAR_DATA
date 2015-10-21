@@ -13,6 +13,7 @@ class SciTrigger: private Decoder {
 public:
 	uint16_t mode;
 	uint32_t timestamp;
+	uint32_t time_align;
 	uint16_t status_reg;
 	uint16_t packet_num;
 	uint8_t trig_sig_con[25];
@@ -22,6 +23,7 @@ public:
 private:
 	void set_mode_(const char* packet_buffer, size_t packet_len);
 	void set_timestamp_(const char* packet_buffer, size_t packet_len);
+	void set_time_align_();
 	void set_packet_num_(const char* packet_buffer, size_t packet_len);
 	void set_trig_accepted_(const char* packet_buffer, size_t packet_len);
 	void set_trig_rejected_(const char* packet_buffer, size_t packet_len);
