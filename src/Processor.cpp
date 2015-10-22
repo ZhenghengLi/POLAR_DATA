@@ -1,22 +1,7 @@
 #include "Processor.hpp"
 
 Processor::Processor() {
-	cnt.frame = 0;
-	cnt.packet = 0;
-	cnt.trigger = 0;
-	cnt.event = 0;
-	cnt.frm_con_error = 0;
-	cnt.pkt_valid = 0;
-	cnt.pkt_invalid = 0;
-	cnt.pkt_crc_passed = 0;
-	cnt.pkt_crc_error = 0;
-	cnt.pkt_too_short = 0;
-	for (int i = 0; i < 25; i++) {
-		ped_trig[i] = 0;
-		ped_event[i] = 0;
-		noped_trig[i] = 0;
-		noped_event[i] = 0;
-	}
+	cnt.clear();
 	t_file_out_ = NULL;
 	t_event_tree_ = NULL;
 	t_ped_event_tree_ = NULL;
@@ -32,22 +17,7 @@ Processor::~Processor() {
 }
 
 void Processor::initialize() {	
-	cnt.frame = 0;
-	cnt.packet = 0;
-	cnt.trigger = 0;
-	cnt.event = 0;
-	cnt.frm_con_error = 0;
-	cnt.pkt_valid = 0;
-	cnt.pkt_invalid = 0;
-	cnt.pkt_crc_passed = 0;
-	cnt.pkt_crc_error = 0;
-	cnt.pkt_too_short = 0;
-	for (int i = 0; i < 25; i++) {
-		ped_trig[i] = 0;
-		ped_event[i] = 0;
-		noped_trig[i] = 0;
-		noped_event[i] = 0;
-	}
+	cnt.clear();
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
 	if (t_file_out_ != NULL)
@@ -257,33 +227,35 @@ void Processor::process_packet(SciFrame& frame) {
     if (is_trigger) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_trigger.mode == 0x00F0) {
-			ped_trigg_write_tree_(sci_trigger);
 			for (int i = 0; i < 25; i++) {
 				if (sci_trigger.trig_accepted[i] == 1)
-					ped_trig[i]++;
+					cnt.ped_trig[i]++;
 			}
 			sci_trigger.print(cnt);
+			ped_trigg_write_tree_(sci_trigger);			
 		} else {
-			trigg_write_tree_(sci_trigger);
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
-					noped_trig[i]++;
+					cnt.noped_trig[i]++;
 			sci_trigger.print(cnt);
+			trigg_write_tree_(sci_trigger);			
 		}
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_event.mode == 2) {
+			cnt.ped_event[sci_event.ct_num - 1]++;
+			sci_event.print(cnt);
 //			if (sci_event.ct_num == 15) {
 				ped_event_write_tree_(sci_event);
 //			}
-			ped_event[sci_event.ct_num - 1]++;
-			sci_event.print(cnt);
+			
 		} else {
+			cnt.noped_event[sci_event.ct_num - 1]++;
+			sci_event.print(cnt);
 //			if (sci_event.ct_num == 15) {
 				event_write_tree_(sci_event);
 //			}
-			noped_event[sci_event.ct_num - 1]++;
-			sci_event.print(cnt);
+		   
 		}
     }
 }

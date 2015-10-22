@@ -55,10 +55,10 @@ private:
 	void ped_event_write_tree_(const SciEvent& event);
 public:
 	Counter cnt;
-	int64_t ped_trig[25];
-	int64_t ped_event[25];
-	int64_t noped_trig[25];
-	int64_t noped_event[25];
+//	int64_t ped_trig[25];
+//	int64_t ped_event[25];
+//	int64_t noped_trig[25];
+//	int64_t noped_event[25];
 public:
 	Processor();
 	~Processor();

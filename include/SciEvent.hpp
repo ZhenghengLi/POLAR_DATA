@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include "Decoder.hpp"
 #include "Counter.hpp"
+#include "Constants.hpp"
 
 class SciEvent: private Decoder {
 public:
@@ -31,6 +32,7 @@ private:
 	void set_deadtime_(const char* packet_buffer, size_t packet_len);
 	void set_trigger_bit_(const char* packet_buffer, size_t packet_len);
 	void set_energy_ch_(const char* packet_buffer, size_t packet_len);
+	void set_common_noise_(const char* packet_buffer, size_t packet_len);
 	
 public:
 	void update(const char* packet_buffer, size_t packet_len);
