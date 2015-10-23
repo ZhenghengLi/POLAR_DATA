@@ -6,6 +6,7 @@
 #include "Processor.hpp"
 
 #define TOTAL_FRAME 10000
+#define LOG_FLAG true
 
 using namespace std;
 
@@ -27,6 +28,12 @@ int main(int argc, char** argv) {
 		cerr << "root file open failed" << endl;
 		exit(1);
 	}
+	if (pro.logfile_open("output/test.log")) {
+	} else {
+		cerr << "log file open failed" << endl;
+		exit(1);
+	}
+	pro.set_log(LOG_FLAG);
 
 	ifstream infile;
 	char buffer[2052];
@@ -41,6 +48,7 @@ int main(int argc, char** argv) {
 	}
 	infile.read(buffer, 2052);
 	SciFrame frame(buffer);
+	
 	// process the first frame
 	if (frame.find_start_pos()) {
 		if (!frame.check_valid())
@@ -55,7 +63,7 @@ int main(int argc, char** argv) {
 		cout << "This file may be not a SCI data file." << endl;
 		exit(1);
 	}
-
+	
 	// process other frames in the first file
 	while (!infile.eof()) {
 		if (pro.cnt.frame > TOTAL_FRAME)
@@ -95,6 +103,7 @@ int main(int argc, char** argv) {
 	}
 
 	pro.rootfile_close();
+	pro.logfile_close();
 
 	pro.cnt.print();
 

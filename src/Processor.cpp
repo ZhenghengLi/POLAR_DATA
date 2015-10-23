@@ -9,19 +9,25 @@ Processor::Processor() {
 	t_ped_trigg_tree_ = NULL;
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
+	log_flag_ = false;
 }
 
 Processor::~Processor() {
 	if (t_file_out_ != NULL)
 		rootfile_close();
+	if (os_logfile_.is_open())
+		logfile_close();
 }
 
 void Processor::initialize() {	
 	cnt.clear();
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
+	log_flag_ = false;
 	if (t_file_out_ != NULL)
 		rootfile_close();
+	if (os_logfile_.is_open())
+		logfile_close();
 }
 
 bool Processor::rootfile_open(const char* filename) {
@@ -167,21 +173,33 @@ void Processor::logfile_close() {
 	os_logfile_.close();
 }
 
+void Processor::set_log(bool flag) {
+	log_flag_ = flag;
+}
+
+bool Processor::can_log() {
+	return log_flag_ && os_logfile_.is_open();
+}
+
 bool Processor::process_frame(SciFrame& frame) {
 	cnt.frame++;
 	bool result = true;
 	if (!frame.check_valid()) {
-		cout << "This frame is invalid! " << frame.get_index() << endl;
+		if (can_log())
+			os_logfile_ << "This frame is invalid! " << frame.get_index() << endl;
 		result = false;
 	} else if (!frame.check_crc()) {
-		cout << "frame CRC Error! " << frame.get_index() << endl;
+		if (can_log())
+			os_logfile_ << "frame CRC Error! " << frame.get_index() << endl;
 		result = false;
 	}
 	if (!frame.can_connect()) {
 		cnt.frm_con_error++;
-		cout << "frame connection error " << frame.get_index() << " " << cnt.frame << endl;
+		if (can_log())
+			os_logfile_ << "frame connection error " << frame.get_index() << " " << cnt.frame << endl;
 		if (!frame.find_start_pos()) {
-			cout << " find_start_pos error" << endl;
+			if (can_log())
+				os_logfile_ << " find_start_pos error" << endl;
 			result = false;
 		}
 	}
@@ -202,22 +220,28 @@ void Processor::process_packet(SciFrame& frame) {
     if (tmp_valid) {
         cnt.pkt_valid++;
     } else {
-        cout << endl;
-        cout << "packet invalid: " << cnt.packet << endl;
-        frame.cur_print_packet();
+		if (can_log()) {
+			os_logfile_ << endl;
+			os_logfile_ << "packet invalid: " << cnt.packet << endl;
+			frame.cur_print_packet(os_logfile_);
+		}
         cnt.pkt_invalid++;
     }
     if (tmp_crc) {
         cnt.pkt_crc_passed++;
     } else {
-        cout << endl;
-        cout << "packet crc error: " << cnt.packet << endl;
-        frame.cur_print_packet();
+		if (can_log()) {
+			os_logfile_ << endl;
+			os_logfile_ << "packet crc error: " << cnt.packet << endl;
+			frame.cur_print_packet(os_logfile_);
+		}
         cnt.pkt_crc_error++;
     }
     if (frame.get_cur_pkt_len() < 28) {
-        cout << "packet too short: " << cnt.packet << endl;
-        frame.cur_print_packet();
+		if (can_log()) {
+			os_logfile_ << "packet too short: " << cnt.packet << endl;
+			frame.cur_print_packet(os_logfile_);
+		}
         cnt.pkt_too_short++;
     }
     if (!(tmp_valid & tmp_crc))
@@ -231,31 +255,29 @@ void Processor::process_packet(SciFrame& frame) {
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.ped_trig[i]++;
 			}
-			sci_trigger.print(cnt);
+			if (can_log())
+				sci_trigger.print(cnt, os_logfile_);
 			ped_trigg_write_tree_(sci_trigger);			
 		} else {
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.noped_trig[i]++;
-			sci_trigger.print(cnt);
+			if (can_log())
+				sci_trigger.print(cnt, os_logfile_);
 			trigg_write_tree_(sci_trigger);			
 		}
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_event.mode == 2) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
-			sci_event.print(cnt);
-//			if (sci_event.ct_num == 15) {
-				ped_event_write_tree_(sci_event);
-//			}
-			
+			if (can_log())
+				sci_event.print(cnt, os_logfile_);
+			ped_event_write_tree_(sci_event);
 		} else {
 			cnt.noped_event[sci_event.ct_num - 1]++;
-			sci_event.print(cnt);
-//			if (sci_event.ct_num == 15) {
-				event_write_tree_(sci_event);
-//			}
-		   
+			if (can_log())
+				sci_event.print(cnt, os_logfile_);
+			event_write_tree_(sci_event);
 		}
     }
 }

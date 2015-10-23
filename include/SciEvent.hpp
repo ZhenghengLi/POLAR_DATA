@@ -36,7 +36,7 @@ private:
 	
 public:
 	void update(const char* packet_buffer, size_t packet_len);
-	void print(const Counter& cnt);
+	void print(const Counter& cnt, ostream& os = cout);
 
 };
 

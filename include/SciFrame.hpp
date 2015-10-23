@@ -58,7 +58,7 @@ public:
 	const char* get_cur_pkt_buf();
 	size_t get_cur_pkt_len();
 	bool can_connect();
-	void cur_print_packet();
+	void cur_print_packet(ostream& os = cout);
 };
 
 #endif

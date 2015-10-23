@@ -16,6 +16,7 @@ using namespace std;
 class Processor {
 private:
 	// for test
+	bool log_flag_;
 	ofstream os_logfile_;
 	// output settings
 	TFile* t_file_out_;
@@ -55,10 +56,6 @@ private:
 	void ped_event_write_tree_(const SciEvent& event);
 public:
 	Counter cnt;
-//	int64_t ped_trig[25];
-//	int64_t ped_event[25];
-//	int64_t noped_trig[25];
-//	int64_t noped_event[25];
 public:
 	Processor();
 	~Processor();
@@ -68,6 +65,8 @@ public:
 	bool rootfile_open(const char* filename);
 	void rootfile_close();
 	// for test
+	void set_log(bool flag);
+	bool can_log();
 	bool logfile_open(const char* filename);
 	void logfile_close();
 	

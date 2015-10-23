@@ -335,14 +335,16 @@ bool SciFrame::can_connect() {
 	}
 }
 
-void SciFrame::cur_print_packet() {
-	cout << "^^^^^^^^^^" << endl;
-	cout << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
+void SciFrame::cur_print_packet(ostream& os) {
+	os << "^^^^^^^^^^" << endl;
+	os << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
+	os << "[ ";
+	os << uppercase << hex << setfill('0');
 	for (int i = 0; i < cur_packet_len_; i++)
-		cout << hex << uppercase << setfill('0') << setw(2)
-			 << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
-	cout << dec << endl;
-	cout << ".........." << endl;
+		os << setw(2) << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
+	os <<  nouppercase << dec << setfill(' ') << endl;
+	os << " ]";	
+	os << ".........." << endl;
 }
 
 void SciFrame::process(int* counts) {

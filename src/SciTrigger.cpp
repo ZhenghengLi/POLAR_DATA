@@ -39,18 +39,18 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_trig_rejected_(packet_buffer, packet_len);
 }
 
-void SciTrigger::print(const Counter& cnt) {
-	cout << uppercase;
-	cout << cnt.packet << " trigger ";
-	cout << hex << setfill('0') << setw(4) << mode << dec << " ";
-	cout << (timestamp >> 11) << " ";
-	cout << packet_num << " > ";
-	cout << "|";
+void SciTrigger::print(const Counter& cnt, ostream& os) {
+	os << uppercase;
+	os << cnt.packet << " trigger ";
+	os << hex << setfill('0') << setw(4) << mode << dec << " ";
+	os << (timestamp >> 11) << " ";
+	os << packet_num << " > ";
+	os << "|";
 	for (int i = 0; i < 25; i++)
 		if (trig_accepted[i] == 1)
-			cout << i + 1 << "|";
-	cout << " < ";
-	cout << " | " << timestamp << " ";
-	cout << endl;
-	cout << nouppercase;
+			os << i + 1 << "|";
+	os << " < ";
+	os << " | " << timestamp << " ";
+	os << endl;
+	os << nouppercase;
 }

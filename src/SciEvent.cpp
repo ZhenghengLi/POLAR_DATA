@@ -90,10 +90,10 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
 	set_common_noise_(packet_buffer, packet_len);
 }
 
-void SciEvent::print(const Counter& cnt) {
-	cout << cnt.packet << " event ";
-	cout << mode << " ";
-	cout << (timestamp & 0x1FFFFF) << " ";
-	cout << ct_num << " ";
-	cout << endl;
+void SciEvent::print(const Counter& cnt, ostream& os) {
+	os << cnt.packet << " event ";
+	os << mode << " ";
+	os << (timestamp & 0x1FFFFF) << " ";
+	os << ct_num << " ";
+	os << endl;
 }
