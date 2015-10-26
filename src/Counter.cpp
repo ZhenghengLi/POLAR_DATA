@@ -26,16 +26,18 @@ void Counter::print() {
 							507, 402, 602, 414, 524,
 							423, 601, 406, 520, 413};
 	cout << "===============================================================================================" << endl;
-    cout << "frame count: " << frame << endl;
-    cout << "packet count: " << packet << endl;
-    cout << "trigger count: " << trigger << endl;
-    cout << "event count: " << event << endl;
-    cout << "packet valid count: " << pkt_valid << endl;
-    cout << "packet invalid count: " << pkt_invalid << endl;
-    cout << "packet crc pass count: " << pkt_crc_passed << endl;
-    cout << "packet crc err count: " << pkt_crc_error << endl;
-    cout << "small length count: " << pkt_too_short << endl;
-    cout << "frame connection error count: " << frm_con_error << endl;
+	cout << left;
+    cout << setw(32) << "frame count: " << frame << endl;
+    cout << setw(32) << "packet count: " << packet << endl;
+    cout << setw(32) << "trigger count: " << trigger << endl;
+    cout << setw(32) << "event count: " << event << endl;
+    cout << setw(32) << "packet valid count: " << pkt_valid << endl;
+    cout << setw(32) << "packet invalid count: " << pkt_invalid << endl;
+    cout << setw(32) << "packet crc pass count: " << pkt_crc_passed << endl;
+    cout << setw(32) << "packet crc err count: " << pkt_crc_error << endl;
+    cout << setw(32) << "small length count: " << pkt_too_short << endl;
+    cout << setw(32) << "frame connection error count: " << frm_con_error << endl;
+	cout << right;
     cout << "-----------------------------------------------------------------------------------------------" << endl;
     int64_t trigg_sum = 0;
     int64_t event_sum = 0;
@@ -68,7 +70,9 @@ void Counter::print() {
         event_sum += (ped_event[i] + noped_event[i]);
     }
     cout << "-----------------------------------------------------------------------------------------------" << endl;
-    cout << "trigg_sum: " << trigg_sum << endl;
-    cout << "event_sum: " << event_sum << endl;
+	cout << left;
+    cout << setw(12) << "trigg_sum: " << trigg_sum << endl;
+    cout << setw(12) << "event_sum: " << event_sum << endl;
+	cout << right;
 	cout << "===============================================================================================" << endl;
 }

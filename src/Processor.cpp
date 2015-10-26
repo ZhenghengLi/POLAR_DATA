@@ -255,28 +255,34 @@ void Processor::process_packet(SciFrame& frame) {
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.ped_trig[i]++;
 			}
-			if (can_log())
-				sci_trigger.print(cnt, os_logfile_);
+			if (can_log()) {
+//				sci_trigger.print(cnt, os_logfile_);
+				os_logfile_ << "T : " << sci_trigger.time_align << endl;
+			}
 			ped_trigg_write_tree_(sci_trigger);			
 		} else {
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.noped_trig[i]++;
-			if (can_log())
-				sci_trigger.print(cnt, os_logfile_);
+//			if (can_log()) {
+//				sci_trigger.print(cnt, os_logfile_);
+//			}
 			trigg_write_tree_(sci_trigger);			
 		}
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_event.mode == 2) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
-			if (can_log())
-				sci_event.print(cnt, os_logfile_);
+			if (can_log()) {
+//				sci_event.print(cnt, os_logfile_);
+				os_logfile_ << "E : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+			}
 			ped_event_write_tree_(sci_event);
 		} else {
 			cnt.noped_event[sci_event.ct_num - 1]++;
-			if (can_log())
-				sci_event.print(cnt, os_logfile_);
+//			if (can_log()) {
+//				sci_event.print(cnt, os_logfile_);
+//			}
 			event_write_tree_(sci_event);
 		}
     }

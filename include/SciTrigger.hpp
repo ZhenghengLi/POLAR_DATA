@@ -8,8 +8,13 @@
 #include <stdint.h>
 #include "Decoder.hpp"
 #include "Counter.hpp"
+#include "Constants.hpp"
+
+class SciEvent;
 
 class SciTrigger: private Decoder {
+private:
+	int period;
 public:
 	uint16_t mode;
 	uint32_t timestamp;
@@ -19,7 +24,6 @@ public:
 	uint8_t trig_sig_con[25];
 	uint16_t trig_accepted[25];
 	uint16_t trig_rejected[25];
-	
 private:
 	void set_mode_(const char* packet_buffer, size_t packet_len);
 	void set_timestamp_(const char* packet_buffer, size_t packet_len);
@@ -27,10 +31,19 @@ private:
 	void set_packet_num_(const char* packet_buffer, size_t packet_len);
 	void set_trig_accepted_(const char* packet_buffer, size_t packet_len);
 	void set_trig_rejected_(const char* packet_buffer, size_t packet_len);
-	
 public:
 	void update(const char* packet_buffer, size_t packet_len);
 	void print(const Counter& cnt, ostream& os = cout);
+public:
+	int get_period() const;
+	void set_period(int pt);
+	bool operator<(const SciTrigger& right) const;
+	bool operator<=(const SciTrigger& right) const;
+	bool operator>(const SciTrigger& right) const;
+	bool operator>=(const SciTrigger& right) const;
+	bool operator==(const SciTrigger& right) const;
+	int operator-(const SciTrigger& right) const;
+	int operator-(const SciEvent& right) const;
 };
 
 #endif

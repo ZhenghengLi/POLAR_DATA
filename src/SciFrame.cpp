@@ -342,8 +342,8 @@ void SciFrame::cur_print_packet(ostream& os) {
 	os << uppercase << hex << setfill('0');
 	for (int i = 0; i < cur_packet_len_; i++)
 		os << setw(2) << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
-	os <<  nouppercase << dec << setfill(' ') << endl;
-	os << " ]";	
+	os <<  nouppercase << dec << setfill(' ');
+	os << "]" << endl;	
 	os << ".........." << endl;
 }
 

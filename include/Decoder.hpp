@@ -11,13 +11,13 @@ using namespace std;
 
 class Decoder {
 public:
-	template <typename T>
+	template <class T>
 	T decode_bit(const char* buffer, size_t begin, size_t end);
-	template <typename T>
+	template <class T>
 	T decode_byte(const char* buffer, size_t begin, size_t end); 
 };
 
-template <typename T>
+template <class T>
 T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
 	T sum = 0;
 	int begin_byte = begin / 8;
@@ -64,7 +64,7 @@ T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
 	}
 }
 
-template <typename T>
+template <class T>
 T Decoder::decode_byte(const char* buffer, size_t begin, size_t end) {
 	T sum = 0;
 	for (int i = 0; begin + i <= end; i++) {

@@ -1,6 +1,11 @@
 #include "SciEvent.hpp"
+#include "SciTrigger.hpp"
 
 using namespace std;
+
+SciEvent::SciEvent() {
+	period = 0;
+}
 
 void SciEvent::set_mode_(const char* packet_buffer, size_t packet_len) {
 	mode = decode_bit<uint16_t>(packet_buffer + 6, 7, 8);
@@ -90,6 +95,72 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
 	set_common_noise_(packet_buffer, packet_len);
 }
 
+int SciEvent::get_period() const {
+	return period;
+}
+
+void SciEvent::set_period(int pt) {
+	period = pt;
+}
+
+bool SciEvent::operator<(const SciEvent& right) const {
+	if (period < right.period) {
+		return true;
+	} else if (period > right.period) {
+		return false;
+	} else {
+		return (time_align < right.time_align);
+	}
+}
+
+bool SciEvent::operator<=(const SciEvent& right) const {
+	if (period < right.period) {
+		return true;
+	} else if (period > right.period) {
+		return false;
+	} else {
+		return (time_align <= right.time_align);
+	}
+}
+
+bool SciEvent::operator>(const SciEvent& right) const {
+	if (period > right.period) {
+		return true;
+	} else if (period < right.period) {
+		return false;
+	} else {
+		return (time_align > right.time_align);
+	}
+}
+
+bool SciEvent::operator>=(const SciEvent& right) const {
+	if (period > right.period) {
+		return true;
+	} else if (period < right.period) {
+		return false;
+	} else {
+		return (time_align >= right.time_align);
+	}
+}
+
+bool SciEvent::operator==(const SciEvent& right) const {
+	if (period > right.period) {
+		return false;
+	} else if (period < right.period) {
+		return false;
+	} else {
+		return (time_align == right.time_align);
+	}
+}
+
+int SciEvent::operator-(const SciEvent& right) const {
+	return (period - right.period) * CircleTime + (time_align - right.time_align);
+}
+
+int SciEvent::operator-(const SciTrigger& right) const {
+	return (period - right.get_period()) * CircleTime + (time_align - right.time_align);
+}
+
 void SciEvent::print(const Counter& cnt, ostream& os) {
 	os << cnt.packet << " event ";
 	os << mode << " ";
@@ -97,3 +168,4 @@ void SciEvent::print(const Counter& cnt, ostream& os) {
 	os << ct_num << " ";
 	os << endl;
 }
+

@@ -5,7 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 
-#define TOTAL_FRAME 10000
+#define TOTAL_FRAME 1000000000
 #define LOG_FLAG true
 
 using namespace std;
