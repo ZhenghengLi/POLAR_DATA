@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <cstddef>
 #include <cstring>
 #include <cstdio>
@@ -9,6 +10,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+	ofstream outfile("../output/event_time_align.log");
 	TApplication* rootapp = new TApplication("POLAR", &argc, argv);
 	TFile* fin = new TFile("../output/test.root", "READ");
 	TTree* t_event = static_cast<TTree*>(fin->Get("t_event"));
@@ -18,8 +20,10 @@ int main(int argc, char** argv) {
 	TGraph* gr = new TGraph();	
 	for(int i = 0; i < tot_entries; i++) {
 		t_event->GetEntry(i);
+		outfile << time_align << endl;
 		gr->SetPoint(i, static_cast<Double_t>(i), static_cast<Double_t>(time_align));
 	}
+	outfile.close();
 	new TCanvas("c1", "time_align", 600, 400);
 	gr->Draw();
 	rootapp->Run();

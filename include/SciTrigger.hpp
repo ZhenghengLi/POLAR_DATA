@@ -24,6 +24,7 @@ public:
 	uint8_t trig_sig_con[25];
 	uint16_t trig_accepted[25];
 	uint16_t trig_rejected[25];
+	uint16_t deadtime;
 private:
 	void set_mode_(const char* packet_buffer, size_t packet_len);
 	void set_timestamp_(const char* packet_buffer, size_t packet_len);
@@ -31,6 +32,7 @@ private:
 	void set_packet_num_(const char* packet_buffer, size_t packet_len);
 	void set_trig_accepted_(const char* packet_buffer, size_t packet_len);
 	void set_trig_rejected_(const char* packet_buffer, size_t packet_len);
+	void set_deadtime_(const char* packet_buffer, size_t packet_len);
 public:
 	void update(const char* packet_buffer, size_t packet_len);
 	void print(const Counter& cnt, ostream& os = cout);

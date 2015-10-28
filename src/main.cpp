@@ -28,10 +28,12 @@ int main(int argc, char** argv) {
 		cerr << "root file open failed" << endl;
 		exit(1);
 	}
-	if (pro.logfile_open("output/test.log")) {
-	} else {
-		cerr << "log file open failed" << endl;
-		exit(1);
+	if (LOG_FLAG) {
+		if (pro.logfile_open("output/test.log")) {
+		} else {
+			cerr << "log file open failed" << endl;
+			exit(1);
+		}
 	}
 	pro.set_log(LOG_FLAG);
 
@@ -103,7 +105,9 @@ int main(int argc, char** argv) {
 	}
 
 	pro.rootfile_close();
-	pro.logfile_close();
+	if (LOG_FLAG) {
+		pro.logfile_close();
+	}
 
 	pro.cnt.print();
 

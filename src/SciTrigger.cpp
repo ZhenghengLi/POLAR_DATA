@@ -12,7 +12,7 @@ void SciTrigger::set_timestamp_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciTrigger::set_time_align_() {
-	time_align = timestamp >> 11;
+	time_align = timestamp >> 9;
 }
 
 void SciTrigger::set_packet_num_(const char* packet_buffer, size_t packet_len) {
@@ -31,6 +31,10 @@ void SciTrigger::set_trig_rejected_(const char* packet_buffer, size_t packet_len
 	}
 }
 
+void SciTrigger::set_deadtime_(const char* packet_buffer, size_t packet_len) {
+	deadtime = decode_byte<uint16_t>(packet_buffer, 46, 47);
+}
+
 void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_mode_(packet_buffer, packet_len);
 	set_timestamp_(packet_buffer, packet_len);
@@ -38,6 +42,7 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_packet_num_(packet_buffer, packet_len);
 	set_trig_accepted_(packet_buffer, packet_len);
 	set_trig_rejected_(packet_buffer, packet_len);
+	set_deadtime_(packet_buffer, packet_len);
 }
 
 int SciTrigger::get_period() const {
@@ -110,7 +115,7 @@ void SciTrigger::print(const Counter& cnt, ostream& os) {
 	os << uppercase;
 	os << cnt.packet << " trigger ";
 	os << hex << setfill('0') << setw(4) << mode << dec << " ";
-	os << (timestamp >> 11) << " ";
+	os << time_align << " ";
 	os << packet_num << " > ";
 	os << "|";
 	for (int i = 0; i < 25; i++)

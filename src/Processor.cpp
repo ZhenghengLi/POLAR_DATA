@@ -63,8 +63,8 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_event_tree_->Branch("energy_ch", b_event_energy_ch_, "energy_ch[64]/I");
 	t_event_tree_->Branch("rate", &b_event_rate_, "rate/I");
 	t_ped_event_tree_->Branch("rate", &b_event_rate_, "rate/I");
-	t_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/I");
-	t_ped_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/I");
+	t_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/i");
+	t_ped_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/i");
 	t_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
 	t_ped_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
 	// for trigger
@@ -82,6 +82,8 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_trigg_tree_->Branch("trig_accepted", b_trigg_trig_accepted_, "trig_accepted[25]/O");
 	t_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
 	t_ped_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
+	t_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
+	t_ped_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
 	// return 
 	return true;
 }
@@ -121,6 +123,7 @@ void Processor::br_trigg_update_(const SciTrigger& trigger) {
 		else
 			b_trigg_trig_rejected_[i] = kFALSE;
 	}
+	b_trigg_deadtime_ = static_cast<UInt_t>(trigger.deadtime);
 }
 
 void Processor::br_event_update_(const SciEvent& event) {
@@ -138,7 +141,7 @@ void Processor::br_event_update_(const SciEvent& event) {
 		b_event_energy_ch_[i] = static_cast<Int_t>(event.energy_ch[i]);
 	}
 	b_event_rate_ = static_cast<Int_t>(event.rate);
-	b_event_deadtime_ = static_cast<Int_t>(event.deadtime);
+	b_event_deadtime_ = static_cast<UInt_t>(event.deadtime);
 	b_event_common_noise_ = static_cast<Int_t>(event.common_noise);
 }
 
@@ -257,16 +260,19 @@ void Processor::process_packet(SciFrame& frame) {
 			}
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-				os_logfile_ << "T : " << sci_trigger.time_align << endl;
+//				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
 			}
 			ped_trigg_write_tree_(sci_trigger);			
 		} else {
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.noped_trig[i]++;
-//			if (can_log()) {
+			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-//			}
+//				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
+				if (sci_trigger.mode == 0xF000 || sci_trigger.mode == 0xFF00)
+					sci_trigger.print(cnt, os_logfile_);
+			}
 			trigg_write_tree_(sci_trigger);			
 		}
     } else {
@@ -275,14 +281,15 @@ void Processor::process_packet(SciFrame& frame) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-				os_logfile_ << "E : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+//				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
 			ped_event_write_tree_(sci_event);
 		} else {
 			cnt.noped_event[sci_event.ct_num - 1]++;
-//			if (can_log()) {
+			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-//			}
+//				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+			}
 			event_write_tree_(sci_event);
 		}
     }

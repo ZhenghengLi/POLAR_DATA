@@ -38,7 +38,7 @@ private:
 	Bool_t b_event_trigger_bit_[64];
 	Int_t b_event_energy_ch_[64];
 	Int_t b_event_rate_;
-	Int_t b_event_deadtime_;
+	UInt_t b_event_deadtime_;
 	Int_t b_event_common_noise_;
 	// for trigger
 	Int_t b_trigg_mode_;
@@ -47,6 +47,7 @@ private:
 	Int_t b_trigg_packet_num_;
 	Bool_t b_trigg_trig_accepted_[25];
 	Bool_t b_trigg_trig_rejected_[25];
+	UInt_t b_trigg_deadtime_;
 private:
 	void br_trigg_update_(const SciTrigger& trigger);
 	void br_event_update_(const SciEvent& event);

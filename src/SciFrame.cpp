@@ -265,6 +265,14 @@ bool SciFrame::cur_check_valid() const {
 		if (!(tmp == 0x00F0 || tmp == 0x00FF || tmp == 0xFF00 || tmp == 0xF000)) {
 			return false;
 		}
+		tmp = 0;
+		for (int i = 0; i < 2; i++) {
+			tmp <<= 8;
+			tmp += static_cast<uint8_t>(cur_packet_buffer_[44 + i]);
+		}
+		if (tmp != 0xDABB) {
+			return false;
+		}
 		return true;
 	} else {
 		if (cur_get_ctNum() > 25) {
@@ -312,27 +320,11 @@ bool SciFrame::can_connect() {
 	assert(frame_data_ != NULL);
 	uint16_t cur_frm_index = get_index();
 	assert(cur_is_cross_);
-	if (pre_half_packet_len_ == 0) {
-		if (cur_frm_index == pre_frame_index_ + 1
-			|| ((pre_frame_index_ == 16383) && (cur_frm_index == 0)))
-			return true;
-		else
-			return false;
-	} else {
-		char tmp_packet[200];
-		const char* tmp_pointer = cur_packet_buffer_;
-		memcpy(tmp_packet, pre_half_packet_, pre_half_packet_len_);
-		memcpy(tmp_packet + pre_half_packet_len_, frame_data_ + 22, cur_packet_len_
-			   - pre_half_packet_len_);
-		cur_packet_buffer_ = tmp_packet;
-		if (cur_check_valid() && cur_check_crc()) {
-			cur_packet_buffer_ = tmp_pointer;
-			return true;
-		} else {
-			cur_packet_buffer_ = tmp_pointer;
-			return false;
-		}
-	}
+	if (cur_frm_index == pre_frame_index_ + 1
+		|| ((pre_frame_index_ == 16383) && (cur_frm_index == 0)))
+		return true;
+	else
+		return false;
 }
 
 void SciFrame::cur_print_packet(ostream& os) {

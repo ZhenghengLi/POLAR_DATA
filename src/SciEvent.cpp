@@ -24,7 +24,7 @@ void SciEvent::set_timestamp_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciEvent::set_time_align_() {
-	time_align = timestamp & 0x1FFFFF;
+	time_align = timestamp & 0x7FFFFF;
 }
 
 void SciEvent::set_deadtime_(const char* packet_buffer, size_t packet_len) {
@@ -164,8 +164,9 @@ int SciEvent::operator-(const SciTrigger& right) const {
 void SciEvent::print(const Counter& cnt, ostream& os) {
 	os << cnt.packet << " event ";
 	os << mode << " ";
-	os << (timestamp & 0x1FFFFF) << " ";
+	os << time_align << " ";
 	os << ct_num << " ";
+	os << "| " << timestamp;
 	os << endl;
 }
 
