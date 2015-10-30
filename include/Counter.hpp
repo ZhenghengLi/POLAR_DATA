@@ -16,6 +16,8 @@ public:
     int64_t packet;
     int64_t trigger;
 	int64_t ped_trigger;
+	int64_t sec_ped_trigger;
+	int64_t tin_ped_trigger;
 	int64_t noped_trigger;
     int64_t event;
 	int64_t frm_con_error;

@@ -18,7 +18,9 @@ const int TriggerIndex[64] = {23, 15, 31,  7, 22, 14, 30,  6,
 							  62, 38, 54, 46, 63, 39, 55, 47
 };
 
-const int CircleTime = 2097152;
+const int CircleTime = 8388608;
+
+const int PedSecond = 1;
 
 //const int TriggerIndex[64] = {29, 25, 21, 17, 15, 11,  7,  3,
 //							  31, 27, 23, 19, 13,  9,  5,  1,

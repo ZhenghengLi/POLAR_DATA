@@ -9,13 +9,17 @@
 #include "SciEvent.hpp"
 #include "SciTrigger.hpp"
 #include "Counter.hpp"
+#include "Constants.hpp"
 #include "RootInc.hpp"
 
 using namespace std;
 
 class Processor {
 private:
-	// for test
+	// trigger time
+	int pre_ped_trigg_time;
+	bool start_flag;
+	// log file
 	bool log_flag_;
 	ofstream os_logfile_;
 	// output settings
