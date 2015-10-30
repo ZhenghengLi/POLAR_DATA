@@ -186,27 +186,45 @@ bool Processor::can_log() {
 
 bool Processor::process_frame(SciFrame& frame) {
 	cnt.frame++;
-	bool result = true;
-	if (!frame.check_valid()) {
-		if (can_log())
-			os_logfile_ << "This frame is invalid! " << frame.get_index() << endl;
-		result = false;
-	} else if (!frame.check_crc()) {
-		if (can_log())
-			os_logfile_ << "frame CRC Error! " << frame.get_index() << endl;
-		result = false;
+	bool frm_valid = frame.check_valid();
+	if (frm_valid) {
+		cnt.frm_valid++;
+	} else {
+		cnt.frm_invalid++;
 	}
-	if (!frame.can_connect()) {
+	bool frm_crc = frame.check_crc();
+	if (frm_crc) {
+		cnt.frm_crc_passed++;
+	} else {
+		cnt.frm_crc_error++;
+	}
+	bool frm_can_conn = frame.can_connect();
+	bool frm_find_start = true;
+	if (!frm_can_conn) {
 		cnt.frm_con_error++;
-		if (can_log())
-			os_logfile_ << "frame connection error " << frame.get_index() << " " << cnt.frame << endl;
 		if (!frame.find_start_pos()) {
-			if (can_log())
-				os_logfile_ << " find_start_pos error" << endl;
-			result = false;
+			frm_find_start = false;
+			cnt.frm_start_error++;
 		}
 	}
-	return result;
+	if (!frm_valid || !frm_crc || !frm_can_conn || !frm_find_start) {
+		if (can_log()) {
+			os_logfile_ << "## FRAME: ";
+			os_logfile_ << cnt.frame << " (" << frame.get_index() << ") ";
+			if (!frm_valid)
+				os_logfile_ << "| INVALID ";
+			if (!frm_crc)
+				os_logfile_ << "| CRC_ERROR ";
+			if (!frm_can_conn)
+				os_logfile_ << "| INTERRUPTION ";
+			if (!frm_find_start)
+				os_logfile_ << "| CANNOT_FIND_START ";
+			os_logfile_ << "########" << endl;
+		}
+		return false;
+	} else {
+		return true;
+	}
 }
 
 void Processor::process_packet(SciFrame& frame) {
@@ -218,60 +236,64 @@ void Processor::process_packet(SciFrame& frame) {
     } else {
         cnt.event++;
     }
-    bool tmp_valid = frame.cur_check_valid();
-    bool tmp_crc = frame.cur_check_crc();
-    if (tmp_valid) {
+    bool pkt_valid = frame.cur_check_valid();
+    if (pkt_valid) {
         cnt.pkt_valid++;
     } else {
-		if (can_log()) {
-			os_logfile_ << endl;
-			os_logfile_ << "packet invalid: " << cnt.packet << endl;
-			frame.cur_print_packet(os_logfile_);
-		}
         cnt.pkt_invalid++;
     }
-    if (tmp_crc) {
+	bool pkt_crc = frame.cur_check_crc();
+    if (pkt_crc) {
         cnt.pkt_crc_passed++;
     } else {
-		if (can_log()) {
-			os_logfile_ << endl;
-			os_logfile_ << "packet crc error: " << cnt.packet << endl;
-			frame.cur_print_packet(os_logfile_);
-		}
         cnt.pkt_crc_error++;
     }
+	bool pkt_not_short = true;
     if (frame.get_cur_pkt_len() < 28) {
-		if (can_log()) {
-			os_logfile_ << "packet too short: " << cnt.packet << endl;
-			frame.cur_print_packet(os_logfile_);
-		}
+		pkt_not_short = false;
         cnt.pkt_too_short++;
     }
-    if (!(tmp_valid & tmp_crc))
+    if (!pkt_valid || !pkt_crc || !pkt_not_short) {
+		if (can_log()) {
+			os_logfile_ << "== PACKET: ";
+			os_logfile_ << cnt.packet << " ";
+			if (!pkt_not_short)
+				os_logfile_ << "| TOO_SHORT ";
+			if (!pkt_valid)
+				os_logfile_ << "| INVALID ";
+			if (!pkt_crc)
+				os_logfile_ << "| CRC_ERROR ";
+			os_logfile_  << "========" << endl;
+			os_logfile_ << "--------------------------------------------------------------" << endl;
+			frame.cur_print_packet(os_logfile_);
+			os_logfile_ << "--------------------------------------------------------------" << endl;
+			os_logfile_ << endl;
+		}
         return;
+	}
     
     // start process packet
     if (is_trigger) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_trigger.mode == 0x00F0) {
+			cnt.ped_trigger++;
 			for (int i = 0; i < 25; i++) {
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.ped_trig[i]++;
 			}
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-//				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
+				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
 			}
 			ped_trigg_write_tree_(sci_trigger);			
 		} else {
+			cnt.noped_trigger++;
 			for (int i = 0; i < 25; i++)
 				if (sci_trigger.trig_accepted[i] == 1)
 					cnt.noped_trig[i]++;
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-//				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
-				if (sci_trigger.mode == 0xF000 || sci_trigger.mode == 0xFF00)
-					sci_trigger.print(cnt, os_logfile_);
+				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
 			}
 			trigg_write_tree_(sci_trigger);			
 		}
@@ -281,14 +303,14 @@ void Processor::process_packet(SciFrame& frame) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-//				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
 			ped_event_write_tree_(sci_event);
 		} else {
 			cnt.noped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-//				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
 			event_write_tree_(sci_event);
 		}

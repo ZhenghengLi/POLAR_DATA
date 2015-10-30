@@ -293,7 +293,7 @@ bool SciFrame::cur_check_valid() const {
 bool SciFrame::find_start_pos() {
 	assert(frame_data_ != NULL);
 	start_packet_pos_ = 21;
-	for (int i = 0; i < 200; i++) {
+	for (int i = 0; i < 1000; i++) {
 		start_packet_pos_ += 1;
 		cur_packet_pos_ = start_packet_pos_;
 		cur_packet_len_ = get_cur_packet_len_();
@@ -328,15 +328,12 @@ bool SciFrame::can_connect() {
 }
 
 void SciFrame::cur_print_packet(ostream& os) {
-	os << "^^^^^^^^^^" << endl;
-	os << "cur_packet_len_: " << cur_packet_len_ << endl; //for debug
 	os << "[ ";
 	os << uppercase << hex << setfill('0');
 	for (int i = 0; i < cur_packet_len_; i++)
 		os << setw(2) << (int)(*((uint8_t*)(&cur_packet_buffer_[i]))) << " ";
 	os <<  nouppercase << dec << setfill(' ');
 	os << "]" << endl;	
-	os << ".........." << endl;
 }
 
 void SciFrame::process(int* counts) {
