@@ -4,6 +4,7 @@ ROOT_FLAGS := `root-config --cflags --glibs`
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
+.PHONY : all clean
 all: bin/main
 
 bin/main: $(OBJ_FILES)
