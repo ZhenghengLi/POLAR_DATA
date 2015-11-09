@@ -14,7 +14,7 @@ class SciTrigger;
 
 class SciEvent: private Decoder {
 private:
-	int period;
+	int period_;
 public:
 	uint16_t mode;	
 	uint16_t ct_num;
@@ -36,7 +36,6 @@ private:
 	void set_energy_ch_(const char* packet_buffer, size_t packet_len);
 	void set_common_noise_(const char* packet_buffer, size_t packet_len);
 public:
-	SciEvent();
 	void update(const char* packet_buffer, size_t packet_len);
 	void print(const Counter& cnt, ostream& os = cout);
 public:

@@ -3,10 +3,6 @@
 
 using namespace std;
 
-SciEvent::SciEvent() {
-	period = 0;
-}
-
 void SciEvent::set_mode_(const char* packet_buffer, size_t packet_len) {
 	mode = decode_bit<uint16_t>(packet_buffer + 6, 7, 8);
 }
@@ -96,17 +92,17 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
 }
 
 int SciEvent::get_period() const {
-	return period;
+	return period_;
 }
 
 void SciEvent::set_period(int pt) {
-	period = pt;
+	period_ = pt;
 }
 
 bool SciEvent::operator<(const SciEvent& right) const {
-	if (period < right.period) {
+	if (period_ < right.period_) {
 		return true;
-	} else if (period > right.period) {
+	} else if (period_ > right.period_) {
 		return false;
 	} else {
 		return (time_align < right.time_align);
@@ -114,9 +110,9 @@ bool SciEvent::operator<(const SciEvent& right) const {
 }
 
 bool SciEvent::operator<=(const SciEvent& right) const {
-	if (period < right.period) {
+	if (period_ < right.period_) {
 		return true;
-	} else if (period > right.period) {
+	} else if (period_ > right.period_) {
 		return false;
 	} else {
 		return (time_align <= right.time_align);
@@ -124,9 +120,9 @@ bool SciEvent::operator<=(const SciEvent& right) const {
 }
 
 bool SciEvent::operator>(const SciEvent& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return true;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align > right.time_align);
@@ -134,9 +130,9 @@ bool SciEvent::operator>(const SciEvent& right) const {
 }
 
 bool SciEvent::operator>=(const SciEvent& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return true;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align >= right.time_align);
@@ -144,9 +140,9 @@ bool SciEvent::operator>=(const SciEvent& right) const {
 }
 
 bool SciEvent::operator==(const SciEvent& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return false;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align == right.time_align);
@@ -154,11 +150,11 @@ bool SciEvent::operator==(const SciEvent& right) const {
 }
 
 int SciEvent::operator-(const SciEvent& right) const {
-	return (period - right.period) * CircleTime + (time_align - right.time_align);
+	return (period_ - right.period_) * CircleTime + (time_align - right.time_align);
 }
 
 int SciEvent::operator-(const SciTrigger& right) const {
-	return (period - right.get_period()) * CircleTime + (time_align - right.time_align);
+	return (period_ - right.get_period()) * CircleTime + (time_align - right.time_align);
 }
 
 void SciEvent::print(const Counter& cnt, ostream& os) {

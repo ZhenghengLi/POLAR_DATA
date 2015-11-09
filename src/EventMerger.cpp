@@ -107,7 +107,9 @@ void EventMerger::add_noped_event(SciEvent& event) {
 }
 
 bool EventMerger::noped_do_merge() {
-	return true;
+	bool result = true;
+	
+	return result;
 }
 
 void EventMerger::noped_clear_result() {
@@ -125,8 +127,7 @@ bool EventMerger::ped_check_valid() {
 		for (size_t j = 0; j < curr_ped_events_vec_.size(); j++) {
 			if (i == j)
 				continue;
-			if (abs(
-					static_cast<int>(curr_ped_events_vec_[i].time_align) -
+			if (abs(static_cast<int>(curr_ped_events_vec_[i].time_align) -
 					static_cast<int>(curr_ped_events_vec_[j].time_align)) < 2) {
 				is_alone = false;
 				break;
@@ -184,8 +185,6 @@ void EventMerger::ped_move_result(bool valid) {
 				continue;
 			result_ped_events_vec_.push_back(curr_ped_events_vec_[i]);
 		}
-		if (ped_trigger_not_ready_)
-			ped_trigger_not_ready_ = false;
 		curr_ped_trigger_ = next_ped_trigger_;
 		curr_ped_events_vec_.clear();
 		curr_ped_event_ct_num_vec_.clear();
@@ -205,5 +204,16 @@ void EventMerger::ped_clear_result() {
 }
 
 bool EventMerger::can_noped_do_merge() const {
-	return true;
-}
+	bool flag_event = true;
+	SciTrigger top_trigger = noped_trigger_queue_.top();
+	for (int i = 0; i < 25; i++) {
+		if (top_trigger.trig_accepted[i] > 0) {
+			if (noped_event_queue_[i].size() < 20) {
+				flag_event = false;
+				break;
+			}
+		}
+	}
+	bool flag_trigger = (noped_trigger_queue_.distance() > PedCircle);
+	return (flag_event || flag_trigger);
+}        

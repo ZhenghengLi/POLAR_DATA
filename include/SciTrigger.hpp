@@ -14,7 +14,9 @@ class SciEvent;
 
 class SciTrigger: private Decoder {
 private:
-	int period;
+	int period_;
+	int pkt_count_;
+	int lost_count_;
 public:
 	uint16_t mode;
 	uint32_t timestamp;
@@ -39,6 +41,10 @@ public:
 public:
 	int get_period() const;
 	void set_period(int pt);
+	int get_pkt_count() const;
+	void set_pkt_count(int pkt_cnt);
+	int get_lost_count() const;
+	void set_lost_count(int lost_cnt);
 	bool operator<(const SciTrigger& right) const;
 	bool operator<=(const SciTrigger& right) const;
 	bool operator>(const SciTrigger& right) const;

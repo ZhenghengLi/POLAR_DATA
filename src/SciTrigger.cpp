@@ -46,17 +46,33 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 }
 
 int SciTrigger::get_period() const {
-	return period;
+	return period_;
 }
 
 void SciTrigger::set_period(int pt) {
-	period = pt;
+	period_ = pt;
+}
+
+int SciTrigger::get_pkt_count() const {
+	return pkt_count_;
+}
+
+void SciTrigger::set_pkt_count(int pkt_cnt) {
+	pkt_count_ = pkt_cnt;
+}
+
+int SciTrigger::get_lost_count() const {
+	return lost_count_;
+}
+
+void SciTrigger::set_lost_count(int lost_cnt) {
+	lost_count_ = lost_cnt;
 }
 
 bool SciTrigger::operator<(const SciTrigger& right) const {
-	if (period < right.period) {
+	if (period_ < right.period_) {
 		return true;
-	} else if (period > right.period) {
+	} else if (period_ > right.period_) {
 		return false;
 	} else {
 		return (time_align < right.time_align);
@@ -64,9 +80,9 @@ bool SciTrigger::operator<(const SciTrigger& right) const {
 }
 
 bool SciTrigger::operator<=(const SciTrigger& right) const {
-	if (period < right.period) {
+	if (period_ < right.period_) {
 		return true;
-	} else if (period > right.period) {
+	} else if (period_ > right.period_) {
 		return false;
 	} else {
 		return (time_align <= right.time_align);
@@ -74,9 +90,9 @@ bool SciTrigger::operator<=(const SciTrigger& right) const {
 }
 
 bool SciTrigger::operator>(const SciTrigger& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return true;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align > right.time_align);
@@ -84,9 +100,9 @@ bool SciTrigger::operator>(const SciTrigger& right) const {
 }
 
 bool SciTrigger::operator>=(const SciTrigger& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return true;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align >= right.time_align);
@@ -94,9 +110,9 @@ bool SciTrigger::operator>=(const SciTrigger& right) const {
 }
 
 bool SciTrigger::operator==(const SciTrigger& right) const {
-	if (period > right.period) {
+	if (period_ > right.period_) {
 		return false;
-	} else if (period < right.period) {
+	} else if (period_ < right.period_) {
 		return false;
 	} else {
 		return (time_align == right.time_align);
@@ -104,11 +120,11 @@ bool SciTrigger::operator==(const SciTrigger& right) const {
 }
 
 int SciTrigger::operator-(const SciTrigger& right) const {
-	return (period - right.period) * CircleTime + (time_align - right.time_align);
+	return (period_ - right.period_) * CircleTime + (time_align - right.time_align);
 }
 
 int SciTrigger::operator-(const SciEvent& right) const {
-	return (period - right.get_period()) * CircleTime + (time_align - right.time_align);
+	return (period_ - right.get_period()) * CircleTime + (time_align - right.time_align);
 }
 
 void SciTrigger::print(const Counter& cnt, ostream& os) {

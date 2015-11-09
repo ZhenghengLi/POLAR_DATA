@@ -52,6 +52,8 @@ private:
 	Bool_t b_trigg_trig_accepted_[25];
 	Bool_t b_trigg_trig_rejected_[25];
 	UInt_t b_trigg_deadtime_;
+	Int_t b_trigg_pkt_count_;
+	Int_t b_trigg_lost_count_;
 private:
 	void br_trigg_update_(const SciTrigger& trigger);
 	void br_event_update_(const SciEvent& event);

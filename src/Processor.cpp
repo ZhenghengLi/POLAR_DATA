@@ -88,6 +88,10 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
 	t_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
 	t_ped_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
+	t_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
+	t_ped_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
+	t_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
+	t_ped_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
 	// return 
 	return true;
 }
@@ -128,6 +132,8 @@ void Processor::br_trigg_update_(const SciTrigger& trigger) {
 			b_trigg_trig_rejected_[i] = kFALSE;
 	}
 	b_trigg_deadtime_ = static_cast<UInt_t>(trigger.deadtime);
+	b_trigg_pkt_count_ = static_cast<Int_t>(trigger.get_pkt_count());
+	b_trigg_lost_count_ = static_cast<Int_t>(trigger.get_lost_count());
 }
 
 void Processor::br_event_update_(const SciEvent& event) {
