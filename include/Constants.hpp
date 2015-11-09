@@ -22,6 +22,8 @@ const int CircleTime = 8388608;
 
 const int PedSecond = 1;
 
+const int PedCircle = 24414;
+
 //const int TriggerIndex[64] = {29, 25, 21, 17, 15, 11,  7,  3,
 //							  31, 27, 23, 19, 13,  9,  5,  1,
 //							  30, 26, 22, 18, 12,  8,  4,  0,
