@@ -58,13 +58,15 @@ void EventMerger::add_ped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
+		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
 		curr_ped_events_vec_.push_back(event);
 	} else {
-		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle)
+		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle) 
 			event_period_[idx]++;
+		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
@@ -94,12 +96,14 @@ void EventMerger::add_noped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
+		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
 	} else {
 		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle)
 			event_period_[idx]++;
+		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
@@ -107,13 +111,48 @@ void EventMerger::add_noped_event(SciEvent& event) {
 }
 
 bool EventMerger::noped_do_merge() {
-	bool result = true;
-	
-	return result;
+	if (!global_start_flag_)
+		return false;
+	if (noped_trigger_queue_.empty())
+		return false;
+	result_noped_trigger_ = noped_trigger_queue_.top();
+	noped_trigger_queue_.pop();
+	SciEvent result_noped_event;
+	int pkt_count = 0;
+	int tot_count = 0;
+	for (int i = 0; i < 25; i++) {
+		if (result_noped_trigger_.trig_accepted[i] < 1)
+			continue;
+		tot_count++;
+		result_noped_event = noped_event_queue_[i].top();
+		while ((result_noped_trigger_ - result_noped_event) -
+			   global_time_diff_  > -2) {
+			if ((result_noped_trigger_ - result_noped_event) -
+				global_time_diff_ > 1) {
+				noped_event_queue_[i].pop();
+				result_noped_event = noped_event_queue_[i].top();
+			} else {
+				noped_event_queue_[i].pop();				
+				result_noped_events_vec_.push_back(result_noped_event);
+				pkt_count++;
+				break;
+			}
+		}
+	}
+	result_noped_trigger_.set_pkt_count(pkt_count);
+	result_noped_trigger_.set_lost_count(tot_count - pkt_count);
+	if (result_noped_events_vec_.empty())
+		return false;
+	else
+		return true;
+}
+
+bool EventMerger::noped_trigger_empty() {
+	return noped_trigger_queue_.empty();
 }
 
 void EventMerger::noped_clear_result() {
-
+	result_noped_events_vec_.clear();
 }
 
 bool EventMerger::ped_check_valid() {
@@ -152,25 +191,12 @@ bool EventMerger::ped_check_valid() {
 }
 
 void EventMerger::ped_update_time_diff() {
-	map<int, int> time_diff_count;
-	map<int, int>::iterator mapItr;
-	int time_diff;
+	int time_diff[25];
 	for (size_t i = 0; i < result_ped_events_vec_.size(); i++) {
-		time_diff = static_cast<int>(result_ped_trigger_.time_align) -
+		time_diff[i] = static_cast<int>(result_ped_trigger_.time_align) -
 			static_cast<int>(result_ped_events_vec_[i].time_align);
-		if (time_diff_count.find(time_diff) == time_diff_count.end()) {
-			time_diff_count.insert(make_pair(time_diff, 1));
-		} else {
-			time_diff_count[time_diff] = time_diff_count[time_diff] + 1;
-		}
 	}
-	int max_count = 0;
-	for (mapItr = time_diff_count.begin(); mapItr != time_diff_count.end(); mapItr++) {
-		if (mapItr->second > max_count) {
-			max_count = mapItr->second;
-			global_time_diff_ = mapItr->first;
-		}
-	}
+	global_time_diff_ = find_common_(time_diff, result_ped_events_vec_.size());
 	if (!global_start_flag_)
 		global_start_flag_ = true;
 }
@@ -217,3 +243,42 @@ bool EventMerger::can_noped_do_merge() const {
 	bool flag_trigger = (noped_trigger_queue_.distance() > PedCircle);
 	return (flag_event || flag_trigger);
 }        
+
+int EventMerger::find_common_(int* arr, size_t len) {
+	map<int, int> val_count;
+	map<int, int>::iterator mapItr;
+	for (size_t i = 0; i < len; i++) {
+		if (val_count.find(arr[i]) == val_count.end()) {
+			val_count.insert(make_pair(arr[i], 1));
+		} else {
+			val_count[arr[i]] = val_count[arr[i]] + 1;
+		}
+	}
+	int max_count = 0;
+	int result_val = 0;
+	for (mapItr = val_count.begin(); mapItr != val_count.end(); mapItr++) {
+		if (mapItr->second > max_count) {
+			max_count = mapItr->second;
+			result_val = mapItr->first;
+		}
+	}
+	return result_val;
+}
+
+void EventMerger::sync_event_period_(int idx) {
+	bool all_events_are_not_first = true;
+	for (int i = 0; i < 25; i++) {
+		if (event_is_first_[i]) {
+			all_events_are_not_first = false;
+			break;
+		}
+	}
+	if (all_events_are_not_first) {
+		event_common_period_ = find_common_(event_period_, 25);
+		if (abs(event_period_[idx] - event_common_period_) > 1)
+			event_period_[idx] = event_common_period_;
+		return;
+	} else {
+		return;
+	}
+}

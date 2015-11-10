@@ -38,6 +38,7 @@ private:
 	int trigger_period_;
 	int trigger_curr_time_align_;
 	int event_period_[25];
+	int event_common_period_;
 	int event_curr_time_align_[25];
 
 	int global_time_diff_;
@@ -47,6 +48,8 @@ private:
 	priority_queue<SciEvent, vector<SciEvent>, greater<SciEvent> > noped_event_queue_[25];
 private:
 	bool can_noped_do_merge() const;
+	int find_common_(int* arr, size_t len);
+	void sync_event_period_(int idx);
 public:
 	EventMerger();
 	~EventMerger();
@@ -62,6 +65,7 @@ public:
 	void add_noped_event(SciEvent& event);
 
 	bool noped_do_merge();
+	bool noped_trigger_empty(); 
 	void noped_clear_result();
 	bool ped_check_valid();
 	void ped_update_time_diff();
