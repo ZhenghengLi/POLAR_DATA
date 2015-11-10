@@ -5,7 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 
-#define TOTAL_FRAME 1000000000
+#define TOTAL_FRAME 1000000000000
 #define LOG_FLAG true
 
 using namespace std;
@@ -104,6 +104,7 @@ int main(int argc, char** argv) {
 		infile.close();
 	}
 
+	pro.do_the_last_work();
 	pro.rootfile_close();
 	if (LOG_FLAG) {
 		pro.logfile_close();

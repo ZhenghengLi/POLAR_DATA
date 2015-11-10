@@ -64,13 +64,15 @@ public:
 	void add_noped_trigger(SciTrigger& trigger);
 	void add_noped_event(SciEvent& event);
 
-	bool noped_do_merge();
+	bool noped_do_merge(bool force = false);
 	bool noped_trigger_empty(); 
 	void noped_clear_result();
 	bool ped_check_valid();
 	void ped_update_time_diff();
 	void ped_move_result(bool valid);
 	void ped_clear_result();
+
+	void all_clear();
 };
 
 #endif

@@ -1,5 +1,7 @@
 #include "Processor.hpp"
 
+using namespace std;
+
 Processor::Processor() {
 	cnt.clear();
 	t_file_out_ = NULL;
@@ -177,6 +179,24 @@ void Processor::ped_event_write_tree_(const SciEvent& event) {
 	t_ped_event_tree_->Fill();
 }
 
+void Processor::result_ped_write_tree_(const SciTrigger& trigger,
+									   const vector<SciEvent>& events_vec) {
+	vector<SciEvent>::const_iterator vecItr;
+	ped_trigg_write_tree_(trigger);
+	for (vecItr = events_vec.begin(); vecItr != events_vec.end(); vecItr++) {
+		ped_event_write_tree_(*vecItr);
+	}
+}
+
+void Processor::result_write_tree_(const SciTrigger& trigger,
+								   const vector<SciEvent>& events_vec) {
+	vector<SciEvent>::const_iterator vecItr;
+	trigg_write_tree_(trigger);
+	for (vecItr = events_vec.begin(); vecItr != events_vec.end(); vecItr++) {
+		event_write_tree_(*vecItr);
+	}
+}
+
 bool Processor::logfile_open(const char* filename) {
 	os_logfile_.open(filename);
 	return os_logfile_.is_open();
@@ -306,9 +326,19 @@ void Processor::process_packet(SciFrame& frame) {
 			}
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
+//				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
 			}
-			ped_trigg_write_tree_(sci_trigger);			
+//			ped_trigg_write_tree_(sci_trigger);
+			evtMgr_.add_ped_trigger(sci_trigger);
+			if (evtMgr_.ped_check_valid()) {
+				evtMgr_.ped_move_result(true);
+				evtMgr_.ped_update_time_diff();
+				result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
+									   evtMgr_.get_result_ped_events_vec());
+				evtMgr_.ped_clear_result();
+			} else {
+				evtMgr_.ped_move_result(false);
+			}
 		} else {
 			cnt.noped_trigger++;
 			for (int i = 0; i < 25; i++)
@@ -316,9 +346,15 @@ void Processor::process_packet(SciFrame& frame) {
 					cnt.noped_trig[i]++;
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
+//				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
 			}
-			trigg_write_tree_(sci_trigger);			
+//			trigg_write_tree_(sci_trigger);
+			evtMgr_.add_noped_trigger(sci_trigger);
+			if (evtMgr_.noped_do_merge()) {
+				result_write_tree_(evtMgr_.get_result_noped_trigger(),
+								   evtMgr_.get_result_noped_events_vec());
+				evtMgr_.noped_clear_result();
+			}
 		}
     } else {
         sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
@@ -326,17 +362,40 @@ void Processor::process_packet(SciFrame& frame) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+//				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
-			ped_event_write_tree_(sci_event);
+//			ped_event_write_tree_(sci_event);
+			evtMgr_.add_ped_event(sci_event);
 		} else {
 			cnt.noped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+//				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
-			event_write_tree_(sci_event);
+//			event_write_tree_(sci_event);
+			evtMgr_.add_noped_event(sci_event);
+			if (evtMgr_.noped_do_merge()) {
+				result_write_tree_(evtMgr_.get_result_noped_trigger(),
+								   evtMgr_.get_result_noped_events_vec());
+				evtMgr_.noped_clear_result();
+			}
 		}
     }
 }
 
+void Processor::do_the_last_work() {
+//	if (evtMgr_.ped_check_valid()) {
+//		evtMgr_.ped_move_result(true);
+//		evtMgr_.ped_update_time_diff();
+//		result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
+//							   evtMgr_.get_result_ped_events_vec());
+//		evtMgr_.ped_clear_result();
+//	}
+//	while (!evtMgr_.noped_trigger_empty()) {
+//		if (evtMgr_.noped_do_merge(true)) {
+//			result_write_tree_(evtMgr_.get_result_noped_trigger(),
+//							   evtMgr_.get_result_noped_events_vec());
+//			evtMgr_.noped_clear_result();
+//		}
+//	}
+}

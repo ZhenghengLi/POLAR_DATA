@@ -5,12 +5,15 @@
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
+#include <vector>
+#include <iterator>
 #include "SciFrame.hpp"
 #include "SciEvent.hpp"
 #include "SciTrigger.hpp"
 #include "Counter.hpp"
 #include "Constants.hpp"
 #include "RootInc.hpp"
+#include "EventMerger.hpp"
 
 using namespace std;
 
@@ -54,6 +57,8 @@ private:
 	UInt_t b_trigg_deadtime_;
 	Int_t b_trigg_pkt_count_;
 	Int_t b_trigg_lost_count_;
+	// EventMerger
+	EventMerger evtMgr_;
 private:
 	void br_trigg_update_(const SciTrigger& trigger);
 	void br_event_update_(const SciEvent& event);
@@ -61,6 +66,10 @@ private:
 	void ped_trigg_write_tree_(const SciTrigger& trigger);
 	void event_write_tree_(const SciEvent& event);
 	void ped_event_write_tree_(const SciEvent& event);
+	void result_ped_write_tree_(const SciTrigger& trigger,
+								const vector<SciEvent>& events_vec);
+	void result_write_tree_(const SciTrigger& trigger,
+							const vector<SciEvent>& events_vec);
 public:
 	Counter cnt;
 public:
@@ -76,7 +85,7 @@ public:
 	bool can_log();
 	bool logfile_open(const char* filename);
 	void logfile_close();
-	
+	void do_the_last_work();
 };
 
 #endif
