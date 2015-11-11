@@ -153,8 +153,6 @@ bool EventMerger::noped_do_merge(bool force) {
 		result_noped_event = noped_event_queue_[i].top();
 		while ((result_noped_trigger_ - result_noped_event) -
 			   global_time_diff_  > -2) {
-			if (noped_event_queue_[i].empty())
-				break;
 			if ((result_noped_trigger_ - result_noped_event) -
 				global_time_diff_ > 1) {
 				noped_event_queue_[i].pop();
@@ -168,7 +166,6 @@ bool EventMerger::noped_do_merge(bool force) {
 				break;
 			}
 		}
-//		cout << endl; // for debug
 	}
 	result_noped_trigger_.set_pkt_count(pkt_count);
 	result_noped_trigger_.set_lost_count(tot_count - pkt_count);
