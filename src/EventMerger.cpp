@@ -148,12 +148,18 @@ bool EventMerger::noped_do_merge(bool force) {
 		if (result_noped_trigger_.trig_accepted[i] < 1)
 			continue;
 		tot_count++;
+		if (noped_event_queue_[i].empty())
+			continue;
 		result_noped_event = noped_event_queue_[i].top();
 		while ((result_noped_trigger_ - result_noped_event) -
 			   global_time_diff_  > -2) {
+			if (noped_event_queue_[i].empty())
+				break;
 			if ((result_noped_trigger_ - result_noped_event) -
 				global_time_diff_ > 1) {
 				noped_event_queue_[i].pop();
+				if (noped_event_queue_[i].empty())
+					break;
 				result_noped_event = noped_event_queue_[i].top();
 			} else {
 				noped_event_queue_[i].pop();				
@@ -162,6 +168,7 @@ bool EventMerger::noped_do_merge(bool force) {
 				break;
 			}
 		}
+//		cout << endl; // for debug
 	}
 	result_noped_trigger_.set_pkt_count(pkt_count);
 	result_noped_trigger_.set_lost_count(tot_count - pkt_count);
@@ -257,7 +264,7 @@ bool EventMerger::can_noped_do_merge() const {
 	SciTrigger top_trigger = noped_trigger_queue_.top();
 	for (int i = 0; i < 25; i++) {
 		if (top_trigger.trig_accepted[i] > 0) {
-			if (noped_event_queue_[i].size() < 20) {
+			if (noped_event_queue_[i].size() < 25) {
 				flag_event = false;
 				break;
 			}

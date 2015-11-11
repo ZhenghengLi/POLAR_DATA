@@ -384,18 +384,18 @@ void Processor::process_packet(SciFrame& frame) {
 }
 
 void Processor::do_the_last_work() {
-//	if (evtMgr_.ped_check_valid()) {
-//		evtMgr_.ped_move_result(true);
-//		evtMgr_.ped_update_time_diff();
-//		result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
-//							   evtMgr_.get_result_ped_events_vec());
-//		evtMgr_.ped_clear_result();
-//	}
-//	while (!evtMgr_.noped_trigger_empty()) {
-//		if (evtMgr_.noped_do_merge(true)) {
-//			result_write_tree_(evtMgr_.get_result_noped_trigger(),
-//							   evtMgr_.get_result_noped_events_vec());
-//			evtMgr_.noped_clear_result();
-//		}
-//	}
+	if (evtMgr_.ped_check_valid()) {
+		evtMgr_.ped_move_result(true);
+		evtMgr_.ped_update_time_diff();
+		result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
+							   evtMgr_.get_result_ped_events_vec());
+		evtMgr_.ped_clear_result();
+	}
+	while (!evtMgr_.noped_trigger_empty()) {
+		if (evtMgr_.noped_do_merge(true)) {
+			result_write_tree_(evtMgr_.get_result_noped_trigger(),
+							   evtMgr_.get_result_noped_events_vec());
+			evtMgr_.noped_clear_result();
+		}
+	}
 }
