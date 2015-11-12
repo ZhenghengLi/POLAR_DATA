@@ -10,7 +10,7 @@
 using namespace std;
 
 class Decoder {
-public:
+protected:
 	template <class T>
 	T decode_bit(const char* buffer, size_t begin, size_t end);
 	template <class T>
