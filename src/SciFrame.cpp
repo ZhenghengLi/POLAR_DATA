@@ -134,10 +134,6 @@ bool SciFrame::check_crc() {
 		return false;
 }
 
-void SciFrame::write_root() {
-	// todo : split and make correlation
-}
-
 void SciFrame::updated() {
 	reach_end_ = false;
 }
@@ -336,44 +332,4 @@ void SciFrame::cur_print_packet(ostream& os) {
 	os << "]" << endl;	
 }
 
-void SciFrame::process(int* counts) {
-	if (check_valid()) {
-	} else {
-		cout << "This frame is not valid." << endl;
-		return;
-	}
-	if (check_crc()) {
-	} else {
-		cout << "frame CRC Error!" << endl;
-		return;
-	}
-	int pkt_cnt = 0;
-	while(next_packet()) {
-		pkt_cnt++;
-		if (cur_is_trigger()) {
-			counts[0]++;
-		} else {
-			counts[1]++;
-		}
-		if (cur_check_valid()) {
-			counts[2]++;
-		} else {
-			cout << endl;
-			cout << "packet invalid" << endl;
-			cur_print_packet();
-			counts[3]++;
-		}
-		if (cur_check_crc()) {
-			counts[4]++;
-		} else {
-			cout << endl;
-			cout << "packet crc error" << endl;
-			cur_print_packet();
-			counts[5]++;
-		}
-		if (cur_packet_len_ < 28) {
-			counts[6]++;
-		}
-	}
-}
 

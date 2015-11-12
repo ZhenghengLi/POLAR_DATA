@@ -47,13 +47,11 @@ public:
 	bool check_crc();
 	bool next_packet();
 	void updated();
-	void write_root();
 	bool cur_is_trigger() const;
 	uint16_t cur_get_mode() const;
 	uint16_t cur_get_ctNum() const;
 	bool cur_check_crc();
 	bool cur_check_valid() const;
-	void process(int* counts);
 	bool find_start_pos();
 	const char* get_cur_pkt_buf();
 	size_t get_cur_pkt_len();
