@@ -12,8 +12,8 @@ Processor::Processor() {
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
 	log_flag_ = false;
-	pre_ped_trigg_time = 0;
-	start_flag = true;
+	pre_ped_trigg_time_ = 0;
+	start_flag_ = true;
 }
 
 Processor::~Processor() {
@@ -28,8 +28,8 @@ void Processor::initialize() {
 	b_trigg_index_ = 0;
 	b_ped_trigg_index_ = 0;
 	log_flag_ = false;
-	pre_ped_trigg_time = 0;
-	start_flag = true;
+	pre_ped_trigg_time_ = 0;
+	start_flag_ = true;
 	if (t_file_out_ != NULL)
 		rootfile_close();
 	if (os_logfile_.is_open())
@@ -307,18 +307,18 @@ void Processor::process_packet(SciFrame& frame) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
 		if (sci_trigger.mode == 0x00F0) {
 			cnt.ped_trigger++;
-			if (start_flag) {
-				start_flag = false;
-				pre_ped_trigg_time = sci_trigger.time_align;
+			if (start_flag_) {
+				start_flag_ = false;
+				pre_ped_trigg_time_ = sci_trigger.time_align;
 			} else {
-				int time_diff = sci_trigger.time_align - pre_ped_trigg_time;
+				int time_diff = sci_trigger.time_align - pre_ped_trigg_time_;
 				if (time_diff < 0)
 					time_diff += CircleTime;
 				if (time_diff < 12000)
 					cnt.tin_ped_trigger++;
 				else
 					cnt.sec_ped_trigger++;
-				pre_ped_trigg_time = sci_trigger.time_align;
+				pre_ped_trigg_time_ = sci_trigger.time_align;
 			}
 			for (int i = 0; i < 25; i++) {
 				if (sci_trigger.trig_accepted[i] == 1)

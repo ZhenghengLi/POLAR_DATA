@@ -20,8 +20,8 @@ using namespace std;
 class Processor {
 private:
 	// trigger time
-	int pre_ped_trigg_time;
-	bool start_flag;
+	int pre_ped_trigg_time_;
+	bool start_flag_;
 	// log file
 	bool log_flag_;
 	ofstream os_logfile_;
