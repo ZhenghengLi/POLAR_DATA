@@ -302,17 +302,9 @@ int EventMerger::find_common_(int* arr, size_t len) {
 }
 
 void EventMerger::sync_event_period_(int idx) {
-	bool all_events_are_not_first = true;
-	for (int i = 0; i < 25; i++) {
-		if (event_is_first_[i]) {
-			all_events_are_not_first = false;
-			break;
-		}
-	}
-	if (all_events_are_not_first) {
-		event_common_period_ = find_common_(event_period_, 25);
-		if (abs(event_period_[idx] - event_common_period_) > 1)
-			event_period_[idx] = event_common_period_;
+	if (!trigger_is_first_) {
+		if (abs(event_period_[idx] - trigger_period_) > 1)
+			event_period_[idx] = trigger_period_;
 		return;
 	} else {
 		return;
