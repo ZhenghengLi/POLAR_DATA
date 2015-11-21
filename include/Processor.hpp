@@ -78,7 +78,10 @@ public:
 	Processor();
 	~Processor();
 	void initialize();
-	bool process_frame(SciFrame& frame);	
+	bool process_frame(SciFrame& frame);
+	bool process_start(SciFrame& frame);
+	bool process_restart(SciFrame& frame);
+	bool interruption_occurred(SciFrame& frame);
 	void process_packet(SciFrame& frame);
 	bool rootfile_open(const char* filename);
 	void rootfile_close();

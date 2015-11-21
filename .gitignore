@@ -1,5 +1,4 @@
 *.o
 *.log
 output/**
-obj/**
 listfile/**

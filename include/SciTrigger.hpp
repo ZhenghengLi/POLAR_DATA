@@ -27,6 +27,8 @@ public:
 	uint16_t trig_accepted[25];
 	uint16_t trig_rejected[25];
 	uint16_t deadtime;
+	uint64_t frm_ship_time;
+	uint64_t frm_gps_time;
 private:
 	void set_mode_(const char* packet_buffer, size_t packet_len);
 	void set_timestamp_(const char* packet_buffer, size_t packet_len);
@@ -37,6 +39,7 @@ private:
 	void set_deadtime_(const char* packet_buffer, size_t packet_len);
 public:
 	void update(const char* packet_buffer, size_t packet_len);
+	void set_frm_time(uint64_t ship_time, uint64_t gps_time);
 	void print(const Counter& cnt, ostream& os = cout);
 public:
 	int get_period() const;

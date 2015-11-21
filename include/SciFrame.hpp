@@ -25,6 +25,8 @@ private:
 	const char* cur_packet_buffer_;
 	bool cur_is_cross_;
 	bool reach_end_;
+	uint64_t frm_ship_time_;
+	uint64_t frm_gps_time_;
 	
 private:
 	uint16_t get_cur_packet_len_() {
@@ -57,6 +59,9 @@ public:
 	size_t get_cur_pkt_len();
 	bool can_connect();
 	void cur_print_packet(ostream& os = cout);
+	void update_time();
+	uint64_t get_ship_time();
+	uint64_t get_gps_time();
 };
 
 #endif

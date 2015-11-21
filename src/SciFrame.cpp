@@ -63,7 +63,6 @@ void SciFrame::setdata(const char* data) {
 }
 
 void SciFrame::reset() {
-	frame_data_ = NULL;
 	pre_half_packet_len_ = 0;
 	pre_frame_index_ = 0;
 	cur_packet_buffer_ = NULL;
@@ -332,4 +331,24 @@ void SciFrame::cur_print_packet(ostream& os) {
 	os << "]" << endl;	
 }
 
+void SciFrame::update_time() {
+	assert(frame_data_ != NULL);
+	frm_ship_time_ = 0;
+	for (int i = 0; i < 6; i++) {
+		frm_ship_time_ <<= 8;
+		frm_ship_time_ += static_cast<uint8_t>(frame_data_[10 + i]);
+	}
+	frm_gps_time_ = 0;
+	for (int i = 0; i < 6; i++) {
+		frm_gps_time_ <<= 8;
+		frm_gps_time_ += static_cast<uint8_t>(frame_data_[16 + i]);
+	}
+}
 
+uint64_t SciFrame::get_ship_time() {
+	return frm_ship_time_;
+}
+
+uint64_t SciFrame::get_gps_time() {
+	return frm_gps_time_;
+}

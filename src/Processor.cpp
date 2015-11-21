@@ -222,6 +222,33 @@ bool Processor::can_log() {
 	return log_flag_ && os_logfile_.is_open();
 }
 
+bool Processor::interruption_occurred(SciFrame& frame) {
+	if (frame.can_connect()) {
+		return false;
+	} else {
+		cnt.frm_con_error++;
+		return true;
+	}
+}
+
+bool Processor::process_start(SciFrame& frame) {
+	if (frame.find_start_pos()) {
+		while (frame.next_packet())
+			process_packet(frame);
+		return true;
+	} else {
+		cnt.frm_start_error++;
+		return false;
+	}
+}
+
+bool Processor::process_restart(SciFrame& frame) {
+	do_the_last_work();
+	evtMgr_.all_clear();
+	frame.reset();
+	return process_start(frame);
+}
+
 bool Processor::process_frame(SciFrame& frame) {
 	cnt.frame++;
 	bool frm_valid = frame.check_valid();
@@ -236,16 +263,8 @@ bool Processor::process_frame(SciFrame& frame) {
 	} else {
 		cnt.frm_crc_error++;
 	}
-	bool frm_can_conn = frame.can_connect();
-	bool frm_find_start = true;
-	if (!frm_can_conn) {
-		cnt.frm_con_error++;
-		if (!frame.find_start_pos()) {
-			frm_find_start = false;
-			cnt.frm_start_error++;
-		}
-	}
-	if (!frm_valid || !frm_crc || !frm_can_conn || !frm_find_start) {
+
+	if (!frm_valid || !frm_crc) {
 		if (can_log()) {
 			os_logfile_ << "## FRAME: ";
 			os_logfile_ << cnt.frame << " (" << frame.get_index() << ") ";
@@ -253,10 +272,6 @@ bool Processor::process_frame(SciFrame& frame) {
 				os_logfile_ << "| INVALID ";
 			if (!frm_crc)
 				os_logfile_ << "| CRC_ERROR ";
-			if (!frm_can_conn)
-				os_logfile_ << "| INTERRUPTION ";
-			if (!frm_find_start)
-				os_logfile_ << "| CANNOT_FIND_START ";
 			os_logfile_ << "########" << endl;
 		}
 		return false;

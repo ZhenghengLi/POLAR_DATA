@@ -39,6 +39,7 @@ int main(int argc, char** argv) {
 
 	ifstream infile;
 	char buffer[2052];
+	SciFrame frame(buffer);	
 
 	// process the first file
 	filelist.next();
@@ -48,21 +49,26 @@ int main(int argc, char** argv) {
 		cerr << "data file open failed" << endl;
 		exit(1);
 	}
-	infile.read(buffer, 2052);
-	SciFrame frame(buffer);
 	
-	// process the first frame
-	if (frame.find_start_pos()) {
-		if (!frame.check_valid())
-			cout << "This frame is invalid! " << frame.get_index() << endl;
-		else if (!frame.check_crc())
-			cout << "frame CRC Error! " << frame.get_index() <<  endl;
-		else
-			while (frame.next_packet())
-				pro.process_packet(frame);
-		pro.cnt.frame++;
-	} else {
-		cout << "This file may be not a SCI data file." << endl;
+	// check file valid and process the first frame
+	bool file_is_valid = false;
+	for (int i = 0; i < 5; i++) {
+		infile.read(buffer, 2052);
+		frame.updated();
+		if (pro.process_frame(frame)) {
+			if (pro.process_start(frame)) {
+				file_is_valid = true;
+				break;
+			} else {
+				continue;
+			}
+		} else {
+			continue;
+		}
+	}
+	
+	if (!file_is_valid) {
+		cout << "This file may be not a POLAR SCI raw data file." << endl;
 		exit(1);
 	}
 	
@@ -74,10 +80,16 @@ int main(int argc, char** argv) {
 		if (infile.gcount() < 2052)
 			break;
 		frame.updated();
-		if (!pro.process_frame(frame))
-			break;
-		while (frame.next_packet())
-			pro.process_packet(frame);
+		if (pro.process_frame(frame)) {
+			if (pro.interruption_occurred(frame)) {
+				pro.process_restart(frame);
+			} else {
+				while (frame.next_packet())
+					pro.process_packet(frame);
+			}
+		} else {
+			continue;
+		}
 	}
 	infile.close();
 
@@ -96,10 +108,16 @@ int main(int argc, char** argv) {
 			if (infile.gcount() < 2052)
 				break;
 			frame.updated();
-			if (!pro.process_frame(frame))
-				break;
-			while (frame.next_packet())
-				pro.process_packet(frame);
+			if (pro.process_frame(frame)) {
+				if (pro.interruption_occurred(frame)) {
+					pro.process_restart(frame);
+				} else {
+					while (frame.next_packet())
+						pro.process_frame(frame);
+				}
+			} else {
+				continue;
+			}
 		}
 		infile.close();
 	}

@@ -45,6 +45,11 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_deadtime_(packet_buffer, packet_len);
 }
 
+void SciTrigger::set_frm_time(uint64_t ship_time, uint64_t gps_time) {
+	frm_ship_time = ship_time;
+	frm_gps_time = gps_time;
+}
+
 int SciTrigger::get_period() const {
 	return period_;
 }
