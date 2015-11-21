@@ -55,6 +55,8 @@ private:
 	Bool_t b_trigg_trig_accepted_[25];
 	Bool_t b_trigg_trig_rejected_[25];
 	UInt_t b_trigg_deadtime_;
+	Long64_t b_trigg_start_entry_;
+	Long64_t b_ped_trigg_start_entry_;
 	Int_t b_trigg_pkt_count_;
 	Int_t b_trigg_lost_count_;
 	// EventMerger

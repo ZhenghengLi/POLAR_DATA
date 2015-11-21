@@ -9,8 +9,10 @@ Processor::Processor() {
 	t_ped_event_tree_ = NULL;
 	t_trigg_tree_ = NULL;
 	t_ped_trigg_tree_ = NULL;
-	b_trigg_index_ = 0;
-	b_ped_trigg_index_ = 0;
+	b_trigg_index_ = -1;
+	b_trigg_start_entry_ = 0;
+	b_ped_trigg_index_ = -1;
+	b_ped_trigg_start_entry_ = 0;
 	log_flag_ = false;
 	pre_ped_trigg_time_ = 0;
 	start_flag_ = true;
@@ -25,8 +27,10 @@ Processor::~Processor() {
 
 void Processor::initialize() {	
 	cnt.clear();
-	b_trigg_index_ = 0;
-	b_ped_trigg_index_ = 0;
+	b_trigg_index_ = -1;
+	b_trigg_start_entry_ = 0;
+	b_ped_trigg_index_ = -1;
+	b_ped_trigg_start_entry_ = 0;
 	log_flag_ = false;
 	pre_ped_trigg_time_ = 0;
 	start_flag_ = true;
@@ -90,6 +94,8 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
 	t_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
 	t_ped_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
+	t_trigg_tree_->Branch("start_entry", &b_trigg_start_entry_, "start_entry/L");
+	t_ped_trigg_tree_->Branch("start_entry", &b_ped_trigg_start_entry_, "start_entry/L");
 	t_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
 	t_ped_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
 	t_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
@@ -161,12 +167,14 @@ void Processor::trigg_write_tree_(const SciTrigger& trigger) {
 	br_trigg_update_(trigger);
 	b_trigg_index_++;           // write trigger first!
 	t_trigg_tree_->Fill();
+	b_trigg_start_entry_ += static_cast<Long64_t>(trigger.get_pkt_count());
 }
 
 void Processor::ped_trigg_write_tree_(const SciTrigger& trigger) {
 	br_trigg_update_(trigger);
 	b_ped_trigg_index_++;       // write trigger first!
 	t_ped_trigg_tree_->Fill();
+	b_ped_trigg_start_entry_ += static_cast<Long64_t>(trigger.get_pkt_count());
 }
 
 void Processor::event_write_tree_(const SciEvent& event) {

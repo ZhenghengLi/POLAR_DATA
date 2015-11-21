@@ -1,10 +1,9 @@
 #!/bin/bash
 
+outfile="./output/all_merge_test.log"
+
 for x in listfile/*; do
-	./bin/main $x
-	sx=${x:17:17}
-	y=output/all_time/time${sx}log
-	echo "output/test.log -> $y"
-	cp output/test.log $y
-	echo "***********************************************************"
+	./bin/main $x | tee -a $outfile
+	./test/test | tee -a $outfile
+	echo "########## DELIMETER ##########" | tee -a $outfile
 done

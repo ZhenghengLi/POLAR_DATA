@@ -10,22 +10,16 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	ofstream outfile("../output/event_time_align.log");
-	TApplication* rootapp = new TApplication("POLAR", &argc, argv);
-	TFile* fin = new TFile("../output/test.root", "READ");
-	TTree* t_event = static_cast<TTree*>(fin->Get("t_event"));
-	UInt_t time_align;
-	t_event->SetBranchAddress("time_align", &time_align);	
-	Int_t tot_entries = t_event->GetEntries();
-	TGraph* gr = new TGraph();	
-	for(int i = 0; i < tot_entries; i++) {
-		t_event->GetEntry(i);
-		outfile << time_align << endl;
-		gr->SetPoint(i, static_cast<Double_t>(i), static_cast<Double_t>(time_align));
-	}
-	outfile.close();
-	new TCanvas("c1", "time_align", 600, 400);
-	gr->Draw();
-	rootapp->Run();
+	TFile* root_file = new TFile("./output/test.root", "READ");
+	TTree* t_event = static_cast<TTree*>(root_file->Get("t_event"));
+	TTree* t_trigg = static_cast<TTree*>(root_file->Get("t_trigg"));
+	TTree* t_ped_event = static_cast<TTree*>(root_file->Get("t_ped_event"));
+	TTree* t_ped_trigg = static_cast<TTree*>(root_file->Get("t_ped_trigg"));
+
+	cout << "t_event: " << t_event->GetEntries() << endl;
+	cout << "t_trigg: " << t_trigg->GetEntries() << endl;
+	cout << "t_ped_event: " << t_ped_event->GetEntries() << endl;
+	cout << "t_ped_trigg: " << t_ped_trigg->GetEntries() << endl;
+
 	return 0;
 }
