@@ -100,6 +100,10 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
 	t_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
 	t_ped_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
+	t_trigg_tree_->Branch("frm_ship_time", &b_trigg_frm_ship_time_, "frm_ship_time/l");
+	t_ped_trigg_tree_->Branch("frm_ship_time", &b_trigg_frm_ship_time_, "frm_ship_time/l");
+	t_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
+	t_ped_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
 	// return 
 	return true;
 }
@@ -142,6 +146,8 @@ void Processor::br_trigg_update_(const SciTrigger& trigger) {
 	b_trigg_deadtime_ = static_cast<UInt_t>(trigger.deadtime);
 	b_trigg_pkt_count_ = static_cast<Int_t>(trigger.get_pkt_count());
 	b_trigg_lost_count_ = static_cast<Int_t>(trigger.get_lost_count());
+	b_trigg_frm_ship_time_ = static_cast<ULong64_t>(trigger.frm_ship_time);
+	b_trigg_frm_gps_time_ = static_cast<ULong64_t>(trigger.frm_gps_time);
 }
 
 void Processor::br_event_update_(const SciEvent& event) {
@@ -227,6 +233,11 @@ bool Processor::interruption_occurred(SciFrame& frame) {
 		return false;
 	} else {
 		cnt.frm_con_error++;
+		if (can_log()) {
+			os_logfile_ << "## FRAME: ";
+			os_logfile_ << cnt.frame << " (" << frame.get_index() << ") ";
+			os_logfile_ << "| INTERRUPTION " << "########" << endl;
+		}
 		return true;
 	}
 }
@@ -238,6 +249,11 @@ bool Processor::process_start(SciFrame& frame) {
 		return true;
 	} else {
 		cnt.frm_start_error++;
+		if (can_log()) {
+			os_logfile_ << "## FRAME: ";
+			os_logfile_ << cnt.frame << " (" << frame.get_index() << ") ";
+			os_logfile_ << "| START_ERROR " << "########" << endl;
+		}
 		return false;
 	}
 }
@@ -276,6 +292,7 @@ bool Processor::process_frame(SciFrame& frame) {
 		}
 		return false;
 	} else {
+		frame.update_time();
 		return true;
 	}
 }
@@ -328,6 +345,7 @@ void Processor::process_packet(SciFrame& frame) {
     // start process packet
     if (is_trigger) {
         sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
+		sci_trigger.set_frm_time(frame.get_ship_time(), frame.get_gps_time());
 		if (sci_trigger.mode == 0x00F0) {
 			cnt.ped_trigger++;
 			if (start_flag_) {

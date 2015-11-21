@@ -59,6 +59,8 @@ private:
 	Long64_t b_ped_trigg_start_entry_;
 	Int_t b_trigg_pkt_count_;
 	Int_t b_trigg_lost_count_;
+	ULong64_t b_trigg_frm_ship_time_;
+	ULong64_t b_trigg_frm_gps_time_;
 	// EventMerger
 	EventMerger evtMgr_;
 private:
