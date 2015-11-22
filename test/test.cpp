@@ -10,7 +10,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	TFile* root_file = new TFile("./output/test.root", "READ");
+	TFile* root_file = new TFile("./output/sci_test.root", "READ");
 	TTree* t_event = static_cast<TTree*>(root_file->Get("t_event"));
 	TTree* t_trigg = static_cast<TTree*>(root_file->Get("t_trigg"));
 	TTree* t_ped_event = static_cast<TTree*>(root_file->Get("t_ped_event"));

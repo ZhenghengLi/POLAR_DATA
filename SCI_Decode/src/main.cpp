@@ -23,13 +23,13 @@ int main(int argc, char** argv) {
 	}
 	
 	Processor pro;
-	if (pro.rootfile_open("output/test.root")) {
+	if (pro.rootfile_open("output/sci_test.root")) {
 	} else {
 		cerr << "root file open failed" << endl;
 		exit(1);
 	}
 	if (LOG_FLAG) {
-		if (pro.logfile_open("output/test.log")) {
+		if (pro.logfile_open("output/sci_test.log")) {
 		} else {
 			cerr << "log file open failed" << endl;
 			exit(1);
