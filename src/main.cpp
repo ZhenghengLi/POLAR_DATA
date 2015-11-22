@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
 		frame.updated();
 		if (pro.process_frame(frame)) {
 			if (pro.interruption_occurred(frame)) {
-				cout << "interruption occurred, restart." << endl;
+				cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
 				pro.process_restart(frame);
 			} else {
 				while (frame.next_packet())
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 			frame.updated();
 			if (pro.process_frame(frame)) {
 				if (pro.interruption_occurred(frame)) {
-					cout << "interruption occurred, restart." << endl;
+					cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
 					pro.process_restart(frame);
 				} else {
 					while (frame.next_packet())
