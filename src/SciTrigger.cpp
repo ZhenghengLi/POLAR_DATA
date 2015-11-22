@@ -35,6 +35,16 @@ void SciTrigger::set_deadtime_(const char* packet_buffer, size_t packet_len) {
 	deadtime = decode_byte<uint16_t>(packet_buffer, 46, 47);
 }
 
+void SciTrigger::set_status_(const char* packet_buffer, size_t packet_len) {
+	status_ = decode_byte<uint16_t>(packet_buffer, 8, 9);
+}
+
+void SciTrigger::set_trig_sig_con_(const char* packet_buffer, size_t packet_len) {
+	for (int i = 0; i < 25; i++) {
+		trig_sig_con[i] = decode_byte<uint8_t>(packet_buffer, 12 + i, 12 + i);
+	}
+}
+
 void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_mode_(packet_buffer, packet_len);
 	set_timestamp_(packet_buffer, packet_len);
@@ -43,6 +53,8 @@ void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
 	set_trig_accepted_(packet_buffer, packet_len);
 	set_trig_rejected_(packet_buffer, packet_len);
 	set_deadtime_(packet_buffer, packet_len);
+	set_status_(packet_buffer, packet_len);
+	set_trig_sig_con_(packet_buffer, packet_len);
 }
 
 void SciTrigger::set_frm_time(uint64_t ship_time, uint64_t gps_time) {

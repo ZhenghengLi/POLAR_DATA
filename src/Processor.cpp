@@ -77,6 +77,8 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/i");
 	t_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
 	t_ped_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
+	t_event_tree_->Branch("status", &b_event_status_, "status/s");
+	t_ped_event_tree_->Branch("status", &b_event_status_, "status/s");
 	// for trigger
 	t_trigg_tree_->Branch("trigg_index", &b_trigg_index_, "trigg_index/L");
 	t_ped_trigg_tree_->Branch("trigg_index", &b_ped_trigg_index_, "trigg_index/L");
@@ -104,6 +106,10 @@ bool Processor::rootfile_open(const char* filename) {
 	t_ped_trigg_tree_->Branch("frm_ship_time", &b_trigg_frm_ship_time_, "frm_ship_time/l");
 	t_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
 	t_ped_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
+	t_trigg_tree_->Branch("status", &b_trigg_status_, "status/s");
+	t_ped_trigg_tree_->Branch("status", &b_trigg_status_, "status/s");
+	t_trigg_tree_->Branch("trig_sig_con", b_trigg_trig_sig_con_, "trig_sig_con[25]/b");
+	t_ped_trigg_tree_->Branch("trig_sig_con", b_trigg_trig_sig_con_, "trig_sig_con[25]/b");
 	// return 
 	return true;
 }
@@ -148,6 +154,10 @@ void Processor::br_trigg_update_(const SciTrigger& trigger) {
 	b_trigg_lost_count_ = static_cast<Int_t>(trigger.get_lost_count());
 	b_trigg_frm_ship_time_ = static_cast<ULong64_t>(trigger.frm_ship_time);
 	b_trigg_frm_gps_time_ = static_cast<ULong64_t>(trigger.frm_gps_time);
+	b_trigg_status_ = static_cast<UShort_t>(trigger.status_);
+	for (int i = 0; i < 25; i++) {
+		b_trigg_trig_sig_con_[i] = static_cast<UChar_t>(trigger.trig_sig_con[i]);
+	}
 }
 
 void Processor::br_event_update_(const SciEvent& event) {
@@ -167,6 +177,7 @@ void Processor::br_event_update_(const SciEvent& event) {
 	b_event_rate_ = static_cast<Int_t>(event.rate);
 	b_event_deadtime_ = static_cast<UInt_t>(event.deadtime);
 	b_event_common_noise_ = static_cast<Int_t>(event.common_noise);
+	b_event_status_ = static_cast<UShort_t>(event.status);
 }
 
 void Processor::trigg_write_tree_(const SciTrigger& trigger) {

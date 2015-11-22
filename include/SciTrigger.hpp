@@ -21,7 +21,7 @@ public:
 	uint16_t mode;
 	uint32_t timestamp;
 	uint32_t time_align;
-	uint16_t status_reg;
+	uint16_t status_;
 	uint16_t packet_num;
 	uint8_t trig_sig_con[25];
 	uint16_t trig_accepted[25];
@@ -37,6 +37,8 @@ private:
 	void set_trig_accepted_(const char* packet_buffer, size_t packet_len);
 	void set_trig_rejected_(const char* packet_buffer, size_t packet_len);
 	void set_deadtime_(const char* packet_buffer, size_t packet_len);
+	void set_status_(const char* packet_buffer, size_t packet_len);
+	void set_trig_sig_con_(const char* packet_buffer, size_t packet_len);
 public:
 	void update(const char* packet_buffer, size_t packet_len);
 	void set_frm_time(uint64_t ship_time, uint64_t gps_time);

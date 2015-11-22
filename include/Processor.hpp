@@ -47,6 +47,7 @@ private:
 	Int_t b_event_rate_;
 	UInt_t b_event_deadtime_;
 	Int_t b_event_common_noise_;
+	UShort_t b_event_status_;
 	// for trigger
 	Int_t b_trigg_mode_;
 	UInt_t b_trigg_timestamp_;
@@ -61,6 +62,8 @@ private:
 	Int_t b_trigg_lost_count_;
 	ULong64_t b_trigg_frm_ship_time_;
 	ULong64_t b_trigg_frm_gps_time_;
+	UShort_t b_trigg_status_;
+	UChar_t b_trigg_trig_sig_con_[25];
 	// EventMerger
 	EventMerger evtMgr_;
 private:
