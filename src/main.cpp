@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
 		frame.updated();
 		if (pro.process_frame(frame)) {
 			if (pro.interruption_occurred(frame)) {
+				cerr << "interruption occurred, restart." << endl;
 				pro.process_restart(frame);
 			} else {
 				while (frame.next_packet())
@@ -110,6 +111,7 @@ int main(int argc, char** argv) {
 			frame.updated();
 			if (pro.process_frame(frame)) {
 				if (pro.interruption_occurred(frame)) {
+					cerr << "interruption occurred, restart." << endl;
 					pro.process_restart(frame);
 				} else {
 					while (frame.next_packet())
@@ -121,6 +123,8 @@ int main(int argc, char** argv) {
 		}
 		infile.close();
 	}
+
+	cout << " all files are scanned " << endl;
 
 	pro.do_the_last_work();
 	pro.rootfile_close();

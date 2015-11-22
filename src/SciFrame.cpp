@@ -89,12 +89,12 @@ bool SciFrame::check_valid() const {
 	if (frame_length != 0x07F9)
 		return false;
 
-	uint32_t sci_stater = 0;
+	uint32_t sci_starter = 0;
 	for (int i = 0; i < 4; i++) {
-		sci_stater <<= 8;
-		sci_stater += static_cast<uint8_t>(frame_data_[6 + i]);
+		sci_starter <<= 8;
+		sci_starter += static_cast<uint8_t>(frame_data_[6 + i]);
 	}
-	if (sci_stater != 0x706F6C61)
+	if (sci_starter != 0x706F6C61)
 		return false;
 
 	return true;

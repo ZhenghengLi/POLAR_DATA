@@ -432,6 +432,8 @@ void Processor::do_the_last_work() {
 							   evtMgr_.get_result_ped_events_vec());
 		evtMgr_.ped_clear_result();
 	}
+	if (!evtMgr_.global_start())
+		return;
 	while (!evtMgr_.noped_trigger_empty()) {
 		if (evtMgr_.noped_do_merge(true)) {
 			result_write_tree_(evtMgr_.get_result_noped_trigger(),

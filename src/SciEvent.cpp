@@ -23,6 +23,10 @@ void SciEvent::set_time_align_() {
 	time_align = timestamp & 0x7FFFFF;
 }
 
+void SciEvent::set_status_(const char* packet_buffer, size_t packet_len) {
+	status = decode_byte<uint16_t>(packet_buffer, 6, 7);
+}
+
 void SciEvent::set_deadtime_(const char* packet_buffer, size_t packet_len) {
 	deadtime = decode_byte<uint16_t>(packet_buffer, 20, 21);
 }
@@ -85,6 +89,7 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
 	set_ct_num_(packet_buffer, packet_len);
 	set_timestamp_(packet_buffer, packet_len);
 	set_time_align_();
+	set_status_(packet_buffer, packet_len);
 	set_deadtime_(packet_buffer, packet_len);
 	set_trigger_bit_(packet_buffer, packet_len);
 	set_energy_ch_(packet_buffer, packet_len);

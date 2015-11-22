@@ -73,6 +73,9 @@ public:
 	void ped_clear_result();
 
 	void all_clear();
+	bool global_start() {
+		return global_start_flag_;
+	}
 };
 
 #endif
