@@ -29,7 +29,6 @@ private:
 	SciTrigger next_ped_trigger_;
 	vector<SciEvent> curr_ped_events_vec_;
 	vector<int> curr_ped_event_ct_num_vec_;
-	vector<int> curr_ped_event_alone_idx_vec_;
 	
 	bool ped_trigger_not_ready_;
 	bool trigger_is_first_;
@@ -41,14 +40,14 @@ private:
 	int event_common_period_;
 	int event_curr_time_align_[25];
 
-	int global_time_diff_;
+	int event_time_diff_[25];
+	bool event_start_flag_[25];
 	bool global_start_flag_;
 
 	trigger_queue<SciTrigger, vector<SciTrigger>, greater<SciTrigger> > noped_trigger_queue_;
 	priority_queue<SciEvent, vector<SciEvent>, greater<SciEvent> > noped_event_queue_[25];
 private:
 	bool can_noped_do_merge() const;
-	int find_common_(int* arr, size_t len);
 	void sync_event_period_(int idx);
 public:
 	EventMerger();

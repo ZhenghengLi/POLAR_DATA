@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 					pro.process_restart(frame);
 				} else {
 					while (frame.next_packet())
-						pro.process_frame(frame);
+						pro.process_packet(frame);
 				}
 			} else {
 				continue;

@@ -9,6 +9,9 @@ EventMerger::EventMerger() {
 		event_is_first_[i] = true;
 	}
 	global_start_flag_ = false;
+	for (int i = 0; i < 25; i++) {
+		event_start_flag_[i] = false;
+	}
 }
 
 EventMerger::~EventMerger() {
@@ -22,11 +25,13 @@ void EventMerger::all_clear() {
 		event_is_first_[i] = true;
 	}
 	global_start_flag_ = false;
+	for (int i = 0; i < 25; i++) {
+		event_start_flag_[i] = false;
+	}
 	result_ped_events_vec_.clear();
 	result_noped_events_vec_.clear();
 	curr_ped_events_vec_.clear();
 	curr_ped_event_ct_num_vec_.clear();
-	curr_ped_event_alone_idx_vec_.clear();
 	while (!noped_trigger_queue_.empty()) {
 		noped_trigger_queue_.pop();
 	}
@@ -152,9 +157,9 @@ bool EventMerger::noped_do_merge(bool force) {
 			continue;
 		result_noped_event = noped_event_queue_[i].top();
 		while ((result_noped_trigger_ - result_noped_event) -
-			   global_time_diff_  > -2) {
+			   event_time_diff_[i]  > -2) {
 			if ((result_noped_trigger_ - result_noped_event) -
-				global_time_diff_ > 1) {
+				event_time_diff_[i] > 1) {
 				noped_event_queue_[i].pop();
 				if (noped_event_queue_[i].empty())
 					break;
@@ -188,44 +193,28 @@ bool EventMerger::ped_check_valid() {
 		return false;
 	if (curr_ped_events_vec_.size() > 25 || curr_ped_events_vec_.size() < 10)
 		return false;
-	bool is_alone;
-	for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
-		is_alone = true;
-		for (size_t j = 0; j < curr_ped_events_vec_.size(); j++) {
-			if (i == j)
-				continue;
-			if (abs(static_cast<int>(curr_ped_events_vec_[i].time_align) -
-					static_cast<int>(curr_ped_events_vec_[j].time_align)) < 2) {
-				is_alone = false;
-				break;
-			}
-		}
-		if (is_alone)
-			curr_ped_event_alone_idx_vec_.push_back(i);
-	}
-	for (size_t i = 1; i < curr_ped_events_vec_.size(); i++) {
-		if (find(curr_ped_event_alone_idx_vec_.begin(),
-				 curr_ped_event_alone_idx_vec_.end(),
-				 i) != curr_ped_event_alone_idx_vec_.end())
-			continue;
-		if (abs(static_cast<int>(curr_ped_events_vec_[i].time_align) -
-				static_cast<int>(curr_ped_events_vec_[0].time_align)) >=2 )
-			return false;
-	}
-	if (curr_ped_events_vec_.size() - curr_ped_event_alone_idx_vec_.size() < 10)
-		return false;
-	else
-		return true;
+	return true;
 }
 
 void EventMerger::ped_update_time_diff() {
-	int time_diff[25];
+	int idx;
 	for (size_t i = 0; i < result_ped_events_vec_.size(); i++) {
-		time_diff[i] = result_ped_trigger_ - result_ped_events_vec_[i];
+		idx = static_cast<int>(result_ped_events_vec_[i].ct_num) - 1;
+		event_time_diff_[idx] = result_ped_trigger_ - result_ped_events_vec_[i];
+		if (!event_start_flag_[idx])
+			event_start_flag_[idx] = true;
 	}
-	global_time_diff_ = find_common_(time_diff, result_ped_events_vec_.size());
-	if (!global_start_flag_)
-		global_start_flag_ = true;
+	if (!global_start_flag_) {
+		bool all_events_are_start = true;
+		for (int i = 0; i < 25; i++) {
+			if (!event_start_flag_[i]) {
+				all_events_are_start = false;
+				break;
+			}
+		}
+		if (all_events_are_start)
+			global_start_flag_ = true;
+	}
 }
 
 void EventMerger::ped_move_result(bool valid) {
@@ -238,10 +227,6 @@ void EventMerger::ped_move_result(bool valid) {
 		}
 		result_ped_trigger_ = curr_ped_trigger_;
 		for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
-			if (find(curr_ped_event_alone_idx_vec_.begin(),
-					 curr_ped_event_alone_idx_vec_.end(),
-					 i) != curr_ped_event_alone_idx_vec_.end())
-				continue;
 			result_ped_events_vec_.push_back(curr_ped_events_vec_[i]);
 			pkt_count++;
 		}
@@ -250,14 +235,12 @@ void EventMerger::ped_move_result(bool valid) {
 		curr_ped_trigger_ = next_ped_trigger_;
 		curr_ped_events_vec_.clear();
 		curr_ped_event_ct_num_vec_.clear();
-		curr_ped_event_alone_idx_vec_.clear();
 	} else {
 		if (ped_trigger_not_ready_)
 			ped_trigger_not_ready_ = false;
 		curr_ped_trigger_ = next_ped_trigger_;
 		curr_ped_events_vec_.clear();
 		curr_ped_event_ct_num_vec_.clear();
-		curr_ped_event_alone_idx_vec_.clear();
 	}
 }
 
@@ -280,41 +263,25 @@ bool EventMerger::can_noped_do_merge() const {
 	return (flag_event || flag_trigger);
 }        
 
-int EventMerger::find_common_(int* arr, size_t len) {
-	map<int, int> val_count;
-	map<int, int>::iterator mapItr;
-	for (size_t i = 0; i < len; i++) {
-		if (val_count.find(arr[i]) == val_count.end()) {
-			val_count.insert(make_pair(arr[i], 1));
-		} else {
-			val_count[arr[i]] = val_count[arr[i]] + 1;
-		}
-	}
-	int max_count = 0;
-	int result_val = 0;
-	for (mapItr = val_count.begin(); mapItr != val_count.end(); mapItr++) {
-		if (mapItr->second > max_count) {
-			max_count = mapItr->second;
-			result_val = mapItr->first;
-		}
-	}
-	return result_val;
-}
-
 void EventMerger::sync_event_period_(int idx) {
-	bool all_events_are_not_first = true;
-	for (int i = 0; i < 25; i++) {
-		if (event_is_first_[i]) {
-			all_events_are_not_first = false;
-			break;
+	if (global_start_flag_)
+		return;
+	if (abs(event_period_[idx] - trigger_period_) > 1) {
+		if (event_time_diff_[idx] >= 0) {
+			if (static_cast<int>(curr_ped_trigger_.time_align) < event_time_diff_[idx])
+				event_period_[idx] = trigger_period_ - 1;
+			else
+				event_period_[idx] = trigger_period_;
+		} else {
+			if (static_cast<int>(curr_ped_trigger_.time_align) - event_time_diff_[idx] > CircleTime)
+				event_period_[idx] = trigger_period_ + 1;
+			else
+				event_period_[idx] = trigger_period_;
 		}
-	}
-	if (all_events_are_not_first) {
-		event_common_period_ = find_common_(event_period_, 25);
-		if (abs(event_period_[idx] - event_common_period_) > 1)
-			event_period_[idx] = event_common_period_;
 		return;
 	} else {
 		return;
 	}
 }
+
+

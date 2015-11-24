@@ -378,7 +378,7 @@ void Processor::process_packet(SciFrame& frame) {
 			}
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-//				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
+				os_logfile_ << "PT : " << sci_trigger.time_align << endl;
 			}
 //			ped_trigg_write_tree_(sci_trigger);
 			evtMgr_.add_ped_trigger(sci_trigger);
@@ -398,7 +398,7 @@ void Processor::process_packet(SciFrame& frame) {
 					cnt.noped_trig[i]++;
 			if (can_log()) {
 //				sci_trigger.print(cnt, os_logfile_);
-//				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
+				os_logfile_ << "NT : " << sci_trigger.time_align << endl;
 			}
 //			trigg_write_tree_(sci_trigger);
 			evtMgr_.add_noped_trigger(sci_trigger);
@@ -414,7 +414,7 @@ void Processor::process_packet(SciFrame& frame) {
 			cnt.ped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-//				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+				os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
 //			ped_event_write_tree_(sci_event);
 			evtMgr_.add_ped_event(sci_event);
@@ -422,7 +422,7 @@ void Processor::process_packet(SciFrame& frame) {
 			cnt.noped_event[sci_event.ct_num - 1]++;
 			if (can_log()) {
 //				sci_event.print(cnt, os_logfile_);
-//				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
+				os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
 			}
 //			event_write_tree_(sci_event);
 			evtMgr_.add_noped_event(sci_event);
