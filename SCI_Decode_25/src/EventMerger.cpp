@@ -264,7 +264,7 @@ bool EventMerger::can_noped_do_merge() const {
 }        
 
 void EventMerger::sync_event_period_(int idx) {
-	if (global_start_flag_)
+	if (!global_start_flag_)
 		return;
 	if (abs(event_period_[idx] - trigger_period_) > 1) {
 		if (event_time_diff_[idx] >= 0) {
