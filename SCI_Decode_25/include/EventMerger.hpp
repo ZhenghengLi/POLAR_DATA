@@ -44,11 +44,15 @@ private:
 	bool event_start_flag_[25];
 	bool global_start_flag_;
 
+	bool event_first_ready_[25];
+	vector<int> event_first_time_diff_vec_[25];
+
 	trigger_queue<SciTrigger, vector<SciTrigger>, greater<SciTrigger> > noped_trigger_queue_;
 	priority_queue<SciEvent, vector<SciEvent>, greater<SciEvent> > noped_event_queue_[25];
 private:
 	bool can_noped_do_merge() const;
 	void sync_event_period_(int idx);
+	int find_common_(vector<int> arr);
 public:
 	EventMerger();
 	~EventMerger();

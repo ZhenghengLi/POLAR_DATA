@@ -11,6 +11,7 @@ EventMerger::EventMerger() {
 	global_start_flag_ = false;
 	for (int i = 0; i < 25; i++) {
 		event_start_flag_[i] = false;
+		event_first_ready_[i] = false;		
 	}
 }
 
@@ -27,6 +28,7 @@ void EventMerger::all_clear() {
 	global_start_flag_ = false;
 	for (int i = 0; i < 25; i++) {
 		event_start_flag_[i] = false;
+		event_first_ready_[i] = false;
 	}
 	result_ped_events_vec_.clear();
 	result_noped_events_vec_.clear();
@@ -198,9 +200,27 @@ bool EventMerger::ped_check_valid() {
 
 void EventMerger::ped_update_time_diff() {
 	int idx;
+	int time_diff;
+	int max_diff = 5;
 	for (size_t i = 0; i < result_ped_events_vec_.size(); i++) {
 		idx = static_cast<int>(result_ped_events_vec_[i].ct_num) - 1;
-		event_time_diff_[idx] = result_ped_trigger_ - result_ped_events_vec_[i];
+		time_diff = result_ped_trigger_ - result_ped_events_vec_[i];
+		if (event_first_time_diff_vec_[idx].size() < 10) {
+			event_time_diff_[idx] = time_diff;
+			event_first_time_diff_vec_[idx].push_back(time_diff);
+		} else if (!event_first_ready_[idx]) {
+			int time_diff_common = find_common_(event_first_time_diff_vec_[idx]);
+			if (abs(time_diff - time_diff_common) <= max_diff) {
+				event_time_diff_[idx] = time_diff;
+			} else {
+				event_time_diff_[idx] = time_diff_common;
+			}
+			event_first_ready_[idx] = true;
+		} else {
+			if (abs(time_diff - event_time_diff_[idx]) <= max_diff) {
+				event_time_diff_[idx] = time_diff;
+			}
+		}
 		if (!event_start_flag_[idx])
 			event_start_flag_[idx] = true;
 	}
@@ -284,4 +304,23 @@ void EventMerger::sync_event_period_(int idx) {
 	}
 }
 
-
+int EventMerger::find_common_(vector<int> arr) {
+    map<int, int> val_count;
+    map<int, int>::iterator mapItr;
+    for (size_t i = 0; i < arr.size(); i++) {
+        if (val_count.find(arr[i]) == val_count.end()) {
+            val_count.insert(make_pair(arr[i], 1));
+        } else {
+			val_count[arr[i]] = val_count[arr[i]] + 1;
+        }
+    }
+    int max_count = 0;
+    int result_val = 0;
+    for (mapItr = val_count.begin(); mapItr != val_count.end(); mapItr++) {
+        if (mapItr->second > max_count) {
+            max_count = mapItr->second;
+            result_val = mapItr->first;
+        }
+    }
+    return result_val;
+}
