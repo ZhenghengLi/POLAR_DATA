@@ -80,16 +80,16 @@ void EventMerger::add_ped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
 		curr_ped_events_vec_.push_back(event);
 	} else {
 		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle) 
 			event_period_[idx]++;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
 		curr_ped_events_vec_.push_back(event);
@@ -118,15 +118,15 @@ void EventMerger::add_noped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
 	} else {
 		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle)
 			event_period_[idx]++;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
 	}
@@ -302,19 +302,22 @@ int EventMerger::find_common_(int* arr, size_t len) {
 }
 
 void EventMerger::sync_event_period_(int idx) {
-	bool all_events_are_not_first = true;
-	for (int i = 0; i < 25; i++) {
-		if (event_is_first_[i]) {
-			all_events_are_not_first = false;
-			break;
-		}
-	}
-	if (all_events_are_not_first) {
-		event_common_period_ = find_common_(event_period_, 25);
-		if (abs(event_period_[idx] - event_common_period_) > 1)
-			event_period_[idx] = event_common_period_;
-		return;
-	} else {
-		return;
-	}
+    if (!global_start_flag_)
+        return;
+    if (abs(event_period_[idx] - trigger_period_) > 1) {
+        if (global_time_diff_ >= 0) {
+            if (trigger_curr_time_align_ - event_curr_time_align_[idx] < -1 * PedCircle)
+                event_period_[idx] = trigger_period_ - 1;
+            else
+                event_period_[idx] = trigger_period_;
+        } else {
+            if (event_curr_time_align_[idx] - trigger_curr_time_align_ < -1 * PedCircle)
+                event_period_[idx] = trigger_period_ + 1;
+            else
+                event_period_[idx] = trigger_period_;
+        }
+        return;
+    } else {
+        return;
+    }
 }

@@ -29,6 +29,7 @@ void EventMerger::all_clear() {
 	for (int i = 0; i < 25; i++) {
 		event_start_flag_[i] = false;
 		event_first_ready_[i] = false;
+		event_first_time_diff_vec_[i].clear();
 	}
 	result_ped_events_vec_.clear();
 	result_noped_events_vec_.clear();
@@ -87,16 +88,16 @@ void EventMerger::add_ped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
 		curr_ped_events_vec_.push_back(event);
 	} else {
 		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle) 
 			event_period_[idx]++;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		curr_ped_event_ct_num_vec_.push_back(ct_number);
 		curr_ped_events_vec_.push_back(event);
@@ -125,15 +126,15 @@ void EventMerger::add_noped_event(SciEvent& event) {
 	if (event_is_first_[idx]) {
 		event_is_first_[idx] = false;
 		event_period_[idx] = 0;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
 	} else {
 		if (static_cast<int>(event.time_align) - event_curr_time_align_[idx] < -1 * PedCircle)
 			event_period_[idx]++;
-		sync_event_period_(idx);
 		event_curr_time_align_[idx] = static_cast<int>(event.time_align);
+		sync_event_period_(idx);
 		event.set_period(event_period_[idx]);
 		noped_event_queue_[idx].push(event);
 	}
@@ -290,12 +291,12 @@ void EventMerger::sync_event_period_(int idx) {
 		event_first_time_diff_vec_[idx].clear();
 		event_first_ready_[idx] = false;
 		if (event_time_diff_[idx] >= 0) {
-			if (static_cast<int>(curr_ped_trigger_.time_align) < event_time_diff_[idx])
+			if (trigger_curr_time_align_ - event_curr_time_align_[idx] < -1 * PedCircle)
 				event_period_[idx] = trigger_period_ - 1;
 			else
 				event_period_[idx] = trigger_period_;
 		} else {
-			if (static_cast<int>(curr_ped_trigger_.time_align) - event_time_diff_[idx] > CircleTime)
+			if (event_curr_time_align_[idx] - trigger_curr_time_align_ < -1 * PedCircle)
 				event_period_[idx] = trigger_period_ + 1;
 			else
 				event_period_[idx] = trigger_period_;
