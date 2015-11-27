@@ -287,6 +287,8 @@ void EventMerger::sync_event_period_(int idx) {
 	if (!global_start_flag_)
 		return;
 	if (abs(event_period_[idx] - trigger_period_) > 1) {
+		event_first_time_diff_vec_[idx].clear();
+		event_first_ready_[idx] = false;
 		if (event_time_diff_[idx] >= 0) {
 			if (static_cast<int>(curr_ped_trigger_.time_align) < event_time_diff_[idx])
 				event_period_[idx] = trigger_period_ - 1;
