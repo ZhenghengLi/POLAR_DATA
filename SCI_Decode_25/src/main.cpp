@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
 		cerr << "root file open failed" << endl;
 		exit(1);
 	}
+	pro.set_log(LOG_FLAG);	
 	if (LOG_FLAG) {
 		if (pro.logfile_open("output/sci_test.log")) {
 		} else {
@@ -35,50 +36,40 @@ int main(int argc, char** argv) {
 			exit(1);
 		}
 	}
-	pro.set_log(LOG_FLAG);
 
-	ifstream infile;
-	char buffer[2052];
-	SciFrame frame(buffer);	
-
-	// process the first file
-	filelist.next();
-	cout << filelist.cur_file() << endl;
-	infile.open(filelist.cur_file(), ios::in|ios::binary);
-	if (!infile) {
-		cerr << "data file open failed" << endl;
-		exit(1);
-	}
+	// === Start Process Data =======================================
 	
+	SciFrame frame(filelist.data_buffer);
+	
+	// process the first file
 	// check file valid and process the first frame
 	bool file_is_valid = false;
-	for (int i = 0; i < 5; i++) {
-		infile.read(buffer, 2052);
-		frame.updated();
-		if (pro.process_frame(frame)) {
-			if (pro.process_start(frame)) {
-				file_is_valid = true;
-				break;
+	if (filelist.next_file()) {
+		cout << filelist.cur_file() << endl;
+		for (int i = 0; i < 5; i++) {
+			if (filelist.next_frame()) {
+				frame.updated();
+				if (pro.process_frame(frame)) {
+					if (pro.process_start(frame)) {
+						file_is_valid = true;
+						break;
+					}
+				}
 			} else {
-				continue;
+				break;
 			}
-		} else {
-			continue;
 		}
-	}
-	
+	} 
 	if (!file_is_valid) {
 		cerr << "This file may be not a POLAR SCI raw data file." << endl;
+		pro.rootfile_close();
+		if (LOG_FLAG) {
+			pro.logfile_close();
+		}
 		exit(1);
 	}
-	
 	// process other frames in the first file
-	while (!infile.eof()) {
-		if (pro.cnt.frame > TOTAL_FRAME)
-			break;
-		infile.read(buffer, 2052);
-		if (infile.gcount() < 2052)
-			break;
+	while (filelist.next_frame()) {
 		frame.updated();
 		if (pro.process_frame(frame)) {
 			if (pro.interruption_occurred(frame)) {
@@ -88,26 +79,12 @@ int main(int argc, char** argv) {
 				while (frame.next_packet())
 					pro.process_packet(frame);
 			}
-		} else {
-			continue;
-		}
+		}		
 	}
-	infile.close();
-
 	// if there are other files
-	while (filelist.next()) {
+	while (filelist.next_file()) {
 		cout << filelist.cur_file() << endl;
-		infile.open(filelist.cur_file(), ios::in|ios::binary);
-		if (!infile) {
-			cerr << "data file open failed" << endl;
-			exit(1);
-		}
-		while (!infile.eof()) {
-			if (pro.cnt.frame > TOTAL_FRAME)
-				break;
-			infile.read(buffer, 2052);
-			if (infile.gcount() < 2052)
-				break;
+		while (filelist.next_frame()) {
 			frame.updated();
 			if (pro.process_frame(frame)) {
 				if (pro.interruption_occurred(frame)) {
@@ -117,13 +94,12 @@ int main(int argc, char** argv) {
 					while (frame.next_packet())
 						pro.process_packet(frame);
 				}
-			} else {
-				continue;
-			}
+			}		
 		}
-		infile.close();
 	}
 
+	// === End Process Data ====================================
+	
 	pro.do_the_last_work();
 	pro.rootfile_close();
 	if (LOG_FLAG) {

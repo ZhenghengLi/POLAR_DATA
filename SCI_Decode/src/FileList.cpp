@@ -122,7 +122,7 @@ bool FileList::next_file() {
 	if (fileIter_ == fileList_.end())
 		return false;
 	// prepare the first data_buffer
-	datafile_.open(cur_file());
+	datafile_.open(cur_file(), ios::in|ios::binary);
 	if (!datafile_.is_open()) {
 		cerr << "Data file open failed: " << cur_file() << endl;
 		return false;
