@@ -13,22 +13,27 @@ int main(int argc, char** argv) {
 	TFile* root_file = new TFile("./output/sci_test.root", "READ");
 	TTree* t_trigg = static_cast<TTree*>(root_file->Get("t_trigg"));
 
-	ULong64_t b_trigg_frm_gps_time;
-	t_trigg->SetBranchAddress("frm_gps_time", &b_trigg_frm_gps_time);
-	t_trigg->GetEntry(0);
-	ULong64_t start_gps_time = b_trigg_frm_gps_time;
-	t_trigg->GetEntry(t_trigg->GetEntries() - 70000);
-	ULong64_t end_gps_time = b_trigg_frm_gps_time;
-	cout << start_gps_time << endl;
-	cout << end_gps_time << endl;
+	Int_t pkt_count;
+	Int_t lost_count;
+	Int_t mode;
+	t_trigg->SetBranchAddress("pkt_count", &pkt_count);
+	t_trigg->SetBranchAddress("lost_count", &lost_count);
+	t_trigg->SetBranchAddress("mode", &mode);
 
-	start_gps_time &= 0xFFFFF000;
-	start_gps_time >>= 12;
-	end_gps_time &= 0xFFFFF000;
-	end_gps_time >>= 12;
-	cout << "GPS time span: " << end_gps_time - start_gps_time << endl;
-	cout << start_gps_time << endl;
-	cout << end_gps_time << endl;
+	int tot_cnt = 0;
+	int tot_lost_cnt = 0;
+	Long64_t tot_entries = t_trigg->GetEntries();
+	for (Long64_t i = 0; i < tot_entries; i++) {
+		t_trigg->GetEntry(i);
+		tot_cnt += pkt_count + lost_count;
+		tot_lost_cnt += lost_count;
+		if ((i + 1) % 1000 == 0) {
+			cout << i + 1 / 1000 << " " << tot_cnt << " " << tot_lost_cnt << endl;
+			tot_cnt = 0;
+			tot_lost_cnt = 0;
+		}
+	}
+
 
 	return 0;
 }
