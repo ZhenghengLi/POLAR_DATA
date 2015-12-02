@@ -128,6 +128,7 @@ bool FileList::next_file() {
 		return false;
 	}
 	buffer_is_first_ = true;
+	remain_counter_ = 2;
 	found_start_frame_ = false;
 	while (!found_start_frame_) {
 		datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
@@ -163,12 +164,14 @@ bool FileList::next_frame() {
 		vernier_end_ = 0;
 		return false;
 	}
-	if (remain_counter_ < 1)
+	if (remain_counter_ < 1) {
+		vernier_begin_ += 2052;
+		shift_left();
 		return false;
+	}
 	if (buffer_is_first_) {
 		buffer_is_first_ = false;
 		reach_file_end_ = false;
-		remain_counter_ = 2;
 	} else {
 		vernier_begin_ += 2052;
 		shift_left();	
@@ -177,8 +180,10 @@ bool FileList::next_frame() {
 		} else {
 			datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
 			vernier_end_ += datafile_.gcount();
-			if (datafile_.eof())
+			if (datafile_.eof()) {
 				reach_file_end_ = true;
+				remain_counter_--;
+			}
 		}
 	}
 	return true;
