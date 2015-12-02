@@ -13,6 +13,7 @@ EventMerger::EventMerger() {
 		event_start_flag_[i] = false;
 		event_first_ready_[i] = false;		
 	}
+	force_start_count_ = 0;
 }
 
 EventMerger::~EventMerger() {
@@ -31,6 +32,7 @@ void EventMerger::all_clear() {
 		event_first_ready_[i] = false;
 		event_first_time_diff_vec_[i].clear();
 	}
+	force_start_count_ = 0;
 	result_ped_events_vec_.clear();
 	result_noped_events_vec_.clear();
 	curr_ped_events_vec_.clear();
@@ -226,6 +228,9 @@ void EventMerger::ped_update_time_diff() {
 			event_start_flag_[idx] = true;
 	}
 	if (!global_start_flag_) {
+		force_start_count_++;
+		if (force_start_count_ > 10)
+			global_start_flag_ = true;
 		bool all_events_are_start = true;
 		for (int i = 0; i < 25; i++) {
 			if (!event_start_flag_[i]) {
