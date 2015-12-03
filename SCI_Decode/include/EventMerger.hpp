@@ -46,6 +46,8 @@ private:
 
 	trigger_queue<SciTrigger, vector<SciTrigger>, greater<SciTrigger> > noped_trigger_queue_;
 	priority_queue<SciEvent, vector<SciEvent>, greater<SciEvent> > noped_event_queue_[25];
+
+	int force_start_count_;
 private:
 	bool can_noped_do_merge() const;
 	int find_common_(int* arr, size_t len);

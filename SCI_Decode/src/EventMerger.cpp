@@ -9,6 +9,7 @@ EventMerger::EventMerger() {
 		event_is_first_[i] = true;
 	}
 	global_start_flag_ = false;
+	force_start_count_ = 0;
 }
 
 EventMerger::~EventMerger() {
@@ -22,6 +23,7 @@ void EventMerger::all_clear() {
 		event_is_first_[i] = true;
 	}
 	global_start_flag_ = false;
+	force_start_count_ = 0;
 	result_ped_events_vec_.clear();
 	result_noped_events_vec_.clear();
 	curr_ped_events_vec_.clear();
@@ -188,6 +190,13 @@ bool EventMerger::ped_check_valid() {
 		return false;
 	if (curr_ped_events_vec_.size() > 25 || curr_ped_events_vec_.size() < 10)
 		return false;
+	if (!global_start_flag_) {
+		force_start_count_++;
+		if (force_start_count_ > 10) {
+			cerr << "WARNING: the offsets of 25 modules are too different" << endl;
+			global_start_flag_ = true;
+		}
+	}
 	bool is_alone;
 	for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
 		is_alone = true;
