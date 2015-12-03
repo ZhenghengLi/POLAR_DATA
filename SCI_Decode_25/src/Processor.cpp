@@ -366,7 +366,7 @@ void Processor::process_packet(SciFrame& frame) {
 				int time_diff = sci_trigger.time_align - pre_ped_trigg_time_;
 				if (time_diff < 0)
 					time_diff += CircleTime;
-				if (time_diff < 12000)
+				if (time_diff < PedCircle / 2)
 					cnt.tin_ped_trigger++;
 				else
 					cnt.sec_ped_trigger++;
