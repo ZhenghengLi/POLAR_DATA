@@ -203,19 +203,27 @@ bool EventMerger::ped_check_valid() {
 		if (is_alone)
 			curr_ped_event_alone_idx_vec_.push_back(i);
 	}
-	for (size_t i = 1; i < curr_ped_events_vec_.size(); i++) {
+	if (curr_ped_events_vec_.size() - curr_ped_event_alone_idx_vec_.size() < 10)
+		return false;
+	size_t first_i = 0;
+	for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
+		if (find(curr_ped_event_alone_idx_vec_.begin(),
+				 curr_ped_event_alone_idx_vec_.end(),
+				 i) == curr_ped_event_alone_idx_vec_.end()) {
+			first_i = i;
+			break;
+		}
+	}
+	for (size_t i = first_i + 1; i < curr_ped_events_vec_.size(); i++) {
 		if (find(curr_ped_event_alone_idx_vec_.begin(),
 				 curr_ped_event_alone_idx_vec_.end(),
 				 i) != curr_ped_event_alone_idx_vec_.end())
 			continue;
 		if (abs(static_cast<int>(curr_ped_events_vec_[i].time_align) -
-				static_cast<int>(curr_ped_events_vec_[0].time_align)) >=2 )
+				static_cast<int>(curr_ped_events_vec_[first_i].time_align)) >=2 )
 			return false;
 	}
-	if (curr_ped_events_vec_.size() - curr_ped_event_alone_idx_vec_.size() < 10)
-		return false;
-	else
-		return true;
+	return true;
 }
 
 void EventMerger::ped_update_time_diff() {
