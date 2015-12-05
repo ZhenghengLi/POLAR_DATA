@@ -8,7 +8,7 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 all: ../bin/SCI_Decode_25
 
 ../bin/SCI_Decode_25: $(OBJ_FILES)
-	$(CC) -o $@ $^ $(ROOT_FLAGS)
+	$(CC) $(CC_FLAGS) -o $@ $^ $(ROOT_FLAGS)
 
 obj/%.o: src/%.cpp
 	$(CC) $(CC_FLAGS) -c -o $@ $< $(ROOT_FLAGS)

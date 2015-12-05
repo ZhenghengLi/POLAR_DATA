@@ -5,9 +5,9 @@ CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 .PHONY : all clean
-all: ../bin/SCI_Decode
+all: ../bin/analysis_test
 
-../bin/SCI_Decode: $(OBJ_FILES)
+../bin/analysis_test: $(OBJ_FILES)
 	$(CC) $(CC_FLAGS) -o $@ $^ $(ROOT_FLAGS)
 
 obj/%.o: src/%.cpp
