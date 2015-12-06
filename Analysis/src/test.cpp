@@ -15,6 +15,18 @@ int main(int argc, char** argv) {
 		cerr << "root file open failed." << endl;
 		exit(1);
 	}
+	while (eventIter.trigg_next()) {
+		while (eventIter.event_next()) {
+
+		}
+	}
+
+	while (eventIter.ped_trigg_next()) {
+		while (eventIter.ped_event_next()) {
+
+		}
+	}
+
 	eventIter.close();
 	cout << "Done." << endl;
   

@@ -84,13 +84,19 @@ public:
 	bool event_next();
 	void trigg_restart();
 	void event_restart();
-	bool trigg_select(Long64_t entry_index);	
+	bool trigg_select(Long64_t entry_index);
+	Long64_t total_entries() {
+		return trigg_tot_entries_;
+	}
 
 	bool ped_trigg_next();
 	bool ped_event_next();
 	void ped_trigg_restart();
 	void ped_event_restart();
 	bool ped_trigg_select(Long64_t event_index);
+	Long64_t ped_total_entries() {
+		return ped_trigg_tot_entries_;
+	}
 };
 
 #endif 

@@ -288,7 +288,7 @@ bool EventIterator::ped_event_next() {
 void EventIterator::ped_event_restart() {
 	ped_event_reach_end_ = false;
 	ped_event_is_start_ = true;
-	ped_event_cur_index_ = event_cur_start_index_;
+	ped_event_cur_index_ = ped_event_cur_start_index_;
 }
 
 
