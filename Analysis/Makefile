@@ -1,19 +1,15 @@
 CC := g++
 CC_FLAGS := -Wl,--no-as-needed -Wall -O2 -I./include
 ROOT_FLAGS := `root-config --cflags --glibs`
-CPP_FILES := $(wildcard src/*.cpp)
-OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
-.PHONY : all clean
+.PHONY : all clean test
 all: ../bin/analysis_test
+test: ../bin/analysis_test
 
-../bin/analysis_test: $(OBJ_FILES)
+../bin/analysis_test: src/test.cpp src/EventIterator.cpp
 	$(CC) $(CC_FLAGS) -o $@ $^ $(ROOT_FLAGS)
-
-obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) -c -o $@ $< $(ROOT_FLAGS)
 
 clean:
 	@echo "Cleaning ..."
-	@rm obj/*.o
+	@rm ../bin/analysis_test
 

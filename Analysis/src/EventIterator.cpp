@@ -9,10 +9,8 @@ EventIterator::EventIterator() {
 }
 
 EventIterator::~EventIterator() {
-	if (t_file_in_ != NULL) {
-		t_file_in_->Close();
-		t_file_in_ = NULL;
-	}
+	if (t_file_in_ != NULL)
+		close();
 }
 
 bool EventIterator::open(const char* filename) {
@@ -108,7 +106,12 @@ bool EventIterator::open(const char* filename) {
 void EventIterator::close() {
 	if (t_file_in_ != NULL) {
 		t_file_in_->Close();
+		delete t_file_in_;
 		t_file_in_ = NULL;
+		t_trigg_tree_ = NULL;
+		t_ped_trigg_tree_ = NULL;
+		t_event_tree_ = NULL;
+		t_ped_event_tree_ = NULL;
 	}
 }
 

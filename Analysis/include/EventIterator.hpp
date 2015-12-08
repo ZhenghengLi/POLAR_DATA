@@ -7,38 +7,6 @@
 
 using namespace std;
 
-struct B_Trigger {
-	Long64_t trigg_index;
-	Int_t mode;
-	UInt_t timestamp;
-	UInt_t time_align;
-	Int_t packet_num;
-	Bool_t trig_accepted[25];
-	Bool_t trig_rejected[25];
-	UInt_t deadtime;
-	Long64_t start_entry;
-	Int_t pkt_count;
-	Int_t lost_count;
-	ULong64_t frm_ship_time;
-	ULong64_t frm_gps_time;
-	UShort_t status;
-	UChar_t trig_sig_con[25];
-};
-
-struct B_Event {
-	Long64_t trigg_index;
-	Int_t mode;
-	Int_t ct_num;
-	UInt_t timestamp;
-	UInt_t time_align;
-	Bool_t trigger_bit[64];
-	Int_t energy_ch[64];
-	Int_t rate;
-	UInt_t deadtime;
-	Int_t common_noise;
-	UShort_t status;
-};
-
 class EventIterator {
 private:
 	TFile * t_file_in_;
@@ -68,11 +36,44 @@ private:
 	bool ped_event_reach_end_;
 	
 public:
-	B_Trigger trigg;
-	B_Trigger ped_trigg;
-	B_Event event;
-	B_Event ped_event;
-
+	struct Trigg_T {
+		Long64_t trigg_index;
+		Int_t mode;
+		UInt_t timestamp;
+		UInt_t time_align;
+		Int_t packet_num;
+		Bool_t trig_accepted[25];
+		Bool_t trig_rejected[25];
+		UInt_t deadtime;
+		Long64_t start_entry;
+		Int_t pkt_count;
+		Int_t lost_count;
+		ULong64_t frm_ship_time;
+		ULong64_t frm_gps_time;
+		UShort_t status;
+		UChar_t trig_sig_con[25];
+	};
+	
+	struct Event_T {
+		Long64_t trigg_index;
+		Int_t mode;
+		Int_t ct_num;
+		UInt_t timestamp;
+		UInt_t time_align;
+		Bool_t trigger_bit[64];
+		Int_t energy_ch[64];
+		Int_t rate;
+		UInt_t deadtime;
+		Int_t common_noise;
+		UShort_t status;
+	};
+	
+public:
+	Trigg_T trigg;
+	Trigg_T ped_trigg;
+	Event_T event;
+	Event_T ped_event;
+	
 public:
 	EventIterator();
 	~EventIterator();

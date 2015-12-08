@@ -6,34 +6,39 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "RootInc.hpp"
+#include "EventIterator.hpp"
 
 using namespace std;
 
 int main(int argc, char** argv) {
-	TFile* root_file = new TFile("./output/sci_test.root", "READ");
-	TTree* t_trigg = static_cast<TTree*>(root_file->Get("t_trigg"));
+	if (argc < 2) {
+        cout << "USAGE: " << argv[0] << " <infile.root>" << endl;
+        exit(1);
+    }   
 
-	Int_t pkt_count;
-	Int_t lost_count;
-	Int_t mode;
-	t_trigg->SetBranchAddress("pkt_count", &pkt_count);
-	t_trigg->SetBranchAddress("lost_count", &lost_count);
-	t_trigg->SetBranchAddress("mode", &mode);
+//  TApplication* rootapp = new TApplication("POLAR", &argc, argv);
 
+    EventIterator eventIter;
+    eventIter.open(argv[1]);
+
+	int lost_0 = 0;
+	int lost_1 = 0;
 	int tot_cnt = 0;
-	int tot_lost_cnt = 0;
-	Long64_t tot_entries = t_trigg->GetEntries();
-	for (Long64_t i = 0; i < tot_entries; i++) {
-		t_trigg->GetEntry(i);
-		tot_cnt += pkt_count + lost_count;
-		tot_lost_cnt += lost_count;
-		if ((i + 1) % 1000 == 0) {
-			cout << i + 1 / 1000 << " " << tot_cnt << " " << tot_lost_cnt << endl;
-			tot_cnt = 0;
-			tot_lost_cnt = 0;
+    while (eventIter.trigg_next()) {
+		tot_cnt += eventIter.trigg.pkt_count + eventIter.trigg.lost_count;
+		if (eventIter.trigg.pkt_count == 0) {
+			lost_0 += eventIter.trigg.lost_count;
+		} else {
+			lost_1 += eventIter.trigg.lost_count;
 		}
-	}
-
-
+    }   
+    
+    eventIter.close();
+   
+ 	cout << lost_0 << endl;
+	cout << lost_1 << endl;
+	cout << tot_cnt << endl;
+   
+//  rootapp->Run();
 	return 0;
 }
