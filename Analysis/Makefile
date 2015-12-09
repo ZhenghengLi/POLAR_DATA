@@ -6,7 +6,7 @@ ROOT_FLAGS := `root-config --cflags --glibs`
 all: ../bin/analysis_test
 test: ../bin/analysis_test
 
-../bin/analysis_test: src/test.cpp src/EventIterator.cpp
+../bin/analysis_test: src/test.cpp src/EventIterator.cpp src/PhyEventFile.cpp
 	$(CC) $(CC_FLAGS) -o $@ $^ $(ROOT_FLAGS)
 
 clean:

@@ -172,7 +172,7 @@ void PhyEventFile::trigg_restart() {
 }
 
 bool PhyEventFile::trigg_select(Long64_t entry_index) {
-    if (t_file_in_ == NULL)
+    if (t_file_ == NULL)
         return false;
 	if (mode_ != 'r')
 		return false;
