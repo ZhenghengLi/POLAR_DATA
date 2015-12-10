@@ -1,6 +1,7 @@
 CC := g++
-CC_FLAGS := -Wl,--no-as-needed -Wall -O2 -I./include
-ROOT_FLAGS := `root-config --cflags --glibs`
+CC_FLAGS := -Wall -O2 -I./include
+ROOT_FLAGS := $(shell root-config --cflags)
+ROOT_LIBS := $(shell root-config --libs)
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
@@ -8,10 +9,10 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 all: ../bin/SCI_Decode_25
 
 ../bin/SCI_Decode_25: $(OBJ_FILES)
-	$(CC) $(CC_FLAGS) -o $@ $^ $(ROOT_FLAGS)
+	$(CC) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) -c -o $@ $< $(ROOT_FLAGS)
+	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
 
 clean:
 	@echo "Cleaning objects ..."
