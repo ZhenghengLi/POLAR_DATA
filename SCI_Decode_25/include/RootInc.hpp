@@ -1,15 +1,15 @@
 #ifndef ROOTINC_HPP
 #define ROOTINC_HPP
 
-#include <root/TFile.h>
-#include <root/TTree.h>
-#include <root/TH1.h>
-#include <root/TF1.h>
-#include <root/TCanvas.h>
-#include <root/TApplication.h>
-#include <root/TROOT.h>
-#include <root/TMath.h>
-#include <root/TStyle.h>
-#include <root/TGraph.h>
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TCanvas.h"
+#include "TApplication.h"
+#include "TROOT.h"
+#include "TMath.h"
+#include "TStyle.h"
+#include "TGraph.h"
 
 #endif
