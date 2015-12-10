@@ -3,7 +3,7 @@
 
 all: sci sci_25
 
-clean: sci_clean sci_25_clean
+clean: sci_clean sci_25_clean bin_clean
 
 sci:
 	cd SCI_Decode; make
@@ -16,3 +16,7 @@ sci_25:
 
 sci_25_clean:
 	cd SCI_Decode_25; make clean
+
+bin_clean:
+	@echo "Cleaning binary files ..."
+	@rm -f bin/*

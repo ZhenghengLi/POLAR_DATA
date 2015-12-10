@@ -1,4 +1,5 @@
 *.o
 *.log
+bin/**
 output/**
 listfile/**

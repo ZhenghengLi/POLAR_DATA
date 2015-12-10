@@ -14,6 +14,6 @@ obj/%.o: src/%.cpp
 	$(CC) $(CC_FLAGS) -c -o $@ $< $(ROOT_FLAGS)
 
 clean:
-	@echo "Cleaning ..."
-	@rm obj/*.o
+	@echo "Cleaning objects ..."
+	@rm -f obj/*.o
 

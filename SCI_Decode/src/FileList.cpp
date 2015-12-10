@@ -61,13 +61,13 @@ const char* FileList::cur_file() {
 	return (*fileIter_).c_str();
 }
 
-void FileList::shift_left() {
+void FileList::shift_left_() {
 	memmove(data_buffer, data_buffer + vernier_begin_, vernier_end_ - vernier_begin_);
 	vernier_end_ -= vernier_begin_;
 	vernier_begin_ = 0;
 }
 
-bool FileList::check_valid() {
+bool FileList::check_valid_() {
 	uint16_t frame_header = 0;
 	for (int i = 0; i < 2; i++) {
 		frame_header <<= 8;
@@ -139,15 +139,15 @@ bool FileList::next_file() {
 			vernier_end_ = BUFFER_SIZE;
 		}
 		while (vernier_begin_ < 2052) {
-			if (check_valid()) {
+			if (check_valid_()) {
 				found_start_frame_ = true;
-				shift_left();
+				shift_left_();
 				break;
 			}
 			vernier_begin_++;
 		}
 		if (!found_start_frame_)
-			shift_left();
+			shift_left_();
 	}
 	if (found_start_frame_) {
 		datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
@@ -166,7 +166,7 @@ bool FileList::next_frame() {
 	}
 	if (remain_counter_ < 1) {
 		vernier_begin_ += 2052;
-		shift_left();
+		shift_left_();
 		return false;
 	}
 	if (buffer_is_first_) {
@@ -174,7 +174,7 @@ bool FileList::next_frame() {
 		reach_file_end_ = false;
 	} else {
 		vernier_begin_ += 2052;
-		shift_left();	
+		shift_left_();	
 		if (reach_file_end_) {
 			remain_counter_--;
 		} else {

@@ -24,8 +24,8 @@ private:
 	int remain_counter_;
 	bool found_start_frame_;
 private:
-	void shift_left();
-	bool check_valid();
+	void shift_left_();
+	bool check_valid_();
 public:
 	char data_buffer[BUFFER_SIZE];
 public:
