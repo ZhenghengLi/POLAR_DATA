@@ -125,3 +125,44 @@ void PedMeanCalc::show(int ct_num) {
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
 }
+
+void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
+	phy_event_file.trigg.trigg_index = event_iterator.trigg.trigg_index;
+	phy_event_file.trigg.mode = event_iterator.trigg.mode;
+	for (int i = 0; i < 25; i++)
+		phy_event_file.trigg.trig_accepted[i] = event_iterator.trigg.trig_accepted[i];
+	phy_event_file.trigg.start_entry = event_iterator.trigg.start_entry;
+	phy_event_file.trigg.pkt_count = event_iterator.trigg.pkt_count;
+	phy_event_file.trigg.lost_count = event_iterator.trigg.lost_count;
+	phy_event_file.trigg.level_flag = 1;
+}
+
+void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
+	phy_event_file.event.trigg_index = event_iterator.event.trigg_index;
+	phy_event_file.event.ct_num = event_iterator.event.ct_num;
+	for (int i = 0; i < 64; i++)
+		phy_event_file.event.trigger_bit[i] = event_iterator.event.trigger_bit[i];
+	if (event_iterator.event.mode == 3) {
+		for (int i = 0; i < 64; i++)
+			phy_event_file.event.energy_ch[i] = static_cast<Double_t>(event_iterator.event.energy_ch[i]);
+	} else {
+		int idx = event_iterator.event.ct_num - 1;
+		Double_t tmp_energy_ch[64];
+		for (int i = 0; i < 64; i++)
+			tmp_energy_ch[i] = static_cast<Double_t>(event_iterator.event.energy_ch[i]) - mean[idx][i];
+		Double_t common_noise = 0;
+		Double_t common_sum = 0;
+		int common_n = 0;
+		for (int i = 0; i < 64; i++) {
+			if (event_iterator.event.trigger_bit[i])
+				continue;
+			common_sum += tmp_energy_ch[i];
+			common_n ++;
+		}
+		common_noise = (common_n > 0 ? common_sum / common_n : 0);
+		for (int i = 0; i < 64; i++) {
+			tmp_energy_ch[i] = tmp_energy_ch[i] - common_noise;
+			phy_event_file.event.energy_ch[i] = (tmp_energy_ch[i] > 0 ? tmp_energy_ch[i] : 0);
+		}
+	}
+}

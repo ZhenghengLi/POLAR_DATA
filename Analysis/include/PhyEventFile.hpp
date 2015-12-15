@@ -30,7 +30,7 @@ public:
 		Long64_t trigg_index;
 		Int_t ct_num;
 		Bool_t trigger_bit[64];
-		Int_t energy_ch[64];
+		Double_t energy_ch[64];
 	};
 	struct Trigg_T {
 		Long64_t trigg_index;
@@ -39,6 +39,7 @@ public:
 		Long64_t start_entry;
 		Int_t pkt_count;
 		Int_t lost_count;
+		Int_t level_flag;
 	};
 
 public:

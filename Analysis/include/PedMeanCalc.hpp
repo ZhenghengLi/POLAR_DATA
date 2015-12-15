@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
+#include "PhyEventFile.hpp"
 
 #define PED_BINS 100
 #define PED_MAX 1024
@@ -39,7 +40,10 @@ public:
 	void init(EventIterator* iter);
 	void do_calc();
 	void show(int ct_num);
-	void set_sigma_0(Int_t sig);
+	void do_move_trigg(PhyEventFile& phy_event_file,
+					   const EventIterator& event_iterator) const;
+	void do_subtruct(PhyEventFile& phy_event_file, 
+					 const EventIterator& event_iterator) const;
 
 };
 
