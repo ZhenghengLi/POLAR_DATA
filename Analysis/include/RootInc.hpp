@@ -11,5 +11,7 @@
 #include "TMath.h"
 #include "TStyle.h"
 #include "TGraph.h"
+#include "TGraph2D.h"
+#include "TString.h"
 
 #endif

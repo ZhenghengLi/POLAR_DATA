@@ -10,6 +10,8 @@ PedMeanCalc::PedMeanCalc() {
 			h_ped_[i][j] = NULL;
 		}
 	}
+	canvas_res_ = NULL;
+	g_ped_ = NULL;
 }
 
 PedMeanCalc::~PedMeanCalc() {
@@ -38,6 +40,14 @@ void PedMeanCalc::create_() {
 void PedMeanCalc::destroy_() {
 	if (eventIter_ != NULL)
 		eventIter_ = NULL;
+	if (canvas_res_ != NULL) {
+		delete canvas_res_;
+		canvas_res_ = NULL;
+	}
+	if (g_ped_ != NULL) {
+		delete g_ped_;
+		g_ped_ = NULL;
+	}
 	for (int i = 0; i < 25; i++) {
 		if (canvas_[i] != NULL) {
 			delete canvas_[i];
@@ -126,7 +136,11 @@ void PedMeanCalc::show(int ct_num) {
 	}
 }
 
+
+
 void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
+	if (!done_flag_)
+		return;
 	phy_event_file.trigg.trigg_index = event_iterator.trigg.trigg_index;
 	phy_event_file.trigg.mode = event_iterator.trigg.mode;
 	for (int i = 0; i < 25; i++)
@@ -138,6 +152,8 @@ void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterato
 }
 
 void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
+	if (!done_flag_)
+		return;
 	phy_event_file.event.trigg_index = event_iterator.event.trigg_index;
 	phy_event_file.event.ct_num = event_iterator.event.ct_num;
 	for (int i = 0; i < 64; i++)
@@ -166,3 +182,70 @@ void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator&
 		}
 	}
 }
+
+void PedMeanCalc::print(bool sigma_flag) {
+	if (!done_flag_)
+		return;
+	cout << setw(3) << " " << " | ";
+	for (int i = 0; i < 25; i++)
+		cout << setw(7) << i + 1;
+	cout << endl;
+	cout << endl;
+	cout << fixed << setprecision(2);
+	for (int j = 0; j < 64; j++) {
+        cout << setw(3) << j + 1 << " | ";
+        for (int i = 0; i < 25; i++) {
+            cout << setw(7) << mean[i][j];
+        }
+        cout << endl;
+		if (sigma_flag) {
+			cout << setw(3) << " " << " | ";
+			for (int i = 0; i < 25; i++) {
+				cout << setw(7) << sigma[i][j];
+			}
+			cout << endl;
+		}
+        cout << endl;
+	}
+}
+
+void PedMeanCalc::show_all() {
+	if (!done_flag_)
+		return;
+	for (int i = 0; i < 25; i++)
+		show(i + 1);
+}
+
+void PedMeanCalc::show_mean() {
+	if (!done_flag_)
+		return;
+	if (canvas_res_ != NULL) {
+		delete canvas_res_;
+		canvas_res_ = NULL;
+	}
+	if (g_ped_ != NULL) {
+		delete g_ped_;
+		g_ped_ = NULL;
+	}
+	canvas_res_ = new TCanvas("canvas_res", "Pedestal Map of 1600 Channels", 800, 800);
+	canvas_res_->SetFixedAspectRatio();
+	g_ped_ = new TGraph2D(1600);
+	g_ped_->SetName("g_ped");
+	g_ped_->SetTitle("Pedestal Map of 1600 Channels");
+	g_ped_->SetDirectory(NULL);
+	for (int i = 0; i < 25; i++) {
+		for (int j = 0; j < 64; j++) {
+			int n = i * 64 + j;
+			int x1 = i / 5;
+			int y1 = 4 - i % 5;
+			int x2 = j % 8;
+			int y2 = j / 8;
+			int x = x1 * 8 + x2;
+			int y = y1 * 8 + y2;
+			g_ped_->SetPoint(n, x, y, mean[i][j]);
+		}
+	}
+	canvas_res_->cd();
+	g_ped_->Draw("COLZ");
+}
+
