@@ -21,15 +21,16 @@ void PedMeanCalc::create_() {
 		return;
 	for (int i = 0; i < 25; i++) {
 		for (int j = 0; j < 64; j++) {
-			sprintf(name_, "f_gaus_%d_%d", i, j);
-			f_gaus_[i][j] = new TF1(name_, "gaus(0)", 1, PED_MAX);
-			f_gaus_[i][j]->SetParameters(1, 400, 30);
-			sprintf(name_, "h_ped_%d_%d", i, j);
+			sprintf(name_, "f_gaus_%d_%d", i + 1, j + 1);
+			f_gaus_[i][j] = new TF1(name_, "gaus(0)", 0, PED_MAX);
+			f_gaus_[i][j]->SetParameters(1, 400, 25);
+			f_gaus_[i][j]->SetParName(0, "Amplitude");
+			f_gaus_[i][j]->SetParName(1, "Mean");
+			f_gaus_[i][j]->SetParName(2, "Sigma");
+			sprintf(name_, "h_ped_%d_%d", i + 1, j + 1);
 			sprintf(title_, "Pedestal of CH %d_%d", i + 1, j + 1);
-			h_ped_[i][j] = new TH1F(name_, title_, PED_BINS, 1, PED_MAX);
+			h_ped_[i][j] = new TH1D(name_, title_, PED_BINS, 0, PED_MAX);
 			h_ped_[i][j]->SetDirectory(NULL);
-			tot_ch_[i][j] = 0;
-			num_ch_[i][j] = 0;
 		}
 	}
 }
@@ -73,8 +74,6 @@ void PedMeanCalc::do_calc() {
 				Int_t ch = eventIter_->ped_event.energy_ch[j];
 				if (ch > PED_MAX)
 					continue;
-				tot_ch_[idx][j] += ch;
-				num_ch_[idx][j]++;
 				h_ped_[idx][j]->Fill(ch);
 			}
 		}
@@ -82,15 +81,25 @@ void PedMeanCalc::do_calc() {
 	
 	for (int i = 0; i < 25; i++) {
 		for (int j = 0; j < 64; j++) {
-			mean_0_[i][j] = tot_ch_[i][j] / num_ch_[i][j];
-			int min_ch = mean_0_[i][j] - 150 > 1 ? mean_0_[i][j] - 150 : 1;
-			int max_ch = mean_0_[i][j] + 150 < PED_MAX ? mean_0_[i][j] + 150 : PED_MAX;
-			f_gaus_[i][j]->SetParameter(1, mean_0_[i][j]);
+			mean_0[i][j] = h_ped_[i][j]->GetMean();
+			sigma_0[i][j] = h_ped_[i][j]->GetRMS();
+			if (h_ped_[i][j]->GetEntries() < 20) {
+				mean[i][j] = mean_0[i][j];
+				sigma[i][j] = sigma_0[i][j];
+				continue;
+			}
+			int min_ch = mean_0[i][j] - 200 > 0 ? mean_0[i][j] - 200 : 0;
+			int max_ch = mean_0[i][j] + 200 < PED_MAX ? mean_0[i][j] + 200 : PED_MAX;
+			f_gaus_[i][j]->SetParameter(1, mean_0[i][j]);
+			f_gaus_[i][j]->SetParameter(2, sigma_0[i][j]);
 			f_gaus_[i][j]->SetRange(min_ch, max_ch);
-			h_ped_[i][j]->Fit(f_gaus_[i][j], "RQ0");
-			h_ped_[i][j]->Fit(f_gaus_[i][j], "RQ0");
+			h_ped_[i][j]->Fit(f_gaus_[i][j], "RQN");
 			mean[i][j] = f_gaus_[i][j]->GetParameter(1);
 			sigma[i][j] = abs(f_gaus_[i][j]->GetParameter(2));
+			if (sigma[i][j] / sigma_0[i][j] > 3.0) {
+				mean[i][j] = mean_0[i][j];
+				sigma[i][j] = sigma_0[i][j];
+			}
 		}
 	}
 	eventIter_->ped_trigg_restart();
@@ -105,13 +114,14 @@ void PedMeanCalc::show(int ct_num) {
 		delete canvas_[idx];
 		canvas_[idx] = NULL;
 	}
+	gStyle->SetOptStat(11);
+	gStyle->SetOptFit(111);
 	sprintf(name_, "canvas_%d", idx);
 	sprintf(title_, "Pedestal of CT %d", ct_num);
 	canvas_[idx] = new TCanvas(name_, title_, 600, 400);
 	canvas_[idx]->Divide(8, 8);
 	for (int j = 0; j < 64; j++) {
 		canvas_[idx]->cd(j + 1);
-		h_ped_[idx][j]->Draw();
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
 }

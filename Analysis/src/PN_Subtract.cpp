@@ -28,18 +28,19 @@ int main(int argc, char** argv) {
 		pedMeanCalc.show(i + 1);
 	cout << setw(3) << " " << " | ";
 	for (int i = 0; i < 25; i++)
-		cout << setw(5) << i + 1;
+		cout << setw(7) << i + 1;
 	cout << endl;
 	cout << endl;
+	cout << fixed << setprecision(2);
 	for (int j = 0; j < 64; j++) {
 		cout << setw(3) << j + 1 << " | ";
 		for (int i = 0; i < 25; i++) {
-			cout << setw(5) << pedMeanCalc.mean[i][j];
+			cout << setw(7) << pedMeanCalc.mean[i][j];
 		}
 		cout << endl;
 		cout << setw(3) << " " << " | ";
 		for (int i = 0; i < 25; i++) {
-			cout << setw(5) << pedMeanCalc.sigma[i][j];
+			cout << setw(7) << pedMeanCalc.sigma[i][j];
 		}
 		cout << endl;
 		cout << endl;
