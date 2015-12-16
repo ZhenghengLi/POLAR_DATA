@@ -35,6 +35,7 @@ public:
 private:
 	void create_();
 	void destroy_();
+
 public:
 	PedMeanCalc();
 	~PedMeanCalc();

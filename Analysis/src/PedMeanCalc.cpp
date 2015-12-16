@@ -84,7 +84,7 @@ void PedMeanCalc::do_calc() {
 				Int_t ch = eventIter_->ped_event.energy_ch[j];
 				if (ch > PED_MAX)
 					continue;
-				h_ped_[idx][j]->Fill(ch);
+				h_ped_[idx][j]->Fill(static_cast<Float_t>(ch));
 			}
 		}
 	}
@@ -98,8 +98,8 @@ void PedMeanCalc::do_calc() {
 				sigma[i][j] = sigma_0[i][j];
 				continue;
 			}
-			int min_ch = mean_0[i][j] - 200 > 0 ? mean_0[i][j] - 200 : 0;
-			int max_ch = mean_0[i][j] + 200 < PED_MAX ? mean_0[i][j] + 200 : PED_MAX;
+			Float_t min_ch = mean_0[i][j] - 200 > 0 ? mean_0[i][j] - 200 : 0;
+			Float_t max_ch = mean_0[i][j] + 200 < PED_MAX ? mean_0[i][j] + 200 : PED_MAX;
 			f_gaus_[i][j]->SetParameter(1, mean_0[i][j]);
 			f_gaus_[i][j]->SetParameter(2, sigma_0[i][j]);
 			f_gaus_[i][j]->SetRange(min_ch, max_ch);
