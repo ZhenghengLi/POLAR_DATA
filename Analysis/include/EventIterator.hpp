@@ -89,6 +89,9 @@ public:
 	Long64_t total_entries() {
 		return trigg_tot_entries_;
 	}
+	Long64_t current_index() {
+		return trigg_cur_index_;
+	}
 
 	bool ped_trigg_next();
 	bool ped_event_next();
@@ -97,6 +100,9 @@ public:
 	bool ped_trigg_select(Long64_t event_index);
 	Long64_t ped_total_entries() {
 		return ped_trigg_tot_entries_;
+	}
+	Long64_t ped_current_index() {
+		return ped_trigg_cur_index_;
 	}
 };
 

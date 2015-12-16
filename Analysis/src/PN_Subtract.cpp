@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
+#include <cstdio>
 #include "EventIterator.hpp"
 #include "PhyEventFile.hpp"
 #include "PedMeanCalc.hpp"
@@ -69,7 +70,7 @@ int main(int argc, char** argv) {
 	PedMeanCalc pedMeanCalc;
 	pedMeanCalc.init(&eventIter);
 	pedMeanCalc.do_calc();
-	cout << " [Done]" << endl;
+	cout << " [ DONE ]" << endl;
 
 	if (print_ped)
 		pedMeanCalc.print(print_sigma);
@@ -84,8 +85,9 @@ int main(int argc, char** argv) {
 		pedMeanCalc.show_all();
 	
 	if (!outfile_name.IsNull()) {
-		cout << "Writing subtructed data to ";
-		cout << outfile_name.Data() << " ... " << flush;
+		int pre_percent = 0;
+		int cur_percent = 0;
+		cout << "Writing subtructed data to " << outfile_name.Data() << " ... [ #" << flush;
 		PhyEventFile phyEventFile;
 		if (!phyEventFile.open(outfile_name.Data(), 'w')) {
 			cerr << "root file to write open failed" << endl;
@@ -93,6 +95,11 @@ int main(int argc, char** argv) {
 		}
 		eventIter.trigg_restart();
 		while (eventIter.trigg_next()) {
+			cur_percent = static_cast<int>(100 * eventIter.current_index() / eventIter.total_entries());
+			if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+				pre_percent = cur_percent;
+				cout << "#" << flush;
+			}
 			pedMeanCalc.do_move_trigg(phyEventFile, eventIter);
 			phyEventFile.write_trigg();
 			while (eventIter.event_next()) {
@@ -102,7 +109,7 @@ int main(int argc, char** argv) {
 		}
 		eventIter.trigg_restart();
 		phyEventFile.close();
-		cout << " [Done]" << endl;
+		cout << " DONE ] " << endl;
 	}
 
 	eventIter.close();

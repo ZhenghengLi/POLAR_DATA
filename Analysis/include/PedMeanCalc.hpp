@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
 #include "PhyEventFile.hpp"

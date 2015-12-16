@@ -68,6 +68,9 @@ public:
 	Long64_t total_entries() {
 		return trigg_tot_entries_;
 	}
+	Long64_t current_index() {
+		return trigg_cur_index_;
+	}
 };
 
 #endif
