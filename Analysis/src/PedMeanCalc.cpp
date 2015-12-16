@@ -31,7 +31,7 @@ void PedMeanCalc::create_() {
 			f_gaus_[i][j]->SetParName(2, "Sigma");
 			sprintf(name_, "h_ped_%d_%d", i + 1, j + 1);
 			sprintf(title_, "Pedestal of CH %d_%d", i + 1, j + 1);
-			h_ped_[i][j] = new TH1D(name_, title_, PED_BINS, 0, PED_MAX);
+			h_ped_[i][j] = new TH1F(name_, title_, PED_BINS, 0, PED_MAX);
 			h_ped_[i][j]->SetDirectory(NULL);
 		}
 	}
@@ -106,7 +106,10 @@ void PedMeanCalc::do_calc() {
 			h_ped_[i][j]->Fit(f_gaus_[i][j], "RQN");
 			mean[i][j] = f_gaus_[i][j]->GetParameter(1);
 			sigma[i][j] = abs(f_gaus_[i][j]->GetParameter(2));
-			if (sigma[i][j] / sigma_0[i][j] > 3.0) {
+			if (mean[i][j] < 0 || mean[i][j] > PED_MAX) {
+				mean[i][j] = mean_0[i][j];
+				sigma[i][j] = sigma_0[i][j];
+			} else if (sigma[i][j] / sigma_0[i][j] > 3.0) {
 				mean[i][j] = mean_0[i][j];
 				sigma[i][j] = sigma_0[i][j];
 			}
@@ -132,11 +135,11 @@ void PedMeanCalc::show(int ct_num) {
 	canvas_[idx]->Divide(8, 8);
 	for (int j = 0; j < 64; j++) {
 		canvas_[idx]->cd(j + 1);
+		if (h_ped_[idx][j]->GetEntries() < 20)
+			continue;
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
 }
-
-
 
 void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
 	if (!done_flag_)
@@ -160,13 +163,13 @@ void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator&
 		phy_event_file.event.trigger_bit[i] = event_iterator.event.trigger_bit[i];
 	if (event_iterator.event.mode == 3) {
 		for (int i = 0; i < 64; i++)
-			phy_event_file.event.energy_ch[i] = static_cast<Double_t>(event_iterator.event.energy_ch[i]);
+			phy_event_file.event.energy_ch[i] = static_cast<Float_t>(event_iterator.event.energy_ch[i]);
 	} else {
 		int idx = event_iterator.event.ct_num - 1;
-		Double_t tmp_energy_ch[64];
+		Float_t tmp_energy_ch[64];
 		for (int i = 0; i < 64; i++)
-			tmp_energy_ch[i] = static_cast<Double_t>(event_iterator.event.energy_ch[i]) - mean[idx][i];
-		Double_t common_noise = 0;
+			tmp_energy_ch[i] = static_cast<Float_t>(event_iterator.event.energy_ch[i]) - mean[idx][i];
+		Float_t common_noise = 0;
 		Double_t common_sum = 0;
 		int common_n = 0;
 		for (int i = 0; i < 64; i++) {
@@ -186,6 +189,7 @@ void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator&
 void PedMeanCalc::print(bool sigma_flag) {
 	if (!done_flag_)
 		return;
+	cout << endl;
 	cout << setw(3) << " " << " | ";
 	for (int i = 0; i < 25; i++)
 		cout << setw(7) << i + 1;
@@ -233,15 +237,16 @@ void PedMeanCalc::show_mean() {
 	g_ped_->SetName("g_ped");
 	g_ped_->SetTitle("Pedestal Map of 1600 Channels");
 	g_ped_->SetDirectory(NULL);
+	int n, x1, x2, y1, y2, x, y;
 	for (int i = 0; i < 25; i++) {
 		for (int j = 0; j < 64; j++) {
-			int n = i * 64 + j;
-			int x1 = i / 5;
-			int y1 = 4 - i % 5;
-			int x2 = j % 8;
-			int y2 = j / 8;
-			int x = x1 * 8 + x2;
-			int y = y1 * 8 + y2;
+			n = i * 64 + j;
+			x1 = i / 5;
+			y1 = 4 - i % 5;
+			x2 = j % 8;
+			y2 = j / 8;
+			x = x1 * 8 + x2;
+			y = y1 * 8 + y2;
 			g_ped_->SetPoint(n, x, y, mean[i][j]);
 		}
 	}

@@ -35,7 +35,7 @@ bool PhyEventFile::open_write_(const char* filename) {
 	t_event_tree_->Branch("trigg_index", &event.trigg_index, "trigg_index/L");
 	t_event_tree_->Branch("ct_num", &event.ct_num, "ct_num/I");
 	t_event_tree_->Branch("trigger_bit", event.trigger_bit, "trigger_bit[64]/O");
-	t_event_tree_->Branch("energy_ch", event.energy_ch, "energy_ch[64]/D");
+	t_event_tree_->Branch("energy_ch", event.energy_ch, "energy_ch[64]/F");
 
 	return true;
 }

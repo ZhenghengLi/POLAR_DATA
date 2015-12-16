@@ -7,6 +7,18 @@
 
 using namespace std;
 
+void print_help() {
+	cout << endl;
+	cout << "USAGE: " << "PN_Subtruct [-p [-s]] [-m] [-v] [-o <outfile_name.root>] <infile_name.root>"  << endl;
+	cout << endl;
+	cout << " -o <outfile_name.root>           output data to <outfile_name.root>" << endl;
+	cout << " -p                               print mean pedestal of all channels" << endl;
+	cout << " -s                               print sigma along with mean" << endl;
+	cout << " -m                               show mean pedestal map of all channels" << endl;
+	cout << " -v                               show all fited pedestal graph" << endl;
+	cout << endl;
+}
+
 int main(int argc, char** argv) {
 
 	TApplication* rootapp = new TApplication("POLAR", &argc, argv);
@@ -36,11 +48,13 @@ int main(int argc, char** argv) {
 			infile_name = cur_par_str;
 	}
 	if (infile_name.IsNull()) {
-		cout << "USAGE: " << rootapp->Argv(0) << " [-p [-s]] [-m] [-v] [-o <outfile_name.root>] <infile_name.root>" << endl;
+		print_help();
 		exit(1);
 	}
-	if (outfile_name.IsNull() && !show_map && !show_fit && !print_ped) {
-		cout << "use parameters to do something." << endl;
+	if (outfile_name.IsNull() && !show_map && !show_fit && !print_ped && !print_sigma) {
+		cout << endl;
+		cout << "Please use some options to do something." << endl;
+		print_help();
 		exit(0);
 	}
 	// ====================================================================
@@ -51,17 +65,45 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
+	cout << "Calculating the pedestal of each channel ... " << flush;
 	PedMeanCalc pedMeanCalc;
 	pedMeanCalc.init(&eventIter);
 	pedMeanCalc.do_calc();
+	cout << " [Done]" << endl;
+
 	if (print_ped)
 		pedMeanCalc.print(print_sigma);
+
+	if (!print_ped && print_sigma)
+		pedMeanCalc.print(true);
+	
 	if (show_map)
-		pedMeanCalc.show_mean();		
+		pedMeanCalc.show_mean();
+	
 	if (show_fit)
 		pedMeanCalc.show_all();
-	if (!outfile_name.IsNull())
-		cout << outfile_name.Data() << endl;
+	
+	if (!outfile_name.IsNull()) {
+		cout << "Writing subtructed data to ";
+		cout << outfile_name.Data() << " ... " << flush;
+		PhyEventFile phyEventFile;
+		if (!phyEventFile.open(outfile_name.Data(), 'w')) {
+			cerr << "root file to write open failed" << endl;
+			exit(1);
+		}
+		eventIter.trigg_restart();
+		while (eventIter.trigg_next()) {
+			pedMeanCalc.do_move_trigg(phyEventFile, eventIter);
+			phyEventFile.write_trigg();
+			while (eventIter.event_next()) {
+				pedMeanCalc.do_subtruct(phyEventFile, eventIter);
+				phyEventFile.write_event();
+			}
+		}
+		eventIter.trigg_restart();
+		phyEventFile.close();
+		cout << " [Done]" << endl;
+	}
 
 	eventIter.close();
  

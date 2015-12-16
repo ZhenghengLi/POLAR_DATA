@@ -18,7 +18,7 @@ class PedMeanCalc {
 private:
 	EventIterator* eventIter_;
 	TF1* f_gaus_[25][64];
-	TH1D* h_ped_[25][64];
+	TH1F* h_ped_[25][64];
 	TGraph2D* g_ped_;
 	TCanvas* canvas_[25];
 	TCanvas* canvas_res_;
@@ -27,10 +27,10 @@ private:
 	bool done_flag_;
 
 public:
-	Double_t mean[25][64];
-	Double_t sigma[25][64];
-	Double_t mean_0[25][64];
-	Double_t sigma_0[25][64];
+	Float_t mean[25][64];
+	Float_t sigma[25][64];
+	Float_t mean_0[25][64];
+	Float_t sigma_0[25][64];
 	
 private:
 	void create_();
