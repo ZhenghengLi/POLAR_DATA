@@ -72,17 +72,28 @@ int main(int argc, char** argv) {
 	pedMeanCalc.do_calc();
 	cout << " [ DONE ]" << endl;
 
-	if (print_ped)
+	if (print_ped) {
+		if (print_sigma)
+			cout << "Printing sigma along with mean pedestal of all channels ... " << endl;
+		else
+			cout << "Printing mean pedestal of all channels ..." << endl;
 		pedMeanCalc.print(print_sigma);
+	}
 
-	if (!print_ped && print_sigma)
+	if (!print_ped && print_sigma) {
+		cout << "Printing sigma along with mean pedestal of all channels ... " << endl;
 		pedMeanCalc.print(true);
+	}
 	
-	if (show_map)
+	if (show_map) {
+		cout << "Showing mean pedestal map of all channels ..." << endl;
 		pedMeanCalc.show_mean();
+	}
 	
-	if (show_fit)
+	if (show_fit) {
+		cout << "Showing all fited pedestal graph ..." << endl;
 		pedMeanCalc.show_all();
+	}
 	
 	if (!outfile_name.IsNull()) {
 		int pre_percent = 0;
@@ -113,6 +124,8 @@ int main(int argc, char** argv) {
 	}
 
 	eventIter.close();
+
+	cout << "All Finished." << endl;
  
 	rootapp->Run();
 	delete rootapp;
