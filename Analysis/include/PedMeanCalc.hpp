@@ -15,11 +15,17 @@
 using namespace std;
 
 class PedMeanCalc {
+	RQ_OBJECT("PedMeanCalc");
+
+public:  // slots
+	virtual void CloseWindow();
+	virtual void ProcessAction(Int_t event, Int_t px, Int_t py, TObject *selected);
+	
 private:
 	EventIterator* eventIter_;
 	TF1* f_gaus_[25][64];
 	TH1F* h_ped_[25][64];
-	TGraph2D* g_ped_;
+	TH2F* h_ped_map_;
 	TCanvas* canvas_[25];
 	TCanvas* canvas_res_;
 	char name_[80];
@@ -38,7 +44,7 @@ private:
 
 public:
 	PedMeanCalc();
-	~PedMeanCalc();
+	virtual ~PedMeanCalc();
 
 	void init(EventIterator* iter);
 	void do_calc();

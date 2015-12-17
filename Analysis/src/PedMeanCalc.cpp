@@ -11,7 +11,7 @@ PedMeanCalc::PedMeanCalc() {
 		}
 	}
 	canvas_res_ = NULL;
-	g_ped_ = NULL;
+	h_ped_map_ = NULL;
 }
 
 PedMeanCalc::~PedMeanCalc() {
@@ -40,19 +40,11 @@ void PedMeanCalc::create_() {
 void PedMeanCalc::destroy_() {
 	if (eventIter_ != NULL)
 		eventIter_ = NULL;
-	if (canvas_res_ != NULL) {
-		delete canvas_res_;
-		canvas_res_ = NULL;
-	}
-	if (g_ped_ != NULL) {
-		delete g_ped_;
-		g_ped_ = NULL;
+	if (h_ped_map_ != NULL) {
+		delete h_ped_map_;
+		h_ped_map_ = NULL;
 	}
 	for (int i = 0; i < 25; i++) {
-		if (canvas_[i] != NULL) {
-			delete canvas_[i];
-			canvas_[i] = NULL;
-		}
 		for (int j = 0; j < 64; j++) {
 			if (f_gaus_[i][j] != NULL) {
 				delete f_gaus_[i][j];
@@ -123,22 +115,23 @@ void PedMeanCalc::show(int ct_num) {
 	if (!done_flag_)
 		return;
 	int idx = ct_num - 1;
-	if (canvas_[idx] != NULL) {
-		delete canvas_[idx];
-		canvas_[idx] = NULL;
-	}
 	gStyle->SetOptStat(11);
 	gStyle->SetOptFit(111);
 	sprintf(name_, "canvas_%d", idx);
 	sprintf(title_, "Pedestal of CT %d", ct_num);
-	canvas_[idx] = new TCanvas(name_, title_, 600, 400);
-	canvas_[idx]->Divide(8, 8);
+	canvas_[idx] = static_cast<TCanvas*>(gROOT->FindObject(name_));
+	if (canvas_[idx] == NULL) {
+		canvas_[idx] = new TCanvas(name_, title_, 600, 400);
+		canvas_[idx]->Divide(8, 8);
+	}
+	canvas_[idx]->Update();
 	for (int j = 0; j < 64; j++) {
 		canvas_[idx]->cd(j + 1);
 		if (h_ped_[idx][j]->GetEntries() < 20)
 			continue;
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
+	canvas_[idx]->Update();
 }
 
 void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
@@ -227,30 +220,57 @@ void PedMeanCalc::show_mean() {
 		delete canvas_res_;
 		canvas_res_ = NULL;
 	}
-	if (g_ped_ != NULL) {
-		delete g_ped_;
-		g_ped_ = NULL;
+	if (h_ped_map_ != NULL) {
+		delete h_ped_map_;
+		h_ped_map_ = NULL;
 	}
 	canvas_res_ = new TCanvas("canvas_res", "Pedestal Map of 1600 Channels", 800, 800);
-	canvas_res_->SetFixedAspectRatio();
-	g_ped_ = new TGraph2D(1600);
-	g_ped_->SetName("g_ped");
-	g_ped_->SetTitle("Pedestal Map of 1600 Channels");
-	g_ped_->SetDirectory(NULL);
-	int n, x1, x2, y1, y2, x, y;
+	canvas_res_->SetGrid();
+	canvas_res_->Connect("Closed()", "PedMeanCalc", this, "CloseWindow()");
+	canvas_res_->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "PedMeanCalc", 
+						 this, "ProcessAction(Int_t,Int_t,Int_t,TObject*)");
+	h_ped_map_ = new TH2F("h_ped_map", "Pedestal Map of 1600 Channels", 40, 0, 40, 40, 0, 40);
+	h_ped_map_->GetXaxis()->SetNdivisions(40);
+	h_ped_map_->GetYaxis()->SetNdivisions(40);
+	char str_buffer[10];
+	for (int i = 0; i < 40; i++) {
+		if (i % 8 == 0) {
+			sprintf(str_buffer, "%d", i);
+			h_ped_map_->GetXaxis()->SetBinLabel(i + 1, str_buffer);
+			h_ped_map_->GetYaxis()->SetBinLabel(i + 1, str_buffer);
+		}
+	}
+	h_ped_map_->SetDirectory(NULL);
+	int x1, x2, y1, y2, x, y;
 	for (int i = 0; i < 25; i++) {
 		for (int j = 0; j < 64; j++) {
-			n = i * 64 + j;
 			x1 = i / 5;
 			y1 = 4 - i % 5;
 			x2 = j % 8;
 			y2 = j / 8;
 			x = x1 * 8 + x2;
 			y = y1 * 8 + y2;
-			g_ped_->SetPoint(n, x, y, mean[i][j]);
+			h_ped_map_->SetBinContent(x + 1, y + 1, mean[i][j]);
 		}
 	}
 	canvas_res_->cd();
-	g_ped_->Draw("COLZ");
+	gStyle->SetOptStat(0);
+	h_ped_map_->Draw("COLZ");
 }
 
+void PedMeanCalc::CloseWindow() {
+	gApplication->Terminate(0);
+}
+
+void PedMeanCalc::ProcessAction(Int_t event, Int_t px, Int_t py, TObject *selected) {
+	if (event != kButton1Down)
+		return;
+	if (canvas_res_ == NULL)
+		return;
+	cout << px << " " << py << endl;
+	show(1);
+	TPad* pad = static_cast<TPad*>(canvas_res_->GetPrimitive("h_ped_map"));
+	if (pad == NULL)
+		cout << "error" << endl;
+
+}

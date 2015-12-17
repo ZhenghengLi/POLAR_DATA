@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TF1.h"
 #include "TCanvas.h"
 #include "TApplication.h"
@@ -13,5 +14,7 @@
 #include "TGraph.h"
 #include "TGraph2D.h"
 #include "TString.h"
+#include "RQ_OBJECT.h"
+#include "TPad.h"
 
 #endif
