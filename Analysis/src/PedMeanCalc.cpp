@@ -163,8 +163,11 @@ void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator&
 	} else {
 		int idx = event_iterator.event.ct_num - 1;
 		Float_t tmp_energy_ch[64];
-		for (int i = 0; i < 64; i++)
+		for (int i = 0; i < 64; i++) {
 			tmp_energy_ch[i] = static_cast<Float_t>(event_iterator.event.energy_ch[i]) - mean[idx][i];
+			if (tmp_energy_ch[i] < 0)
+				tmp_energy_ch[i] = 0;
+		}
 		Float_t common_noise = 0;
 		Double_t common_sum = 0;
 		int common_n = 0;
