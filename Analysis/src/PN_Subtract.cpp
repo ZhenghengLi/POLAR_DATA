@@ -16,7 +16,6 @@ void print_help() {
 	cout << " -p                               print mean pedestal of all channels" << endl;
 	cout << " -s                               print sigma along with mean" << endl;
 	cout << " -m                               show mean pedestal map of all channels" << endl;
-	cout << " -v                               show all fited pedestal graph" << endl;
 	cout << endl;
 }
 
@@ -30,7 +29,6 @@ int main(int argc, char** argv) {
 	TString outfile_name;      // -o
 	bool show_map = false;     // -m
 	bool print_ped = false;    // -p
-	bool show_fit = false;     // -v
 	bool print_sigma = false;  // -s
 	int argv_idx = 0;
 	while (argv_idx < rootapp->Argc() - 1) {
@@ -41,8 +39,6 @@ int main(int argc, char** argv) {
 			show_map = true;
 		else if (cur_par_str == "-p")
 			print_ped = true;
-		else if (cur_par_str == "-v")
-			show_fit = true;
 		else if (cur_par_str == "-s")
 			print_sigma = true;
 		else
@@ -52,7 +48,7 @@ int main(int argc, char** argv) {
 		print_help();
 		exit(1);
 	}
-	if (outfile_name.IsNull() && !show_map && !show_fit && !print_ped && !print_sigma) {
+	if (outfile_name.IsNull() && !show_map && !print_ped && !print_sigma) {
 		cout << endl;
 		cout << "Please use some options to do something." << endl;
 		print_help();
@@ -88,11 +84,6 @@ int main(int argc, char** argv) {
 	if (show_map) {
 		cout << "Showing mean pedestal map of all channels ..." << endl;
 		pedMeanCalc.show_mean();
-	}
-	
-	if (show_fit) {
-		cout << "Showing all fited pedestal graph ..." << endl;
-		pedMeanCalc.show_all();
 	}
 	
 	if (!outfile_name.IsNull()) {

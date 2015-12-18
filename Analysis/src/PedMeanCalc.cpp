@@ -4,12 +4,12 @@ PedMeanCalc::PedMeanCalc() {
 	eventIter_ = NULL;
 	done_flag_ = false;
 	for (int i = 0; i < 25; i++) {
-		canvas_[i] = NULL;
 		for (int j = 0; j < 64; j++) {
 			f_gaus_[i][j] = NULL;
 			h_ped_[i][j] = NULL;
 		}
 	}
+	canvas_mod_ = NULL;
 	canvas_res_ = NULL;
 	h_ped_map_ = NULL;
 }
@@ -117,21 +117,24 @@ void PedMeanCalc::show(int ct_num) {
 	int idx = ct_num - 1;
 	gStyle->SetOptStat(11);
 	gStyle->SetOptFit(111);
-	sprintf(name_, "canvas_%d", idx);
-	sprintf(title_, "Pedestal of CT %d", ct_num);
-	canvas_[idx] = static_cast<TCanvas*>(gROOT->FindObject(name_));
-	if (canvas_[idx] == NULL) {
-		canvas_[idx] = new TCanvas(name_, title_, 600, 400);
-		canvas_[idx]->Divide(8, 8);
+	canvas_mod_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod"));
+	if (canvas_mod_ == NULL) {
+		canvas_mod_ = new TCanvas("canvas_mod", "Pedestal of one mod", 700, 500);
+		canvas_mod_->Divide(8, 8);
 	}
-	canvas_[idx]->Update();
+	sprintf(title_, "Pedestal of CT %d", ct_num);
+	canvas_mod_->SetTitle(title_);
 	for (int j = 0; j < 64; j++) {
-		canvas_[idx]->cd(j + 1);
+		canvas_mod_->cd(j + 1);
 		if (h_ped_[idx][j]->GetEntries() < 20)
 			continue;
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
-	canvas_[idx]->Update();
+	canvas_mod_->Update();
+}
+
+void PedMeanCalc::showxy_(int x, int y) {
+	show(x / 8 * 5 + 4 - y / 8 + 1);
 }
 
 void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
@@ -206,30 +209,24 @@ void PedMeanCalc::print(bool sigma_flag) {
 	}
 }
 
-void PedMeanCalc::show_all() {
-	if (!done_flag_)
-		return;
-	for (int i = 0; i < 25; i++)
-		show(i + 1);
-}
-
 void PedMeanCalc::show_mean() {
 	if (!done_flag_)
 		return;
-	if (canvas_res_ != NULL) {
-		delete canvas_res_;
-		canvas_res_ = NULL;
-	}
 	if (h_ped_map_ != NULL) {
 		delete h_ped_map_;
 		h_ped_map_ = NULL;
 	}
-	canvas_res_ = new TCanvas("canvas_res", "Pedestal Map of 1600 Channels", 800, 800);
-	canvas_res_->SetGrid();
-	canvas_res_->Connect("Closed()", "PedMeanCalc", this, "CloseWindow()");
-	canvas_res_->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "PedMeanCalc", 
-						 this, "ProcessAction(Int_t,Int_t,Int_t,TObject*)");
+	gStyle->SetOptStat(0);
+	canvas_res_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_res"));
+	if (canvas_res_ == NULL) {
+		canvas_res_ = new TCanvas("canvas_res", "Pedestal Map of 1600 Channels", 800, 800);
+		canvas_res_->SetGrid();
+		canvas_res_->Connect("Closed()", "PedMeanCalc", this, "CloseWindow()");
+		canvas_res_->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "PedMeanCalc", 
+							 this, "ProcessAction(Int_t,Int_t,Int_t,TObject*)");
+	}
 	h_ped_map_ = new TH2F("h_ped_map", "Pedestal Map of 1600 Channels", 40, 0, 40, 40, 0, 40);
+	h_ped_map_->SetDirectory(NULL);
 	h_ped_map_->GetXaxis()->SetNdivisions(40);
 	h_ped_map_->GetYaxis()->SetNdivisions(40);
 	char str_buffer[10];
@@ -265,12 +262,9 @@ void PedMeanCalc::CloseWindow() {
 void PedMeanCalc::ProcessAction(Int_t event, Int_t px, Int_t py, TObject *selected) {
 	if (event != kButton1Down)
 		return;
+	canvas_res_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_res"));	
 	if (canvas_res_ == NULL)
 		return;
-	cout << px << " " << py << endl;
-	show(1);
-	TPad* pad = static_cast<TPad*>(canvas_res_->GetPrimitive("h_ped_map"));
-	if (pad == NULL)
-		cout << "error" << endl;
-
+	showxy_(static_cast<int>(canvas_res_->AbsPixeltoX(px)),
+			static_cast<int>(canvas_res_->AbsPixeltoY(py)));
 }

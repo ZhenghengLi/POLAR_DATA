@@ -15,18 +15,21 @@
 using namespace std;
 
 class PedMeanCalc {
-	RQ_OBJECT("PedMeanCalc");
+	RQ_OBJECT("PedMeanCalc")
 
 public:  // slots
 	virtual void CloseWindow();
-	virtual void ProcessAction(Int_t event, Int_t px, Int_t py, TObject *selected);
+	virtual void ProcessAction(Int_t event,
+							   Int_t px,
+							   Int_t py,
+							   TObject *selected);
 	
 private:
 	EventIterator* eventIter_;
 	TF1* f_gaus_[25][64];
 	TH1F* h_ped_[25][64];
 	TH2F* h_ped_map_;
-	TCanvas* canvas_[25];
+	TCanvas* canvas_mod_;
 	TCanvas* canvas_res_;
 	char name_[80];
 	char title_[80];
@@ -41,6 +44,7 @@ public:
 private:
 	void create_();
 	void destroy_();
+	void showxy_(int x, int y);
 
 public:
 	PedMeanCalc();
@@ -54,7 +58,6 @@ public:
 	void do_subtruct(PhyEventFile& phy_event_file, 
 					 const EventIterator& event_iterator) const;
 	void print(bool sigma_flag = true);
-	void show_all();
 	void show_mean();
 
 };
