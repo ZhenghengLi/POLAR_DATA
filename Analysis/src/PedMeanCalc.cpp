@@ -119,13 +119,13 @@ void PedMeanCalc::show(int ct_num) {
 	gStyle->SetOptFit(111);
 	canvas_mod_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod"));
 	if (canvas_mod_ == NULL) {
-		canvas_mod_ = new TCanvas("canvas_mod", "Pedestal of one mod", 700, 500);
+		canvas_mod_ = new TCanvas("canvas_mod", "Pedestal of one mod", 800, 600);
 		canvas_mod_->Divide(8, 8);
 	}
 	sprintf(title_, "Pedestal of CT %d", ct_num);
 	canvas_mod_->SetTitle(title_);
 	for (int j = 0; j < 64; j++) {
-		canvas_mod_->cd(j + 1);
+		canvas_mod_->cd(8 * (7 - j / 8) + j % 8 + 1);
 		if (h_ped_[idx][j]->GetEntries() < 20)
 			continue;
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");

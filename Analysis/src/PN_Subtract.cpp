@@ -13,9 +13,9 @@ void print_help() {
 	cout << "USAGE: " << "PN_Subtruct [-p [-s]] [-m] [-v] [-o <outfile_name.root>] <infile_name.root>"  << endl;
 	cout << endl;
 	cout << " -o <outfile_name.root>           output data to <outfile_name.root>" << endl;
+	cout << " -m                               show mean pedestal map of all channels" << endl;
 	cout << " -p                               print mean pedestal of all channels" << endl;
 	cout << " -s                               print sigma along with mean" << endl;
-	cout << " -m                               show mean pedestal map of all channels" << endl;
 	cout << endl;
 }
 
