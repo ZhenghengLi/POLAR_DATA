@@ -62,11 +62,11 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	cout << "Calculating the pedestal of each channel ... " << flush;
+	cout << "Calculating the pedestal of each channel ... " << endl;;
 	PedMeanCalc pedMeanCalc;
 	pedMeanCalc.init(&eventIter);
 	pedMeanCalc.do_calc();
-	cout << " [ DONE ]" << endl;
+	cout << "[ DONE ]" << endl;
 
 	if (print_ped) {
 		if (print_sigma)
@@ -89,7 +89,8 @@ int main(int argc, char** argv) {
 	if (!outfile_name.IsNull()) {
 		int pre_percent = 0;
 		int cur_percent = 0;
-		cout << "Writing subtructed data to " << outfile_name.Data() << " ... [ #" << flush;
+		cout << "Writing subtructed data to " << outfile_name.Data() << " ... " << endl;
+		cout << "[ #" << flush;
 		PhyEventFile phyEventFile;
 		if (!phyEventFile.open(outfile_name.Data(), 'w')) {
 			cerr << "root file to write open failed" << endl;

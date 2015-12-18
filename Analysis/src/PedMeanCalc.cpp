@@ -99,9 +99,11 @@ void PedMeanCalc::do_calc() {
 			mean[i][j] = f_gaus_[i][j]->GetParameter(1);
 			sigma[i][j] = abs(f_gaus_[i][j]->GetParameter(2));
 			if (mean[i][j] < 0 || mean[i][j] > PED_MAX) {
+				cout << "Warning: mean of CH " << i + 1 << "_" << j + 1 << " is out of range, use the arithmetic mean." << endl;
 				mean[i][j] = mean_0[i][j];
 				sigma[i][j] = sigma_0[i][j];
-			} else if (sigma[i][j] / sigma_0[i][j] > 3.0) {
+			} else if (sigma[i][j] / sigma_0[i][j] > 2.0) {
+				cout << "Warning: sigma of CH " << i + 1 << "_" << j + 1 << " is too big, use the arithmetic mean." << endl;
 				mean[i][j] = mean_0[i][j];
 				sigma[i][j] = sigma_0[i][j];
 			}
