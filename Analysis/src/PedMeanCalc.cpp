@@ -245,7 +245,6 @@ void PedMeanCalc::show_mean() {
 		}
 	}
 	canvas_res_->cd();
-	gStyle->SetOptStat(0);
 	h_ped_map_->Draw("COLZ");
 }
 
