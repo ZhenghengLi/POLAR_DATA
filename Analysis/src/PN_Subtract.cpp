@@ -10,7 +10,7 @@ using namespace std;
 
 void print_help() {
 	cout << endl;
-	cout << "USAGE: " << "PN_Subtruct [-p [-s]] [-m] [-v] [-o <outfile_name.root>] <infile_name.root>"  << endl;
+	cout << "USAGE: " << "PN_Subtruct <infile_name.root> [-o <outfile_name.root>] [-m] [-p] [-s]"  << endl;
 	cout << endl;
 	cout << " -o <outfile_name.root>           output data to <outfile_name.root>" << endl;
 	cout << " -m                               show mean pedestal map of all channels" << endl;
@@ -74,16 +74,19 @@ int main(int argc, char** argv) {
 		else
 			cout << "Printing mean pedestal of all channels ..." << endl;
 		pedMeanCalc.print(print_sigma);
+		cout << "[ DONE ]" << endl;
 	}
 
 	if (!print_ped && print_sigma) {
 		cout << "Printing sigma along with mean pedestal of all channels ... " << endl;
 		pedMeanCalc.print(true);
+		cout << "[ DONE ]" << endl;
 	}
 	
 	if (show_map) {
 		cout << "Showing mean pedestal map of all channels ..." << endl;
 		pedMeanCalc.show_mean();
+		cout << "[ DONE ]" << endl;
 	}
 	
 	if (!outfile_name.IsNull()) {
