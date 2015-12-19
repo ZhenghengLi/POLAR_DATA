@@ -127,16 +127,12 @@ void PedMeanCalc::show(int ct_num) {
 	sprintf(title_, "Pedestal of CT %d", ct_num);
 	canvas_mod_->SetTitle(title_);
 	for (int j = 0; j < 64; j++) {
-		canvas_mod_->cd(8 * (7 - j / 8) + j % 8 + 1);
+		canvas_mod_->cd(jtoc(j));
 		if (h_ped_[idx][j]->GetEntries() < 20)
 			continue;
 		h_ped_[idx][j]->Fit(f_gaus_[idx][j], "RQ");
 	}
 	canvas_mod_->Update();
-}
-
-void PedMeanCalc::showxy_(int x, int y) {
-	show(x / 8 * 5 + 4 - y / 8 + 1);
 }
 
 void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
@@ -243,16 +239,9 @@ void PedMeanCalc::show_mean() {
 		}
 	}
 	h_ped_map_->SetDirectory(NULL);
-	int x1, x2, y1, y2, x, y;
 	for (int i = 0; i < 25; i++) {
 		for (int j = 0; j < 64; j++) {
-			x1 = i / 5;
-			y1 = 4 - i % 5;
-			x2 = j % 8;
-			y2 = j / 8;
-			x = x1 * 8 + x2;
-			y = y1 * 8 + y2;
-			h_ped_map_->SetBinContent(x + 1, y + 1, mean[i][j]);
+			h_ped_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
 		}
 	}
 	canvas_res_->cd();
@@ -270,6 +259,7 @@ void PedMeanCalc::ProcessAction(Int_t event, Int_t px, Int_t py, TObject *select
 	canvas_res_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_res"));	
 	if (canvas_res_ == NULL)
 		return;
-	showxy_(static_cast<int>(canvas_res_->AbsPixeltoX(px)),
-			static_cast<int>(canvas_res_->AbsPixeltoY(py)));
+	int x = static_cast<int>(canvas_res_->AbsPixeltoX(px));
+	int y = static_cast<int>(canvas_res_->AbsPixeltoY(py));
+	show(xytoi(x, y) + 1);
 }

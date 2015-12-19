@@ -8,6 +8,7 @@
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
 #include "PhyEventFile.hpp"
+#include "CooConv.hpp"
 
 #define PED_BINS 100
 #define PED_MAX 1024
@@ -44,7 +45,6 @@ public:
 private:
 	void create_();
 	void destroy_();
-	void showxy_(int x, int y);
 
 public:
 	PedMeanCalc();
