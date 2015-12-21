@@ -10,8 +10,12 @@ using namespace std;
 
 void print_help() {
 	cout << endl;
-	cout << "USAGE: " << "PN_Subtruct <infile_name.root> [-o <outfile_name.root>] [-m] [-p] [-s]"  << endl;
+	cout << "USAGE: " << "PN_Subtract <infile_name.root> -F <pedfile_name.root>" << endl;
+	cout << "       " << "PN_Subtract <infile_name.root> -f <pedfile_name.root> -o <outfile_name.root>" << endl;
+	cout << "       " << "PN_Subtract -f <pedfile_name.root> [-m] [-p] [-s]" << endl;
 	cout << endl;
+	cout << " -F <pedfile_name.root>           open <pedfile_name.root> in UPDATE mode" << endl;
+	cout << " -f <pedfile_name.root>           open <pedfile_name.root> in READ mode" << endl;
 	cout << " -o <outfile_name.root>           output data to <outfile_name.root>" << endl;
 	cout << " -m                               show mean pedestal map of all channels" << endl;
 	cout << " -p                               print mean pedestal of all channels" << endl;
@@ -24,51 +28,74 @@ int main(int argc, char** argv) {
 	TApplication* rootapp = new TApplication("POLAR", &argc, argv);
 
 	// == process command line parameters =================================
-	TString cur_par_str;
+
 	TString infile_name;
+	TString pedfile_name;      // -F | -f
 	TString outfile_name;      // -o
 	bool show_map = false;     // -m
 	bool print_ped = false;    // -p
 	bool print_sigma = false;  // -s
+	char mode = 'r';                 // 'w' | 'r'
+	
+	TString cur_par_str;	
 	int argv_idx = 0;
 	while (argv_idx < rootapp->Argc() - 1) {
 		cur_par_str = rootapp->Argv(++argv_idx);
-		if (cur_par_str == "-o")
+		if (cur_par_str == "-F") {
+			pedfile_name = rootapp->Argv(++argv_idx);
+			mode = 'w';
+		} else if (cur_par_str == "-f") {
+			pedfile_name = rootapp->Argv(++argv_idx);
+			mode = 'r';
+		} else if (cur_par_str == "-o") {
 			outfile_name = rootapp->Argv(++argv_idx);
-		else if (cur_par_str == "-m")
+		} else if (cur_par_str == "-m") {
 			show_map = true;
-		else if (cur_par_str == "-p")
+		} else if (cur_par_str == "-p") {
 			print_ped = true;
-		else if (cur_par_str == "-s")
+		} else if (cur_par_str == "-s") {
 			print_sigma = true;
-		else
+		} else {
 			infile_name = cur_par_str;
+		}
 	}
-	if (infile_name.IsNull()) {
+	
+	if (pedfile_name.IsNull()) {
 		print_help();
 		exit(1);
 	}
-	if (outfile_name.IsNull() && !show_map && !print_ped && !print_sigma) {
-		cout << endl;
-		cout << "Please use some options to do something." << endl;
-		print_help();
-		exit(0);
-	}
+
 	// ====================================================================
 	
 	EventIterator eventIter;
-	if (!eventIter.open(infile_name.Data())) {
-		cerr << "root file open failed." << endl;
+	if (!infile_name.IsNull()) {
+		if (!eventIter.open(infile_name.Data())) {
+			cerr << "root file open failed: " << infile_name.Data() << endl;
+			exit(1);
+		}
+	}
+
+	PedMeanCalc pedMeanCalc;
+	if (!pedMeanCalc.open(pedfile_name.Data(), mode)) {
+		cerr << "root file open faild: " << pedfile_name.Data() << endl;
+		eventIter.close();
 		exit(1);
 	}
 
-	cout << "Calculating the pedestal of each channel ... " << endl;;
-	PedMeanCalc pedMeanCalc;
-	pedMeanCalc.init(&eventIter);
-	pedMeanCalc.do_calc();
-	cout << "[ DONE ]" << endl;
+	if (mode == 'r') {
+		cout << "Do fitting ..." << endl;
+		pedMeanCalc.do_fit();
+		cout << "[ DONE ]" << endl;
+	}
 
-	if (print_ped) {
+	if (mode == 'w' && !infile_name.IsNull()) {
+		cout << "Filling the data of pedestal ..." << endl;
+		pedMeanCalc.do_fill(eventIter);
+		pedMeanCalc.close();
+		cout << "[ DONE ]" << endl;
+	}
+	
+	if (mode == 'r' && print_ped) {
 		if (print_sigma)
 			cout << "Printing sigma along with mean pedestal of all channels ... " << endl;
 		else
@@ -77,26 +104,28 @@ int main(int argc, char** argv) {
 		cout << "[ DONE ]" << endl;
 	}
 
-	if (!print_ped && print_sigma) {
+	if (mode == 'r' && !print_ped && print_sigma) {
 		cout << "Printing sigma along with mean pedestal of all channels ... " << endl;
 		pedMeanCalc.print(true);
 		cout << "[ DONE ]" << endl;
 	}
 	
-	if (show_map) {
+	if (mode == 'r' && show_map) {
 		cout << "Showing mean pedestal map of all channels ..." << endl;
 		pedMeanCalc.show_mean();
 		cout << "[ DONE ]" << endl;
 	}
 	
-	if (!outfile_name.IsNull()) {
+	if (mode == 'r' && !infile_name.IsNull() && !outfile_name.IsNull()) {
 		int pre_percent = 0;
 		int cur_percent = 0;
 		cout << "Writing subtructed data to " << outfile_name.Data() << " ... " << endl;
 		cout << "[ #" << flush;
 		PhyEventFile phyEventFile;
 		if (!phyEventFile.open(outfile_name.Data(), 'w')) {
-			cerr << "root file to write open failed" << endl;
+			cerr << "root file open failed: " << outfile_name.Data() << endl;
+			eventIter.close();
+			pedMeanCalc.close();
 			exit(1);
 		}
 		eventIter.trigg_restart();
@@ -121,8 +150,13 @@ int main(int argc, char** argv) {
 	eventIter.close();
 
 	cout << "All Finished." << endl;
- 
-	rootapp->Run();
-	delete rootapp;
+	
+	if (mode == 'r') {
+		if (show_map)
+			rootapp->Run();
+		else
+			pedMeanCalc.close();
+	}
+
 	return 0;
 }

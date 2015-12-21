@@ -80,11 +80,10 @@ int main(int argc, char** argv) {
 				(jy - 9 != jx && jy - 9 >= 0  && phyEventFile.event.trigger_bit[jy - 9]) ||
 				(jy - 7 != jx && jy - 7 >= 0  && phyEventFile.event.trigger_bit[jy - 7]))
 				continue;
-			if (phyEventFile.event.energy_ch[jy] < 1)
-				continue;
 			if (phyEventFile.event.energy_ch[jy] / phyEventFile.event.energy_ch[jx] > 0.3)
 				continue;
-			g_xtalk->SetPoint(g_n++, phyEventFile.event.energy_ch[jx], phyEventFile.event.energy_ch[jy]);
+			if (phyEventFile.event.energy_ch[jy] > 0)
+				g_xtalk->SetPoint(g_n++, phyEventFile.event.energy_ch[jx], phyEventFile.event.energy_ch[jy]);
 		}
 	}
 
@@ -94,6 +93,7 @@ int main(int argc, char** argv) {
 	canvas->cd();
 	g_xtalk->Draw("ap*");
 	g_xtalk->Fit(f_xtalk, "");
+	cout << "N: " << g_xtalk->GetN() << endl;
 		
 	cout << "All Finished." << endl;
 	
