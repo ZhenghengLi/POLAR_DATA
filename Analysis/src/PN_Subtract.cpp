@@ -81,19 +81,20 @@ int main(int argc, char** argv) {
 		eventIter.close();
 		exit(1);
 	}
-
-	if (mode == 'r') {
-		cout << "Do fitting ..." << endl;
-		pedMeanCalc.do_fit();
-		cout << "[ DONE ]" << endl;
-	}
-
+	
 	if (mode == 'w' && !infile_name.IsNull()) {
 		cout << "Filling the data of pedestal ..." << endl;
 		pedMeanCalc.do_fill(eventIter);
 		pedMeanCalc.close();
 		cout << "[ DONE ]" << endl;
 	}
+	
+	if (mode == 'r') {
+		cout << "Do fitting ..." << endl;
+		pedMeanCalc.do_fit();
+		cout << "[ DONE ]" << endl;
+	}
+
 	
 	if (mode == 'r' && print_ped) {
 		if (print_sigma)
