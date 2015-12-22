@@ -56,7 +56,7 @@ public:
 
 	void do_move_trigg(PhyEventFile& phy_event_file,
 					   const EventIterator& event_iterator) const;
-	void do_subtruct(PhyEventFile& phy_event_file, 
+	void do_subtract(PhyEventFile& phy_event_file, 
 					 const EventIterator& event_iterator) const;
 	void print(bool sigma_flag = true);
 	void show(int ct_num);

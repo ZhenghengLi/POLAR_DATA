@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
 	if (mode == 'r' && !infile_name.IsNull() && !outfile_name.IsNull()) {
 		int pre_percent = 0;
 		int cur_percent = 0;
-		cout << "Writing subtructed data to " << outfile_name.Data() << " ... " << endl;
+		cout << "Writing subtracted data to " << outfile_name.Data() << " ... " << endl;
 		cout << "[ #" << flush;
 		PhyEventFile phyEventFile;
 		if (!phyEventFile.open(outfile_name.Data(), 'w')) {
@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
 			pedMeanCalc.do_move_trigg(phyEventFile, eventIter);
 			phyEventFile.write_trigg();
 			while (eventIter.event_next()) {
-				pedMeanCalc.do_subtruct(phyEventFile, eventIter);
+				pedMeanCalc.do_subtract(phyEventFile, eventIter);
 				phyEventFile.write_event();
 			}
 		}

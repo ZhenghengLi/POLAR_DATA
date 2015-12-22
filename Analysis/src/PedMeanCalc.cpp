@@ -61,6 +61,7 @@ bool PedMeanCalc::open(const char* filename, char m) {
 			}
 		}
 	}
+	done_flag_ = false;
 	return true;
 }
 
@@ -180,7 +181,7 @@ void PedMeanCalc::do_move_trigg(PhyEventFile& phy_event_file, const EventIterato
 	phy_event_file.trigg.level_flag = 1;
 }
 
-void PedMeanCalc::do_subtruct(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
+void PedMeanCalc::do_subtract(PhyEventFile& phy_event_file, const EventIterator& event_iterator) const {
 	if (!done_flag_)
 		return;
 	phy_event_file.event.trigg_index = event_iterator.event.trigg_index;
