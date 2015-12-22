@@ -16,5 +16,7 @@
 #include "TString.h"
 #include "RQ_OBJECT.h"
 #include "TPad.h"
+#include "TMatrixF.h"
+#include "TVectorF.h"
 
 #endif
