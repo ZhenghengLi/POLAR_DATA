@@ -185,6 +185,7 @@ void PedMeanCalc::do_subtract(PhyEventFile& phy_event_file, const EventIterator&
 	if (!done_flag_)
 		return;
 	phy_event_file.event.trigg_index = event_iterator.event.trigg_index;
+    phy_event_file.event.mode = event_iterator.event.mode;
 	phy_event_file.event.ct_num = event_iterator.event.ct_num;
 	for (int i = 0; i < 64; i++)
 		phy_event_file.event.trigger_bit[i] = event_iterator.event.trigger_bit[i];

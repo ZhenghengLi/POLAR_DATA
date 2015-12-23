@@ -33,6 +33,7 @@ bool PhyEventFile::open_write_(const char* filename) {
 	t_trigg_tree_->Branch("level_flag", &trigg.level_flag, "level_flag/I");
 
 	t_event_tree_->Branch("trigg_index", &event.trigg_index, "trigg_index/L");
+    t_event_tree_->Branch("mode", &event.mode, "mode/I");
 	t_event_tree_->Branch("ct_num", &event.ct_num, "ct_num/I");
 	t_event_tree_->Branch("trigger_bit", event.trigger_bit, "trigger_bit[64]/O");
 	t_event_tree_->Branch("energy_ch", event.energy_ch, "energy_ch[64]/F");
@@ -58,6 +59,7 @@ bool PhyEventFile::open_read_(const char* filename) {
 	
 	t_event_tree_ = static_cast<TTree*>(t_file_->Get("t_event"));
 	t_event_tree_->SetBranchAddress("trigg_index", &event.trigg_index);
+    t_event_tree_->SetBranchAddress("mode", &event.mode);
 	t_event_tree_->SetBranchAddress("ct_num", &event.ct_num);
 	t_event_tree_->SetBranchAddress("trigger_bit", event.trigger_bit);
 	t_event_tree_->SetBranchAddress("energy_ch", event.energy_ch);

@@ -28,6 +28,7 @@ private:
 public:
 	struct Event_T {
 		Long64_t trigg_index;
+        Int_t mode;
 		Int_t ct_num;
 		Bool_t trigger_bit[64];
 		Float_t energy_ch[64];
