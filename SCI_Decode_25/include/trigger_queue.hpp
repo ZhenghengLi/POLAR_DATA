@@ -13,12 +13,12 @@ template <class T, class Container, class Compare>
 void trigger_queue<T, Container, Compare>::push(const T& value) {
     if (std::priority_queue<T, Container, Compare>::empty()) {
         tail = value;
-		std::priority_queue<T, Container, Compare>::push(value);
+        std::priority_queue<T, Container, Compare>::push(value);
     } else {
         if (std::priority_queue<T, Container, Compare>::comp(value, tail)) {
             tail = value;
         }
-		std::priority_queue<T, Container, Compare>::push(value);
+        std::priority_queue<T, Container, Compare>::push(value);
     }   
 }
 

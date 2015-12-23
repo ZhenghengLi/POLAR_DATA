@@ -1,7 +1,7 @@
 #include "CrossTalkCalc.hpp"
 
 CrossTalkCalc::CrossTalkCalc() {
-	
+    
 }
 
 CrossTalkCalc::~CrossTalkCalc() {
@@ -10,7 +10,7 @@ CrossTalkCalc::~CrossTalkCalc() {
 
 bool CrossTalkCalc::open(const char* filename, char m) {
 
-	return true;
+    return true;
 }
 
 void CrossTalkCalc::close() {
@@ -26,12 +26,12 @@ void CrossTalkCalc::do_fit() {
 }
 
 void CrossTalkCalc::do_move_trigg(PhyEventFile& phy_event_file_w,
-								  const PhyEventFile& phy_event_file_r) const {
+                                  const PhyEventFile& phy_event_file_r) const {
 
 }
 
 void CrossTalkCalc::do_correct(PhyEventFile& phy_event_file_w,
-							   const PhyEventFile& phy_event_file_r) const {
+                               const PhyEventFile& phy_event_file_r) const {
 
 }
 

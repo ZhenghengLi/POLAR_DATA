@@ -22,27 +22,27 @@
  */
 
 inline int ijtox(int i, int j) {
-	return (i / 5) * 8 + j % 8;
+    return (i / 5) * 8 + j % 8;
 }
 
 inline int ijtoy(int i, int j) {
-	return (4 - i % 5) * 8 + j / 8;
+    return (4 - i % 5) * 8 + j / 8;
 }
 
 inline int xytoi(int x, int y) {
-	return x / 8 * 5 + (4 - y / 8);
+    return x / 8 * 5 + (4 - y / 8);
 }
 
 inline int xytoj(int x, int y) {
-	return y % 8 * 8 + x % 8;
+    return y % 8 * 8 + x % 8;
 }
 
 inline int jtoc(int j) {
-	return 8 * (7 - j / 8) + j % 8 + 1;
+    return 8 * (7 - j / 8) + j % 8 + 1;
 }
 
 inline int itoc(int i) {
-	return 5 * (i % 5) + i / 5 + 1;
+    return 5 * (i % 5) + i / 5 + 1;
 }
 
 #endif
