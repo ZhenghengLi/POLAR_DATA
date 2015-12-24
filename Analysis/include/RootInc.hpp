@@ -12,6 +12,7 @@
 #include "TMath.h"
 #include "TStyle.h"
 #include "TGraph.h"
+#include "TGraphErrors.h"
 #include "TGraph2D.h"
 #include "TString.h"
 #include "RQ_OBJECT.h"

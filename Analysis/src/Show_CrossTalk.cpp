@@ -60,7 +60,9 @@ int main(int argc, char** argv) {
     f_xtalk->SetParName(0, "k");
     TGraph* g_xtalk = new TGraph();
     g_xtalk->SetName("g_xtalk");
-    g_xtalk->SetTitle("Cross Talk");
+    char title[80];
+    sprintf(title, "Cross Talk: %d => %d", jx, jy);
+    g_xtalk->SetTitle(title);
     g_xtalk->SetMarkerColor(9);
     g_xtalk->SetMaximum(2048);
     int g_n = 0;
@@ -89,7 +91,8 @@ int main(int argc, char** argv) {
 
     phyEventFile.close();
 
-    TCanvas* canvas = new TCanvas("canvas", "Cross Talk", 1000, 600);
+    TCanvas* canvas = new TCanvas("canvas", title, 1000, 600);
+    canvas->SetGridy();
     canvas->cd();
     g_xtalk->Draw("ap*");
     g_xtalk->Fit(f_xtalk, "");

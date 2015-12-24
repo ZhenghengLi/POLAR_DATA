@@ -22,16 +22,22 @@ public:  // slots
 private:
     TFile* xtalk_file_;
     TGraph* g_xtalk_[25][64][64];
+    int g_n_[25][64][64];
     TF1* f_xtalk_[25][64][64];
+    TH2F* h_xtalk_res_;
+    TH2F* h_xtalk_mod_;
     TCanvas* canvas_res_;
     TCanvas* canvas_mod_;
+    TCanvas* canvas_cha_;
     char name_[80];
     char title_[80];
     bool done_flag_;
     char mode_;    // 'w' | 'r'
+    int selected_mod_;
 
 public:
     TMatrixF xtalk_matrix[25];
+    TMatrixF xtalk_matrix_inv[25];
     TVectorF energy_vec;
 
 private:
