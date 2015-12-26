@@ -95,7 +95,6 @@ int main(int argc, char** argv) {
         cout << "[ DONE ]" << endl;
     }
 
-    
     if (mode == 'r' && print_ped) {
         if (print_sigma)
             cout << "Printing sigma along with mean pedestal of all channels ... " << endl;

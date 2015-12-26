@@ -274,7 +274,6 @@ void PedMeanCalc::show_mean() {
             h_ped_map_->GetYaxis()->SetBinLabel(i + 1, str_buffer);
         }
     }
-    h_ped_map_->SetDirectory(NULL);
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             h_ped_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
