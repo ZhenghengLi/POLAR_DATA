@@ -173,7 +173,8 @@ void CrossTalkCalc::do_fit() {
                     continue;
                 }
                 if (h_xtalk_[jx][jy]->GetEntries() < 5) {
-                    cerr << jx + 1 << "_" << jy + 1 << ": " << "number of entries is too small" << endl;
+                    cerr << "CT_" << i + 1 << " : " << jx + 1 << " => " << jy + 1
+                         << "    " << "number of entries is too small" << endl;
                     xtalk_matrix[i][jy][jx] = 0.0001;
                 } else {
                     h_xtalk_[jx][jy]->Fit(f_xtalk_[jx][jy], "QN");
@@ -217,11 +218,29 @@ void CrossTalkCalc::do_correct(PhyEventFile& phy_event_file_w,
 }
 
 void CrossTalkCalc::show_mod(int ct_num) {
-    
-}
-
-void CrossTalkCalc::show_cha(int ct_num, int jx, int jy) {
-
+    if (!done_flag_)
+        return;
+    int idx = ct_num - 1;
+    gStyle->SetOptStat(0);
+    canvas_mod_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod"));
+    if (canvas_mod_ == NULL) {
+        canvas_mod_ = new TCanvas("canvas_mod", "Cross Talk", 1000, 1000);
+    }
+    sprintf(title_, "Cross Talk Matrix of module CT_%d", ct_num);
+    canvas_mod_->SetTitle(title_);
+    h_xtalk_mod_ = static_cast<TH2F*>(gROOT->FindObject("h_xtalk_mod"));
+    if (h_xtalk_mod_ == NULL)
+        h_xtalk_mod_ = new TH2F("h_xtalk_mod", title_, 64, 0, 64, 64, 0, 64);
+    h_xtalk_mod_->Reset();
+    h_xtalk_mod_->SetTitle(title_);
+    for (int jx = 0; jx < 64; jx++) {
+        for (int jy = 0; jy < 64; jy++) {
+            h_xtalk_mod_->SetBinContent(jx + 1, 64 - jy, xtalk_matrix[idx](jx, jy));
+        }
+    }
+    canvas_mod_->cd();
+    h_xtalk_mod_->Draw("LEGO2");
+    canvas_mod_->Update();
 }
 
 void CrossTalkCalc::show_xtalk() {
@@ -289,7 +308,12 @@ void CrossTalkCalc::ProcessAction(Int_t event,
                                       TObject* selected) {
     if (event != kButton1Down)
         return;
-    cout << px << " " << py << endl;
+    canvas_res_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_res"));
+    if (canvas_res_ == NULL)
+        return;
+    int x = static_cast<int>(canvas_res_->AbsPixeltoX(px));
+    int y = static_cast<int>(canvas_res_->AbsPixeltoY(py));
+    show_mod(x / 64 * 5 + 4 - y / 64 + 1);
 }
 
 bool CrossTalkCalc::write_xmat(const char* filename) {

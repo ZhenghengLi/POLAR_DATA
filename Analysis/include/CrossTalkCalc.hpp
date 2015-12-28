@@ -66,7 +66,6 @@ public:
     void do_correct(PhyEventFile& phy_event_file_w,
                     const PhyEventFile& phy_event_file_r);
     void show_mod(int ct_num);
-    void show_cha(int ct_num, int jx, int jy);
     void show_xtalk();
 
     bool write_xmat(const char* filename);
