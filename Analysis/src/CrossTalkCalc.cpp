@@ -214,7 +214,7 @@ void CrossTalkCalc::do_correct(PhyEventFile& phy_event_file_w,
     energy_vec.Use(64, phy_event_file_r.event.energy_ch);
     energy_vec *= xtalk_matrix_inv[idx];
     for (int j = 0; j < 64; j++)
-        phy_event_file_w.event.energy_ch[j] = energy_vec(j);
+        phy_event_file_w.event.energy_ch[j] = (energy_vec(j) > 0 ? energy_vec(j) : 0);
 }
 
 void CrossTalkCalc::show_mod(int ct_num) {

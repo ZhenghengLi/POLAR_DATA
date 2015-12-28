@@ -15,9 +15,9 @@ class CrossTalkCalc {
 public:  // slots
     virtual void CloseWindow();
     virtual void ProcessAction(Int_t event,
-                                   Int_t px,
-                                   Int_t py,
-                                   TObject* selected);
+                               Int_t px,
+                               Int_t py,
+                               TObject* selected);
 public:
     struct Xtalk_Point_T {
         int i;       // 0 - 24
@@ -43,7 +43,6 @@ private:
     char title_[80];
     bool done_flag_;
     char mode_;    // 'w' | 'r'
-    int selected_mod_;
 
 public:
     TMatrixF xtalk_matrix[25];
