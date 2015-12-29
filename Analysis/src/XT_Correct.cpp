@@ -11,6 +11,7 @@ void print_help() {
     cout << endl;
     cout << "USAGE: " << "XT_Correct <infile_name.root> -F <xtalkfile_name.root>" << endl;
     cout << "       " << "XT_Correct -f <xtalkfile_name.root> -X <xmatfile_name.root>" << endl;
+    cout << "       " << "XT_Correct -f <xtalkfile_name.root> -n <ct_num> -jx <jx1> -jy <jy1>" << endl;
     cout << "       " << "XT_Correct <infile_name.root> -x <xmatfile_name.root> -o <outfile_name.root>" << endl;
     cout << "       " << "XT_Correct -x <xmatfile_name> -m" << endl;
     cout << endl;
@@ -27,6 +28,9 @@ int main(int argc, char** argv) {
     TString xmatfile_name;         // -X | -x
     TString outfile_name;          // -o
     bool show_map = false;         // -m
+    int ct_num = 0;                // -n
+    int jx1 = 0;                   // -jx
+    int jy1 = 0;                   // -jy
     char mode_1 = 'o';             // 'w' | 'r'
     char mode_2 = 'o';             // 'w' | 'r'
 
@@ -48,6 +52,12 @@ int main(int argc, char** argv) {
             mode_2 = 'r';
         } else if (cur_par_str == "-o") {
             outfile_name = rootapp->Argv(++argv_idx);
+        } else if (cur_par_str == "-n") {
+            ct_num = atoi(rootapp->Argv(++argv_idx));
+        } else if (cur_par_str == "-jx") {
+            jx1 = atoi(rootapp->Argv(++argv_idx));
+        } else if (cur_par_str == "-jy") {
+            jy1 = atoi(rootapp->Argv(++argv_idx));
         } else if (cur_par_str == "-m") {
             show_map = true;
         } else {
@@ -89,10 +99,12 @@ int main(int argc, char** argv) {
         global_mode = 1;
     } else if (mode_1 == 'r' && mode_2 == 'w') {
         global_mode = 2;
-    } else if (xtalkfile_name.IsNull() && mode_2 == 'r' && !infile_name.IsNull() && !outfile_name.IsNull()) {
+    } else if (mode_1 == 'r' && ct_num > 0 && jx1 > 0 && jy1 > 0) {
         global_mode = 3;
-    } else if (xtalkfile_name.IsNull() && mode_2 == 'r' && show_map && infile_name.IsNull() && outfile_name.IsNull()) {
+    } else if (xtalkfile_name.IsNull() && mode_2 == 'r' && !infile_name.IsNull() && !outfile_name.IsNull()) {
         global_mode = 4;
+    } else if (xtalkfile_name.IsNull() && mode_2 == 'r' && show_map && infile_name.IsNull() && outfile_name.IsNull()) {
+        global_mode = 5;
     } else {
         print_help();
         exit(1);
@@ -113,13 +125,18 @@ int main(int argc, char** argv) {
         cout << "[ DONE ]" << endl;
         break;
     case 3:
+        cout << "Reviewing cross talk data of CT_" << ct_num << ": " << jx1 << " => " << jy1 << " ... " << endl;
+        crossTalkCalc.show_cha(ct_num, jx1, jy1);
+        cout << "[ DONE ]" << endl;
+        break;
+    case 4:
 //        int pre_percent = 0;
 //        int cur_percent = 0;
         cout << "writing corrected data to " << outfile_name.Data() << " ... " << endl;
         cout << "[ #" << flush;
         cout << " DONE ]" << endl;
         break;
-    case 4:
+    case 5:
         cout << "Showing cross talk map of all modules ... " << endl;
         crossTalkCalc.show_xtalk();
         cout << "[ DONE ]" << endl;
@@ -130,7 +147,7 @@ int main(int argc, char** argv) {
         phyEventFile_R.close();
     if (!xtalkfile_name.IsNull())
         crossTalkCalc.close();
-    if (global_mode == 4)
+    if (global_mode == 5 || global_mode == 3)
         rootapp->Run();
     
     return 0;

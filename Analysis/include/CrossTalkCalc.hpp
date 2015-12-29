@@ -33,9 +33,12 @@ private:
     Xtalk_Point_T xtalk_point_;
     TH2F* h_xtalk_[64][64];
     TF1* f_xtalk_[64][64];
+    TF1* f_xtalk_cha_;
     TH2F* h_xtalk_res_;
     TH2F* h_xtalk_mod_;
+    TH2F* h_xtalk_cha_;
     TCanvas* canvas_res_;
+    TCanvas* canvas_cha_;
     TLine* lineH_[4];
     TLine* lineV_[4];
     TCanvas* canvas_mod_;
@@ -65,6 +68,7 @@ public:
     void do_correct(PhyEventFile& phy_event_file_w,
                     const PhyEventFile& phy_event_file_r);
     void show_mod(int ct_num);
+    void show_cha(int ct_num, int jx1, int jy1);
     void show_xtalk();
 
     bool write_xmat(const char* filename);

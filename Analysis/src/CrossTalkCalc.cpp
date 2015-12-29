@@ -5,8 +5,10 @@ CrossTalkCalc::CrossTalkCalc() {
     t_xtalk_ = NULL;
     h_xtalk_res_ = NULL;
     h_xtalk_mod_ = NULL;
+    h_xtalk_cha_ = NULL;
     canvas_res_ = NULL;
     canvas_mod_ = NULL;
+    canvas_cha_ = NULL;
     done_flag_ = false;
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
@@ -14,6 +16,7 @@ CrossTalkCalc::CrossTalkCalc() {
             f_xtalk_[jx][jy] = NULL;
         }
     }
+    f_xtalk_cha_ = NULL;
     for (int i = 0; i < 25; i++) {
         xtalk_matrix[i].ResizeTo(64, 64);
         xtalk_matrix_inv[i].ResizeTo(64, 64);
@@ -34,6 +37,10 @@ CrossTalkCalc::~CrossTalkCalc() {
     if (h_xtalk_res_ != NULL) {
         delete h_xtalk_res_;
         h_xtalk_res_ = NULL;
+    }
+    if (h_xtalk_cha_ != NULL) {
+        delete h_xtalk_cha_;
+        h_xtalk_cha_ = NULL;
     }
 }
 
@@ -74,8 +81,11 @@ bool CrossTalkCalc::open(const char* filename, char m) {
                 sprintf(name_, "h_xtalk_%d_%d", jx + 1, jy + 1);
                 sprintf(title_, "Cross Talk of %d_%d", jx + 1, jy + 1);
                 h_xtalk_[jx][jy] = new TH2F(name_, title_, 256, 0, 4096, 128, 0, 1024);
+                h_xtalk_[jx][jy]->SetDirectory(NULL);
             }
         }
+        f_xtalk_cha_ = new TF1("f_xtalk_cha", "[0] * x", 0, 4096);
+        f_xtalk_cha_->SetParameter(0, 0.1);
     }
     
     done_flag_ = false;
@@ -98,6 +108,8 @@ void CrossTalkCalc::close() {
                 f_xtalk_[jx][jy] = NULL;
             }
         }
+        delete f_xtalk_cha_;
+        f_xtalk_cha_ = NULL;
     }
     xtalk_file_->Close();
     delete xtalk_file_;
@@ -229,8 +241,10 @@ void CrossTalkCalc::show_mod(int ct_num) {
     sprintf(title_, "Cross Talk Matrix of module CT_%d", ct_num);
     canvas_mod_->SetTitle(title_);
     h_xtalk_mod_ = static_cast<TH2F*>(gROOT->FindObject("h_xtalk_mod"));
-    if (h_xtalk_mod_ == NULL)
+    if (h_xtalk_mod_ == NULL) {
         h_xtalk_mod_ = new TH2F("h_xtalk_mod", title_, 64, 0, 64, 64, 0, 64);
+        h_xtalk_mod_->SetDirectory(NULL);
+    }
     h_xtalk_mod_->Reset();
     h_xtalk_mod_->SetTitle(title_);
     for (int jx = 0; jx < 64; jx++) {
@@ -241,6 +255,44 @@ void CrossTalkCalc::show_mod(int ct_num) {
     canvas_mod_->cd();
     h_xtalk_mod_->Draw("LEGO2");
     canvas_mod_->Update();
+}
+
+void CrossTalkCalc::show_cha(int ct_num, int jx1, int jy1) {
+    if (xtalk_file_ == NULL)
+        return;
+    if (mode_ != 'r')
+        return;
+    if (ct_num < 1 || ct_num > 25 || jx1 < 1 || jx1 > 64 || jy1 < 1 || jy1 > 64 || jx1 == jy1)
+        return;
+    int idx = ct_num - 1;
+    int jx = jx1 - 1;
+    int jy = jy1 - 1;
+    h_xtalk_cha_ = static_cast<TH2F*>(gROOT->FindObject("h_xtalk_cha"));
+    if (h_xtalk_cha_ == NULL) {
+        h_xtalk_cha_ = new TH2F("h_xtalk_cha", "Cross Talk", 256, 0, 4096, 256, 0, 2048);
+        h_xtalk_cha_->SetDirectory(NULL);
+        h_xtalk_cha_->SetMarkerColor(9);
+        h_xtalk_cha_->SetMarkerStyle(31);
+    }
+    sprintf(title_, "Cross Talk of CT_%d: %d => %d", ct_num , jx1, jy1);
+    h_xtalk_cha_->SetTitle(title_);
+    h_xtalk_cha_->Reset();
+    
+    Long64_t tot_entries = t_xtalk_->GetEntries();
+    for (Long64_t i = 0; i < tot_entries; i++) {
+        t_xtalk_->GetEntry(i);
+        if (xtalk_point_.i == idx && xtalk_point_.jx == jx && xtalk_point_.jy == jy)
+            h_xtalk_cha_->Fill(xtalk_point_.x, xtalk_point_.y);
+    }
+
+    canvas_cha_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_cha"));
+    if (canvas_cha_ == NULL) {
+        canvas_cha_ = new TCanvas("canvas_cha", "Cross Talk", 1000, 600);
+        canvas_cha_->Connect("Closed()", "CrossTalkCalc", this, "CloseWindow()");
+    }
+    canvas_cha_->SetTitle(title_);
+    h_xtalk_cha_->Fit(f_xtalk_cha_);
+    canvas_cha_->Update();
 }
 
 void CrossTalkCalc::show_xtalk() {
