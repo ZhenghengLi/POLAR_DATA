@@ -21,6 +21,8 @@ public:
         //                                        Pedestal and no pedestal packets use different number counter.
         Long64_t     event_num;                // Sequential number of the event packet of a module. Start from 0.
         //                                        Pedestal and no pedestal packets use different number counter.
+        Long64_t     event_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
+        //                                        Pedestal and no pedestal packets use the same number counter.
         Long64_t     ped_entry;                // Entry index of the nearest pedestal event packet for a module.
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
@@ -41,6 +43,8 @@ public:
     struct Trigger_T {
         Long64_t     trigg_num;                // Sequential number of the trigger packet. Start from 0.
         //                                        Pedestal and no pedestal packets use different number counter.
+        Long64_t     trigg_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
+        //                                        Pedestal and no pedestal packets use the same number counter.
         Long64_t     ped_entry;                // Entry index of the nearest pedestal trigger packet for an event.
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
