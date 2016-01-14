@@ -249,7 +249,7 @@ void CrossTalkCalc::show_mod(int ct_num) {
     h_xtalk_mod_->SetTitle(title_);
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
-            h_xtalk_mod_->SetBinContent(jx + 1, 64 - jy, xtalk_matrix[idx](jx, jy));
+            h_xtalk_mod_->SetBinContent(jy + 1, 64 - jx, xtalk_matrix[idx](jx, jy));
         }
     }
     canvas_mod_->cd();
@@ -325,8 +325,8 @@ void CrossTalkCalc::show_xtalk() {
     for (int i = 0; i < 25; i++) {
         for (int jx = 0; jx < 64; jx++) {
             for (int jy = 0; jy < 64; jy++) {
-                h_xtalk_res_->SetBinContent((i / 5) * 64 + jx + 1,
-                                            (4 - i % 5) * 64 + (63 - jy) + 1,
+                h_xtalk_res_->SetBinContent((i / 5) * 64 + jy + 1,
+                                            (4 - i % 5) * 64 + (63 - jx) + 1,
                                             xtalk_matrix[i](jx, jy));
             }
         }
