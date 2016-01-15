@@ -128,6 +128,15 @@ void CrossTalkCalc::do_fill(PhyEventFile& phy_event_file) {
             for (int jx = 0; jx < 64; jx++) {
                 if (!phy_event_file.event.trigger_bit[jx])
                     continue;
+                if ((jx + 1 <= 63 && phy_event_file.event.trigger_bit[jx + 1]) ||
+                    (jx - 1 >= 0  && phy_event_file.event.trigger_bit[jx - 1]) ||
+                    (jx + 7 <= 63 && phy_event_file.event.trigger_bit[jx + 7]) ||
+                    (jx + 8 <= 63 && phy_event_file.event.trigger_bit[jx + 8]) ||
+                    (jx + 9 <= 63 && phy_event_file.event.trigger_bit[jx + 9]) ||
+                    (jx - 7 >= 0  && phy_event_file.event.trigger_bit[jx - 7]) ||
+                    (jx - 8 >= 0  && phy_event_file.event.trigger_bit[jx - 8]) ||
+                    (jx - 9 >= 0  && phy_event_file.event.trigger_bit[jx - 9]))
+                    continue;
                 for (int jy = 0; jy < 64; jy++) {
                     if (jx == jy)
                         continue;
