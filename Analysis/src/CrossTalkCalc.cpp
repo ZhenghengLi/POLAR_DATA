@@ -226,6 +226,8 @@ void CrossTalkCalc::do_move_trigg(PhyEventFile& phy_event_file_w,
 
 void CrossTalkCalc::do_correct(PhyEventFile& phy_event_file_w,
                                const PhyEventFile& phy_event_file_r) {
+    if (!done_flag_)
+        return;
     phy_event_file_w.event.trigg_index = phy_event_file_r.event.trigg_index;
     phy_event_file_w.event.mode = phy_event_file_r.event.mode;
     phy_event_file_w.event.ct_num = phy_event_file_r.event.ct_num;
