@@ -66,22 +66,35 @@ bool ComptonEdgeCalc::open(const char* filename, char m) {
     if (spec_file_->IsZombie())
         return false;
 
-    if (mode_ == 'r') {
-        TVectorF* tmp_vec_p;
-        tmp_vec_p = static_cast<TVectorF*>(spec_file_->Get("accepted_cnts"));
-        if (tmp_vec_p == NULL)
+    TVectorF* tmp_vec_p;
+    bool first_open = false;
+    tmp_vec_p = static_cast<TVectorF*>(spec_file_->Get("accepted_cnts"));
+    if (tmp_vec_p == NULL) {
+        if (mode_ == 'r') {
             return false;
-        else
-            accepted_cnts = *tmp_vec_p;
-        for (int i = 0; i < 25; i++) {
-            sprintf(name_, "trigger_cnts_%d", i + 1);
-            tmp_vec_p = static_cast<TVectorF*>(spec_file_->Get(name_));
-            if (tmp_vec_p == NULL)
+        } else {
+            first_open = true;
+        }
+    } else {
+        accepted_cnts = *tmp_vec_p;
+    }
+    for (int i = 0; i < 25; i++) {
+        sprintf(name_, "trigger_cnts_%d", i + 1);
+        tmp_vec_p = static_cast<TVectorF*>(spec_file_->Get(name_));
+        if (tmp_vec_p == NULL) {
+            if (mode_ == 'r') {
                 return false;
-            else
-                trigger_cnts[i] = *tmp_vec_p;
+            } else {
+                first_open = true;
+                break;
+            }
+        } else {
+            trigger_cnts[i] = *tmp_vec_p;
         }
     }
+    if (first_open)
+        clear_counts_();
+    
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             if (mode_ == 'r') {
@@ -103,6 +116,7 @@ bool ComptonEdgeCalc::open(const char* filename, char m) {
             }
         }
     }
+    
     done_flag_ = false;
     return true;
 }
@@ -138,7 +152,6 @@ void ComptonEdgeCalc::do_fill(PhyEventFile& phy_event_file) {
         return;
     if (mode_ != 'w')
         return;
-    clear_counts_();
     phy_event_file.trigg_restart();
     while (phy_event_file.trigg_next()) {
         for (int i = 0; i < 25; i++) {
@@ -205,9 +218,7 @@ void ComptonEdgeCalc::show_spec(int ct_num) {
         return;
     if (mode_ != 'r')
         return;
-    if (!done_flag_)
-        return;
-    int idx = ct_num = 1;
+    int idx = ct_num - 1;
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);
     canvas_spec_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_spec"));
@@ -219,6 +230,7 @@ void ComptonEdgeCalc::show_spec(int ct_num) {
     canvas_spec_->SetTitle(title_);
     for (int j = 0; j < 64; j++) {
         canvas_spec_->cd(jtoc(j));
+        canvas_spec_->GetPad(jtoc(j))->SetLogy();
         if (h_spec_[idx][j]->GetEntries() < 1000)
             continue;
         h_spec_[idx][j]->Draw();   // should do fitting here
@@ -246,6 +258,9 @@ void ComptonEdgeCalc::show_counts() {
         canvas_cnts_->Divide(2, 1);
         canvas_cnts_->GetPad(1)->SetGrid();
         canvas_cnts_->GetPad(2)->SetGrid();
+        canvas_cnts_->Connect("Closed()", "ComptonEdgeCalc", this, "CloseWindow()");
+        canvas_cnts_->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "ComptonEdgeCalc",
+                              this, "ProcessAction(Int_t,Int_t,Int_t,TObject*)");
     }
     
     h_trigger_cnts_ = new TH2F("h_trigger_cnts", "Trigger Counts of 1600 Channels", 40, 0, 40, 40, 0, 40);
@@ -320,6 +335,8 @@ void ComptonEdgeCalc::show_adc_per_kev() {
 
 void ComptonEdgeCalc::CloseWindow() {
     cout << "Quitting by user request." << endl;
+    if (spec_file_ != NULL)
+        close();
     gApplication->Terminate(0);
 }
 
@@ -329,8 +346,18 @@ void ComptonEdgeCalc::ProcessAction(Int_t event,
                                     TObject* selected) {
     if (event != kButton1Down)
         return;
-    cout << "px = " << px << " , py = " << py << endl;
-    
+    TString title = selected->GetTitle();
+    canvas_cnts_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_cnts"));
+    if (canvas_cnts_ == NULL)
+        return;
+    int x, y;
+    if (title == "Trigger Counts of 1600 Channels") {
+        x = static_cast<int>(canvas_cnts_->GetPad(1)->AbsPixeltoX(px));
+        y = static_cast<int>(canvas_cnts_->GetPad(1)->AbsPixeltoY(py));
+    } else {
+        return;
+    }
+    show_spec(xytoi(x, y) + 1);
 }
 
 bool ComptonEdgeCalc::write_kvec(const char* filename) {

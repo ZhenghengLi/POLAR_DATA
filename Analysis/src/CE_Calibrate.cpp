@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     }
 
     if (specfile_name.IsNull() && kvecfile_name.IsNull()) {
-        print_help();
+         print_help();
         exit(1);
     }
 
@@ -76,6 +76,10 @@ int main(int argc, char** argv) {
             cerr << "root file open failed: " << specfile_name.Data() << endl;
             phyEventFile_R.close();
             exit(1);
+        }
+        if (mode_1 == 'r') {
+            cout << "Do fitting ... " << endl;
+            comptonEdgeCalc.do_fit();
         }
     }
 
@@ -114,8 +118,6 @@ int main(int argc, char** argv) {
         cout << "[ DONE ]" << endl;
         break;
     case 2:
-        cout << "Do fitting ... " << endl;
-        comptonEdgeCalc.do_fit();
         cout << "Writing ADC/keV vector to file: " << kvecfile_name.Data() << " ... " << endl;
         comptonEdgeCalc.write_kvec(kvecfile_name.Data());
         cout << "[ DONE ]" << endl;
@@ -140,8 +142,6 @@ int main(int argc, char** argv) {
 
     if (!infile_name.IsNull())
         phyEventFile_R.close();
-    if (!specfile_name.IsNull())
-        comptonEdgeCalc.close();
     if (global_mode == 3 || global_mode == 4)
         rootapp->Run(); 
     
