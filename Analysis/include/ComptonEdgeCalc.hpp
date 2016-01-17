@@ -31,7 +31,7 @@ private:
     TH2F* h_adc_per_kev_;
     TCanvas* canvas_spec_;
     TCanvas* canvas_cnts_;
-    Tcanvas* canvas_adc_;
+    TCanvas* canvas_adc_;
     char name_[80];
     char title_[80];
     bool done_flag_;
