@@ -99,9 +99,9 @@ bool ComptonEdgeCalc::open(const char* filename, char m) {
         for (int j = 0; j < 64; j++) {
             if (mode_ == 'r') {
                 sprintf(name_, "f_erfc_%d_%d", i + 1, j + 1);
-                f_erfc_[i][j] = new TF1(name_, "[0]+[1]*TMath::Erfc((x-[2])/[3])", 0, 4096);
+                f_erfc_[i][j] = new TF1(name_, "[0]+[1]*TMath::Erfc((x-[2])/[3])", 700, 3900);
                 f_erfc_[i][j]->SetParName(2, "CE");
-                f_erfc_[i][j]->SetParameters(1, 50, 2000, 250);
+                f_erfc_[i][j]->SetParameters(1, 20, 1500, 250);
             }
             sprintf(name_, "h_spec_%d_%d", i + 1, j + 1);
             h_spec_[i][j] = static_cast<TH1F*>(spec_file_->Get(name_));
@@ -234,6 +234,7 @@ void ComptonEdgeCalc::show_spec(int ct_num) {
         if (h_spec_[idx][j]->GetEntries() < 1000)
             continue;
         h_spec_[idx][j]->Draw();   // should do fitting here
+        h_spec_[idx][j]->Fit(f_erfc_[idx][j], "QR");
     }
     canvas_spec_->Update();
 }

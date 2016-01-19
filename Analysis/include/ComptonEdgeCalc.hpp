@@ -9,7 +9,7 @@
 #include "PhyEventFile.hpp"
 #include "CooConv.hpp"
 
-#define CE_BINS 256
+#define CE_BINS 128
 
 using namespace std;
 
