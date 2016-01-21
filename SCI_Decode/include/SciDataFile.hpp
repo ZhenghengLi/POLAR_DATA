@@ -34,10 +34,11 @@ public:
         UInt_t       time_align;               // 23 LSB of time_stamp
         Int_t        raw_rate;                 // raw data of RATE field of the packet
         Int_t        raw_dead;                 // raw data of DEADTIME field of the packet
+        Float_t      dead_ratio;               // increased number of raw_dead divided by time_wait
         UShort_t     status;                   // raw data of the 16 bits STATUS field of the packet
         Bool_t       trigger_bit[64];          // raw data of the TRIGGERBIT, the same as pattern[64]
-        Int_t        energy_adc[64];           // ADC of energy of the 64 channels, the same as pm[64]
-        Int_t        common_noise;             // raw data of COMMON NOISE field for compress mode 3, 0 for other compress mode
+        Float_t      energy_adc[64];           // ADC of energy of the 64 channels, the same as pm[64]
+        Float_t      common_noise;             // raw data of COMMON NOISE field for compress mode 3, 0 for other compress mode
     };
 
     struct Trigger_T {
@@ -65,6 +66,7 @@ public:
         Bool_t       trig_accepted[25];        // raw data of FEE TRIGGER ACCEPTED for each frontend
         Bool_t       trig_rejected[25];        // raw data of FEE TRIGGER REJECTED for each frontend
         UInt_t       raw_dead;                 // raw data of the dead time counter field
+        Float_t      dead_ratio;               // increased number of raw_dead divided by time_wait
     };
 
 public:

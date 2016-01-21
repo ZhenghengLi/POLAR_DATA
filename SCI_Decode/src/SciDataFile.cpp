@@ -37,10 +37,11 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("time_align",        &t_modules.time_align,        "time_align/i"          );
     t_modules_tree_->Branch("raw_rate",          &t_modules.raw_rate,          "raw_rate/I"            );
     t_modules_tree_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/I"            );
+    t_modules_tree_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );
     t_modules_tree_->Branch("status",            &t_modules.status,            "status/s"              );
     t_modules_tree_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );
-    t_modules_tree_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/I"      );
-    t_modules_tree_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/I"        );
+    t_modules_tree_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );
+    t_modules_tree_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/F"        );
 
     t_trigger_tree_ = new TTree("t_trigger", "trigger packets");
     t_trigger_tree_->SetDirectory(t_out_file_);
@@ -64,7 +65,8 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->Branch("trig_sig_con",       t_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_trigger_tree_->Branch("trig_accepted",      t_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_trigger_tree_->Branch("trig_rejected",      t_trigger.trig_rejected,     "trig_rejected[25]/O"   );
-    t_trigger_tree_->Branch("raw_dead",          &t_trigger.raw_dead,          "raw_dead"              );
+    t_trigger_tree_->Branch("raw_dead",          &t_trigger.raw_dead,          "raw_dead/I"            );
+    t_trigger_tree_->Branch("dead_ratio",        &t_trigger.dead_ratio,        "dead_ratio/F"          );
 
     t_ped_modules_tree_ = new TTree("t_ped_modules", "pedestal modules packets");
     t_ped_modules_tree_->SetDirectory(t_out_file_);
@@ -82,10 +84,11 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("time_align",        &t_ped_modules.time_align,        "time_align/i"          );
     t_ped_modules_tree_->Branch("raw_rate",          &t_ped_modules.raw_rate,          "raw_rate/I"            );
     t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/I"            );
+    t_ped_modules_tree_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
     t_ped_modules_tree_->Branch("status",            &t_ped_modules.status,            "status/s"              );
     t_ped_modules_tree_->Branch("trigger_bit",        t_ped_modules.trigger_bit,       "trigger_bit[64]/O"     );
-    t_ped_modules_tree_->Branch("energy_adc",         t_ped_modules.energy_adc,        "energy_adc[64]/I"      );
-    t_ped_modules_tree_->Branch("common_noise",      &t_ped_modules.common_noise,      "common_noise/I"        );
+    t_ped_modules_tree_->Branch("energy_adc",         t_ped_modules.energy_adc,        "energy_adc[64]/F"      );
+    t_ped_modules_tree_->Branch("common_noise",      &t_ped_modules.common_noise,      "common_noise/F"        );
 
     t_ped_trigger_tree_ = new TTree("t_ped_trigger", "pedestal trigger packets");
     t_ped_trigger_tree_->SetDirectory(t_out_file_);
@@ -109,7 +112,8 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("trig_sig_con",       t_ped_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_ped_trigger_tree_->Branch("trig_accepted",      t_ped_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_ped_trigger_tree_->Branch("trig_rejected",      t_ped_trigger.trig_rejected,     "trig_rejected[25]/O"   );
-    t_ped_trigger_tree_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead"              );
+    t_ped_trigger_tree_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead/I"            );
+    t_ped_trigger_tree_->Branch("dead_ratio",        &t_ped_trigger.dead_ratio,        "dead_ratio/F"          );
 
     return true;
 }

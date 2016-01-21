@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     PhyEventFile phyEventFile;
     phyEventFile.open(infile_name.Data(), 'r');
 
-    TF1* f_xtalk = new TF1("f_xtalk", "[0]*x", 0, 4096);
+    TF1* f_xtalk = new TF1("f_xtalk", "[0] * x", 0, 4096);
     f_xtalk->SetParameter(0, 0.1);
     f_xtalk->SetParName(0, "k");
     TGraph* g_xtalk = new TGraph();
@@ -65,6 +65,12 @@ int main(int argc, char** argv) {
     g_xtalk->SetTitle(title);
     g_xtalk->SetMarkerColor(9);
     g_xtalk->SetMaximum(2048);
+    TH2F* h_xtalk = new TH2F("h_xtalk", title, 256, 0, 4096, 128, 0, 1024);
+    h_xtalk->SetDirectory(NULL);
+    h_xtalk->SetMarkerColor(9);
+    h_xtalk->SetMarkerStyle(31);
+    h_xtalk->GetXaxis()->SetNdivisions(256);
+    h_xtalk->GetYaxis()->SetNdivisions(128);
     int g_n = 0;
     while (phyEventFile.trigg_next()) {
         while (phyEventFile.event_next()) {
@@ -84,8 +90,10 @@ int main(int argc, char** argv) {
                 continue;
             if (phyEventFile.event.energy_ch[jy] / phyEventFile.event.energy_ch[jx] > 0.4)
                 continue;
-            if (phyEventFile.event.energy_ch[jy] > 0)
+            if (phyEventFile.event.energy_ch[jy] > 0) {
                 g_xtalk->SetPoint(g_n++, phyEventFile.event.energy_ch[jx], phyEventFile.event.energy_ch[jy]);
+                h_xtalk->Fill(phyEventFile.event.energy_ch[jx], phyEventFile.event.energy_ch[jy]);
+            }
         }
     }
 
@@ -97,7 +105,13 @@ int main(int argc, char** argv) {
     g_xtalk->Draw("ap*");
     g_xtalk->Fit(f_xtalk, "");
     cout << "N: " << g_xtalk->GetN() << endl;
-        
+    TCanvas* canvas_2 = new TCanvas("canvas_2", title, 1000, 600);
+    canvas_2->SetGrid();
+    canvas_2->cd();
+
+    TF1* f_xtalk_2 = new TF1("f_xtalk_2", "[0] * x", 0, 4096);
+    h_xtalk->Fit(f_xtalk_2);
+
     cout << "All Finished." << endl;
     
     // ==================================================================== 
