@@ -110,6 +110,10 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
+    int pre_percent = 0;
+    int cur_percent = 0;
+    PhyEventFile phyEventFile_W;
+    
     switch (global_mode) {
     case 1:
         cout << "Filling the data of Spectrum ... " << endl;
@@ -135,7 +139,27 @@ int main(int argc, char** argv) {
     case 5:
         cout << "Writing calibrated data to " << outfile_name.Data() << " ... " << endl;
         cout << "[ #" << flush;
-
+        if (!phyEventFile_W.open(outfile_name.Data(), 'w')) {
+            cerr << "root file open failed: " << outfile_name.Data() << endl;
+            phyEventFile_R.close();
+            exit(1);
+        }
+        phyEventFile_R.trigg_restart();
+        while (phyEventFile_R.trigg_next()) {
+            cur_percent = static_cast<int>(100 * phyEventFile_R.current_index() / phyEventFile_R.total_entries());
+            if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+                pre_percent = cur_percent;
+                cout << "#" << flush;
+            }
+            comptonEdgeCalc.do_move_trigg(phyEventFile_W, phyEventFile_R);
+            phyEventFile_W.write_trigg();
+            while (phyEventFile_R.event_next()) {
+                comptonEdgeCalc.do_calibrate(phyEventFile_W, phyEventFile_R);
+                phyEventFile_W.write_event();
+            }
+        }
+        phyEventFile_R.trigg_restart();
+        phyEventFile_W.close();
         cout << " DONE]" << endl;
         break;
     }

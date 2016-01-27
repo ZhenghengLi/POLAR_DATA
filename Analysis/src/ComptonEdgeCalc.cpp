@@ -99,9 +99,9 @@ bool ComptonEdgeCalc::open(const char* filename, char m) {
         for (int j = 0; j < 64; j++) {
             if (mode_ == 'r') {
                 sprintf(name_, "f_erfc_%d_%d", i + 1, j + 1);
-                f_erfc_[i][j] = new TF1(name_, "[0]+[1]*TMath::Erfc((x-[2])/[3])", 700, 3900);
+                f_erfc_[i][j] = new TF1(name_, "[0]+[1]*TMath::Erfc((x-[2])/[3])", 900, 4000);
                 f_erfc_[i][j]->SetParName(2, "CE");
-                f_erfc_[i][j]->SetParameters(1, 20, 1500, 250);
+                f_erfc_[i][j]->SetParameters(1, 40, 1700, 700);
             }
             sprintf(name_, "h_spec_%d_%d", i + 1, j + 1);
             h_spec_[i][j] = static_cast<TH1F*>(spec_file_->Get(name_));
@@ -154,6 +154,8 @@ void ComptonEdgeCalc::do_fill(PhyEventFile& phy_event_file) {
         return;
     phy_event_file.trigg_restart();
     while (phy_event_file.trigg_next()) {
+        if (phy_event_file.trigg.mode != 0x00FF)
+            continue;
         for (int i = 0; i < 25; i++) {
             if (phy_event_file.trigg.trig_accepted[i]) {
                 accepted_cnts(i)++;

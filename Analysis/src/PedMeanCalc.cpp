@@ -190,8 +190,11 @@ void PedMeanCalc::do_subtract(PhyEventFile& phy_event_file, const EventIterator&
     for (int i = 0; i < 64; i++)
         phy_event_file.event.trigger_bit[i] = event_iterator.event.trigger_bit[i];
     if (event_iterator.event.mode == 3) {
-        for (int i = 0; i < 64; i++)
-            phy_event_file.event.energy_ch[i] = static_cast<Float_t>(event_iterator.event.energy_ch[i]);
+        for (int i = 0; i < 64; i++) {
+            Float_t tmp_adc = static_cast<Float_t>(event_iterator.event.energy_ch[i] - 2048) * 2 -
+                static_cast<Float_t>(event_iterator.event.common_noise - 2048);
+            phy_event_file.event.energy_ch[i] = tmp_adc > 0 ? tmp_adc : 0;
+        }
     } else {
         int idx = event_iterator.event.ct_num - 1;
         Float_t tmp_energy_ch[64];
