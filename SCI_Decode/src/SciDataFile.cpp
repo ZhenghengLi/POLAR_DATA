@@ -49,6 +49,7 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->Branch("is_bad",            &t_trigger.is_bad,            "is_bad/I"              );
     t_trigger_tree_->Branch("pre_is_bad",        &t_trigger.pre_is_bad,        "pre_is_bad/I"          );
     t_trigger_tree_->Branch("type",              &t_trigger.type,              "type/I"                );
+    t_trigger_tree_->Branch("packet_num",        &t_trigger.packet_num,        "packet_num/I"          );
     t_trigger_tree_->Branch("time_stamp",        &t_trigger.time_stamp,        "time_stamp/i"          );
     t_trigger_tree_->Branch("time_period",       &t_trigger.time_period,       "time_period/i"         );
     t_trigger_tree_->Branch("time_wait",         &t_trigger.time_wait,         "time_wait/i"           );
@@ -94,6 +95,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("is_bad",            &t_ped_trigger.is_bad,            "is_bad/I"              );
     t_ped_trigger_tree_->Branch("pre_is_bad",        &t_ped_trigger.pre_is_bad,        "pre_is_bad/I"          );
     t_ped_trigger_tree_->Branch("type",              &t_ped_trigger.type,              "type/I"                );
+    t_ped_trigger_tree_->Branch("packet_num",        &t_ped_trigger.packet_num,        "packet_num/I"          );
     t_ped_trigger_tree_->Branch("time_stamp",        &t_ped_trigger.time_stamp,        "time_stamp/i"          );
     t_ped_trigger_tree_->Branch("time_period",       &t_ped_trigger.time_period,       "time_period/i"         );
     t_ped_trigger_tree_->Branch("time_wait",         &t_ped_trigger.time_wait,         "time_wait/i"           );

@@ -48,6 +48,7 @@ public:
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        type;                     // the 4 types of trigger packet: 0x00F0 for pedestal, 0x00FF nor normal, 0xF000 for single, 0xFF00 for cosmic
+        Int_t        packet_num;               // raw data of packet number of the trigger packet
         UInt_t       time_stamp;               // raw data of Timestamp register of the trigger packet
         UInt_t       time_period;              // overflow counter of time_stamp
         UInt_t       time_wait;                // time_stamp difference since previous event
