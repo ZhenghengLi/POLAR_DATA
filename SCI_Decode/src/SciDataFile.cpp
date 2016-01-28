@@ -26,7 +26,6 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("trigg_num",         &t_modules.trigg_num,         "trigg_num/L"           );
     t_modules_tree_->Branch("event_num",         &t_modules.event_num,         "event_num/L"           );
     t_modules_tree_->Branch("event_num_g",       &t_modules.event_num_g,       "event_num_g/L"         );
-    t_modules_tree_->Branch("ped_entry",         &t_modules.ped_entry,         "ped_entry/L"           );
     t_modules_tree_->Branch("is_bad",            &t_modules.is_bad,            "is_bad/I"              );
     t_modules_tree_->Branch("pre_is_bad",        &t_modules.pre_is_bad,        "pre_is_bad/I"          );
     t_modules_tree_->Branch("compress",          &t_modules.compress,          "compress/I"            );
@@ -47,7 +46,6 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->SetDirectory(t_out_file_);
     t_trigger_tree_->Branch("trigg_num",         &t_trigger.trigg_num,         "trigg_num/L"           );
     t_trigger_tree_->Branch("trigg_num_g",       &t_trigger.trigg_num_g,       "trigg_num_g/L"         );
-    t_trigger_tree_->Branch("ped_entry",         &t_trigger.ped_entry,         "ped_entry/L"           );
     t_trigger_tree_->Branch("is_bad",            &t_trigger.is_bad,            "is_bad/I"              );
     t_trigger_tree_->Branch("pre_is_bad",        &t_trigger.pre_is_bad,        "pre_is_bad/I"          );
     t_trigger_tree_->Branch("type",              &t_trigger.type,              "type/I"                );
@@ -73,7 +71,6 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("trigg_num",         &t_ped_modules.trigg_num,         "trigg_num/L"           );
     t_ped_modules_tree_->Branch("event_num",         &t_ped_modules.event_num,         "event_num/L"           );
     t_ped_modules_tree_->Branch("event_num_g",       &t_ped_modules.event_num_g,       "event_num_g/L"         );
-    t_ped_modules_tree_->Branch("ped_entry",         &t_ped_modules.ped_entry,         "ped_entry/L"           );
     t_ped_modules_tree_->Branch("is_bad",            &t_ped_modules.is_bad,            "is_bad/I"              );
     t_ped_modules_tree_->Branch("pre_is_bad",        &t_ped_modules.pre_is_bad,        "pre_is_bad/I"          );
     t_ped_modules_tree_->Branch("compress",          &t_ped_modules.compress,          "compress/I"            );
@@ -94,7 +91,6 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->SetDirectory(t_out_file_);
     t_ped_trigger_tree_->Branch("trigg_num",         &t_ped_trigger.trigg_num,         "trigg_num/L"           );
     t_ped_trigger_tree_->Branch("trigg_num_g",       &t_ped_trigger.trigg_num_g,       "trigg_num_g/L"         );
-    t_ped_trigger_tree_->Branch("ped_entry",         &t_ped_trigger.ped_entry,         "ped_entry/L"           );
     t_ped_trigger_tree_->Branch("is_bad",            &t_ped_trigger.is_bad,            "is_bad/I"              );
     t_ped_trigger_tree_->Branch("pre_is_bad",        &t_ped_trigger.pre_is_bad,        "pre_is_bad/I"          );
     t_ped_trigger_tree_->Branch("type",              &t_ped_trigger.type,              "type/I"                );

@@ -23,7 +23,6 @@ public:
         //                                        Pedestal and no pedestal packets use different number counter.
         Long64_t     event_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
         //                                        Pedestal and no pedestal packets use the same number counter.
-        Long64_t     ped_entry;                // Entry index of the nearest pedestal event packet for a module.
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        compress;                 // compress mode: 0 for default, 1 for simple, 2 for pedestal, 3 for full reduction 
@@ -46,7 +45,6 @@ public:
         //                                        Pedestal and no pedestal packets use different number counter.
         Long64_t     trigg_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
         //                                        Pedestal and no pedestal packets use the same number counter.
-        Long64_t     ped_entry;                // Entry index of the nearest pedestal trigger packet for an event.
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        type;                     // the 4 types of trigger packet: 0x00F0 for pedestal, 0x00FF nor normal, 0xF000 for single, 0xFF00 for cosmic
