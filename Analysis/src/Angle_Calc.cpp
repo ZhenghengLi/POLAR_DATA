@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
                 break;
             }
         }
-        if (found_not_adjacent && second_bar.energy > 60.0) {
+        if (found_not_adjacent && second_bar.energy > 20.0) {
             b_angle = angle_calc(first_bar, second_bar);
             t_angle_tree->Fill();
         }

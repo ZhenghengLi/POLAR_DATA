@@ -92,7 +92,7 @@ bool SciTrigger::operator<(const SciTrigger& right) const {
     } else if (period_ > right.period_) {
         return false;
     } else {
-        return (time_align < right.time_align);
+        return (timestamp < right.timestamp);
     }
 }
 
@@ -102,7 +102,7 @@ bool SciTrigger::operator<=(const SciTrigger& right) const {
     } else if (period_ > right.period_) {
         return false;
     } else {
-        return (time_align <= right.time_align);
+        return (timestamp <= right.timestamp);
     }
 }
 
@@ -112,7 +112,7 @@ bool SciTrigger::operator>(const SciTrigger& right) const {
     } else if (period_ < right.period_) {
         return false;
     } else {
-        return (time_align > right.time_align);
+        return (timestamp > right.timestamp);
     }
 }
 
@@ -122,7 +122,7 @@ bool SciTrigger::operator>=(const SciTrigger& right) const {
     } else if (period_ < right.period_) {
         return false;
     } else {
-        return (time_align >= right.time_align);
+        return (timestamp >= right.timestamp);
     }
 }
 
@@ -132,7 +132,7 @@ bool SciTrigger::operator==(const SciTrigger& right) const {
     } else if (period_ < right.period_) {
         return false;
     } else {
-        return (time_align == right.time_align);
+        return (timestamp == right.timestamp);
     }
 }
 
