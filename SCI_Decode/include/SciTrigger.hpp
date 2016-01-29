@@ -29,6 +29,15 @@ public:
     uint16_t deadtime;
     uint64_t frm_ship_time;
     uint64_t frm_gps_time;
+
+public:
+    uint64_t trigg_num_g;
+    int32_t  is_bad;
+    int32_t  pre_is_bad;
+    uint32_t time_period;
+    uint32_t time_wait;
+    float    dead_ratio;
+    
 private:
     void set_mode_(const char* packet_buffer, size_t packet_len);
     void set_timestamp_(const char* packet_buffer, size_t packet_len);
