@@ -85,13 +85,7 @@ private:
     Long64_t  t_trigger_cur_entry_;
     Long64_t  t_ped_modules_cur_entry_;
     Long64_t  t_ped_trigger_cur_entry_;
-    Long64_t  ped_module_last_entry_[25];
-    Long64_t  t_modules_cur_start_;
-    Int_t     t_modules_cur_count_;
-    UInt_t    t_module_pre_time_stamp_[25];
-    UInt_t    t_trigger_pre_time_stamp_;
-    UInt_t    t_ped_module_pre_time_stamp_[25];
-    UInt_t    t_ped_trigger_pre_time_stamp_;
+
     Long64_t  cur_trigg_num_;
     Long64_t  cur_event_num_[25];
     Long64_t  cur_ped_trigg_num_;

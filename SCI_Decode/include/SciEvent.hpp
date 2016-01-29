@@ -36,6 +36,7 @@ private:
     void set_trigger_bit_(const char* packet_buffer, size_t packet_len);
     void set_energy_ch_(const char* packet_buffer, size_t packet_len);
     void set_common_noise_(const char* packet_buffer, size_t packet_len);
+    void set_rate_(const char* packet_buffer, size_t packet_len);
 public:
     void update(const char* packet_buffer, size_t packet_len);
     void print(const Counter& cnt, ostream& os = cout);

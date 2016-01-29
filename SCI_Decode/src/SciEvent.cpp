@@ -84,6 +84,10 @@ void SciEvent::set_common_noise_(const char* packet_buffer, size_t packet_len) {
     }
 }
 
+void SciEvent::set_rate_(const char* packet_buffer, size_t packet_len) {
+    rate = decode_byte<uint16_t>(packet_buffer, 18, 19);
+}
+
 void SciEvent::update(const char* packet_buffer, size_t packet_len) {
     set_mode_(packet_buffer, packet_len);
     set_ct_num_(packet_buffer, packet_len);
@@ -94,6 +98,7 @@ void SciEvent::update(const char* packet_buffer, size_t packet_len) {
     set_trigger_bit_(packet_buffer, packet_len);
     set_energy_ch_(packet_buffer, packet_len);
     set_common_noise_(packet_buffer, packet_len);
+    set_rate_(packet_buffer, packet_len);
 }
 
 int SciEvent::get_period() const {
