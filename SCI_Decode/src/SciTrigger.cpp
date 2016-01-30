@@ -36,7 +36,7 @@ void SciTrigger::set_deadtime_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciTrigger::set_status_(const char* packet_buffer, size_t packet_len) {
-    status_ = decode_byte<uint16_t>(packet_buffer, 8, 9);
+    status = decode_byte<uint16_t>(packet_buffer, 8, 9);
 }
 
 void SciTrigger::set_trig_sig_con_(const char* packet_buffer, size_t packet_len) {

@@ -21,7 +21,7 @@ public:
     uint16_t mode;
     uint32_t timestamp;
     uint32_t time_align;
-    uint16_t status_;
+    uint16_t status;
     uint16_t packet_num;
     uint8_t trig_sig_con[25];
     uint16_t trig_accepted[25];

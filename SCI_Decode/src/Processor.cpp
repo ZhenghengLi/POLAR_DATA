@@ -154,7 +154,7 @@ void Processor::br_trigg_update_(const SciTrigger& trigger) {
     b_trigg_lost_count_ = static_cast<Int_t>(trigger.get_lost_count());
     b_trigg_frm_ship_time_ = static_cast<ULong64_t>(trigger.frm_ship_time);
     b_trigg_frm_gps_time_ = static_cast<ULong64_t>(trigger.frm_gps_time);
-    b_trigg_status_ = static_cast<UShort_t>(trigger.status_);
+    b_trigg_status_ = static_cast<UShort_t>(trigger.status);
     for (int i = 0; i < 25; i++) {
         b_trigg_trig_sig_con_[i] = static_cast<UChar_t>(trigger.trig_sig_con[i]);
     }
