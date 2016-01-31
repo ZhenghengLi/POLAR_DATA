@@ -26,7 +26,15 @@ public:
     uint16_t deadtime;
     uint16_t energy_ch[64];
     uint16_t common_noise;
-
+    
+public:
+    uint64_t event_num_g;
+    int32_t  is_bad;
+    int32_t  pre_is_bad;
+    uint32_t time_period;
+    uint32_t time_wait;
+    float    dead_ratio;
+    
 private:
     void set_mode_(const char* packet_buffer, size_t packet_len);
     void set_ct_num_(const char* packet_buffer, size_t packet_len);
@@ -40,14 +48,7 @@ private:
     void set_rate_(const char* packet_buffer, size_t packet_len);
 
 public:
-    uint64_t event_num_g;
-    int32_t  is_bad;
-    int32_t  pre_is_bad;
-    uint32_t time_period;
-    uint32_t time_wait;
-    float    dead_ratio;
-    
-public:
+    void clear_all_info();
     void update(const char* packet_buffer, size_t packet_len);
     void print(const Counter& cnt, ostream& os = cout);
 public:

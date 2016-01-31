@@ -88,6 +88,28 @@ void SciEvent::set_rate_(const char* packet_buffer, size_t packet_len) {
     rate = decode_byte<uint16_t>(packet_buffer, 18, 19);
 }
 
+void SciEvent::clear_all_info() {
+    period_ = 0;
+    mode = 0;
+    ct_num = 0;
+    timestamp = 0;
+    time_align = 0;
+    status = 0;
+    for (int i = 0; i < 64; i++) {
+        trigger_bit[i] = 0;
+        energy_ch[i] = 0;
+    }
+    rate = 0;
+    deadtime = 0;
+    common_noise = 0;
+    event_num_g = 0;
+    is_bad = 0;
+    pre_is_bad = 0;
+    time_period = 0;
+    time_wait = 0;
+    dead_ratio = 0;
+}
+
 void SciEvent::update(const char* packet_buffer, size_t packet_len) {
     set_mode_(packet_buffer, packet_len);
     set_ct_num_(packet_buffer, packet_len);

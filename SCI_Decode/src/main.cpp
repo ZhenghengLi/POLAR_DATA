@@ -4,8 +4,8 @@
 #include "SciFrame.hpp"
 #include "FileList.hpp"
 #include "Processor.hpp"
+#include "SciDataFile.hpp"
 
-#define TOTAL_FRAME 100000000
 #define LOG_FLAG true
 
 using namespace std;
@@ -21,18 +21,18 @@ int main(int argc, char** argv) {
         cerr << "filelist initialization failed!" << endl;
         exit(1);
     }
-    
-    Processor pro;
-    if (pro.rootfile_open("output/sci_test.root")) {
-    } else {
-        cerr << "root file open failed" << endl;
+
+    SciDataFile root_datafile;
+    if (!root_datafile.open("output/sci_test.root")) {
+        cerr << "root file open failed. " << endl;
         exit(1);
     }
+    
+    Processor pro;
     pro.set_log(LOG_FLAG);  
     if (LOG_FLAG) {
-        if (pro.logfile_open("output/sci_test.log")) {
-        } else {
-            cerr << "log file open failed" << endl;
+        if (!pro.logfile_open("output/sci_test.log")) {
+            cerr << "log file open failed." << endl;
             exit(1);
         }
     }
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
             if (filelist.next_frame()) {
                 frame.updated();
                 if (pro.process_frame(frame)) {
-                    if (pro.process_start(frame)) {
+                    if (pro.process_start(frame, root_datafile)) {
                         file_is_valid = true;
                         break;
                     }
@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     } 
     if (!file_is_valid) {
         cerr << "This file may be not a POLAR SCI raw data file." << endl;
-        pro.rootfile_close();
+        root_datafile.close();
         if (LOG_FLAG) {
             pro.logfile_close();
         }
@@ -74,12 +74,12 @@ int main(int argc, char** argv) {
         if (pro.process_frame(frame)) {
             if (pro.interruption_occurred(frame)) {
                 cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
-                pro.process_restart(frame);
+                pro.process_restart(frame, root_datafile);
             } else {
                 while (frame.next_packet())
-                    pro.process_packet(frame);
+                    pro.process_packet(frame, root_datafile);
             }
-        }       
+        }
     }
     // if there are other files
     while (filelist.next_file()) {
@@ -89,10 +89,10 @@ int main(int argc, char** argv) {
             if (pro.process_frame(frame)) {
                 if (pro.interruption_occurred(frame)) {
                     cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
-                    pro.process_restart(frame);
+                    pro.process_restart(frame, root_datafile);
                 } else {
                     while (frame.next_packet())
-                        pro.process_packet(frame);
+                        pro.process_packet(frame, root_datafile);
                 }
             }       
         }
@@ -100,8 +100,8 @@ int main(int argc, char** argv) {
 
     // === End Process Data ====================================
     
-    pro.do_the_last_work();
-    pro.rootfile_close();
+    pro.do_the_last_work(root_datafile);
+    root_datafile.close();
     if (LOG_FLAG) {
         pro.logfile_close();
     }

@@ -48,10 +48,13 @@ private:
     void set_deadtime_(const char* packet_buffer, size_t packet_len);
     void set_status_(const char* packet_buffer, size_t packet_len);
     void set_trig_sig_con_(const char* packet_buffer, size_t packet_len);
+    
 public:
+    void clear_all_info();    
     void update(const char* packet_buffer, size_t packet_len);
     void set_frm_time(uint64_t ship_time, uint64_t gps_time);
     void print(const Counter& cnt, ostream& os = cout);
+    
 public:
     int get_period() const;
     void set_period(int pt);

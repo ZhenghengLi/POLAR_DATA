@@ -45,6 +45,29 @@ void SciTrigger::set_trig_sig_con_(const char* packet_buffer, size_t packet_len)
     }
 }
 
+void SciTrigger::clear_all_info() {
+    period_ = 0;
+    pkt_count_ = 0;
+    lost_count_ = 0;
+    mode = 0;
+    timestamp = 0;
+    time_align = 0;
+    status = 0;
+    packet_num = 0;
+    for (int i = 0; i < 25; i++) {
+        trig_sig_con[i] = 0;
+        trig_accepted[i] = 0;
+        trig_rejected[i] = 0;
+    }
+    deadtime = 0;
+    trigg_num_g = 0;
+    is_bad = 0;
+    pre_is_bad = 0;
+    time_period = 0;
+    time_wait = 0;
+    dead_ratio = 0;
+}
+
 void SciTrigger::update(const char* packet_buffer, size_t packet_len) {
     set_mode_(packet_buffer, packet_len);
     set_timestamp_(packet_buffer, packet_len);

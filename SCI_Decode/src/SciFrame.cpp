@@ -242,7 +242,7 @@ bool SciFrame::cur_check_crc() {
 uint16_t SciFrame::cur_get_ctNum() const {
     assert(cur_packet_buffer_ != NULL);
     if (cur_is_trigger()) 
-        return 0xFF00;
+        return 0;
     uint16_t ctNum = 0;
     for (int i = 0; i < 2; i++) {
         ctNum <<= 8;

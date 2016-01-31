@@ -24,4 +24,6 @@ const int PedSecond = 1;
 
 const int PedCircle = 24414;
 
+const int LSB_Value = 512;
+
 #endif
