@@ -392,10 +392,20 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             if (evtMgr_.ped_check_valid()) {
                 evtMgr_.ped_move_result(true);
                 evtMgr_.ped_update_time_diff();
+                while (!evtMgr_.alone_ped_queue.empty()) {
+                    datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+                    evtMgr_.alone_ped_queue.pop();
+                }
                 datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
                 evtMgr_.ped_clear_result();
             } else {
                 evtMgr_.ped_move_result(false);
+                while (!evtMgr_.alone_ped_queue.empty()) {
+                    datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+                    evtMgr_.alone_ped_queue.pop();
+                }
+                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+                evtMgr_.ped_clear_result();
             }
             // -------------------------------------------
         } else {
@@ -451,6 +461,18 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
     if (evtMgr_.ped_check_valid()) {
         evtMgr_.ped_move_result(true);
         evtMgr_.ped_update_time_diff();
+        while (!evtMgr_.alone_ped_queue.empty()) {
+            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+            evtMgr_.alone_ped_queue.pop();
+        }
+        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+        evtMgr_.ped_clear_result();
+    } else {
+        evtMgr_.ped_move_result(false);
+        while (!evtMgr_.alone_ped_queue.empty()) {
+            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+            evtMgr_.alone_ped_queue.pop();
+        }
         datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
         evtMgr_.ped_clear_result();
     }

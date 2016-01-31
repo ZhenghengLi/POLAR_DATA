@@ -40,6 +40,9 @@ void EventMerger::all_clear() {
     while (!before_lost_queue.empty()) {
         before_lost_queue.pop();
     }
+    while (!alone_ped_queue.empty()) {
+        alone_ped_queue.pop();
+    }
 }
 
 const SciTrigger& EventMerger::get_result_ped_trigger() {
@@ -248,35 +251,33 @@ void EventMerger::ped_update_time_diff() {
 }
 
 void EventMerger::ped_move_result(bool valid) {
-    if (valid) {
-        int pkt_count = 0;
-        int tot_count = 0;
-        for (int i = 0; i < 25; i++) {
-            if (curr_ped_trigger_.trig_accepted[i] > 0)
-                tot_count++;
+    int pkt_count = 0;
+    int tot_count = 0;
+    for (int i = 0; i < 25; i++) {
+        if (curr_ped_trigger_.trig_accepted[i] > 0)
+            tot_count++;
+    }
+    result_ped_trigger_ = curr_ped_trigger_;
+    for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
+        if (find(curr_ped_event_alone_idx_vec_.begin(),
+                 curr_ped_event_alone_idx_vec_.end(),
+                 i) != curr_ped_event_alone_idx_vec_.end()) {
+            alone_ped_queue.push(curr_ped_events_vec_[i]);
+            continue;
         }
-        result_ped_trigger_ = curr_ped_trigger_;
-        for (size_t i = 0; i < curr_ped_events_vec_.size(); i++) {
-            if (find(curr_ped_event_alone_idx_vec_.begin(),
-                     curr_ped_event_alone_idx_vec_.end(),
-                     i) != curr_ped_event_alone_idx_vec_.end())
-                continue;
-            result_ped_events_vec_.push_back(curr_ped_events_vec_[i]);
-            pkt_count++;
-        }
-        result_ped_trigger_.set_pkt_count(pkt_count);
-        result_ped_trigger_.set_lost_count(tot_count - pkt_count);
-        curr_ped_trigger_ = next_ped_trigger_;
-        curr_ped_events_vec_.clear();
-        curr_ped_event_ct_num_vec_.clear();
-        curr_ped_event_alone_idx_vec_.clear();
-    } else {
-        if (ped_trigger_not_ready_)
-            ped_trigger_not_ready_ = false;
-        curr_ped_trigger_ = next_ped_trigger_;
-        curr_ped_events_vec_.clear();
-        curr_ped_event_ct_num_vec_.clear();
-        curr_ped_event_alone_idx_vec_.clear();
+        result_ped_events_vec_.push_back(curr_ped_events_vec_[i]);
+        pkt_count++;
+    }
+    result_ped_trigger_.set_pkt_count(pkt_count);
+    result_ped_trigger_.set_lost_count(tot_count - pkt_count);
+    curr_ped_trigger_ = next_ped_trigger_;
+    curr_ped_events_vec_.clear();
+    curr_ped_event_ct_num_vec_.clear();
+    curr_ped_event_alone_idx_vec_.clear();
+
+    if (!valid && ped_trigger_not_ready_) {
+        result_ped_trigger_.is_bad = 4;
+        ped_trigger_not_ready_ = false;
     }
 }
 

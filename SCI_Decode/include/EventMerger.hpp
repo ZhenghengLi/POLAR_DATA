@@ -51,6 +51,7 @@ private:
     
 public:
     queue<SciEvent> before_lost_queue;
+    queue<SciEvent> alone_ped_queue;
     
 private:
     bool can_noped_do_merge() const;
