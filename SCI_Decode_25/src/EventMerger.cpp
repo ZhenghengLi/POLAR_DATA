@@ -45,6 +45,9 @@ void EventMerger::all_clear() {
             noped_event_queue_[i].pop();
         }
     }
+    while (!before_lost_queue.empty()) {
+        before_lost_queue.pop();
+    }
 }
 
 const SciTrigger& EventMerger::get_result_ped_trigger() {
@@ -166,6 +169,7 @@ bool EventMerger::noped_do_merge(bool force) {
             if ((result_noped_trigger_ - result_noped_event) -
                 event_time_diff_[i] > 1) {
                 noped_event_queue_[i].pop();
+                before_lost_queue.push(result_noped_event);
                 if (noped_event_queue_[i].empty())
                     break;
                 result_noped_event = noped_event_queue_[i].top();
@@ -179,10 +183,8 @@ bool EventMerger::noped_do_merge(bool force) {
     }
     result_noped_trigger_.set_pkt_count(pkt_count);
     result_noped_trigger_.set_lost_count(tot_count - pkt_count);
-    if (result_noped_events_vec_.empty())
-        return false;
-    else
-        return true;
+
+    return true;
 }
 
 bool EventMerger::noped_trigger_empty() {

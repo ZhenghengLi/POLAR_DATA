@@ -3,222 +3,36 @@
 using namespace std;
 
 Processor::Processor() {
-    cnt.clear();
-    t_file_out_ = NULL;
-    t_event_tree_ = NULL;
-    t_ped_event_tree_ = NULL;
-    t_trigg_tree_ = NULL;
-    t_ped_trigg_tree_ = NULL;
-    b_trigg_index_ = -1;
-    b_trigg_start_entry_ = 0;
-    b_ped_trigg_index_ = -1;
-    b_ped_trigg_start_entry_ = 0;
-    log_flag_ = false;
-    pre_ped_trigg_time_ = 0;
-    start_flag_ = true;
+    initialize();
 }
 
 Processor::~Processor() {
-    if (t_file_out_ != NULL)
-        rootfile_close();
     if (os_logfile_.is_open())
         logfile_close();
 }
 
 void Processor::initialize() {  
     cnt.clear();
-    b_trigg_index_ = -1;
-    b_trigg_start_entry_ = 0;
-    b_ped_trigg_index_ = -1;
-    b_ped_trigg_start_entry_ = 0;
     log_flag_ = false;
     pre_ped_trigg_time_ = 0;
     start_flag_ = true;
-    if (t_file_out_ != NULL)
-        rootfile_close();
     if (os_logfile_.is_open())
         logfile_close();
-}
 
-bool Processor::rootfile_open(const char* filename) {
-    if (t_file_out_ != NULL)
-        return false;
-    // open file and tree
-    t_file_out_ = new TFile(filename, "RECREATE");
-    if (t_file_out_->IsZombie())
-        return false;
-    t_event_tree_ = new TTree("t_event", "event packet of 25 modules");
-    t_event_tree_->SetDirectory(t_file_out_);
-    t_ped_event_tree_ = new TTree("t_ped_event", "pedestal event packet of 25 modules");
-    t_ped_event_tree_->SetDirectory(t_file_out_);
-    t_trigg_tree_ = new TTree("t_trigg", "trigger packet with index");
-    t_trigg_tree_->SetDirectory(t_file_out_);
-    t_ped_trigg_tree_ = new TTree("t_ped_trigg", "pedestal trigger packet with index");
-    t_ped_trigg_tree_->SetDirectory(t_file_out_);
-    // set branch for each tree
-    // for event
-    t_event_tree_->Branch("trigg_index", &b_trigg_index_, "trigg_index/L");
-    t_ped_event_tree_->Branch("trigg_index", &b_ped_trigg_index_, "trigg_index/L");
-    t_event_tree_->Branch("mode", &b_event_mode_, "mode/I");
-    t_ped_event_tree_->Branch("mode", &b_event_mode_, "mode/I");
-    t_event_tree_->Branch("ct_num", &b_event_ct_num_, "ct_num/I");
-    t_ped_event_tree_->Branch("ct_num", &b_event_ct_num_, "ct_num/I");
-    t_event_tree_->Branch("timestamp", &b_event_timestamp_, "timestamp/i");
-    t_ped_event_tree_->Branch("timestamp", &b_event_timestamp_, "timestamp/i");
-    t_event_tree_->Branch("time_align", &b_event_time_align_, "time_align/i");
-    t_ped_event_tree_->Branch("time_align", &b_event_time_align_, "time_align/i");
-    t_event_tree_->Branch("trigger_bit", b_event_trigger_bit_, "trigger_bit[64]/O");
-    t_ped_event_tree_->Branch("trigger_bit", b_event_trigger_bit_, "trigger_bit[64]/O");
-    t_event_tree_->Branch("energy_ch", b_event_energy_ch_, "energy_ch[64]/I");
-    t_ped_event_tree_->Branch("energy_ch", b_event_energy_ch_, "energy_ch[64]/I");
-    t_event_tree_->Branch("rate", &b_event_rate_, "rate/I");
-    t_ped_event_tree_->Branch("rate", &b_event_rate_, "rate/I");
-    t_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/i");
-    t_ped_event_tree_->Branch("deadtime", &b_event_deadtime_, "deadtime/i");
-    t_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
-    t_ped_event_tree_->Branch("common_noise", &b_event_common_noise_, "common_noise/I");
-    t_event_tree_->Branch("status", &b_event_status_, "status/s");
-    t_ped_event_tree_->Branch("status", &b_event_status_, "status/s");
-    // for trigger
-    t_trigg_tree_->Branch("trigg_index", &b_trigg_index_, "trigg_index/L");
-    t_ped_trigg_tree_->Branch("trigg_index", &b_ped_trigg_index_, "trigg_index/L");
-    t_trigg_tree_->Branch("mode", &b_trigg_mode_, "mode/I");
-    t_ped_trigg_tree_->Branch("mode", &b_trigg_mode_, "mode/I");
-    t_trigg_tree_->Branch("timestamp", &b_trigg_timestamp_, "timestamp/i");
-    t_ped_trigg_tree_->Branch("timestamp", &b_trigg_timestamp_, "timestamp/i");
-    t_trigg_tree_->Branch("time_align", &b_trigg_time_align_, "time_align/i");
-    t_ped_trigg_tree_->Branch("time_align", &b_trigg_time_align_, "time_align/i");
-    t_trigg_tree_->Branch("packet_num", &b_trigg_packet_num_, "packet_num/I");
-    t_ped_trigg_tree_->Branch("packet_num", &b_trigg_packet_num_, "packet_num/I");
-    t_trigg_tree_->Branch("trig_accepted", b_trigg_trig_accepted_, "trig_accepted[25]/O");
-    t_ped_trigg_tree_->Branch("trig_accepted", b_trigg_trig_accepted_, "trig_accepted[25]/O");
-    t_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
-    t_ped_trigg_tree_->Branch("trig_rejected", b_trigg_trig_rejected_, "trig_rejected[25]/O");
-    t_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
-    t_ped_trigg_tree_->Branch("deadtime", &b_trigg_deadtime_, "deadtime/i");
-    t_trigg_tree_->Branch("start_entry", &b_trigg_start_entry_, "start_entry/L");
-    t_ped_trigg_tree_->Branch("start_entry", &b_ped_trigg_start_entry_, "start_entry/L");
-    t_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
-    t_ped_trigg_tree_->Branch("pkt_count", &b_trigg_pkt_count_, "pkt_count/I");
-    t_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
-    t_ped_trigg_tree_->Branch("lost_count", &b_trigg_lost_count_, "lost_count/I");
-    t_trigg_tree_->Branch("frm_ship_time", &b_trigg_frm_ship_time_, "frm_ship_time/l");
-    t_ped_trigg_tree_->Branch("frm_ship_time", &b_trigg_frm_ship_time_, "frm_ship_time/l");
-    t_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
-    t_ped_trigg_tree_->Branch("frm_gps_time", &b_trigg_frm_gps_time_, "frm_gps_time/l");
-    t_trigg_tree_->Branch("status", &b_trigg_status_, "status/s");
-    t_ped_trigg_tree_->Branch("status", &b_trigg_status_, "status/s");
-    t_trigg_tree_->Branch("trig_sig_con", b_trigg_trig_sig_con_, "trig_sig_con[25]/b");
-    t_ped_trigg_tree_->Branch("trig_sig_con", b_trigg_trig_sig_con_, "trig_sig_con[25]/b");
-    // return 
-    return true;
-}
+    cur_trigg_num_g_ = 0;
+    cur_trigg_pre_is_bad_ = 0;
+    cur_trigg_pre_time_stamp_ = 0;
+    cur_trigg_time_period_ = 0;
+    cur_trigg_pre_raw_dead_ = 0;
+    cur_trigg_is_first_ = true;
 
-void Processor::rootfile_close() {
-    t_event_tree_->Write();
-    delete t_event_tree_;
-    t_event_tree_ = NULL;
-    t_ped_event_tree_->Write();
-    delete t_ped_event_tree_;
-    t_ped_event_tree_ = NULL;
-    t_trigg_tree_->Write();
-    delete t_trigg_tree_;
-    t_trigg_tree_ = NULL;
-    t_ped_trigg_tree_->Write();
-    delete t_ped_trigg_tree_;
-    t_ped_event_tree_ = NULL;
-    t_file_out_->Close();
-    delete t_file_out_;
-    t_file_out_ = NULL;
-}
-
-void Processor::br_trigg_update_(const SciTrigger& trigger) {
-    b_trigg_mode_ = static_cast<Int_t>(trigger.mode);
-    b_trigg_timestamp_ = static_cast<UInt_t>(trigger.timestamp);
-    b_trigg_time_align_ = static_cast<UInt_t>(trigger.time_align);
-    b_trigg_packet_num_ = static_cast<Int_t>(trigger.packet_num);
     for (int i = 0; i < 25; i++) {
-        if (trigger.trig_accepted[i] == 1)
-            b_trigg_trig_accepted_[i] = kTRUE;
-        else
-            b_trigg_trig_accepted_[i] = kFALSE;
-    }
-    for (int i = 0; i < 25; i++) {
-        if (trigger.trig_rejected[i] == 1)
-            b_trigg_trig_rejected_[i] = kTRUE;
-        else
-            b_trigg_trig_rejected_[i] = kFALSE;
-    }
-    b_trigg_deadtime_ = static_cast<UInt_t>(trigger.deadtime);
-    b_trigg_pkt_count_ = static_cast<Int_t>(trigger.get_pkt_count());
-    b_trigg_lost_count_ = static_cast<Int_t>(trigger.get_lost_count());
-    b_trigg_frm_ship_time_ = static_cast<ULong64_t>(trigger.frm_ship_time);
-    b_trigg_frm_gps_time_ = static_cast<ULong64_t>(trigger.frm_gps_time);
-    b_trigg_status_ = static_cast<UShort_t>(trigger.status_);
-    for (int i = 0; i < 25; i++) {
-        b_trigg_trig_sig_con_[i] = static_cast<UChar_t>(trigger.trig_sig_con[i]);
-    }
-}
-
-void Processor::br_event_update_(const SciEvent& event) {
-    b_event_mode_ = static_cast<Int_t>(event.mode);
-    b_event_ct_num_ = static_cast<Int_t>(event.ct_num);
-    b_event_timestamp_ = static_cast<UInt_t>(event.timestamp);
-    b_event_time_align_ = static_cast<UInt_t>(event.time_align);
-    for (int i = 0; i < 64; i++) {
-        if (event.trigger_bit[i] == 1)
-            b_event_trigger_bit_[i] = kTRUE;
-        else
-            b_event_trigger_bit_[i] = kFALSE;
-    }
-    for (int i = 0; i < 64; i++) {
-        b_event_energy_ch_[i] = static_cast<Int_t>(event.energy_ch[i]);
-    }
-    b_event_rate_ = static_cast<Int_t>(event.rate);
-    b_event_deadtime_ = static_cast<UInt_t>(event.deadtime);
-    b_event_common_noise_ = static_cast<Int_t>(event.common_noise);
-    b_event_status_ = static_cast<UShort_t>(event.status);
-}
-
-void Processor::trigg_write_tree_(const SciTrigger& trigger) {
-    br_trigg_update_(trigger);
-    b_trigg_index_++;           // write trigger first!
-    t_trigg_tree_->Fill();
-    b_trigg_start_entry_ += static_cast<Long64_t>(trigger.get_pkt_count());
-}
-
-void Processor::ped_trigg_write_tree_(const SciTrigger& trigger) {
-    br_trigg_update_(trigger);
-    b_ped_trigg_index_++;       // write trigger first!
-    t_ped_trigg_tree_->Fill();
-    b_ped_trigg_start_entry_ += static_cast<Long64_t>(trigger.get_pkt_count());
-}
-
-void Processor::event_write_tree_(const SciEvent& event) {
-    br_event_update_(event);
-    t_event_tree_->Fill();
-}
-
-void Processor::ped_event_write_tree_(const SciEvent& event) {
-    br_event_update_(event);
-    t_ped_event_tree_->Fill();
-}
-
-void Processor::result_ped_write_tree_(const SciTrigger& trigger,
-                                       const vector<SciEvent>& events_vec) {
-    vector<SciEvent>::const_iterator vecItr;
-    ped_trigg_write_tree_(trigger);
-    for (vecItr = events_vec.begin(); vecItr != events_vec.end(); vecItr++) {
-        ped_event_write_tree_(*vecItr);
-    }
-}
-
-void Processor::result_write_tree_(const SciTrigger& trigger,
-                                   const vector<SciEvent>& events_vec) {
-    vector<SciEvent>::const_iterator vecItr;
-    trigg_write_tree_(trigger);
-    for (vecItr = events_vec.begin(); vecItr != events_vec.end(); vecItr++) {
-        event_write_tree_(*vecItr);
+        cur_event_num_g_[i] = 0;
+        cur_event_pre_is_bad_[i] = 0;
+        cur_event_pre_time_stamp_[i] = 0;
+        cur_event_time_period_[i] = 0;
+        cur_event_pre_raw_dead_[i] = 0;
+        cur_event_is_first_[i] = true;
     }
 }
 
@@ -253,10 +67,10 @@ bool Processor::interruption_occurred(SciFrame& frame) {
     }
 }
 
-bool Processor::process_start(SciFrame& frame) {
+bool Processor::process_start(SciFrame& frame, SciDataFile& datafile) {
     if (frame.find_start_pos()) {
         while (frame.next_packet())
-            process_packet(frame);
+            process_packet(frame, datafile);
         return true;
     } else {
         cnt.frm_start_error++;
@@ -269,11 +83,11 @@ bool Processor::process_start(SciFrame& frame) {
     }
 }
 
-bool Processor::process_restart(SciFrame& frame) {
-    do_the_last_work();
+bool Processor::process_restart(SciFrame& frame, SciDataFile& datafile) {
+    do_the_last_work(datafile);
     evtMgr_.all_clear();
     frame.reset();
-    return process_start(frame);
+    return process_start(frame, datafile);
 }
 
 bool Processor::process_frame(SciFrame& frame) {
@@ -308,55 +122,252 @@ bool Processor::process_frame(SciFrame& frame) {
     }
 }
 
-void Processor::process_packet(SciFrame& frame) {
+void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
     cnt.packet++;
     // check packet
+    if (frame.get_cur_pkt_len() < 4) {
+        return;
+    }
     bool is_trigger = frame.cur_is_trigger();
+    // check bad and update and add extra info for this packet
     if (is_trigger) {
         cnt.trigger++;
+        sci_trigger.set_frm_time(frame.get_ship_time(), frame.get_gps_time());                    
+        if (frame.get_cur_pkt_len() < 50) {
+            cnt.pkt_too_short++;
+            if (can_log()) {
+                os_logfile_ << "== PACKET: " << cnt.packet << " | TOO_SHORT ======== " << endl;
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+                frame.cur_print_packet(os_logfile_);
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+            }
+            sci_trigger.clear_all_info();
+            sci_trigger.is_bad      = 3;
+            sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
+            cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+            sci_trigger.mode        = frame.cur_get_mode();
+            if (sci_trigger.mode == 0x00F0) {
+                datafile.write_ped_trigger_alone(sci_trigger);
+            } else {
+                datafile.write_trigger_alone(sci_trigger);
+            }
+            return;
+        } else {
+            
+            sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
+            sci_trigger.trigg_num_g = 0;
+            sci_trigger.time_period = 0;
+            sci_trigger.time_wait   = 0;
+            sci_trigger.dead_ratio  = 0;
+            
+            if (!frame.cur_check_valid()) {
+                cnt.pkt_invalid++;
+                if (can_log()) {
+                    os_logfile_ << "== PACKET: " << cnt.packet << " | INVALID ======== " << endl;
+                    os_logfile_ << "--------------------------------------------------------------" << endl;
+                    frame.cur_print_packet(os_logfile_);
+                    os_logfile_ << "--------------------------------------------------------------" << endl;
+                }
+                sci_trigger.is_bad      = 2;
+                sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
+                cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                if (sci_trigger.mode == 0x00F0) {
+                    datafile.write_ped_trigger_alone(sci_trigger);
+                } else {
+                    datafile.write_trigger_alone(sci_trigger);
+                }
+                return;
+            } else {
+                cnt.pkt_valid++;
+                if (!frame.cur_check_crc()) {
+                    cnt.pkt_crc_error++;
+                    if (can_log()) {
+                        os_logfile_ << "== PACKET: " << cnt.packet << " | CRC_ERROR ======== " << endl;
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                        frame.cur_print_packet(os_logfile_);
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                    }
+                    sci_trigger.is_bad      = 1;
+                    sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
+                    cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                    if (sci_trigger.mode == 0x00F0) {
+                        datafile.write_ped_trigger_alone(sci_trigger);
+                    } else {
+                        datafile.write_trigger_alone(sci_trigger);
+                    }
+                    return;
+                } else {
+                    cnt.pkt_crc_passed++;
+                    sci_trigger.is_bad      = 0;
+                    sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
+                    cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                    if (cur_trigg_is_first_) {
+                        cur_trigg_is_first_ = false;
+                        cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
+                        cur_trigg_time_period_    = 0;
+                        sci_trigger.time_period   = cur_trigg_time_period_;
+                        sci_trigger.time_wait     = 0;
+                        cur_trigg_pre_raw_dead_   = sci_trigger.deadtime;
+                        cur_trigg_num_g_ = 0;
+                        sci_trigger.trigg_num_g   = cur_trigg_num_g_;
+                        cur_trigg_num_g_++;
+                        sci_trigger.dead_ratio    = 0;
+                    } else {
+                        Int_t tmp_time_wait = sci_trigger.timestamp - cur_trigg_pre_time_stamp_;
+                        cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
+                        if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
+                            tmp_time_wait += 4294967296;
+                            cur_trigg_time_period_++;
+                        }
+                        sci_trigger.time_period  = cur_trigg_time_period_;
+                        sci_trigger.time_wait    = tmp_time_wait;
+                        Int_t tmp_dead_diff = sci_trigger.deadtime - cur_trigg_pre_raw_dead_;
+                        cur_trigg_pre_raw_dead_ = sci_trigger.deadtime;
+                        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
+                        sci_trigger.dead_ratio = static_cast<Float_t>(tmp_dead_diff) / static_cast<Float_t>(sci_trigger.time_wait);
+                        sci_trigger.trigg_num_g = cur_trigg_num_g_;
+                        cur_trigg_num_g_++;
+                    }
+                }
+            }
+        }
     } else {
         cnt.event++;
-    }
-    bool pkt_valid = frame.cur_check_valid();
-    if (pkt_valid) {
-        cnt.pkt_valid++;
-    } else {
-        cnt.pkt_invalid++;
-    }
-    bool pkt_crc = frame.cur_check_crc();
-    if (pkt_crc) {
-        cnt.pkt_crc_passed++;
-    } else {
-        cnt.pkt_crc_error++;
-    }
-    bool pkt_not_short = true;
-    if (frame.get_cur_pkt_len() < 28) {
-        pkt_not_short = false;
-        cnt.pkt_too_short++;
-    }
-    if (!pkt_valid || !pkt_crc || !pkt_not_short) {
-        if (can_log()) {
-            os_logfile_ << "== PACKET: ";
-            os_logfile_ << cnt.packet << " ";
-            if (!pkt_not_short)
-                os_logfile_ << "| TOO_SHORT ";
-            if (!pkt_valid)
-                os_logfile_ << "| INVALID ";
-            if (!pkt_crc)
-                os_logfile_ << "| CRC_ERROR ";
-            os_logfile_  << "========" << endl;
-            os_logfile_ << "--------------------------------------------------------------" << endl;
-            frame.cur_print_packet(os_logfile_);
-            os_logfile_ << "--------------------------------------------------------------" << endl;
-            os_logfile_ << endl;
+        int idx = frame.cur_get_ctNum() - 1;
+        if (idx < 0) {
+            return;
         }
-        return;
+        if (frame.get_cur_pkt_len() < 28) {
+            cnt.pkt_too_short++;
+            if (can_log()) {
+                os_logfile_ << "== PACKET: " << cnt.packet << " | TOO_SHORT ======== " << endl;
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+                frame.cur_print_packet(os_logfile_);
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+            }
+            sci_event.clear_all_info();
+            sci_event.is_bad            = 3;
+            sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
+            cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+            sci_event.ct_num            = idx + 1;
+            if (frame.get_cur_pkt_len() < 8) {
+                sci_event.mode = 4;
+                datafile.write_modules_alone(sci_event);
+            } else {
+                sci_event.mode = frame.cur_get_mode();
+                if (sci_event.mode == 2) {
+                    datafile.write_ped_modules_alone(sci_event);
+                } else {
+                    datafile.write_modules_alone(sci_event);
+                }
+            }
+            return;
+        } else {
+            sci_event.mode = frame.cur_get_mode();
+            if (sci_event.mode == 0 || sci_event.mode == 2) {
+                if (frame.get_cur_pkt_len() < 122) {
+                    cnt.pkt_too_short++;
+                    if (can_log()) {
+                        os_logfile_ << "== PACKET: " << cnt.packet << " | TOO_SHORT for mode 0 or 2 ======== " << endl;
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                        frame.cur_print_packet(os_logfile_);
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                    }
+                    sci_event.clear_all_info();
+                    sci_event.is_bad            = 3;
+                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    sci_event.ct_num            = idx + 1;
+                    if (sci_event.mode == 2) {
+                        datafile.write_ped_modules_alone(sci_event);
+                    } else {
+                        datafile.write_modules_alone(sci_event);
+                    }
+                    return;
+                }
+            }
+            
+            sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
+            sci_event.event_num_g = 0;
+            sci_event.time_period = 0;
+            sci_event.time_wait   = 0;
+            sci_event.dead_ratio  = 0;
+
+            if (!frame.cur_check_valid()) {
+                cnt.pkt_invalid++;
+                if (can_log()) {
+                    os_logfile_ << "== PACKET: " << cnt.packet << " | INVALID ======== " << endl;
+                    os_logfile_ << "--------------------------------------------------------------" << endl;
+                    frame.cur_print_packet(os_logfile_);
+                    os_logfile_ << "--------------------------------------------------------------" << endl;
+                }
+                sci_event.is_bad            = 2;
+                sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                if (sci_event.mode == 2) {
+                    datafile.write_ped_modules_alone(sci_event);
+                } else {
+                    datafile.write_modules_alone(sci_event);
+                }
+                return;
+            } else {
+                cnt.pkt_valid++;
+                if (!frame.cur_check_crc()) {
+                    cnt.pkt_crc_error++;
+                    if (can_log()) {
+                        os_logfile_ << "== PACKET: " << cnt.packet << " | CRC_ERROR ======== " << endl;
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                        frame.cur_print_packet(os_logfile_);
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                    }
+                    sci_event.is_bad            = 1;
+                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    if (sci_event.mode == 2) {
+                        datafile.write_ped_modules_alone(sci_event);
+                    } else {
+                        datafile.write_modules_alone(sci_event);
+                    }
+                    return;
+                } else {
+                    cnt.pkt_crc_passed++;
+                    sci_event.is_bad            = 0;
+                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    if (cur_event_is_first_[idx]) {
+                        cur_event_is_first_[idx]        = false;
+                        cur_event_pre_time_stamp_[idx]  = sci_event.timestamp;
+                        cur_event_time_period_[idx]     = 0;
+                        sci_event.time_period           = cur_event_time_period_[idx];
+                        sci_event.time_wait             = 0;
+                        cur_event_pre_raw_dead_[idx]    = sci_event.deadtime;
+                        cur_event_num_g_[idx]           = 0;
+                        sci_event.event_num_g           = cur_event_num_g_[idx];
+                        cur_event_num_g_[idx]++;
+                        sci_event.dead_ratio            = 0;
+                    } else {
+                        Int_t tmp_time_wait = sci_event.timestamp - cur_event_pre_time_stamp_[idx];
+                        cur_event_pre_time_stamp_[idx] = sci_event.timestamp;
+                        if (tmp_time_wait < -1 * PedCircle) {
+                            tmp_time_wait += 16777216;
+                            cur_event_time_period_[idx]++;
+                        }
+                        sci_event.time_period  = cur_event_time_period_[idx];
+                        sci_event.time_wait    = tmp_time_wait;
+                        Int_t tmp_dead_diff = sci_event.deadtime - cur_event_pre_raw_dead_[idx];
+                        cur_event_pre_raw_dead_[idx] = sci_event.deadtime;
+                        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
+                        sci_event.dead_ratio = static_cast<Float_t>(tmp_dead_diff) / static_cast<Float_t>(sci_event.time_wait);
+                        sci_event.event_num_g = cur_event_num_g_[idx];
+                        cur_event_num_g_[idx]++;
+                    }
+                }
+            }
+        }
     }
     
     // start process packet
     if (is_trigger) {
-        sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-        sci_trigger.set_frm_time(frame.get_ship_time(), frame.get_gps_time());
         if (sci_trigger.mode == 0x00F0) {
             cnt.ped_trigger++;
             if (start_flag_) {
@@ -376,80 +387,90 @@ void Processor::process_packet(SciFrame& frame) {
                 if (sci_trigger.trig_accepted[i] == 1)
                     cnt.ped_trig[i]++;
             }
-            if (can_log()) {
-//              sci_trigger.print(cnt, os_logfile_);
-//              os_logfile_ << "PT : " << sci_trigger.time_align << endl;
-            }
-//          ped_trigg_write_tree_(sci_trigger);
+            // ===========================================
             evtMgr_.add_ped_trigger(sci_trigger);
             if (evtMgr_.ped_check_valid()) {
                 evtMgr_.ped_move_result(true);
                 evtMgr_.ped_update_time_diff();
-                result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
-                                       evtMgr_.get_result_ped_events_vec());
+                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
                 evtMgr_.ped_clear_result();
             } else {
                 evtMgr_.ped_move_result(false);
             }
+            // -------------------------------------------
         } else {
             cnt.noped_trigger++;
             for (int i = 0; i < 25; i++)
                 if (sci_trigger.trig_accepted[i] == 1)
                     cnt.noped_trig[i]++;
-            if (can_log()) {
-//              sci_trigger.print(cnt, os_logfile_);
-//              os_logfile_ << "NT : " << sci_trigger.time_align << endl;
-            }
-//          trigg_write_tree_(sci_trigger);
+            // ===========================================
             evtMgr_.add_noped_trigger(sci_trigger);
             if (evtMgr_.noped_do_merge()) {
-                result_write_tree_(evtMgr_.get_result_noped_trigger(),
-                                   evtMgr_.get_result_noped_events_vec());
-                evtMgr_.noped_clear_result();
+                while (!evtMgr_.before_lost_queue.empty()) {
+                    datafile.write_modules_alone(evtMgr_.before_lost_queue.front());
+                    evtMgr_.before_lost_queue.pop();
+                }
+                if (evtMgr_.get_result_noped_events_vec().empty()) {
+                    datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
+                } else {
+                    datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                    evtMgr_.noped_clear_result();
+                }
             }
+            // -------------------------------------------
         }
     } else {
-        sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
         if (sci_event.mode == 2) {
             cnt.ped_event[sci_event.ct_num - 1]++;
-            if (can_log()) {
-//              sci_event.print(cnt, os_logfile_);
-//              os_logfile_ << "PE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
-            }
-//          ped_event_write_tree_(sci_event);
+            // ===========================================
             evtMgr_.add_ped_event(sci_event);
+            // -------------------------------------------
         } else {
             cnt.noped_event[sci_event.ct_num - 1]++;
-            if (can_log()) {
-//              sci_event.print(cnt, os_logfile_);
-//              os_logfile_ << "NE : " << sci_event.time_align << " " << sci_event.ct_num << endl;
-            }
-//          event_write_tree_(sci_event);
+            // ===========================================
             evtMgr_.add_noped_event(sci_event);
             if (evtMgr_.noped_do_merge()) {
-                result_write_tree_(evtMgr_.get_result_noped_trigger(),
-                                   evtMgr_.get_result_noped_events_vec());
-                evtMgr_.noped_clear_result();
+                while (!evtMgr_.before_lost_queue.empty()) {
+                    datafile.write_modules_alone(evtMgr_.before_lost_queue.front());
+                    evtMgr_.before_lost_queue.pop();
+                }
+                if (evtMgr_.get_result_noped_events_vec().empty()) {
+                    datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
+                } else {
+                    datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                    evtMgr_.noped_clear_result();
+                }
             }
+            // -------------------------------------------
         }
     }
 }
 
-void Processor::do_the_last_work() {
+void Processor::do_the_last_work(SciDataFile& datafile) {
+    // ===========================================
     if (evtMgr_.ped_check_valid()) {
         evtMgr_.ped_move_result(true);
         evtMgr_.ped_update_time_diff();
-        result_ped_write_tree_(evtMgr_.get_result_ped_trigger(),
-                               evtMgr_.get_result_ped_events_vec());
+        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
         evtMgr_.ped_clear_result();
     }
+    // -------------------------------------------
     if (!evtMgr_.global_start())
         return;
+    // ===========================================
     while (!evtMgr_.noped_trigger_empty()) {
         if (evtMgr_.noped_do_merge(true)) {
-            result_write_tree_(evtMgr_.get_result_noped_trigger(),
-                               evtMgr_.get_result_noped_events_vec());
-            evtMgr_.noped_clear_result();
+            while (!evtMgr_.before_lost_queue.empty()) {
+                datafile.write_modules_alone(evtMgr_.before_lost_queue.front());
+                evtMgr_.before_lost_queue.pop();
+            }
+            if (evtMgr_.get_result_noped_events_vec().empty()) {
+                datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
+            } else {
+                datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                evtMgr_.noped_clear_result();
+            }
         }
     }
+    // -------------------------------------------
 }

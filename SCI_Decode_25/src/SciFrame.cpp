@@ -193,16 +193,21 @@ bool SciFrame::cur_is_trigger() const {
 
 uint16_t SciFrame::cur_get_mode() const {
     assert(cur_packet_buffer_ != NULL);
-    if (cur_is_trigger())
-        return 0x0F00;
-    uint16_t modeBit = 0;
-    for (int i = 0; i < 2; i++) {
-        modeBit <<= 8;
-        modeBit += static_cast<uint8_t>(cur_packet_buffer_[6 + i]);
+    uint16_t modeBit = 0;    
+    if (cur_is_trigger()) {
+        for (int i = 0; i < 2; i++) {
+            modeBit <<= 8;
+            modeBit += static_cast<uint8_t>(cur_packet_buffer_[2 + i]);
+        }
+    } else {
+        for (int i = 0; i < 2; i++) {
+            modeBit <<= 8;
+            modeBit += static_cast<uint8_t>(cur_packet_buffer_[6 + i]);
+        }
+        modeBit &= 0x180;
+        modeBit >>= 7;
     }
-    modeBit &= 0x180;
-    modeBit >>= 7;
-    return modeBit;
+    return modeBit;    
 }
 
 bool SciFrame::cur_check_crc() {
@@ -237,7 +242,7 @@ bool SciFrame::cur_check_crc() {
 uint16_t SciFrame::cur_get_ctNum() const {
     assert(cur_packet_buffer_ != NULL);
     if (cur_is_trigger()) 
-        return 0xFF00;
+        return 0;
     uint16_t ctNum = 0;
     for (int i = 0; i < 2; i++) {
         ctNum <<= 8;
@@ -249,9 +254,9 @@ uint16_t SciFrame::cur_get_ctNum() const {
 bool SciFrame::cur_check_valid() const {
     assert(cur_packet_buffer_ != NULL);
     uint16_t tmp;
-    if (cur_packet_len_ < 28)
-        return false;
     if (cur_is_trigger()) {
+        if (cur_packet_len_ < 50)
+            return false;
         tmp = 0;
         for (int i = 0; i < 2; i++) {
             tmp <<= 8;
@@ -270,6 +275,8 @@ bool SciFrame::cur_check_valid() const {
         }
         return true;
     } else {
+        if (cur_packet_len_ < 28)
+            return false;
         if (cur_get_ctNum() > 25) {
             return false;
         }

@@ -36,13 +36,36 @@ void SciTrigger::set_deadtime_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciTrigger::set_status_(const char* packet_buffer, size_t packet_len) {
-    status_ = decode_byte<uint16_t>(packet_buffer, 8, 9);
+    status = decode_byte<uint16_t>(packet_buffer, 8, 9);
 }
 
 void SciTrigger::set_trig_sig_con_(const char* packet_buffer, size_t packet_len) {
     for (int i = 0; i < 25; i++) {
         trig_sig_con[i] = decode_byte<uint8_t>(packet_buffer, 12 + i, 12 + i);
     }
+}
+
+void SciTrigger::clear_all_info() {
+    period_ = 0;
+    pkt_count_ = 0;
+    lost_count_ = 0;
+    mode = 0;
+    timestamp = 0;
+    time_align = 0;
+    status = 0;
+    packet_num = 0;
+    for (int i = 0; i < 25; i++) {
+        trig_sig_con[i] = 0;
+        trig_accepted[i] = 0;
+        trig_rejected[i] = 0;
+    }
+    deadtime = 0;
+    trigg_num_g = 0;
+    is_bad = 0;
+    pre_is_bad = 0;
+    time_period = 0;
+    time_wait = 0;
+    dead_ratio = 0;
 }
 
 void SciTrigger::update(const char* packet_buffer, size_t packet_len) {

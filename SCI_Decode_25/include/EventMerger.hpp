@@ -51,10 +51,15 @@ private:
     priority_queue<SciEvent, vector<SciEvent>, greater<SciEvent> > noped_event_queue_[25];
 
     int force_start_count_;
+
+public:
+    queue<SciEvent> before_lost_queue;
+    
 private:
     bool can_noped_do_merge() const;
     void sync_event_period_(int idx);
     int find_common_(vector<int> arr);
+    
 public:
     EventMerger();
     ~EventMerger();

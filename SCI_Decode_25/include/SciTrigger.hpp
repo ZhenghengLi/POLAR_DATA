@@ -21,7 +21,7 @@ public:
     uint16_t mode;
     uint32_t timestamp;
     uint32_t time_align;
-    uint16_t status_;
+    uint16_t status;
     uint16_t packet_num;
     uint8_t trig_sig_con[25];
     uint16_t trig_accepted[25];
@@ -29,6 +29,15 @@ public:
     uint16_t deadtime;
     uint64_t frm_ship_time;
     uint64_t frm_gps_time;
+
+public:
+    uint64_t trigg_num_g;
+    int32_t  is_bad;
+    int32_t  pre_is_bad;
+    uint32_t time_period;
+    uint32_t time_wait;
+    float    dead_ratio;
+    
 private:
     void set_mode_(const char* packet_buffer, size_t packet_len);
     void set_timestamp_(const char* packet_buffer, size_t packet_len);
@@ -39,10 +48,13 @@ private:
     void set_deadtime_(const char* packet_buffer, size_t packet_len);
     void set_status_(const char* packet_buffer, size_t packet_len);
     void set_trig_sig_con_(const char* packet_buffer, size_t packet_len);
+    
 public:
+    void clear_all_info();    
     void update(const char* packet_buffer, size_t packet_len);
     void set_frm_time(uint64_t ship_time, uint64_t gps_time);
     void print(const Counter& cnt, ostream& os = cout);
+    
 public:
     int get_period() const;
     void set_period(int pt);
