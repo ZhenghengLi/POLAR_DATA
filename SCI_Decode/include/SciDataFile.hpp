@@ -17,13 +17,13 @@ class SciDataFile {
 public:
     struct Modules_T {
         Long64_t     trigg_num;                // Sequential number of the trigger packet of an event.
-        //                                        Start from 0, -1 if it has no corresponding trigger packet.
+        //                                        Start from 0, -1 if it has no corresponding trigger packet. -2 when bad.
         //                                        Pedestal and no pedestal packets use different number counter.
-        Long64_t     event_num;                // Sequential number of the event packet of a module. Start from 0.
+        Long64_t     event_num;                // Sequential number of the event packet of a module. Start from 0. -1 when bad.
         //                                        Pedestal and no pedestal packets use different number counter.
-        Long64_t     event_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
+        Long64_t     event_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0. -1 when bad.
         //                                        Pedestal and no pedestal packets use the same number counter.
-        Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
+        Int_t        is_bad;                   // if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        compress;                 // compress mode: 0 for default, 1 for simple, 2 for pedestal, 3 for full reduction 
         Int_t        ct_num;                   // CT number, from 1 to 25
@@ -41,11 +41,11 @@ public:
     };
 
     struct Trigger_T {
-        Long64_t     trigg_num;                // Sequential number of the trigger packet. Start from 0.
+        Long64_t     trigg_num;                // Sequential number of the trigger packet. Start from 0. -1 when bad.
         //                                        Pedestal and no pedestal packets use different number counter.
         Long64_t     trigg_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
         //                                        Pedestal and no pedestal packets use the same number counter.
-        Int_t        is_bad;                   // if the packet is invalid or has CRC error: 1 when invalid, 2 when crc error, 0 when good
+        Int_t        is_bad;                   // if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        type;                     // the 4 types of trigger packet: 0x00F0 for pedestal, 0x00FF nor normal, 0xF000 for single, 0xFF00 for cosmic
         Int_t        packet_num;               // raw data of packet number of the trigger packet
@@ -56,7 +56,8 @@ public:
         ULong64_t    frm_ship_time;            // raw data of the ship time from frame in which this packet is.
         ULong64_t    frm_gps_time;             // raw data of the GPS time from frame in which this packet is.
         //                                        Other forms of frm_ship_time and frm_gps_time will be converted when doing UTC calculating.
-        Long64_t     pkt_start;                // first entry index of all the adjacent event packets of this event in the modules tree 
+        Long64_t     pkt_start;                // first entry index of all the adjacent event packets of this event in the modules tree.
+        //                                        -1 when lost all event packets, -2 when bad.
         Int_t        pkt_count;                // number of entries of event packets for this event in the modules tree
         Int_t        lost_count;               // number of lost event packets for this event
         Int_t        trigger_n;                // sum of the trigger_bit[64] of all the event packets for this event
