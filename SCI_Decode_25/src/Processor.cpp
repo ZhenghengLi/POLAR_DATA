@@ -396,6 +396,8 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 evtMgr_.ped_clear_result();
             } else {
                 evtMgr_.ped_move_result(false);
+                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+                evtMgr_.ped_clear_result();
             }
             // -------------------------------------------
         } else {
@@ -451,6 +453,10 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
     if (evtMgr_.ped_check_valid()) {
         evtMgr_.ped_move_result(true);
         evtMgr_.ped_update_time_diff();
+        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+        evtMgr_.ped_clear_result();
+    } else {
+        evtMgr_.ped_move_result(false);
         datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
         evtMgr_.ped_clear_result();
     }

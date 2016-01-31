@@ -46,6 +46,7 @@ public:
         Long64_t     trigg_num_g;              // Order number at the sequence of appearing in the raw data file. Start from 0.
         //                                        Pedestal and no pedestal packets use the same number counter.
         Int_t        is_bad;                   // if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good
+        //                                        4 means redundant trigger packet for pedestal event.
         Int_t        pre_is_bad;               // if the previous packet is invalid or has CRC error
         Int_t        type;                     // the 4 types of trigger packet: 0x00F0 for pedestal, 0x00FF nor normal, 0xF000 for single, 0xFF00 for cosmic
         Int_t        packet_num;               // raw data of packet number of the trigger packet
