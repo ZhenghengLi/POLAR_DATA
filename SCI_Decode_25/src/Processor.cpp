@@ -396,8 +396,21 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 evtMgr_.ped_clear_result();
             } else {
                 evtMgr_.ped_move_result(false);
-                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-                evtMgr_.ped_clear_result();
+                if (evtMgr_.get_result_ped_events_vec().empty()) {
+                    if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                        datafile.write_ped_trigger_alone(evtMgr_.get_result_ped_trigger());
+                    }
+                } else {
+                    if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+                    } else {
+                        for (vector<SciEvent>::const_iterator vecItr = evtMgr_.get_result_ped_events_vec().begin();
+                             vecItr != evtMgr_.get_result_ped_events_vec().end(); vecItr++) {
+                            datafile.write_ped_modules_alone(*vecItr);
+                        }
+                    }
+                    evtMgr_.ped_clear_result();                    
+                }
             }
             // -------------------------------------------
         } else {
@@ -457,8 +470,21 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
         evtMgr_.ped_clear_result();
     } else {
         evtMgr_.ped_move_result(false);
-        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-        evtMgr_.ped_clear_result();
+        if (evtMgr_.get_result_ped_events_vec().empty()) {
+            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                datafile.write_ped_trigger_alone(evtMgr_.get_result_ped_trigger());
+            }
+        } else {
+            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+            } else {
+                for (vector<SciEvent>::const_iterator vecItr = evtMgr_.get_result_ped_events_vec().begin();
+                     vecItr != evtMgr_.get_result_ped_events_vec().end(); vecItr++) {
+                    datafile.write_ped_modules_alone(*vecItr);
+                }
+            }
+            evtMgr_.ped_clear_result();                    
+        }
     }
     // -------------------------------------------
     if (!evtMgr_.global_start())
