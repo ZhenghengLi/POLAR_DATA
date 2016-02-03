@@ -28,7 +28,7 @@ public:
     uint16_t common_noise;
     
 public:
-    uint64_t event_num_g;
+    int64_t  event_num_g;
     int32_t  is_bad;
     int32_t  pre_is_bad;
     uint32_t time_period;

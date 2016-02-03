@@ -213,14 +213,14 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_trigg_num_g_++;
                         sci_trigger.dead_ratio    = 0;
                     } else {
-                        Int_t tmp_time_wait = sci_trigger.timestamp - cur_trigg_pre_time_stamp_;
+                        int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
                         cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
                         if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
                             tmp_time_wait += 4294967296;
                             cur_trigg_time_period_++;
                         }
                         sci_trigger.time_period  = cur_trigg_time_period_;
-                        sci_trigger.time_wait    = tmp_time_wait;
+                        sci_trigger.time_wait    = static_cast<uint32_t>(tmp_time_wait);
                         Int_t tmp_dead_diff = sci_trigger.deadtime - cur_trigg_pre_raw_dead_;
                         cur_trigg_pre_raw_dead_ = sci_trigger.deadtime;
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
@@ -346,14 +346,14 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_event_num_g_[idx]++;
                         sci_event.dead_ratio            = 0;
                     } else {
-                        Int_t tmp_time_wait = sci_event.timestamp - cur_event_pre_time_stamp_[idx];
+                        int64_t tmp_time_wait = static_cast<int64_t>(sci_event.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
                         cur_event_pre_time_stamp_[idx] = sci_event.timestamp;
                         if (tmp_time_wait < -1 * PedCircle) {
                             tmp_time_wait += 16777216;
                             cur_event_time_period_[idx]++;
                         }
                         sci_event.time_period  = cur_event_time_period_[idx];
-                        sci_event.time_wait    = tmp_time_wait;
+                        sci_event.time_wait    = static_cast<uint32_t>(tmp_time_wait);
                         Int_t tmp_dead_diff = sci_event.deadtime - cur_event_pre_raw_dead_[idx];
                         cur_event_pre_raw_dead_[idx] = sci_event.deadtime;
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);

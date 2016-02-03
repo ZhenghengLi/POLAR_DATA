@@ -31,7 +31,7 @@ public:
     uint64_t frm_gps_time;
 
 public:
-    uint64_t trigg_num_g;
+    int64_t  trigg_num_g;
     int32_t  is_bad;
     int32_t  pre_is_bad;
     uint32_t time_period;
