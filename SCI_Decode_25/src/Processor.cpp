@@ -221,10 +221,10 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         }
                         sci_trigger.time_period  = cur_trigg_time_period_;
                         sci_trigger.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        Int_t tmp_dead_diff = sci_trigger.deadtime - cur_trigg_pre_raw_dead_;
-                        cur_trigg_pre_raw_dead_ = sci_trigger.deadtime;
+                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger.deadtime) - cur_trigg_pre_raw_dead_;
+                        cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_trigger.dead_ratio = static_cast<Float_t>(tmp_dead_diff) / static_cast<Float_t>(sci_trigger.time_wait);
+                        sci_trigger.dead_ratio = static_cast<float>(tmp_dead_diff) / static_cast<float>(sci_trigger.time_wait);
                         sci_trigger.trigg_num_g = cur_trigg_num_g_;
                         cur_trigg_num_g_++;
                     }
@@ -354,10 +354,10 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         }
                         sci_event.time_period  = cur_event_time_period_[idx];
                         sci_event.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        Int_t tmp_dead_diff = sci_event.deadtime - cur_event_pre_raw_dead_[idx];
-                        cur_event_pre_raw_dead_[idx] = sci_event.deadtime;
+                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_event.deadtime) - cur_event_pre_raw_dead_[idx];
+                        cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_event.dead_ratio = static_cast<Float_t>(tmp_dead_diff) / static_cast<Float_t>(sci_event.time_wait);
+                        sci_event.dead_ratio = static_cast<float>(tmp_dead_diff) / static_cast<float>(sci_event.time_wait);
                         sci_event.event_num_g = cur_event_num_g_[idx];
                         cur_event_num_g_[idx]++;
                     }
