@@ -160,11 +160,11 @@ bool SciTrigger::operator==(const SciTrigger& right) const {
 }
 
 int SciTrigger::operator-(const SciTrigger& right) const {
-    return (period_ - right.period_) * CircleTime + (time_align - right.time_align);
+    return (period_ - right.period_) * CircleTime + (static_cast<int>(time_align) - static_cast<int>(right.time_align));
 }
 
 int SciTrigger::operator-(const SciEvent& right) const {
-    return (period_ - right.get_period()) * CircleTime + (time_align - right.time_align);
+    return (period_ - right.get_period()) * CircleTime + (static_cast<int>(time_align) - static_cast<int>(right.time_align));
 }
 
 void SciTrigger::print(const Counter& cnt, ostream& os) {
