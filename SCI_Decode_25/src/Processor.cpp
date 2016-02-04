@@ -429,6 +429,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
                 } else {
                     datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                    cnt.aligned_event_sum += evtMgr_.get_result_noped_trigger().get_pkt_count();
                     evtMgr_.noped_clear_result();
                 }
             }
@@ -453,6 +454,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
                 } else {
                     datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                    cnt.aligned_event_sum += evtMgr_.get_result_noped_trigger().get_pkt_count();
                     evtMgr_.noped_clear_result();
                 }
             }
@@ -500,6 +502,7 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
                 datafile.write_trigger_alone(evtMgr_.get_result_noped_trigger());
             } else {
                 datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
+                cnt.aligned_event_sum += evtMgr_.get_result_noped_trigger().get_pkt_count();
                 evtMgr_.noped_clear_result();
             }
         }
