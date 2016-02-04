@@ -35,7 +35,7 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("time_wait",         &t_modules.time_wait,         "time_wait/i"           );
     t_modules_tree_->Branch("time_align",        &t_modules.time_align,        "time_align/i"          );
     t_modules_tree_->Branch("raw_rate",          &t_modules.raw_rate,          "raw_rate/I"            );
-    t_modules_tree_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/I"            );
+    t_modules_tree_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/i"            );
     t_modules_tree_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );
     t_modules_tree_->Branch("status",            &t_modules.status,            "status/s"              );
     t_modules_tree_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );
@@ -64,7 +64,7 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->Branch("trig_sig_con",       t_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_trigger_tree_->Branch("trig_accepted",      t_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_trigger_tree_->Branch("trig_rejected",      t_trigger.trig_rejected,     "trig_rejected[25]/O"   );
-    t_trigger_tree_->Branch("raw_dead",          &t_trigger.raw_dead,          "raw_dead/I"            );
+    t_trigger_tree_->Branch("raw_dead",          &t_trigger.raw_dead,          "raw_dead/i"            );
     t_trigger_tree_->Branch("dead_ratio",        &t_trigger.dead_ratio,        "dead_ratio/F"          );
 
     t_ped_modules_tree_ = new TTree("t_ped_modules", "pedestal modules packets");
@@ -81,7 +81,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("time_wait",         &t_ped_modules.time_wait,         "time_wait/i"           );
     t_ped_modules_tree_->Branch("time_align",        &t_ped_modules.time_align,        "time_align/i"          );
     t_ped_modules_tree_->Branch("raw_rate",          &t_ped_modules.raw_rate,          "raw_rate/I"            );
-    t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/I"            );
+    t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/i"            );
     t_ped_modules_tree_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
     t_ped_modules_tree_->Branch("status",            &t_ped_modules.status,            "status/s"              );
     t_ped_modules_tree_->Branch("trigger_bit",        t_ped_modules.trigger_bit,       "trigger_bit[64]/O"     );
@@ -110,7 +110,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("trig_sig_con",       t_ped_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_ped_trigger_tree_->Branch("trig_accepted",      t_ped_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_ped_trigger_tree_->Branch("trig_rejected",      t_ped_trigger.trig_rejected,     "trig_rejected[25]/O"   );
-    t_ped_trigger_tree_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead/I"            );
+    t_ped_trigger_tree_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead/i"            );
     t_ped_trigger_tree_->Branch("dead_ratio",        &t_ped_trigger.dead_ratio,        "dead_ratio/F"          );
 
     t_modules_cur_entry_ = 0;
@@ -285,46 +285,46 @@ void SciDataFile::write_ped_event_align(const SciTrigger& ped_trigger, const vec
 }
 
 void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& event) {
-    t_modules_par.event_num_g   = event.event_num_g;
-    t_modules_par.is_bad        = event.is_bad;
-    t_modules_par.pre_is_bad    = event.pre_is_bad;
-    t_modules_par.compress      = event.mode;
-    t_modules_par.ct_num        = event.ct_num;
-    t_modules_par.time_stamp    = event.timestamp;
-    t_modules_par.time_period   = event.time_period;
-    t_modules_par.time_wait     = event.time_wait;
-    t_modules_par.time_align    = event.time_align;
-    t_modules_par.raw_rate      = event.rate;
-    t_modules_par.raw_dead      = event.deadtime;
-    t_modules_par.dead_ratio    = event.dead_ratio;
-    t_modules_par.status        = event.status;
+    t_modules_par.event_num_g   = static_cast<Long64_t>(event.event_num_g);
+    t_modules_par.is_bad        = static_cast<Int_t>(event.is_bad);
+    t_modules_par.pre_is_bad    = static_cast<Int_t>(event.pre_is_bad);
+    t_modules_par.compress      = static_cast<Int_t>(event.mode);
+    t_modules_par.ct_num        = static_cast<Int_t>(event.ct_num);
+    t_modules_par.time_stamp    = static_cast<UInt_t>(event.timestamp);
+    t_modules_par.time_period   = static_cast<UInt_t>(event.time_period);
+    t_modules_par.time_wait     = static_cast<UInt_t>(event.time_wait);
+    t_modules_par.time_align    = static_cast<UInt_t>(event.time_align);
+    t_modules_par.raw_rate      = static_cast<Int_t>(event.rate);
+    t_modules_par.raw_dead      = static_cast<UInt_t>(event.deadtime);
+    t_modules_par.dead_ratio    = static_cast<Float_t>(event.dead_ratio);
+    t_modules_par.status        = static_cast<UShort_t>(event.status);
     for (int i = 0; i < 64; i++) {
-        t_modules_par.trigger_bit[i] = event.trigger_bit[i];
-        t_modules_par.energy_adc[i]  = event.energy_ch[i];
+        t_modules_par.trigger_bit[i] = static_cast<Bool_t>(event.trigger_bit[i]);
+        t_modules_par.energy_adc[i]  = static_cast<Float_t>(event.energy_ch[i]);
     }
-    t_modules_par.common_noise  = event.common_noise;
+    t_modules_par.common_noise  = static_cast<Float_t>(event.common_noise);
 }
 
 void SciDataFile::copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& trigger) {
-    t_trigger_par.trigg_num_g   = trigger.trigg_num_g;
-    t_trigger_par.is_bad        = trigger.is_bad;
-    t_trigger_par.pre_is_bad    = trigger.pre_is_bad;
-    t_trigger_par.type          = trigger.mode;
-    t_trigger_par.packet_num    = trigger.packet_num;
-    t_trigger_par.time_stamp    = trigger.timestamp;
-    t_trigger_par.time_period   = trigger.time_period;
-    t_trigger_par.time_wait     = trigger.time_wait;
-    t_trigger_par.time_align    = trigger.time_align;
-    t_trigger_par.frm_ship_time = trigger.frm_ship_time;
-    t_trigger_par.frm_gps_time  = trigger.frm_gps_time;
-    t_trigger_par.pkt_count     = trigger.get_pkt_count();
-    t_trigger_par.lost_count    = trigger.get_lost_count();
-    t_trigger_par.status        = trigger.status;
+    t_trigger_par.trigg_num_g   = static_cast<Long64_t>(trigger.trigg_num_g);
+    t_trigger_par.is_bad        = static_cast<Int_t>(trigger.is_bad);
+    t_trigger_par.pre_is_bad    = static_cast<Int_t>(trigger.pre_is_bad);
+    t_trigger_par.type          = static_cast<Int_t>(trigger.mode);
+    t_trigger_par.packet_num    = static_cast<Int_t>(trigger.packet_num);
+    t_trigger_par.time_stamp    = static_cast<UInt_t>(trigger.timestamp);
+    t_trigger_par.time_period   = static_cast<UInt_t>(trigger.time_period);
+    t_trigger_par.time_wait     = static_cast<UInt_t>(trigger.time_wait);
+    t_trigger_par.time_align    = static_cast<UInt_t>(trigger.time_align);
+    t_trigger_par.frm_ship_time = static_cast<ULong64_t>(trigger.frm_ship_time);
+    t_trigger_par.frm_gps_time  = static_cast<ULong64_t>(trigger.frm_gps_time);
+    t_trigger_par.pkt_count     = static_cast<Int_t>(trigger.get_pkt_count());
+    t_trigger_par.lost_count    = static_cast<Int_t>(trigger.get_lost_count());
+    t_trigger_par.status        = static_cast<UShort_t>(trigger.status);
     for (int i = 0; i < 25; i++) {
-        t_trigger_par.trig_sig_con[i]   = trigger.trig_sig_con[i];
-        t_trigger_par.trig_accepted[i]  = trigger.trig_accepted[i];
-        t_trigger_par.trig_rejected[i]  = trigger.trig_rejected[i];
+        t_trigger_par.trig_sig_con[i]   = static_cast<UChar_t>(trigger.trig_sig_con[i]);
+        t_trigger_par.trig_accepted[i]  = static_cast<Bool_t>(trigger.trig_accepted[i]);
+        t_trigger_par.trig_rejected[i]  = static_cast<Bool_t>(trigger.trig_rejected[i]);
     }
-    t_trigger_par.raw_dead      = trigger.deadtime;
-    t_trigger_par.dead_ratio    = trigger.dead_ratio;
+    t_trigger_par.raw_dead      = static_cast<UInt_t>(trigger.deadtime);
+    t_trigger_par.dead_ratio    = static_cast<Float_t>(trigger.dead_ratio);
 }

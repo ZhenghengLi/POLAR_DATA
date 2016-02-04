@@ -32,7 +32,7 @@ public:
         UInt_t       time_wait;                // time_stamp difference since previous event
         UInt_t       time_align;               // 23 LSB of time_stamp
         Int_t        raw_rate;                 // raw data of RATE field of the packet
-        Int_t        raw_dead;                 // raw data of DEADTIME field of the packet
+        UInt_t       raw_dead;                 // raw data of DEADTIME field of the packet
         Float_t      dead_ratio;               // increased number of raw_dead divided by time_wait
         UShort_t     status;                   // raw data of the 16 bits STATUS field of the packet
         Bool_t       trigger_bit[64];          // raw data of the TRIGGERBIT, the same as pattern[64]
