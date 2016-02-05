@@ -174,8 +174,8 @@ void SciDataFile::write_trigger_alone(const SciTrigger& trigger) {
         return;
     copy_trigger_pkt_(t_trigger, trigger);
     if (t_trigger.is_bad > 0) {
-        t_trigger.trigg_num = - 1;
-        t_trigger.pkt_start = - 2;
+        t_trigger.trigg_num = -1;
+        t_trigger.pkt_start = -2;
         t_trigger.trigger_n = 0;
         t_trigger_tree_->Fill();
         t_trigger_cur_entry_++;
