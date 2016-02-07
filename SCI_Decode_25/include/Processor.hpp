@@ -37,14 +37,14 @@ private:
     int32_t    cur_trigg_pre_is_bad_;
     uint32_t   cur_trigg_pre_time_stamp_;
     uint32_t   cur_trigg_time_period_;
-    uint32_t   cur_trigg_pre_raw_dead_;
+    int32_t   cur_trigg_pre_raw_dead_;
     bool       cur_trigg_is_first_;
     // packet extra info for event
     int64_t    cur_event_num_g_[25];
     int32_t    cur_event_pre_is_bad_[25];
     uint32_t   cur_event_pre_time_stamp_[25];
     uint32_t   cur_event_time_period_[25];
-    uint32_t   cur_event_pre_raw_dead_[25];
+    int32_t   cur_event_pre_raw_dead_[25];
     bool       cur_event_is_first_[25];
     
 public:
