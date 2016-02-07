@@ -207,7 +207,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_trigg_time_period_    = 0;
                         sci_trigger.time_period   = cur_trigg_time_period_;
                         sci_trigger.time_wait     = 0;
-                        cur_trigg_pre_raw_dead_   = static_cast<uint32_t>(sci_trigger.deadtime);
+                        cur_trigg_pre_raw_dead_   = static_cast<int32_t>(sci_trigger.deadtime);
                         cur_trigg_num_g_ = 0;
                         sci_trigger.trigg_num_g   = cur_trigg_num_g_;
                         cur_trigg_num_g_++;
@@ -340,7 +340,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_event_time_period_[idx]     = 0;
                         sci_event.time_period           = cur_event_time_period_[idx];
                         sci_event.time_wait             = 0;
-                        cur_event_pre_raw_dead_[idx]    = static_cast<uint32_t>(sci_event.deadtime);
+                        cur_event_pre_raw_dead_[idx]    = static_cast<int32_t>(sci_event.deadtime);
                         cur_event_num_g_[idx]           = 0;
                         sci_event.event_num_g           = cur_event_num_g_[idx];
                         cur_event_num_g_[idx]++;
