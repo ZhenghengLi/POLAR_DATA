@@ -1,9 +1,9 @@
 
 .PHONY : all sci sci_clean sci_25 sci_25_clean
 
-all: sci sci_25 analysis
+all: sci sci_25 hk analysis
 
-clean: sci_clean sci_25_clean analysis_clean bin_clean
+clean: sci_clean sci_25_clean hk_clean analysis_clean bin_clean
 
 sci:
 	cd SCI_Decode; make
@@ -16,6 +16,12 @@ sci_25:
 
 sci_25_clean:
 	cd SCI_Decode_25; make clean
+
+hk:
+	cd HK_Decode; make
+
+hk_clean:
+	cd HK_Decode; make clean
 
 analysis:
 	cd Analysis; make
