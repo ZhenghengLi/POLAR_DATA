@@ -18,22 +18,25 @@ Angle_Calc: ../bin/Angle_Calc
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -o $@ $^ $(ROOT_GLIBS)
 
 src/PedMeanCalc_Dict.cpp: include/PedMeanCalc.hpp
-	cd include; rootcint -f PedMeanCalc_Dict.cpp -c PedMeanCalc.hpp
-	mv include/PedMeanCalc_Dict.cpp src/
+	cd include && \
+		rootcint -f PedMeanCalc_Dict.cpp -c PedMeanCalc.hpp && \
+		mv PedMeanCalc_Dict.cpp ../src/
 
 ../bin/XT_Correct: src/XT_Correct.cpp src/PhyEventFile.cpp src/CrossTalkCalc.cpp src/CrossTalkCalc_Dict.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -o $@ $^ $(ROOT_GLIBS)
 
 src/CrossTalkCalc_Dict.cpp: include/CrossTalkCalc.hpp
-	cd include; rootcint -f CrossTalkCalc_Dict.cpp -c CrossTalkCalc.hpp
-	mv include/CrossTalkCalc_Dict.cpp src/
+	cd include && \
+		rootcint -f CrossTalkCalc_Dict.cpp -c CrossTalkCalc.hpp && \
+		mv CrossTalkCalc_Dict.cpp ../src/
 
 ../bin/CE_Calibrate: src/CE_Calibrate.cpp src/PhyEventFile.cpp src/ComptonEdgeCalc.cpp src/ComptonEdgeCalc_Dict.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -o $@ $^ $(ROOT_GLIBS)
 
 src/ComptonEdgeCalc_Dict.cpp: include/ComptonEdgeCalc.hpp
-	cd include; rootcint -f ComptonEdgeCalc_Dict.cpp -c ComptonEdgeCalc.hpp
-	mv include/ComptonEdgeCalc_Dict.cpp src/
+	cd include && \
+		rootcint -f ComptonEdgeCalc_Dict.cpp -c ComptonEdgeCalc.hpp && \
+		mv ComptonEdgeCalc_Dict.cpp ../src/
 
 ../bin/Angle_Calc: src/Angle_Calc.cpp src/PhyEventFile.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -o $@ $^ $(ROOT_GLIBS)
