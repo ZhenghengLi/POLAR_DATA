@@ -38,10 +38,10 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/i"            );
     t_modules_tree_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );
     t_modules_tree_->Branch("status",            &t_modules.status,            "status/s"              );
-    t_modules_tree_->Branch("status_bit",        &t_modules.status_bit.start_taking, 
-                            "start_taking/O:fifo_full:fifo_empty:trigger_enable:"
-                            "trigger_waiting:trigger_hold_b:timestamp_enable:master_clock_enable:"
-                            "full_readout_enable:subsystem_busy:ct_trigger:dynode:"
+    t_modules_tree_->Branch("status_bit",        &t_modules.status_bit.trigger_fe_busy, 
+                            "trigger_fe_busy/O:fifo_full:fifo_empty:trigger_enable:"
+                            "trigger_waiting:trigger_hold_b:timestamp_enable:reduction_mode_b1:"
+                            "reduction_mode_b0:subsystem_busy:dynode_2:dynode_1:"
                             "dy12_too_high:t_out_too_many:t_out_2:t_out_1"                             );
     t_modules_tree_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );
     t_modules_tree_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );
@@ -66,12 +66,14 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->Branch("lost_count",        &t_trigger.lost_count,        "lost_count/I"          );
     t_trigger_tree_->Branch("trigger_n",         &t_trigger.trigger_n,         "trigger_n/I"           );
     t_trigger_tree_->Branch("status",            &t_trigger.status,            "status/s"              );
-    t_trigger_tree_->Branch("status_bit",        &t_trigger.status_bit.master_clock_enable,
-                            "master_clock_enable/O:saving_data:taking_event:taking_pedestals:"
-                            "fifo_full:fifo_empty"                                                     );
+    t_trigger_tree_->Branch("status_bit",        &t_trigger.status_bit.science_disable,
+                            "science_disable/O:master_clock_enable:saving_data:taking_event_or_ped:"
+                            "fifo_full:fifo_almost_full:fifo_empty:fifo_almost_empty:"
+                            "any_waiting:any_waiting_two_hits:any_tmany_thigh:"
+                            "packet_type_b2:packet_type_b1:packet_type_b0"                             );
     t_trigger_tree_->Branch("trig_sig_con",       t_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
-    t_trigger_tree_->Branch("trig_sig_con_bit",   t_trigger.trig_sig_con_bit.enable_tout_2,
-                            "enable_tout_2[25]/O:enable_tout_1[25]:fe_busy[25]:fe_waiting[25]:"
+    t_trigger_tree_->Branch("trig_sig_con_bit",   t_trigger.trig_sig_con_bit.fe_busy,
+                            "fe_busy[25]/O:fe_waiting[25]:"
                             "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"             ); 
     t_trigger_tree_->Branch("trig_accepted",      t_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_trigger_tree_->Branch("trig_rejected",      t_trigger.trig_rejected,     "trig_rejected[25]/O"   );
@@ -95,11 +97,11 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/i"            );
     t_ped_modules_tree_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
     t_ped_modules_tree_->Branch("status",            &t_ped_modules.status,            "status/s"              );
-    t_ped_modules_tree_->Branch("status_bit",        &t_ped_modules.status_bit.start_taking, 
-                            "start_taking/O:fifo_full:fifo_empty:trigger_enable:"
-                            "trigger_waiting:trigger_hold_b:timestamp_enable:master_clock_enable:"
-                            "full_readout_enable:subsystem_busy:ct_trigger:dynode:"
-                            "dy12_too_high:t_out_too_many:t_out_2:t_out_1"                             );
+    t_ped_modules_tree_->Branch("status_bit",        &t_ped_modules.status_bit.trigger_fe_busy, 
+                                "trigger_fe_busy/O:fifo_full:fifo_empty:trigger_enable:"
+                                "trigger_waiting:trigger_hold_b:timestamp_enable:reduction_mode_b1:"
+                                "reduction_mode_b0:subsystem_busy:dynode_2:dynode_1:"
+                                "dy12_too_high:t_out_too_many:t_out_2:t_out_1"                                 );
     t_ped_modules_tree_->Branch("trigger_bit",        t_ped_modules.trigger_bit,       "trigger_bit[64]/O"     );
     t_ped_modules_tree_->Branch("energy_adc",         t_ped_modules.energy_adc,        "energy_adc[64]/F"      );
     t_ped_modules_tree_->Branch("common_noise",      &t_ped_modules.common_noise,      "common_noise/F"        );
@@ -123,13 +125,15 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("lost_count",        &t_ped_trigger.lost_count,        "lost_count/I"          );
     t_ped_trigger_tree_->Branch("trigger_n",         &t_ped_trigger.trigger_n,         "trigger_n/I"           );
     t_ped_trigger_tree_->Branch("status",            &t_ped_trigger.status,            "status/s"              );
-    t_ped_trigger_tree_->Branch("status_bit",        &t_ped_trigger.status_bit.master_clock_enable,
-                            "master_clock_enable/O:saving_data:taking_event:taking_pedestals:"
-                            "fifo_full:fifo_empty"                                                     );
+    t_ped_trigger_tree_->Branch("status_bit",        &t_ped_trigger.status_bit.science_disable,
+                                "science_disable/O:master_clock_enable:saving_data:taking_event_or_ped:"
+                                "fifo_full:fifo_almost_full:fifo_empty:fifo_almost_empty:"
+                                "any_waiting:any_waiting_two_hits:any_tmany_thigh:"
+                                "packet_type_b2:packet_type_b1:packet_type_b0"                                 );
     t_ped_trigger_tree_->Branch("trig_sig_con",       t_ped_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
-    t_ped_trigger_tree_->Branch("trig_sig_con_bit",   t_ped_trigger.trig_sig_con_bit.enable_tout_2,
-                            "enable_tout_2[25]/O:enable_tout_1[25]:fe_busy[25]:fe_waiting[25]:"
-                            "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"             ); 
+    t_ped_trigger_tree_->Branch("trig_sig_con_bit",   t_ped_trigger.trig_sig_con_bit.fe_busy,
+                                "fe_busy[25]/O:fe_waiting[25]:"
+                                "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"                 ); 
     t_ped_trigger_tree_->Branch("trig_accepted",      t_ped_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_ped_trigger_tree_->Branch("trig_rejected",      t_ped_trigger.trig_rejected,     "trig_rejected[25]/O"   );
     t_ped_trigger_tree_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead/i"            );
@@ -320,18 +324,18 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
     t_modules_par.raw_dead                                = static_cast<UInt_t>(event.deadtime);
     t_modules_par.dead_ratio                              = static_cast<Float_t>(event.dead_ratio);
     t_modules_par.status                                  = static_cast<UShort_t>(event.status);
-    t_modules_par.status_bit.start_taking                 = bit_extract_<uint16_t>(event.status, 15);
+    t_modules_par.status_bit.trigger_fe_busy              = bit_extract_<uint16_t>(event.status, 15);
     t_modules_par.status_bit.fifo_full                    = bit_extract_<uint16_t>(event.status, 14);
     t_modules_par.status_bit.fifo_empty                   = bit_extract_<uint16_t>(event.status, 13);
     t_modules_par.status_bit.trigger_enable               = bit_extract_<uint16_t>(event.status, 12);
     t_modules_par.status_bit.trigger_waiting              = bit_extract_<uint16_t>(event.status, 11);
     t_modules_par.status_bit.trigger_hold_b               = bit_extract_<uint16_t>(event.status, 10);
     t_modules_par.status_bit.timestamp_enable             = bit_extract_<uint16_t>(event.status,  9);
-    t_modules_par.status_bit.master_clock_enable          = bit_extract_<uint16_t>(event.status,  8);
-    t_modules_par.status_bit.full_readout_enable          = bit_extract_<uint16_t>(event.status,  7);
+    t_modules_par.status_bit.reduction_mode_b1            = bit_extract_<uint16_t>(event.status,  8);
+    t_modules_par.status_bit.reduction_mode_b0            = bit_extract_<uint16_t>(event.status,  7);
     t_modules_par.status_bit.subsystem_busy               = bit_extract_<uint16_t>(event.status,  6);
-    t_modules_par.status_bit.ct_trigger                   = bit_extract_<uint16_t>(event.status,  5);
-    t_modules_par.status_bit.dynode                       = bit_extract_<uint16_t>(event.status,  4);
+    t_modules_par.status_bit.dynode_2                     = bit_extract_<uint16_t>(event.status,  5);
+    t_modules_par.status_bit.dynode_1                     = bit_extract_<uint16_t>(event.status,  4);
     t_modules_par.status_bit.dy12_too_high                = bit_extract_<uint16_t>(event.status,  3);
     t_modules_par.status_bit.t_out_too_many               = bit_extract_<uint16_t>(event.status,  2);
     t_modules_par.status_bit.t_out_2                      = bit_extract_<uint16_t>(event.status,  1);
@@ -358,16 +362,22 @@ void SciDataFile::copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& 
     t_trigger_par.pkt_count                               = static_cast<Int_t>(trigger.get_pkt_count());
     t_trigger_par.lost_count                              = static_cast<Int_t>(trigger.get_lost_count());
     t_trigger_par.status                                  = static_cast<UShort_t>(trigger.status);
-    t_trigger_par.status_bit.master_clock_enable          = bit_extract_<uint16_t>(trigger.status, 15);
-    t_trigger_par.status_bit.saving_data                  = bit_extract_<uint16_t>(trigger.status, 14);
-    t_trigger_par.status_bit.taking_event                 = bit_extract_<uint16_t>(trigger.status, 13);
-    t_trigger_par.status_bit.taking_pedestals             = bit_extract_<uint16_t>(trigger.status, 12);
-    t_trigger_par.status_bit.fifo_full                    = bit_extract_<uint16_t>(trigger.status,  9);
-    t_trigger_par.status_bit.fifo_empty                   = bit_extract_<uint16_t>(trigger.status,  8);
+    t_trigger_par.status_bit.science_disable              = bit_extract_<uint16_t>(trigger.status, 15);
+    t_trigger_par.status_bit.master_clock_enable          = bit_extract_<uint16_t>(trigger.status, 14);
+    t_trigger_par.status_bit.saving_data                  = bit_extract_<uint16_t>(trigger.status, 13);
+    t_trigger_par.status_bit.taking_event_or_ped          = bit_extract_<uint16_t>(trigger.status, 12);
+    t_trigger_par.status_bit.fifo_full                    = bit_extract_<uint16_t>(trigger.status, 11);
+    t_trigger_par.status_bit.fifo_almost_full             = bit_extract_<uint16_t>(trigger.status, 10);
+    t_trigger_par.status_bit.fifo_empty                   = bit_extract_<uint16_t>(trigger.status,  9);
+    t_trigger_par.status_bit.fifo_almost_empty            = bit_extract_<uint16_t>(trigger.status,  8);
+    t_trigger_par.status_bit.any_waiting                  = bit_extract_<uint16_t>(trigger.status,  7);
+    t_trigger_par.status_bit.any_waiting_two_hits         = bit_extract_<uint16_t>(trigger.status,  6);
+    t_trigger_par.status_bit.any_tmany_thigh              = bit_extract_<uint16_t>(trigger.status,  5);
+    t_trigger_par.status_bit.packet_type_b2               = bit_extract_<uint16_t>(trigger.status,  4);
+    t_trigger_par.status_bit.packet_type_b1               = bit_extract_<uint16_t>(trigger.status,  3);
+    t_trigger_par.status_bit.packet_type_b0               = bit_extract_<uint16_t>(trigger.status,  2);
     for (int i = 0; i < 25; i++) {
         t_trigger_par.trig_sig_con[i]                     = static_cast<UChar_t>(trigger.trig_sig_con[i]);
-        t_trigger_par.trig_sig_con_bit.enable_tout_2[i]   = bit_extract_<uint8_t>(trigger.trig_sig_con[i], 7);
-        t_trigger_par.trig_sig_con_bit.enable_tout_1[i]   = bit_extract_<uint8_t>(trigger.trig_sig_con[i], 6);
         t_trigger_par.trig_sig_con_bit.fe_busy[i]         = bit_extract_<uint8_t>(trigger.trig_sig_con[i], 5);
         t_trigger_par.trig_sig_con_bit.fe_waiting[i]      = bit_extract_<uint8_t>(trigger.trig_sig_con[i], 4);
         t_trigger_par.trig_sig_con_bit.fe_hold_b[i]       = bit_extract_<uint8_t>(trigger.trig_sig_con[i], 3);

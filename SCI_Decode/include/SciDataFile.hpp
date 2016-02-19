@@ -17,18 +17,18 @@ using namespace std;
 class SciDataFile {
 public:
     struct Event_Status_T {
-        Bool_t start_taking;              // 15
+        Bool_t trigger_fe_busy;           // 15
         Bool_t fifo_full;                 // 14
         Bool_t fifo_empty;                // 13
         Bool_t trigger_enable;            // 12
         Bool_t trigger_waiting;           // 11
         Bool_t trigger_hold_b;            // 10
         Bool_t timestamp_enable;          //  9
-        Bool_t master_clock_enable;       //  8
-        Bool_t full_readout_enable;       //  7
+        Bool_t reduction_mode_b1;         //  8
+        Bool_t reduction_mode_b0;         //  7
         Bool_t subsystem_busy;            //  6
-        Bool_t ct_trigger;                //  5
-        Bool_t dynode;                    //  4
+        Bool_t dynode_2;                  //  5
+        Bool_t dynode_1;                  //  4
         Bool_t dy12_too_high;             //  3
         Bool_t t_out_too_many;            //  2
         Bool_t t_out_2;                   //  1
@@ -36,17 +36,23 @@ public:
     };
 
     struct Trigg_Status_T {
-        Bool_t master_clock_enable;       // 15
-        Bool_t saving_data;               // 14
-        Bool_t taking_event;              // 13
-        Bool_t taking_pedestals;          // 12
-        Bool_t fifo_full;                 //  9
-        Bool_t fifo_empty;                //  8
+        Bool_t science_disable;           // 15
+        Bool_t master_clock_enable;       // 14
+        Bool_t saving_data;               // 13
+        Bool_t taking_event_or_ped;       // 12
+        Bool_t fifo_full;                 // 11
+        Bool_t fifo_almost_full;          // 10
+        Bool_t fifo_empty;                //  9
+        Bool_t fifo_almost_empty;         //  8
+        Bool_t any_waiting;               //  7
+        Bool_t any_waiting_two_hits;      //  6
+        Bool_t any_tmany_thigh;           //  5
+        Bool_t packet_type_b2;            //  4
+        Bool_t packet_type_b1;            //  3
+        Bool_t packet_type_b0;            //  2
     };
 
     struct Trig_Sig_Con_T {
-        Bool_t enable_tout_2[25];         //  7
-        Bool_t enable_tout_1[25];         //  6
         Bool_t fe_busy[25];               //  5
         Bool_t fe_waiting[25];            //  4
         Bool_t fe_hold_b[25];             //  3
