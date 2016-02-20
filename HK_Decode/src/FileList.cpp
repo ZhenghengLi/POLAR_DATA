@@ -46,7 +46,8 @@ void FileList::set_start() {
 }
 
 bool FileList::next() {
-    assert(!fileList_.empty());
+    if (fileList_.empty())
+        return false;
     if (start_flag_)
         start_flag_ = false;
     else
