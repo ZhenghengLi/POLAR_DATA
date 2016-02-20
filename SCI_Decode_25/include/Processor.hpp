@@ -8,6 +8,7 @@
 #include <vector>
 #include <iterator>
 #include <stdint.h>
+#include <stdio.h>
 #include "SciFrame.hpp"
 #include "SciEvent.hpp"
 #include "SciTrigger.hpp"
@@ -15,6 +16,7 @@
 #include "Constants.hpp"
 #include "EventMerger.hpp"
 #include "SciDataFile.hpp"
+#include "FileList.hpp"
 
 using namespace std;
 
@@ -65,6 +67,7 @@ public:
     bool logfile_open(const char* filename);
     void logfile_close();
     void do_the_last_work(SciDataFile& datafile);
+    void write_meta_info(FileList& filelist, SciDataFile& datafile);
 };
 
 #endif

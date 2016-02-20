@@ -101,6 +101,8 @@ int main(int argc, char** argv) {
     // === End Process Data ====================================
     
     pro.do_the_last_work(root_datafile);
+    root_datafile.write_after_decoding();
+    pro.write_meta_info(filelist, root_datafile);
     root_datafile.close();
     if (LOG_FLAG) {
         pro.logfile_close();

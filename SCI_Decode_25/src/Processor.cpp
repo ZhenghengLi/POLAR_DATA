@@ -509,3 +509,37 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
     }
     // -------------------------------------------
 }
+
+void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
+    // version
+    datafile.write_meta("m_version", "SCI_Decode_25 v1.0");
+    // gentime
+    TTimeStamp * cur_time = new TTimeStamp();
+    datafile.write_meta("m_gentime", cur_time->AsString("lc"));
+    delete cur_time;
+    cur_time = NULL;
+    // rawfile
+    string raw_data_file_list;
+    bool is_first = true;
+    TSystem sys;
+    filelist.set_start();
+    while (filelist.next()) {
+        if (is_first) {
+            is_first = false;
+            raw_data_file_list += sys.BaseName(filelist.cur_file());
+        } else {
+            raw_data_file_list += "; ";
+            raw_data_file_list += sys.BaseName(filelist.cur_file());
+        }
+    }   
+    datafile.write_meta("m_rawfile", raw_data_file_list.c_str());
+    // dcdinfo
+    char str_buffer[100];
+    sprintf(str_buffer,
+            "time_span: %d secs, mean_rate: %d cnts/sec, lost_percent: %4.2f%%, aligned_percent: %4.2f%%",
+            cnt.get_time_span(),
+            cnt.get_mean_rate(),
+            cnt.get_lost_percent(),
+            cnt.get_aligned_percent());
+    datafile.write_meta("m_dcdinfo", str_buffer);
+}                                                                                

@@ -151,12 +151,14 @@ public:
     
     bool open(const char* filename);
     void close();
+    void write_after_decoding();
     void write_modules_alone(const SciEvent& event);
     void write_trigger_alone(const SciTrigger& trigger);
     void write_event_align(const SciTrigger& trigger, const vector<SciEvent>& events_vec);
     void write_ped_modules_alone(const SciEvent& ped_event);
     void write_ped_trigger_alone(const SciTrigger& ped_trigger);
     void write_ped_event_align(const SciTrigger& ped_trigger, const vector<SciEvent>& ped_events_vec);
+    void write_meta(const char* key, const char* value);
 
 };
 

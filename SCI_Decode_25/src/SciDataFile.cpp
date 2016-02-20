@@ -21,7 +21,7 @@ bool SciDataFile::open(const char* filename) {
     if (t_out_file_->IsZombie())
         return false;
 
-    t_modules_tree_ = new TTree("t_modules", "modules packets");
+    t_modules_tree_ = new TTree("t_modules", "physical modules packets");
     t_modules_tree_->SetDirectory(t_out_file_);
     t_modules_tree_->Branch("trigg_num",         &t_modules.trigg_num,         "trigg_num/L"           );
     t_modules_tree_->Branch("event_num",         &t_modules.event_num,         "event_num/L"           );
@@ -47,7 +47,7 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );
     t_modules_tree_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/F"        );
 
-    t_trigger_tree_ = new TTree("t_trigger", "trigger packets");
+    t_trigger_tree_ = new TTree("t_trigger", "physical trigger packets");
     t_trigger_tree_->SetDirectory(t_out_file_);
     t_trigger_tree_->Branch("trigg_num",         &t_trigger.trigg_num,         "trigg_num/L"           );
     t_trigger_tree_->Branch("trigg_num_g",       &t_trigger.trigg_num_g,       "trigg_num_g/L"         );
@@ -154,20 +154,23 @@ bool SciDataFile::open(const char* filename) {
     return true;
 }
 
-void SciDataFile::close() {
+void SciDataFile::write_after_decoding() {
     t_modules_tree_->Write();
+    t_trigger_tree_->Write();
+    t_ped_modules_tree_->Write();
+    t_ped_trigger_tree_->Write();
+}
+
+void SciDataFile::close() {
     delete t_modules_tree_;
     t_modules_tree_ = NULL;
     
-    t_trigger_tree_->Write();
     delete t_trigger_tree_;
     t_trigger_tree_ = NULL;
     
-    t_ped_modules_tree_->Write();
     delete t_ped_modules_tree_;
     t_ped_modules_tree_ = NULL;
     
-    t_ped_trigger_tree_->Write();
     delete t_ped_trigger_tree_;
     t_ped_trigger_tree_ = NULL;
 
@@ -308,6 +311,15 @@ void SciDataFile::write_ped_event_align(const SciTrigger& ped_trigger, const vec
     t_ped_trigger_tree_->Fill();
     t_ped_trigger_cur_entry_++;
     cur_ped_trigg_num_++;
+}
+
+void SciDataFile::write_meta(const char* key, const char* value) {
+    if (t_out_file_ == NULL)
+        return;
+    TNamed * cur_meta = new TNamed(key, value);
+    cur_meta->Write();
+    delete cur_meta;
+    cur_meta = NULL;
 }
 
 void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& event) {

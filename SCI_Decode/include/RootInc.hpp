@@ -11,5 +11,8 @@
 #include "TMath.h"
 #include "TStyle.h"
 #include "TGraph.h"
+#include "TNamed.h"
+#include "TTimeStamp.h"
+#include "TSystem.h"
 
 #endif

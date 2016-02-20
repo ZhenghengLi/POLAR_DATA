@@ -39,7 +39,11 @@ public:
     int64_t aligned_event_sum;
 public:
     void clear();
-    void print();
+    void print(ostream& os = cout);
+    int get_time_span();
+    int get_mean_rate();
+    float get_lost_percent();
+    float get_aligned_percent();
 };
 
 #endif
