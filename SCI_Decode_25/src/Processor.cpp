@@ -534,7 +534,7 @@ void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
     }   
     datafile.write_meta("m_rawfile", raw_data_file_list.c_str());
     // dcdinfo
-    char str_buffer[100];
+    char str_buffer[120];
     sprintf(str_buffer,
             "time_span: %d secs, mean_rate: %d cnts/sec, lost_percent: %4.2f%%, aligned_percent: %4.2f%%",
             cnt.get_time_span(),
