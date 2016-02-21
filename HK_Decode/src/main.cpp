@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cstdlib>
-#include "HkFrame.hpp"
+#include "Processor.hpp"
 #include "FileList.hpp"
+#include "HkDataFile.hpp"
 
 #define LOG_FLAG true
 
@@ -19,35 +20,40 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    HkFrame frame(filelist.data_buffer);
-    int cnt_valid = 0;
-    int cnt_invalid = 0;
-    int cnt_crc_passed = 0;
-    int cnt_crc_error = 0;
-    int cnt_cannot_connect = 0;
-    while (filelist.next_file()) {
-        while (filelist.next_frame()) {
-            frame.updated();
-            if (frame.check_valid())
-                cnt_valid++;
-            else
-                cnt_invalid++;
-            if (frame.check_crc())
-                cnt_crc_passed++;
-            else
-                cnt_crc_error++;
-            if (!frame.can_connect())
-                cnt_cannot_connect++;
-            cout << frame.get_index() << " " << frame.get_pkt_tag() << endl;
-            frame.processed();
+    HkDataFile root_datafile;
+    if (!root_datafile.open("output/hk_test.root")) {
+        cerr << "root file open failed. " << endl;
+        exit(1);
+    }
+    
+    Processor pro(filelist.data_buffer);
+    if (LOG_FLAG) {
+        if (!pro.logfile_open("output/hk_test.log")) {
+            cerr << "log file open failed." << endl;
+            exit(1);
         }
     }
 
-    cout << "     valid: " << cnt_valid << endl;
-    cout << "   invalid: " << cnt_invalid << endl;
-    cout << "crc_passed: " << cnt_crc_passed << endl;
-    cout << " crc_error: " << cnt_crc_error << endl;
-    cout << "cannot_con: " << cnt_cannot_connect << endl;
+    // === Start Process Data =======================================
     
+    while (filelist.next_file()) {
+        while (filelist.next_frame()) {
+            pro.frame.updated();
+            pro.process(root_datafile);
+            pro.frame.processed();
+        }
+    }
+
+    // === End Process Data =========================================
+
+    root_datafile.write_after_decoding();
+    pro.write_meta_info(filelist, root_datafile);
+    root_datafile.close();
+    if (LOG_FLAG) {
+        pro.logfile_close();
+    }
+    
+    pro.cnt.print();
+
     return 0;
 }

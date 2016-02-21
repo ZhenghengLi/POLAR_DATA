@@ -1,3 +1,6 @@
+#ifndef FILELIST_H
+#define FILELIST_H
+
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
@@ -40,3 +43,5 @@ public:
     bool next_frame();
     
 };
+
+#endif
