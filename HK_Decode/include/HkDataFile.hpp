@@ -37,7 +37,7 @@ public:
     void close();
 
     void write_after_decoding();
-    void write_good_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt);
+    void write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt);
     void write_odd_packet_alone(const HkOdd& odd_pkt);
     void write_even_packet_alone(const HkEven& even_pkt);
     void write_meta(const char* key, const char* value);

@@ -37,7 +37,7 @@ void HkDataFile::close() {
     t_out_file_ = NULL;
 }
 
-void HkDataFile::write_good_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt) {
+void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt) {
     if (t_out_file_ == NULL)
         return;
     copy_odd_packet_(odd_pkt);

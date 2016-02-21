@@ -48,7 +48,14 @@ bool HkFrame::check_valid() {
     }
     if (hk_header != 0xD9A4C2EA)
         return false;
-
+    uint16_t packet_tag = 0;
+    for (int i = 0; i < 2; i++) {
+        packet_tag <<= 8;
+        packet_tag += static_cast<uint8_t>(frame_data_[10 + i]);
+    }
+    if (packet_tag > 1)
+        return false;
+    
     return true;
 }
 

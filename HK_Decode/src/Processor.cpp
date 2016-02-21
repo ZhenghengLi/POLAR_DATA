@@ -50,16 +50,50 @@ void Processor::logfile_close() {
 
 void Processor::process(HkDataFile& datafile) {
     cnt.frame++;
-    if (frame.check_valid())
-        cnt.frm_valid++;
-    else
+    
+    if (!frame.check_valid()) {
         cnt.frm_invalid++;
-    if (frame.check_crc())
-        cnt.frm_crc_passed++;
-    else
-        cnt.frm_crc_error++;
-    if (!frame.can_connect())
-        cnt.frm_con_error++;
+        // is_bad = 1;
+    } else {
+        cnt.frm_valid++;
+        if (!frame.check_crc()) {
+            cnt.frm_crc_error++;
+            // is_bad = 2;
+        } else {
+            cnt.frm_crc_passed++;
+            // is_bad = 0;
+        }
+    }
+    
+    if (odd_is_ready) {
+        if (frame.get_pkt_tag() > 0) {
+            datafile.write_odd_packet_alone(ready_odd_packet_);
+            ready_odd_packet_ = odd_packet_;
+        } else {
+            even_packet_.update();
+            if (frame.can_connect()) {
+                datafile.write_two_packet(ready_odd_packet_, even_packet_);
+                ready_odd_packet_.clear_all_info();
+                even_packet_.clear_all_info();
+            } else {
+                cnt.frm_con_error++;
+                datafile.write_odd_packet_alone(ready_odd_packet_);
+                ready_odd_packet_.clear_all_info();
+                datafile.write_even_packet_alone(even_packet_);
+                even_packet_.clear_all_info();
+            }
+            odd_is_ready = false;
+        }
+    } else {
+        if (frame.get_pkt_tag() > 0) {
+            ready_odd_packet_ = odd_packet_;
+            odd_is_ready = true;
+        } else {
+            even_packet_.update();
+            datafile.write_even_packet_alone(even_packet_);
+            even_packet_.clear_all_info();
+        }
+    }
 }
 
 void Processor::write_meta_info(FileList& filelist, HkDataFile& datafile) {

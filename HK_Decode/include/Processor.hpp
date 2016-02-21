@@ -22,6 +22,7 @@ private:
     bool      log_flag_;
     ofstream  os_logfile_;
     // two kind of packet
+    HkOdd     ready_odd_packet_;
     HkOdd     odd_packet_;
     HkEven    even_packet_;
 
