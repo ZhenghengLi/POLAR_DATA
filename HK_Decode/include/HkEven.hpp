@@ -12,9 +12,18 @@ private:
 
 public:
     // each field of Even Packet is here
+    int16_t frm_index;
+    int16_t pkt_tag;
 
 public:
-    void update();
+    int32_t is_bad;
+    
+private:
+    void set_frm_index_();
+    void set_pkt_tag_();
+    
+public:
+    void update(int32_t cur_is_bad);
     void clear_all_info();
     
 public:

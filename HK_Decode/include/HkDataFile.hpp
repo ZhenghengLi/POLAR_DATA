@@ -14,7 +14,10 @@ using namespace std;
 class HkDataFile {
 public:
     struct Hk_Packet_T {
-
+        Int_t odd_index;          // -1 when lost
+        Int_t even_index;         // -1 when lost
+        Int_t odd_is_bad;         // 1 when invalid, 2 when crc error, 3 when lost, 0 when good
+        Int_t even_is_bad;        // 1 when invalid, 2 when crc error, 3 when lost, 0 when good
     };
     
 public:
@@ -27,7 +30,7 @@ private:
 private:
     void copy_odd_packet_(const HkOdd& odd_pkt);
     void copy_even_packet_(const HkEven& even_pkt);
-    void clear_branch_data_();
+    void clear_all_branch_data_();
     
 public:
     HkDataFile();

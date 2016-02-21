@@ -511,6 +511,8 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
 }
 
 void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
+    // dattype
+    datafile.write_meta("m_dattype", "POLAR SCI DIRECTLY DECODED DATA AFTER TIME ALIGNED");
     // version
     datafile.write_meta("m_version", "SCI_Decode_25 v1.0");
     // gentime

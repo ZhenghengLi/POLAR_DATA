@@ -47,6 +47,7 @@ public:
     bool can_log();
     bool logfile_open(const char* filename);
     void logfile_close();
+    void do_the_last_work(HkDataFile& datafile);
     void write_meta_info(FileList& filelist, HkDataFile& datafile);
     
 };
