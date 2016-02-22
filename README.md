@@ -25,7 +25,7 @@ Int_t              | raw_rate                 | raw data of RATE field of the pa
 UInt_t             | raw_dead                 | raw data of DEADTIME field of the packet
 Float_t            | dead_ratio               | increased number of raw_dead divided by time_wait
 UShort_t           | status                   | raw data of the 16 bits STATUS field of the packet
-Event_Status_T     | status_bit               | each bit in status. see [Event_Status_T](### struct Event_Status_T)
+Event_Status_T     | status_bit               | each bit in status. see [Event_Status_T](#struct-event_status_t)
 Bool_t             | trigger_bit[64]          | raw data of the TRIGGERBIT, the same as pattern[64]
 Float_t            | energy_adc[64]           | ADC of energy of the 64 channels, the same as pm[64]
 Float_t            | common_noise             | raw data of COMMON NOISE field for compress mode 3, 0 for other compress mode
@@ -52,9 +52,9 @@ Int_t              | pkt_count                | number of entries of event packe
 Int_t              | lost_count               | number of lost event packets for this event
 Int_t              | trigger_n                | sum of the trigger_bit[64] of all the event packets for this event
 UShort_t           | status                   | raw data of Status register of the trigger packet
-Trigg_Status_T     | status_bit               | each bit in status. see [Trigg_Status_T](### struct Trigg_Status_T)
+Trigg_Status_T     | status_bit               | each bit in status. see [Trigg_Status_T](#struct-trigg_status_t)
 UChar_t            | trig_sig_con[25]         | raw data of Trigger signals conditions for each frontend
-Trig_Sig_Con_T     | trig_sig_con_bit         | each bit in trig_sig_con[25] for each frontend. see [Trig_Sig_Con_T](### struct Trig_Sig_Con_T)
+Trig_Sig_Con_T     | trig_sig_con_bit         | each bit in trig_sig_con[25] for each frontend. see [Trig_Sig_Con_T](#struct-trig_sig_con_t)
 Bool_t             | trig_accepted[25]        | raw data of FEE TRIGGER ACCEPTED for each frontend
 Bool_t             | trig_rejected[25]        | raw data of FEE TRIGGER REJECTED for each frontend
 UInt_t             | raw_dead                 | raw data of the dead time counter field
