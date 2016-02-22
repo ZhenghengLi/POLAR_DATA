@@ -9,7 +9,7 @@ This project is now under developing ...
 ### struct Modules_T
 
 Type               | Name                     | Discription
--------------------|--------------------------|------------------------
+:-----------------:|:------------------------:|:-----------------------
 Long64_t           | **trigg_num**            | Sequential number of the trigger packet of an event. Start from 0, -1 if it has no corresponding trigger packet. -2 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **event_num**            | Sequential number of the event packet of a module. Start from 0. -1 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **event_num_g**          | Order number at the sequence of appearing in the raw data file. Start from 0. -1 when bad. Pedestal and no pedestal packets use the same number counter.
@@ -34,7 +34,7 @@ Float_t            | **common_noise**         | raw data of COMMON NOISE field f
 ### struct Trigger_T
 
 Type               | Name                     | Discription
--------------------|--------------------------|------------------------
+:-----------------:|:------------------------:|:-----------------------
 Long64_t           | **trigg_num**            | Sequential number of the trigger packet. Start from 0. -1 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **trigg_num_g**          | Order number at the sequence of appearing in the raw data file. Start from 0. Pedestal and no pedestal packets use the same number counter.
 Int_t              | **is_bad**               | if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good
@@ -63,7 +63,7 @@ Float_t            | **dead_ratio**           | increased number of raw_dead div
 ### struct Event_Status_T
 
 Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
+:-----------------:|:------------------------:|:-----------------------
 Bool_t             | **trigger_fe_busy**      | 15
 Bool_t             | **fifo_full**            | 14
 Bool_t             | **fifo_empty**           | 13
@@ -84,7 +84,7 @@ Bool_t             | **t_out_1**              |  0
 ### struct Trigg_Status_T
 
 Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
+:-----------------:|:------------------------:|:-----------------------
 Bool_t             | **science_disable**      | 15
 Bool_t             | **master_clock_enable**  | 14
 Bool_t             | **saving_data**          | 13
@@ -102,7 +102,7 @@ Bool_t             | **packet_type_b0**       |  2
 
 ### struct Trig_Sig_Con_T
 Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
+:-----------------:|:------------------------:|:-----------------------
 Bool_t             | **fe_busy[25]**          |  5
 Bool_t             | **fe_waiting[25]**       |  4
 Bool_t             | **fe_hold_b[25]**        |  3
