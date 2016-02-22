@@ -19,6 +19,18 @@ private:
     bool processed_flag_;
 
 public:
+    // decoded info is here
+    
+public:
+    int32_t is_bad;
+
+private:
+    // decoding function is here
+
+public:
+    void update_ibox_info(int32_t cur_is_bad);
+    
+public:
     HkFrame();
     HkFrame(const char*);
     ~HkFrame();

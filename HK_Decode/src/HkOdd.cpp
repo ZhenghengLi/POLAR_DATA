@@ -18,12 +18,6 @@ void HkOdd::setdata(const char* data) {
     frame_data_ = data;
 }
 
-void HkOdd::clear_all_info() {
-    is_bad = 0;
-    frm_index = 0;
-    pkt_tag = 0;
-}
-
 void HkOdd::set_frm_index_() {
     frm_index = decode_bit<int16_t>(frame_data_ + 2, 2, 15);
 }

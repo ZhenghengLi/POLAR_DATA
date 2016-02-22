@@ -56,17 +56,20 @@ void Processor::process(HkDataFile& datafile) {
     
     if (!frame.check_valid()) {
         cnt.frm_invalid++;
-        cur_is_bad = 1;
+        cur_is_bad = 2;
     } else {
         cnt.frm_valid++;
         if (!frame.check_crc()) {
             cnt.frm_crc_error++;
-            cur_is_bad = 2;
+            cur_is_bad = 1;
         } else {
             cnt.frm_crc_passed++;
             cur_is_bad = 0;
         }
     }
+
+    frame.update_ibox_info(cur_is_bad);
+    datafile.write_ibox_info(frame);
    
     if (odd_is_ready) {
         if (cur_is_odd) {
@@ -77,14 +80,10 @@ void Processor::process(HkDataFile& datafile) {
             even_packet_.update(cur_is_bad);
             if (frame.can_connect()) {
                 datafile.write_two_packet(ready_odd_packet_, even_packet_);
-                ready_odd_packet_.clear_all_info();
-                even_packet_.clear_all_info();
             } else {
                 cnt.frm_con_error++;
                 datafile.write_odd_packet_alone(ready_odd_packet_);
-                ready_odd_packet_.clear_all_info();
                 datafile.write_even_packet_alone(even_packet_);
-                even_packet_.clear_all_info();
             }
             odd_is_ready = false;
         }
@@ -96,7 +95,6 @@ void Processor::process(HkDataFile& datafile) {
         } else {
             even_packet_.update(cur_is_bad);
             datafile.write_even_packet_alone(even_packet_);
-            even_packet_.clear_all_info();
         }
     }
 }

@@ -24,7 +24,6 @@ private:
     
 public:
     void update(int32_t cur_is_bad);
-    void clear_all_info();
     
 public:
     HkEven();

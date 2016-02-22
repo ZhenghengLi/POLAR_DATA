@@ -118,3 +118,7 @@ bool HkFrame::can_connect() {
     else
         return false;
 }
+
+void HkFrame::update_ibox_info(int32_t cur_is_bad) {
+    is_bad = cur_is_bad;
+}
