@@ -115,7 +115,7 @@ Bool_t             | **fe_tout_1[25]**        |  0
 
 ### struct Hk_Obox_T
 
-Type               | Name                     | Bit Position
+Type               | Name                     | Description
 -------------------|--------------------------|------------------------
 Int_t              | **odd_index**            | -1 when lost
 Int_t              | **even_index**           | -1 when lost
@@ -124,7 +124,7 @@ Int_t              | **even_is_bad**          | 3 when lost, 2 when invalid, 1 w
 
 ### struct Hk_Ibox_T
 
-Type               | Name                     | Bit Position
+Type               | Name                     | Description
 -------------------|--------------------------|------------------------
 Int_t              | **frm_index**            | raw data of frame index
 Int_t              | **pkt_tag**              | raw data of packet tag
