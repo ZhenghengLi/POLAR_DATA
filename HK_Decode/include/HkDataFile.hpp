@@ -15,16 +15,26 @@ using namespace std;
 class HkDataFile {
 public:
     struct Hk_Obox_T {
-        Int_t odd_index;          // -1 when lost
-        Int_t even_index;         // -1 when lost
-        Int_t odd_is_bad;         // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
-        Int_t even_is_bad;        // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
+        Int_t          odd_index;                     // -1 when lost
+        Int_t          even_index;                    // -1 when lost
+        Int_t          odd_is_bad;                    // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
+        Int_t          even_is_bad;                   // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
     };
 
     struct Hk_Ibox_T {
-        Int_t frm_index;          // 
-        Int_t pkt_tag;
-        Int_t is_bad;             // 2 when invalid, 1 when crc error, 0 when good
+        Int_t          frm_index;                     // 
+        Int_t          pkt_tag;                       //
+        Int_t          is_bad;                        // 2 when invalid, 1 when crc error, 0 when good
+        ULong64_t      ship_time;                     // raw data of ship time
+        UShort_t       error[2];                      // raw data of command feedback error number1 and number2
+        UShort_t       frame_head;                    // raw data of frame header
+        UShort_t       command_head;                  // raw data of command frame header
+        UShort_t       command_num;                   // raw data of command number
+        UShort_t       command_code;                  // raw data of comand code
+        UShort_t       command_arg[2];                // raw data of command argument1 and argument2
+        UShort_t       head;                          // raw data of obox hk header counter
+        UShort_t       tail;                          // raw data of obox hk tail counter
+        ULong64_t      ibox_gps;                      // raw data of ibox gps time
     };
     
 public:
