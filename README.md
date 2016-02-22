@@ -101,6 +101,7 @@ Bool_t             | **packet_type_b1**       |  3
 Bool_t             | **packet_type_b0**       |  2
 
 ### struct Trig_Sig_Con_T
+
 Type               | Name                     | Bit Position
 -------------------|--------------------------|------------------------
 Bool_t             | **fe_busy[25]**          |  5
@@ -109,4 +110,23 @@ Bool_t             | **fe_hold_b[25]**        |  3
 Bool_t             | **fe_tmany_thigh[25]**   |  2
 Bool_t             | **fe_tout_2[25]**        |  1
 Bool_t             | **fe_tout_1[25]**        |  0
+
+## Data Structure Convention of HK
+
+### struct Hk_Obox_T
+
+Type               | Name                     | Bit Position
+-------------------|--------------------------|------------------------
+Int_t              | **odd_index**            | -1 when lost
+Int_t              | **even_index**           | -1 when lost
+Int_t              | **odd_is_bad**           | 3 when lost, 2 when invalid, 1 when crc error, 0 when good
+Int_t              | **even_is_bad**          | 3 when lost, 2 when invalid, 1 when crc error, 0 when good
+
+### struct Hk_Ibox_T
+
+Type               | Name                     | Bit Position
+-------------------|--------------------------|------------------------
+Int_t              | **frm_index**            | raw data of frame index
+Int_t              | **pkt_tag**              | raw data of packet tag
+Int_t              | **is_bad**               | 2 when invalid, 1 when crc error, 0 when good
 
