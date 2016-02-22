@@ -34,7 +34,7 @@ Float_t            | **common_noise**         | raw data of COMMON NOISE field f
 ### struct Trigger_T
 
 Type               | Name                     | Discription
-:------------------|--------------------------|------------------------
+-------------------|--------------------------|------------------------
 Long64_t           | **trigg_num**            | Sequential number of the trigger packet. Start from 0. -1 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **trigg_num_g**          | Order number at the sequence of appearing in the raw data file. Start from 0. Pedestal and no pedestal packets use the same number counter.
 Int_t              | **is_bad**               | if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good
