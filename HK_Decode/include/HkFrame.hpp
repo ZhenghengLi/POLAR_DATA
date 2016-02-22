@@ -7,11 +7,12 @@
 #include <iomanip>
 #include <stdint.h>
 #include <boost/crc.hpp>
+#include "Decoder.hpp"
 
 using namespace std;
 using boost::crc_optimal;
 
-class HkFrame {
+class HkFrame: private Decoder {
 private:
     const char* frame_data_;
     crc_optimal<32, 0x04C11DB7> crc_32_;
