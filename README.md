@@ -8,7 +8,7 @@ This project is now under developing ...
 
 ### struct Modules_T
 
-Type               | Name                     | Discription
+Type               | Name                     | Description
 -------------------|--------------------------|------------------------
 Long64_t           | **trigg_num**            | Sequential number of the trigger packet of an event. Start from 0, -1 if it has no corresponding trigger packet. -2 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **event_num**            | Sequential number of the event packet of a module. Start from 0. -1 when bad. Pedestal and no pedestal packets use different number counter.
@@ -33,7 +33,7 @@ Float_t            | **common_noise**         | raw data of COMMON NOISE field f
 
 ### struct Trigger_T
 
-Type               | Name                     | Discription
+Type               | Name                     | Description
 -------------------|--------------------------|------------------------
 Long64_t           | **trigg_num**            | Sequential number of the trigger packet. Start from 0. -1 when bad. Pedestal and no pedestal packets use different number counter.
 Long64_t           | **trigg_num_g**          | Order number at the sequence of appearing in the raw data file. Start from 0. Pedestal and no pedestal packets use the same number counter.
