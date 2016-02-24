@@ -489,8 +489,19 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
         }
     }
     // -------------------------------------------
-    if (!evtMgr_.global_start())
+    if (!evtMgr_.global_start()) {
+        evtMgr_.move_remainder_noped();
+        while (!evtMgr_.remainder_noped_queue.empty()) {
+            datafile.write_modules_alone(evtMgr_.remainder_noped_queue.front());
+            evtMgr_.remainder_noped_queue.pop();
+        }
+        evtMgr_.move_remainder_trigger();
+        while (!evtMgr_.remainder_trigger_queue.empty()) {
+            datafile.write_trigger_alone(evtMgr_.remainder_trigger_queue.front());
+            evtMgr_.remainder_trigger_queue.pop();
+        }
         return;
+    }
     // ===========================================
     while (!evtMgr_.noped_trigger_empty()) {
         if (evtMgr_.noped_do_merge(true)) {
@@ -506,6 +517,11 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
                 evtMgr_.noped_clear_result();
             }
         }
+    }
+    evtMgr_.move_remainder_noped();
+    while (!evtMgr_.remainder_noped_queue.empty()) {
+        datafile.write_modules_alone(evtMgr_.remainder_noped_queue.front());
+        evtMgr_.remainder_noped_queue.pop();
     }
     // -------------------------------------------
 }

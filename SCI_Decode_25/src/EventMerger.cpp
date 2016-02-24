@@ -48,6 +48,12 @@ void EventMerger::all_clear() {
     while (!before_lost_queue.empty()) {
         before_lost_queue.pop();
     }
+    while (!remainder_noped_queue.empty()) {
+        remainder_noped_queue.pop();
+    }
+    while (!remainder_trigger_queue.empty()) {
+        remainder_trigger_queue.pop();
+    }
 }
 
 const SciTrigger& EventMerger::get_result_ped_trigger() {
@@ -330,4 +336,20 @@ int EventMerger::find_common_(vector<int> arr) {
         }
     }
     return result_val;
+}
+
+void EventMerger::move_remainder_noped() {
+    for (int i = 0; i < 25; i++) {
+        while (!noped_event_queue_[i].empty()) {
+            remainder_noped_queue.push(noped_event_queue_[i].top());
+            noped_event_queue_[i].pop();
+        }
+    }
+}
+
+void EventMerger::move_remainder_trigger() {
+    while (!noped_trigger_queue_.empty()) {
+        remainder_trigger_queue.push(noped_trigger_queue_.top());
+        noped_trigger_queue_.pop();
+    }
 }

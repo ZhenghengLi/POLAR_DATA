@@ -54,6 +54,8 @@ private:
 
 public:
     queue<SciEvent> before_lost_queue;
+    queue<SciEvent> remainder_noped_queue;
+    queue<SciTrigger> remainder_trigger_queue;
     
 private:
     bool can_noped_do_merge() const;
@@ -81,6 +83,9 @@ public:
     void ped_update_time_diff();
     void ped_move_result(bool valid);
     void ped_clear_result();
+
+    void move_remainder_noped();
+    void move_remainder_trigger();
 
     void all_clear();
     bool global_start() {
