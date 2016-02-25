@@ -18,6 +18,9 @@
 #include "SciDataFile.hpp"
 #include "FileList.hpp"
 
+#define SAA_LEN 5
+#define SAA_MAX 10
+
 using namespace std;
 
 class Processor {
@@ -48,6 +51,11 @@ private:
     uint32_t   cur_event_time_period_[25];
     int32_t    cur_event_pre_raw_dead_[25];
     bool       cur_event_is_first_[25];
+
+    // saa detection
+    bool   noped_start_flag_;
+    int    noped_trigg_counter_[SAA_LEN];
+    int    noped_current_counter_;
     
 public:
     Counter cnt;

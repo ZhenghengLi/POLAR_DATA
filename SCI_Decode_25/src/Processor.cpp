@@ -34,6 +34,12 @@ void Processor::initialize() {
         cur_event_pre_raw_dead_[i] = 0;
         cur_event_is_first_[i] = true;
     }
+
+    noped_start_flag_ = false;
+    for (int i = 0; i < SAA_LEN; i++) {
+        noped_trigg_counter_[i] = 0;
+    }
+    noped_current_counter_ = 0;
 }
 
 bool Processor::logfile_open(const char* filename) {
@@ -412,6 +418,23 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     evtMgr_.ped_clear_result();                    
                 }
             }
+            // saa detection
+            for (int i = 1; i < SAA_LEN; i++) {
+                noped_trigg_counter_[i - 1] = noped_trigg_counter_[i];
+            }
+            noped_trigg_counter_[SAA_LEN - 1] = noped_current_counter_;
+            noped_current_counter_ = 0;
+            if (noped_start_flag_) {
+                int noped_sum = 0;
+                for (int i = 0; i < SAA_LEN; i++) {
+                    noped_sum += noped_trigg_counter_[i];
+                }
+                if (noped_sum < SAA_MAX) {
+                    noped_start_flag_ = false;
+                    do_the_last_work(datafile);
+                    evtMgr_.all_clear();
+                }
+            }
             // -------------------------------------------
         } else {
             cnt.noped_trigger++;
@@ -431,6 +454,18 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     datafile.write_event_align(evtMgr_.get_result_noped_trigger(), evtMgr_.get_result_noped_events_vec());
                     cnt.aligned_event_sum += evtMgr_.get_result_noped_trigger().get_pkt_count();
                     evtMgr_.noped_clear_result();
+                }
+            }
+            // saa detection
+            noped_current_counter_++;
+            if (!noped_start_flag_) {
+                int noped_sum = 0;
+                for (int i = 1; i < SAA_LEN; i++) {
+                    noped_sum += noped_trigg_counter_[i];
+                }
+                noped_sum += noped_current_counter_;
+                if (noped_sum >= SAA_MAX) {
+                    noped_start_flag_ = true;
                 }
             }
             // -------------------------------------------
