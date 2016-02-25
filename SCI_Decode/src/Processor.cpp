@@ -437,7 +437,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 for (int i = 0; i < SAA_LEN; i++) {
                     noped_sum += noped_trigg_counter_[i];
                 }
-                if (noped_sum < SAA_MAX) {
+                if (noped_sum <= SAA_MAX) {
                     noped_start_flag_ = false;
                     do_the_last_work(datafile);
                     evtMgr_.all_clear();
@@ -472,7 +472,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     noped_sum += noped_trigg_counter_[i];
                 }
                 noped_sum += noped_current_counter_;
-                if (noped_sum >= SAA_MAX) {
+                if (noped_sum > SAA_MAX) {
                     noped_start_flag_ = true;
                 }
             }
