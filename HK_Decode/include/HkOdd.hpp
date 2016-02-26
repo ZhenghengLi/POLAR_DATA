@@ -28,6 +28,7 @@ public:
     uint16_t  hv_pwm;
     uint16_t  hv_status;
     uint16_t  hv_current[2];
+    uint16_t  fe_status[18];
     uint16_t  fe_temp[18];
     uint16_t  fe_hv[18];
     uint16_t  fe_thr[18];
@@ -54,6 +55,7 @@ private:
     void set_hv_pwm_();
     void set_hv_status_();
     void set_hv_current_();
+    void set_fe_status_();
     void set_fe_temp_();
     void set_fe_hv_();
     void set_fe_thr_();

@@ -26,6 +26,10 @@ void HkEven::set_pkt_tag_() {
     pkt_tag = decode_byte<int16_t>(frame_data_, 10, 11);
 }
 
+void HkEven::set_fe_status_() {
+
+}
+
 void HkEven::set_fe_temp_() {
 
 }
@@ -166,6 +170,7 @@ void HkEven::update(int32_t cur_is_bad) {
     is_bad = cur_is_bad;
     set_frm_index_();
     set_pkt_tag_();
+    set_fe_status_();
     set_fe_temp_();
     set_fe_hv_();
     set_fe_thr_();

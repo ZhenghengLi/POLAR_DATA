@@ -82,6 +82,10 @@ void HkOdd::set_hv_current_() {
 
 }
 
+void HkOdd::set_fe_status_() {
+
+}
+
 void HkOdd::set_fe_temp_() {
 
 }
@@ -120,6 +124,7 @@ void HkOdd::update(int32_t cur_is_bad) {
     set_hv_pwm_();
     set_hv_status_();
     set_hv_current_();
+    set_fe_status_();
     set_fe_temp_();
     set_fe_hv_();
     set_fe_thr_();

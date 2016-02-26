@@ -14,6 +14,7 @@ public:
     // each field of Even Packet is here
     int16_t   frm_index;
     int16_t   pkt_tag;
+    uint16_t  fe_status[7];
     uint16_t  fe_temp[7];
     uint16_t  fe_hv[7];
     uint16_t  fe_thr[7];
@@ -55,6 +56,7 @@ public:
 private:
     void set_frm_index_();
     void set_pkt_tag_();
+    void set_fe_status_();
     void set_fe_temp_();
     void set_fe_hv_();
     void set_fe_thr_();

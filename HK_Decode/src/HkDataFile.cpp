@@ -39,6 +39,7 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("hv_pwm",               &t_hk_obox.hv_pwm,               "hv_pwm/s"              );
     t_hk_obox_tree_->Branch("hv_status",            &t_hk_obox.hv_status,            "hv_status/s"           );
     t_hk_obox_tree_->Branch("hv_current",            t_hk_obox.hv_current,           "hv_current[2]/s"       );
+    t_hk_obox_tree_->Branch("fe_status",             t_hk_obox.fe_status,            "fe_status[25]/s"       );
     t_hk_obox_tree_->Branch("fe_temp",               t_hk_obox.fe_temp,              "fe_temp[25]/s"         );
     t_hk_obox_tree_->Branch("fe_hv",                 t_hk_obox.fe_hv,                "fe_hv[25]/s"           );
     t_hk_obox_tree_->Branch("fe_thr",                t_hk_obox.fe_thr,               "fe_thr[25]/s"          );
@@ -170,6 +171,7 @@ void HkDataFile::copy_odd_packet_(const HkOdd& odd_pkt) {
     t_hk_obox.hv_current[0]          = static_cast<UShort_t>(odd_pkt.hv_current[0]);
     t_hk_obox.hv_current[1]          = static_cast<UShort_t>(odd_pkt.hv_current[1]);
     for (int i = 0; i < 18; i++) {
+        t_hk_obox.fe_status[i]       = static_cast<UShort_t>(odd_pkt.fe_status[i]);
         t_hk_obox.fe_temp[i]         = static_cast<UShort_t>(odd_pkt.fe_temp[i]);
         t_hk_obox.fe_hv[i]           = static_cast<UShort_t>(odd_pkt.fe_hv[i]);
         t_hk_obox.fe_thr[i]          = static_cast<UShort_t>(odd_pkt.fe_thr[i]);
@@ -182,6 +184,7 @@ void HkDataFile::copy_even_packet_(const HkEven& even_pkt) {
     t_hk_obox.even_index             = static_cast<Int_t>(even_pkt.frm_index);
     t_hk_obox.even_is_bad            = static_cast<Int_t>(even_pkt.is_bad);
     for (int i = 0; i < 7; i++) {
+        t_hk_obox.fe_status[i]       = static_cast<UShort_t>(even_pkt.fe_status[i]);
         t_hk_obox.fe_temp[i]         = static_cast<UShort_t>(even_pkt.fe_temp[i]);
         t_hk_obox.fe_hv[i]           = static_cast<UShort_t>(even_pkt.fe_hv[i]);
         t_hk_obox.fe_thr[i]          = static_cast<UShort_t>(even_pkt.fe_thr[i]);
