@@ -12,10 +12,10 @@ private:
 
 public:
     // each field of Even Packet is here
-    int16_t   frm_index;
-    int16_t   pkt_tag;
-    uint16_t  fe_status[7];
-    uint16_t  fe_temp[7];
+    uint16_t  frm_index;
+    uint16_t  pkt_tag;
+    uint8_t   fe_status[7];
+    uint8_t   fe_temp[7];
     uint16_t  fe_hv[7];
     uint16_t  fe_thr[7];
     uint16_t  fe_rate[7];
@@ -35,8 +35,8 @@ public:
     uint16_t  ct_v_cold[2];
     uint16_t  ct_i_cold[2];
     uint32_t  timestamp_sync;
-    uint16_t  command_rec;
-    uint16_t  command_exec;
+    uint8_t   command_rec;
+    uint8_t   command_exec;
     uint16_t  command_last_num;
     uint16_t  command_last_stamp;
     uint16_t  command_last_exec;

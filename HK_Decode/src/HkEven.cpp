@@ -19,11 +19,11 @@ void HkEven::setdata(const char* data) {
 }
 
 void HkEven::set_frm_index_() {
-    frm_index = decode_bit<int16_t>(frame_data_ + 2, 2, 15);
+    frm_index = decode_bit<uint16_t>(frame_data_ + 2, 2, 15);
 }
 
 void HkEven::set_pkt_tag_() {
-    pkt_tag = decode_byte<int16_t>(frame_data_, 10, 11);
+    pkt_tag = decode_byte<uint16_t>(frame_data_, 10, 11);
 }
 
 void HkEven::set_fe_status_() {

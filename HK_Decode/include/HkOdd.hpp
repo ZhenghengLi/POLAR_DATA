@@ -12,14 +12,14 @@ private:
 
 public:
     // each field of Odd Packet is here
-    int16_t   frm_index;
-    int16_t   pkt_tag;
+    uint16_t  frm_index;
+    uint16_t  pkt_tag;
     uint16_t  packet_num;
     uint32_t  timestamp;
-    uint16_t  obox_mode;
+    uint8_t   obox_mode;
     uint16_t  cpu_status;
-    uint16_t  trig_status;
-    uint16_t  comm_status;
+    uint8_t   trig_status;
+    uint8_t   comm_status;
     uint16_t  ct_temp;
     uint16_t  chain_temp;
     uint16_t  reserved;
@@ -28,8 +28,8 @@ public:
     uint16_t  hv_pwm;
     uint16_t  hv_status;
     uint16_t  hv_current[2];
-    uint16_t  fe_status[18];
-    uint16_t  fe_temp[18];
+    uint8_t   fe_status[18];
+    uint8_t   fe_temp[18];
     uint16_t  fe_hv[18];
     uint16_t  fe_thr[18];
     uint16_t  fe_rate[18];
