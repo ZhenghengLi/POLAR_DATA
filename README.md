@@ -135,6 +135,7 @@ UShort_t           | **fe_pattern**           | raw data of fes and flexes power
 UShort_t           | **hv_pwm**               | raw data of hv pwm setting
 UShort_t           | **hv_status**            | raw data of hvps status
 UShort_t           | **hv_current[2]**        | raw data of hv current readout1 and readout2
+UShort_t           | **fe_status[25]**        | raw data of ?
 UShort_t           | **fe_temp[25]**          | raw data of ?
 UShort_t           | **fe_hv[25]**            | raw data of ?
 UShort_t           | **fe_thr[25]**           | raw data of ?
