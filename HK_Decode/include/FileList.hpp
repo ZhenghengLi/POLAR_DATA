@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #define BUFFER_SIZE 780
+#define CHECK_MAX 20
 
 using namespace std;
 

@@ -40,56 +40,22 @@ int main(int argc, char** argv) {
     // === Start Process Data =======================================
     
     SciFrame frame(filelist.data_buffer);
-    
-    // process the first file
-    // check file valid and process the first frame
-    bool file_is_valid = false;
-    if (filelist.next_file()) {
-        cout << filelist.cur_file() << endl;
-        for (int i = 0; i < 5; i++) {
-            if (filelist.next_frame()) {
-                frame.updated();
-                if (pro.process_frame(frame)) {
-                    if (pro.process_start(frame, root_datafile)) {
-                        file_is_valid = true;
-                        break;
-                    }
-                }
-            } else {
-                break;
-            }
-        }
-    } 
-    if (!file_is_valid) {
-        cerr << "This file may be not a POLAR SCI raw data file." << endl;
-        root_datafile.close();
-        if (LOG_FLAG) {
-            pro.logfile_close();
-        }
-        exit(1);
-    }
-    // process other frames in the first file
-    while (filelist.next_frame()) {
-        frame.updated();
-        if (pro.process_frame(frame)) {
-            if (pro.interruption_occurred(frame)) {
-                cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
-                pro.process_restart(frame, root_datafile);
-            } else {
-                while (frame.next_packet())
-                    pro.process_packet(frame, root_datafile);
-            }
-        }
-    }
-    // if there are other files
+
+    bool have_started = false;
+
     while (filelist.next_file()) {
-        cout << filelist.cur_file() << endl;
         while (filelist.next_frame()) {
             frame.updated();
             if (pro.process_frame(frame)) {
-                if (pro.interruption_occurred(frame)) {
+                if (!have_started) {
+                    if (pro.process_start(frame, root_datafile)) {
+                        have_started = true;
+                    }
+                } else if (pro.interruption_occurred(frame)) {
                     cout << "FRAME INTERRUPTION OCCURRED, RESTART." << endl;
-                    pro.process_restart(frame, root_datafile);
+                    if (!pro.process_restart(frame, root_datafile)) {
+                        have_started = false;
+                    }
                 } else {
                     while (frame.next_packet())
                         pro.process_packet(frame, root_datafile);

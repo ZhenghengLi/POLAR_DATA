@@ -16,8 +16,10 @@ class HkFrame: private Decoder {
 private:
     const char* frame_data_;
     crc_optimal<32, 0x04C11DB7> crc_32_;
+    crc_optimal<16, 0x1021, 0xFFFF>  crc_ccitt_;
     uint16_t pre_frame_index_;
     bool processed_flag_;
+    char* obox_raw_data_;
 
 public:
     // decoded info is here
@@ -64,6 +66,10 @@ public:
     uint16_t get_pkt_tag() const;
     void processed();    
     bool can_connect();
+    void obox_copy_odd();
+    void obox_copy_even();
+    bool obox_check_valid();
+    bool obox_check_crc();
     
 };
 

@@ -123,6 +123,7 @@ bool FileList::next_file() {
     if (fileIter_ == fileList_.end())
         return false;
     // prepare the first data_buffer
+    cout << cur_file() << endl;
     datafile_.open(cur_file(), ios::in|ios::binary);
     if (!datafile_.is_open()) {
         cerr << "Data file open failed: " << cur_file() << endl;
@@ -131,7 +132,13 @@ bool FileList::next_file() {
     buffer_is_first_ = true;
     remain_counter_ = 2;
     found_start_frame_ = false;
+    int check_counter = 0;
     while (!found_start_frame_) {
+        check_counter++;
+        if (check_counter > CHECK_MAX) {
+           cout << "INVALID POLAR HK DATA." << endl;
+          return false; 
+        }
         datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
         if (datafile_.eof()) {
             vernier_end_ += datafile_.gcount();

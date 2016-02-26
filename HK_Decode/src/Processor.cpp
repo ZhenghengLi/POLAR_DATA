@@ -73,13 +73,30 @@ void Processor::process(HkDataFile& datafile) {
    
     if (odd_is_ready) {
         if (cur_is_odd) {
-            odd_packet_.update(cur_is_bad);
             datafile.write_odd_packet_alone(ready_odd_packet_);
+            odd_packet_.update(cur_is_bad);
             ready_odd_packet_ = odd_packet_;
+            frame.obox_copy_odd();
         } else {
             even_packet_.update(cur_is_bad);
             if (frame.can_connect()) {
-                datafile.write_two_packet(ready_odd_packet_, even_packet_);
+                frame.obox_copy_even();
+                cnt.obox_packet++;
+                int cur_obox_is_bad = 0;
+                if (!frame.obox_check_valid()) {
+                    cnt.obox_invalid++;
+                    cur_obox_is_bad = 2;
+                } else {
+                    cnt.obox_valid++;
+                    if (!frame.obox_check_crc()) {
+                        cnt.obox_crc_error++;
+                        cur_obox_is_bad = 1;
+                    } else {
+                        cnt.obox_crc_passed++;
+                        cur_obox_is_bad = 0;
+                    }
+                }
+                datafile.write_two_packet(ready_odd_packet_, even_packet_, cur_obox_is_bad);
             } else {
                 cnt.frm_con_error++;
                 datafile.write_odd_packet_alone(ready_odd_packet_);
@@ -91,6 +108,7 @@ void Processor::process(HkDataFile& datafile) {
         if (cur_is_odd) {
             odd_packet_.update(cur_is_bad);
             ready_odd_packet_ = odd_packet_;
+            frame.obox_copy_odd();
             odd_is_ready = true;
         } else {
             even_packet_.update(cur_is_bad);

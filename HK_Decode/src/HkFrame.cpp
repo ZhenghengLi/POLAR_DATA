@@ -1,4 +1,5 @@
 #include "HkFrame.hpp"
+#include <cstring>
 
 using namespace std;
 using boost::crc_optimal;
@@ -6,15 +7,17 @@ using boost::crc_optimal;
 HkFrame::HkFrame() {
     frame_data_ = NULL;
     processed_flag_ = false;
+    obox_raw_data_ = new char[386];
 }
 
 HkFrame::HkFrame(const char* data) {
     frame_data_ = data;
     processed_flag_ = false;
+    obox_raw_data_ = new char[386];
 }
 
 HkFrame::~HkFrame() {
-
+    delete [] obox_raw_data_;
 }
 
 void HkFrame::setdata(const char* data) {
@@ -172,4 +175,40 @@ void HkFrame::update_ibox_info(int32_t cur_is_bad) {
     set_head_();
     set_tail_();
     set_ibox_gps_();
+}
+
+void HkFrame::obox_copy_odd() {
+    memcpy(obox_raw_data_ + 0, frame_data_ + 34, 214);
+}
+
+void HkFrame::obox_copy_even() {
+    memcpy(obox_raw_data_ + 214, frame_data_ + 34, 172);
+}
+
+bool HkFrame::obox_check_valid() {
+    int16_t obox_header = 0;
+    for (int i = 0; i < 2; i++) {
+        obox_header <<= 8;
+        obox_header += static_cast<uint8_t>(obox_raw_data_[0 + i]);
+    }
+    if (!(obox_header == 0x20C0 || obox_header == 0x28C0))
+        return false;
+
+    return true;
+}
+
+bool HkFrame::obox_check_crc() {
+    uint16_t expected, result;
+    expected = 0;
+    for (int i = 0; i < 2; i++) {
+        expected <<= 8;
+        expected += static_cast<uint8_t>(obox_raw_data_[384 + i]);
+    }
+    crc_ccitt_.reset();
+    crc_ccitt_.process_bytes(obox_raw_data_ + 2, 382);
+    result = crc_ccitt_.checksum();
+    if (result == expected)
+        return true;
+    else
+        return false;
 }

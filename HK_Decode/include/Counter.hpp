@@ -17,6 +17,11 @@ public:
     int64_t frm_crc_passed;
     int64_t frm_crc_error;
     int64_t frm_con_error;
+    int64_t obox_packet;
+    int64_t obox_valid;
+    int64_t obox_invalid;
+    int64_t obox_crc_passed;
+    int64_t obox_crc_error;
     
 public:
     void clear();

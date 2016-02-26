@@ -19,6 +19,7 @@ public:
         Int_t          even_index;                    // -1 when lost
         Int_t          odd_is_bad;                    // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
         Int_t          even_is_bad;                   // 3 when lost, 2 when invalid, 1 when crc error, 0 when good
+        Int_t          obox_is_bad;                   // 3 when half, 2 when invalid, 1 when crc error, 0 when good
         UShort_t       packet_num;                    // raw data of obox packet number
         UInt_t         timestamp;                     // raw data of obox timestamp
         UShort_t       obox_mode;                     // raw data of obox operational mode
@@ -100,7 +101,6 @@ private:
     void copy_odd_packet_(const HkOdd& odd_pkt);
     void copy_even_packet_(const HkEven& even_pkt);
     void copy_ibox_info_(const HkFrame& frame);
-    void clear_obox_branch_data_();
     
 public:
     HkDataFile();
@@ -111,7 +111,7 @@ public:
 
     void write_after_decoding();
     void write_ibox_info(const HkFrame& frame);
-    void write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt);
+    void write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, int cur_obox_is_bad);
     void write_odd_packet_alone(const HkOdd& odd_pkt);
     void write_even_packet_alone(const HkEven& even_pkt);
     void write_meta(const char* key, const char* value);

@@ -25,6 +25,7 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("even_index",           &t_hk_obox.even_index,           "even_index/I"          );
     t_hk_obox_tree_->Branch("odd_is_bad",           &t_hk_obox.odd_is_bad,           "odd_is_bad/I"          );
     t_hk_obox_tree_->Branch("even_is_bad",          &t_hk_obox.even_is_bad,          "even_is_bad/I"         );
+    t_hk_obox_tree_->Branch("obox_is_bad",          &t_hk_obox.obox_is_bad,          "obox_is_bad/I"         );
     t_hk_obox_tree_->Branch("packet_num",           &t_hk_obox.packet_num,           "packet_num/s"          );
     t_hk_obox_tree_->Branch("timestamp",            &t_hk_obox.timestamp,            "timestamp/i"           );
     t_hk_obox_tree_->Branch("obox_mode",            &t_hk_obox.obox_mode,            "obox_mode/s"           );
@@ -116,9 +117,10 @@ void HkDataFile::write_ibox_info(const HkFrame& frame) {
     t_hk_ibox_tree_->Fill();
 }
 
-void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt) {
+void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, int cur_obox_is_bad) {
     if (t_out_file_ == NULL)
         return;
+    t_hk_obox.obox_is_bad = cur_obox_is_bad;
     copy_odd_packet_(odd_pkt);
     copy_even_packet_(even_pkt);
     t_hk_obox_tree_->Fill();
@@ -127,9 +129,9 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt) {
 void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     if (t_out_file_ == NULL)
         return;
-    clear_obox_branch_data_();
     t_hk_obox.even_index = -1;
     t_hk_obox.even_is_bad = 3;
+    t_hk_obox.obox_is_bad = 3;
     copy_odd_packet_(odd_pkt);
     t_hk_obox_tree_->Fill();
 }
@@ -137,9 +139,9 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
 void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     if (t_out_file_ == NULL)
         return;
-    clear_obox_branch_data_();
     t_hk_obox.odd_index = -1;
     t_hk_obox.odd_is_bad = 3;
+    t_hk_obox.obox_is_bad = 3;
     copy_even_packet_(even_pkt);
     t_hk_obox_tree_->Fill();
 }
@@ -245,9 +247,3 @@ void HkDataFile::copy_ibox_info_(const HkFrame& frame) {
     t_hk_ibox.ibox_gps               = static_cast<ULong64_t>(frame.ibox_gps);
 }
 
-void HkDataFile::clear_obox_branch_data_() {
-    t_hk_obox.odd_index = 0;
-    t_hk_obox.even_index = 0;
-    t_hk_obox.odd_is_bad = 0;
-    t_hk_obox.even_is_bad = 0;
-}
