@@ -27,87 +27,101 @@ void HkOdd::set_pkt_tag_() {
 }
 
 void HkOdd::set_packet_num_() {
-
+    packet_num = decode_byte<uint16_t>(frame_data_, 36, 37);
 }
 
 void HkOdd::set_timestamp_() {
-
+    timestamp = decode_byte<uint32_t>(frame_data_, 38, 41);
 }
 
 void HkOdd::set_obox_mode_() {
-
+    obox_mode = decode_bit<uint8_t>(frame_data_ + 42, 0, 3);
 }
 
 void HkOdd::set_cpu_status_() {
-
+    cpu_status = decode_bit<uint16_t>(frame_data_ + 42, 4, 15);
 }
 
 void HkOdd::set_trig_status_() {
-
+    trig_status = decode_byte<uint16_t>(frame_data_, 44, 44);
 }
 
 void HkOdd::set_comm_status_() {
-
+    comm_status = decode_byte<uint8_t>(frame_data_, 45, 45);
 }
 
 void HkOdd::set_ct_temp_() {
-
+    ct_temp = decode_byte<uint16_t>(frame_data_, 46, 47);
 }
 
 void HkOdd::set_chain_temp_() {
-
+    chain_temp = decode_byte<uint16_t>(frame_data_, 48, 49);
 }
 
 void HkOdd::set_reserved_() {
-
+    reserved = decode_byte<uint16_t>(frame_data_, 50, 51);
 }
 
 void HkOdd::set_lv_status_() {
-
+    lv_status = decode_byte<uint16_t>(frame_data_, 52, 53);
 }
 
 void HkOdd::set_fe_pattern_() {
-
+    fe_pattern = decode_byte<uint32_t>(frame_data_, 54, 57);
 }
 
 void HkOdd::set_lv_temp_() {
-
+    lv_temp = decode_byte<uint16_t>(frame_data_, 58, 59);
 }
 
 void HkOdd::set_hv_pwm_() {
-
+    hv_pwm = decode_byte<uint16_t>(frame_data_, 60, 61);
 }
 
 void HkOdd::set_hv_status_() {
-
+    hv_status = decode_byte<uint16_t>(frame_data_, 62, 63);
 }
 
 void HkOdd::set_hv_current_() {
-
+    for (int i = 0; i < 2; i++) {
+        hv_current[i] = decode_byte<uint16_t>(frame_data_, 64 + 2 * i, 65 + 2 * i);
+    }
 }
 
 void HkOdd::set_fe_status_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_status[i] = decode_byte<uint8_t>(frame_data_ + 68, 0 + 10 * i, 0 + 10 * i);
+    }
 }
 
 void HkOdd::set_fe_temp_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_temp[i] = decode_byte<uint8_t>(frame_data_ + 68, 1 + 10 * i, 1 + 10 * i);
+    }
 }
 
 void HkOdd::set_fe_hv_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 68, 2 + 10 * i, 3 + 10 * i);
+    }
 }
 
 void HkOdd::set_fe_thr_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 68, 4 + 10 * i, 5 + 10 * i);
+    }
 }
 
 void HkOdd::set_fe_rate_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_rate[i] = decode_byte<uint16_t>(frame_data_ + 68, 6 + 10 * i, 7 + 10 * i);
+    }
 }
 
 void HkOdd::set_fe_cosmic_() {
-
+    for (int i = 0; i < 18; i++) {
+        fe_cosmic[i] = decode_byte<uint16_t>(frame_data_ + 68, 8 + 10 * i, 9 + 10 * i);
+    }
 }
 
 void HkOdd::update(int32_t cur_is_bad) {

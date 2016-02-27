@@ -37,6 +37,7 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("reserved",             &t_hk_obox.reserved,             "reserved/s"            );
     t_hk_obox_tree_->Branch("lv_status",            &t_hk_obox.lv_status,            "lv_status/s"           );
     t_hk_obox_tree_->Branch("fe_pattern",           &t_hk_obox.fe_pattern,           "fe_pattern/s"          );
+    t_hk_obox_tree_->Branch("lv_temp",              &t_hk_obox.lv_temp,              "lv_temp/s"             );
     t_hk_obox_tree_->Branch("hv_pwm",               &t_hk_obox.hv_pwm,               "hv_pwm/s"              );
     t_hk_obox_tree_->Branch("hv_status",            &t_hk_obox.hv_status,            "hv_status/s"           );
     t_hk_obox_tree_->Branch("hv_current",            t_hk_obox.hv_current,           "hv_current[2]/s"       );
@@ -169,6 +170,7 @@ void HkDataFile::copy_odd_packet_(const HkOdd& odd_pkt) {
     t_hk_obox.reserved               = static_cast<UShort_t>(odd_pkt.reserved);
     t_hk_obox.lv_status              = static_cast<UShort_t>(odd_pkt.lv_status);
     t_hk_obox.fe_pattern             = static_cast<UShort_t>(odd_pkt.fe_pattern);
+    t_hk_obox.lv_temp                = static_cast<UShort_t>(odd_pkt.lv_temp);
     t_hk_obox.hv_pwm                 = static_cast<UShort_t>(odd_pkt.hv_pwm);
     t_hk_obox.hv_current[0]          = static_cast<UShort_t>(odd_pkt.hv_current[0]);
     t_hk_obox.hv_current[1]          = static_cast<UShort_t>(odd_pkt.hv_current[1]);

@@ -31,6 +31,7 @@ public:
         UShort_t       reserved;                      // raw data of reserved information in obox hk packet
         UShort_t       lv_status;                     // raw data of lv power supply status
         UShort_t       fe_pattern;                    // raw data of fes and flexes powered
+        UShort_t       lv_temp;                       // raw data of lv power supply temperature
         UShort_t       hv_pwm;                        // raw data of hv pwm setting
         UShort_t       hv_status;                     // raw data of hvps status
         UShort_t       hv_current[2];                 // raw data of hv current readout1 and readout2
