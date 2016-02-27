@@ -25,6 +25,7 @@ public:
     uint16_t  reserved;
     uint16_t  lv_status;
     uint32_t  fe_pattern;
+    uint16_t  lv_temp;
     uint16_t  hv_pwm;
     uint16_t  hv_status;
     uint16_t  hv_current[2];
@@ -52,6 +53,7 @@ private:
     void set_reserved_();
     void set_lv_status_();
     void set_fe_pattern_();
+    void set_lv_temp_();
     void set_hv_pwm_();
     void set_hv_status_();
     void set_hv_current_();

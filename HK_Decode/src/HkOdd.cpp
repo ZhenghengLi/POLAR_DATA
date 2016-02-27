@@ -70,6 +70,10 @@ void HkOdd::set_fe_pattern_() {
 
 }
 
+void HkOdd::set_lv_temp_() {
+
+}
+
 void HkOdd::set_hv_pwm_() {
 
 }
@@ -121,6 +125,7 @@ void HkOdd::update(int32_t cur_is_bad) {
     set_reserved_();
     set_lv_status_();
     set_fe_pattern_();
+    set_lv_temp_();
     set_hv_pwm_();
     set_hv_status_();
     set_hv_current_();

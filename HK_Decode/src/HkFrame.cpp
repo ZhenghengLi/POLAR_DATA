@@ -123,24 +123,24 @@ bool HkFrame::can_connect() {
 }
 
 void HkFrame::set_ship_time_() {
-    ship_time = decode_byte<int64_t>(frame_data_, 12, 17);
+    ship_time = decode_byte<uint64_t>(frame_data_, 12, 17);
 }
 
 void HkFrame::set_error_() {
-    error[0] = decode_byte<int16_t>(frame_data_, 18, 19);
-    error[1] = decode_byte<int16_t>(frame_data_, 20, 21);
+    error[0] = decode_byte<uint16_t>(frame_data_, 18, 19);
+    error[1] = decode_byte<uint16_t>(frame_data_, 20, 21);
 }
 
 void HkFrame::set_frame_head_() {
-    frame_head = decode_byte<int16_t>(frame_data_, 22, 23);
+    frame_head = decode_byte<uint16_t>(frame_data_, 22, 23);
 }
 
 void HkFrame::set_command_head_() {
-    command_head = decode_byte<int16_t>(frame_data_, 24, 25);
+    command_head = decode_byte<uint16_t>(frame_data_, 24, 25);
 }
 
 void HkFrame::set_command_num_() {
-    command_num = decode_byte<int16_t>(frame_data_, 26, 27);
+    command_num = decode_byte<uint16_t>(frame_data_, 26, 27);
 }
 
 void HkFrame::set_command_code_() {
@@ -153,15 +153,15 @@ void HkFrame::set_command_arg_() {
 }
 
 void HkFrame::set_head_() {
-    head = decode_byte<int16_t>(frame_data_, 248, 248);
+    head = decode_byte<uint8_t>(frame_data_, 248, 248);
 }
 
 void HkFrame::set_tail_() {
-    tail = decode_byte<int16_t>(frame_data_, 249, 249);
+    tail = decode_byte<uint8_t>(frame_data_, 249, 249);
 }
 
 void HkFrame::set_ibox_gps_() {
-    ibox_gps = decode_byte<int64_t>(frame_data_, 250, 255);
+    ibox_gps = decode_byte<uint64_t>(frame_data_, 250, 255);
 }
 
 void HkFrame::update_ibox_info(int32_t cur_is_bad) {

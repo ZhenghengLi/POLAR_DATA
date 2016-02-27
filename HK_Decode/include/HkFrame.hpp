@@ -30,8 +30,8 @@ public:
     uint16_t command_num;
     uint16_t command_code;
     uint16_t command_arg[2];
-    uint16_t head;
-    uint16_t tail;
+    uint8_t  head;
+    uint8_t  tail;
     uint64_t ibox_gps;
     
 public:
