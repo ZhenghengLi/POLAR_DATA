@@ -37,6 +37,7 @@ public:
     int64_t noped_trig[25];
     int64_t noped_event[25];
     int64_t aligned_event_sum;
+    int64_t timestamp_zero_sum;
 public:
     void clear();
     void print(ostream& os = cout);

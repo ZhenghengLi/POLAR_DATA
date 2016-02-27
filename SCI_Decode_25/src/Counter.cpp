@@ -27,6 +27,7 @@ void Counter::clear() {
         noped_event[i] = 0;
     }   
     aligned_event_sum = 0;
+    timestamp_zero_sum = 0;
 }
 
 void Counter::print(ostream& os) {
@@ -54,7 +55,7 @@ void Counter::print(ostream& os) {
     sprintf(str_buffer2, "%4.2f%%", packet > 0 ? static_cast<double>(pkt_crc_error) / packet * 100 : 0.0);
     os << setw(28) << "frame start error count: " << setw(20) << frm_start_error
          << setw(28) << "packet crc error percent: " << setw(10) << str_buffer2 << endl;
-    os << setw(28) << " " << setw(20) << " "
+    os << setw(28) << "total timestamp 0 count: " << setw(20) << timestamp_zero_sum
          << setw(28) << "packet too short count: " << setw(20) << pkt_too_short << endl;
     os << right;
     os << "-----------------------------------------------------------------------------------------------------------" << endl;

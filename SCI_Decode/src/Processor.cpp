@@ -401,6 +401,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             }
             // ===========================================
             if (sci_trigger.timestamp == 0) {
+                cnt.timestamp_zero_sum++;
                 if (can_log()) {
                     os_logfile_ << "== PACKET: " << cnt.packet << " - ped trigger" << " | TIMESTAMP 0 ======== " << endl;
                 }
@@ -466,6 +467,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     cnt.noped_trig[i]++;
             // ===========================================
             if (sci_trigger.timestamp == 0) {
+                cnt.timestamp_zero_sum++;
                 if (can_log()) {
                     os_logfile_ << "== PACKET: " << cnt.packet << " - noped trigger" << " | TIMESTAMP 0 ======== " << endl;
                 }
@@ -507,6 +509,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             cnt.ped_event[sci_event.ct_num - 1]++;
             // ===========================================
             if (sci_event.timestamp == 0) {
+                cnt.timestamp_zero_sum++;
                 if (can_log()) {
                     os_logfile_ << "== PACKET: " << cnt.packet << " - ped module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
                 }
@@ -521,6 +524,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             cnt.noped_event[sci_event.ct_num - 1]++;
             // ===========================================
             if (sci_event.timestamp == 0) {
+                cnt.timestamp_zero_sum++;
                 if (can_log()) {
                     os_logfile_ << "== PACKET: " << cnt.packet << " - noped module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
                 }
