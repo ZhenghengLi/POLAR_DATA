@@ -11,7 +11,8 @@ EventMerger::EventMerger() {
     global_start_flag_ = false;
     for (int i = 0; i < 25; i++) {
         event_start_flag_[i] = false;
-        event_first_ready_[i] = false;      
+        event_first_ready_[i] = false;
+        event_time_diff_[i] = 0;
     }
     force_start_count_ = 0;
 }
@@ -30,6 +31,7 @@ void EventMerger::all_clear() {
     for (int i = 0; i < 25; i++) {
         event_start_flag_[i] = false;
         event_first_ready_[i] = false;
+        event_time_diff_[i] = 0;
         event_first_time_diff_vec_[i].clear();
     }
     force_start_count_ = 0;
@@ -204,6 +206,8 @@ void EventMerger::noped_clear_result() {
 bool EventMerger::ped_check_valid() {
     if (ped_trigger_not_ready_)
         return false;
+    if (curr_ped_trigger_.is_bad != 0)
+        return false;
     if (curr_ped_events_vec_.size() > 25 || curr_ped_events_vec_.size() < 10)
         return false;
     return true;
@@ -214,6 +218,8 @@ void EventMerger::ped_update_time_diff() {
     int time_diff;
     int max_diff = 5;
     for (size_t i = 0; i < result_ped_events_vec_.size(); i++) {
+        if (result_ped_events_vec_[i].is_bad != 0)
+            continue;
         idx = static_cast<int>(result_ped_events_vec_[i].ct_num) - 1;
         time_diff = result_ped_trigger_ - result_ped_events_vec_[i];
         if (event_first_time_diff_vec_[idx].size() < 10) {

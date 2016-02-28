@@ -12,7 +12,7 @@ void SciTrigger::set_timestamp_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciTrigger::set_time_align_() {
-    time_align = timestamp >> 9;
+    time_align = timestamp >> TriggerShitRight;
 }
 
 void SciTrigger::set_packet_num_(const char* packet_buffer, size_t packet_len) {

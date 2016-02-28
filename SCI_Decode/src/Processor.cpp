@@ -222,6 +222,15 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_trigg_num_g_++;
                         sci_trigger.dead_ratio    = 0;
                     } else {
+                        if (sci_trigger.timestamp == 0) {
+                            cnt.timestamp_zero_sum++;
+                            if (can_log()) {
+                                os_logfile_ << "== PACKET: " << cnt.packet << " - trigger" << " | TIMESTAMP 0 ======== " << endl;
+                            }
+                            sci_trigger.is_bad = -1;
+                            sci_trigger.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
+                            sci_trigger.time_align = (sci_trigger.timestamp >> TriggerShitRight);
+                        }
                         int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
                         cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
                         if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
@@ -358,6 +367,15 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_event_num_g_[idx]++;
                         sci_event.dead_ratio            = 0;
                     } else {
+                        if (sci_event.timestamp == 0) {
+                            cnt.timestamp_zero_sum++;
+                            if (can_log()) {
+                                os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
+                            }
+                            sci_event.is_bad = -1;
+                            sci_event.timestamp = (cur_event_pre_time_stamp_[idx] == 16777215 ? 0 : cur_event_pre_time_stamp_[idx] + 1);
+                            sci_event.time_align = (sci_event.timestamp & EventTimeMask);
+                        }
                         int64_t tmp_time_wait = static_cast<int64_t>(sci_event.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
                         cur_event_pre_time_stamp_[idx] = sci_event.timestamp;
                         if (tmp_time_wait < -1 * PedCircle) {
@@ -400,16 +418,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     cnt.ped_trig[i]++;
             }
             // ===========================================
-            if (sci_trigger.timestamp == 0) {
-                cnt.timestamp_zero_sum++;
-                if (can_log()) {
-                    os_logfile_ << "== PACKET: " << cnt.packet << " - ped trigger" << " | TIMESTAMP 0 ======== " << endl;
-                }
-                sci_trigger.is_bad = -1;
-                datafile.write_ped_trigger_alone(sci_trigger);
-                return;
-            }
-            // ----
             evtMgr_.add_ped_trigger(sci_trigger);
             if (evtMgr_.ped_check_valid()) {
                 evtMgr_.ped_move_result(true);
@@ -466,16 +474,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 if (sci_trigger.trig_accepted[i] == 1)
                     cnt.noped_trig[i]++;
             // ===========================================
-            if (sci_trigger.timestamp == 0) {
-                cnt.timestamp_zero_sum++;
-                if (can_log()) {
-                    os_logfile_ << "== PACKET: " << cnt.packet << " - noped trigger" << " | TIMESTAMP 0 ======== " << endl;
-                }
-                sci_trigger.is_bad = -1;
-                datafile.write_trigger_alone(sci_trigger);
-                return;
-            }
-            // ----
             evtMgr_.add_noped_trigger(sci_trigger);
             if (evtMgr_.noped_do_merge()) {
                 while (!evtMgr_.before_lost_queue.empty()) {
@@ -508,31 +506,11 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
         if (sci_event.mode == 2) {
             cnt.ped_event[sci_event.ct_num - 1]++;
             // ===========================================
-            if (sci_event.timestamp == 0) {
-                cnt.timestamp_zero_sum++;
-                if (can_log()) {
-                    os_logfile_ << "== PACKET: " << cnt.packet << " - ped module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
-                }
-                sci_event.is_bad = -1;
-                datafile.write_ped_modules_alone(sci_event);
-                return;
-            }
-            // ----
             evtMgr_.add_ped_event(sci_event);
             // -------------------------------------------
         } else {
             cnt.noped_event[sci_event.ct_num - 1]++;
             // ===========================================
-            if (sci_event.timestamp == 0) {
-                cnt.timestamp_zero_sum++;
-                if (can_log()) {
-                    os_logfile_ << "== PACKET: " << cnt.packet << " - noped module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
-                }
-                sci_event.is_bad = -1;
-                datafile.write_modules_alone(sci_event);
-                return;
-            }
-            // ---
             evtMgr_.add_noped_event(sci_event);
             if (evtMgr_.noped_do_merge()) {
                 while (!evtMgr_.before_lost_queue.empty()) {

@@ -1,6 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+#include <stdint.h>
+
 const int ModuleIndex[25] = {405, 639, 415, 522, 424,
                              640, 408, 638, 441, 631,
                              411, 505, 503, 509, 410,
@@ -25,5 +27,9 @@ const int PedSecond = 1;
 const int PedCircle = 24414;
 
 const int LSB_Value = 512;
+
+const int TriggerShitRight = 9;
+
+const uint32_t EventTimeMask = 0x7FFFFF;
 
 #endif

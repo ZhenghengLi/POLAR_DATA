@@ -20,7 +20,7 @@ void SciEvent::set_timestamp_(const char* packet_buffer, size_t packet_len) {
 }
 
 void SciEvent::set_time_align_() {
-    time_align = timestamp & 0x7FFFFF;
+    time_align = timestamp & EventTimeMask;
 }
 
 void SciEvent::set_status_(const char* packet_buffer, size_t packet_len) {

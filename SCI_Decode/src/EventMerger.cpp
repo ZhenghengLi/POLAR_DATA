@@ -9,6 +9,7 @@ EventMerger::EventMerger() {
         event_is_first_[i] = true;
     }
     global_start_flag_ = false;
+    global_time_diff_ = 0;
     force_start_count_ = 0;
 }
 
@@ -23,6 +24,7 @@ void EventMerger::all_clear() {
         event_is_first_[i] = true;
     }
     global_start_flag_ = false;
+    global_time_diff_ = 0;
     force_start_count_ = 0;
     result_ped_events_vec_.clear();
     result_noped_events_vec_.clear();
@@ -199,6 +201,8 @@ void EventMerger::noped_clear_result() {
 bool EventMerger::ped_check_valid() {
     if (ped_trigger_not_ready_)
         return false;
+    if (curr_ped_trigger_.is_bad != 0)
+        return false;
     if (curr_ped_events_vec_.size() > 25 || curr_ped_events_vec_.size() < 10)
         return false;
     if (!global_start_flag_) {
@@ -220,6 +224,8 @@ bool EventMerger::ped_check_valid() {
                 break;
             }
         }
+        if (curr_ped_events_vec_[i].is_bad != 0)
+            is_alone = true;
         if (is_alone)
             curr_ped_event_alone_idx_vec_.push_back(i);
     }
