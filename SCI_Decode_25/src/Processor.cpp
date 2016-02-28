@@ -154,6 +154,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             sci_trigger.is_bad      = 3;
             sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
             cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+            sci_trigger.trigg_num_g = -1;
             sci_trigger.mode        = frame.cur_get_mode();
             if (sci_trigger.mode == 0x00F0) {
                 datafile.write_ped_trigger_alone(sci_trigger);
@@ -180,6 +181,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 sci_trigger.is_bad      = 2;
                 sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
                 cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                sci_trigger.trigg_num_g = -1;
                 if (sci_trigger.mode == 0x00F0) {
                     datafile.write_ped_trigger_alone(sci_trigger);
                 } else {
@@ -199,6 +201,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     sci_trigger.is_bad      = 1;
                     sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
                     cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                    sci_trigger.trigg_num_g = -1;
                     if (sci_trigger.mode == 0x00F0) {
                         datafile.write_ped_trigger_alone(sci_trigger);
                     } else {
@@ -210,6 +213,8 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     sci_trigger.is_bad      = 0;
                     sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
                     cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
+                    sci_trigger.trigg_num_g = cur_trigg_num_g_;
+                    cur_trigg_num_g_++;
                     if (cur_trigg_is_first_) {
                         cur_trigg_is_first_ = false;
                         cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
@@ -217,9 +222,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         sci_trigger.time_period   = cur_trigg_time_period_;
                         sci_trigger.time_wait     = 0;
                         cur_trigg_pre_raw_dead_   = static_cast<int32_t>(sci_trigger.deadtime);
-                        cur_trigg_num_g_ = 0;
-                        sci_trigger.trigg_num_g   = cur_trigg_num_g_;
-                        cur_trigg_num_g_++;
                         sci_trigger.dead_ratio    = 0;
                     } else {
                         if (sci_trigger.timestamp == 0) {
@@ -243,8 +245,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
                         sci_trigger.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger.time_wait));
-                        sci_trigger.trigg_num_g = cur_trigg_num_g_;
-                        cur_trigg_num_g_++;
                     }
                 }
             }
@@ -270,6 +270,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             sci_event.is_bad            = 3;
             sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
             cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+            sci_event.event_num_g       = -1;
             sci_event.ct_num            = idx + 1;
             if (frame.get_cur_pkt_len() < 8) {
                 sci_event.mode = 4;
@@ -298,6 +299,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     sci_event.is_bad            = 3;
                     sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
                     cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    sci_event.event_num_g       = -1;
                     sci_event.ct_num            = idx + 1;
                     if (sci_event.mode == 2) {
                         datafile.write_ped_modules_alone(sci_event);
@@ -325,6 +327,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 sci_event.is_bad            = 2;
                 sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
                 cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                sci_event.event_num_g       = -1;
                 if (sci_event.mode == 2) {
                     datafile.write_ped_modules_alone(sci_event);
                 } else {
@@ -344,6 +347,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     sci_event.is_bad            = 1;
                     sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
                     cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    sci_event.event_num_g       = -1;
                     if (sci_event.mode == 2) {
                         datafile.write_ped_modules_alone(sci_event);
                     } else {
@@ -355,6 +359,8 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     sci_event.is_bad            = 0;
                     sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
                     cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
+                    sci_event.event_num_g = cur_event_num_g_[idx];
+                    cur_event_num_g_[idx]++;
                     if (cur_event_is_first_[idx]) {
                         cur_event_is_first_[idx]        = false;
                         cur_event_pre_time_stamp_[idx]  = sci_event.timestamp;
@@ -362,9 +368,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         sci_event.time_period           = cur_event_time_period_[idx];
                         sci_event.time_wait             = 0;
                         cur_event_pre_raw_dead_[idx]    = static_cast<int32_t>(sci_event.deadtime);
-                        cur_event_num_g_[idx]           = 0;
-                        sci_event.event_num_g           = cur_event_num_g_[idx];
-                        cur_event_num_g_[idx]++;
                         sci_event.dead_ratio            = 0;
                     } else {
                         if (sci_event.timestamp == 0) {
@@ -388,8 +391,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
                         sci_event.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event.time_wait));
-                        sci_event.event_num_g = cur_event_num_g_[idx];
-                        cur_event_num_g_[idx]++;
                     }
                 }
             }
