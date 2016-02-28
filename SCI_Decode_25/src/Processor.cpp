@@ -229,7 +229,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                             }
                             sci_trigger.is_bad = -1;
                             sci_trigger.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
-                            sci_trigger.time_align = (sci_trigger.timestamp >> TriggerShitRight);
+                            sci_trigger.time_align = (sci_trigger.timestamp >> TriggerShiftRight);
                         }
                         int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
                         cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;

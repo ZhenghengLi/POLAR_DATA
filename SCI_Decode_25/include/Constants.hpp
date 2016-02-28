@@ -28,7 +28,7 @@ const int PedCircle = 24414;
 
 const int LSB_Value = 512;
 
-const int TriggerShitRight = 9;
+const int TriggerShiftRight = 9;
 
 const uint32_t EventTimeMask = 0x7FFFFF;
 
