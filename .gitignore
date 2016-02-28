@@ -1,7 +1,7 @@
 *.o
 *.log
-bin/**
-!bin/.*
+**/bin/**
+!**/bin/.*
 output/**
 listfile/**
 *_Dict.*

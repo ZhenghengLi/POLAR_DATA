@@ -6,6 +6,7 @@ CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 .PHONY : all clean
+
 all: ../bin/SCI_Decode
 
 ../bin/SCI_Decode: $(OBJ_FILES)

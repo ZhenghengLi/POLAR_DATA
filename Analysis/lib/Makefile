@@ -7,10 +7,7 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 .PHONY : all clean
 
-all: ../bin/HK_Decode
-
-../bin/HK_Decode: $(OBJ_FILES)
-	$(CC) -o $@ $^ $(ROOT_LIBS)
+all: $(OBJ_FILES)
 
 obj/%.o: src/%.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
