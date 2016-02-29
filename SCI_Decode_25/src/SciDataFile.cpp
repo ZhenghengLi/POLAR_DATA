@@ -354,9 +354,20 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
     t_modules_par.status_bit.t_out_1                      = bit_extract_<uint16_t>(event.status,  0);
     for (int i = 0; i < 64; i++) {
         t_modules_par.trigger_bit[i]                      = static_cast<Bool_t>(event.trigger_bit[i]);
-        t_modules_par.energy_adc[i]                       = static_cast<Float_t>(event.energy_ch[i]);
+        if (event.mode < 3) {
+            t_modules_par.energy_adc[i]                   = static_cast<Float_t>(event.energy_ch[i]);
+        } else {
+            if (event.energy_ch[i] > 0)
+                t_modules_par.energy_adc[i]               = (static_cast<Float_t>(event.energy_ch[i]) - 2048) * 2;
+            else
+                t_modules_par.energy_adc[i]               = 0;
+        }
     }
-    t_modules_par.common_noise                            = static_cast<Float_t>(event.common_noise);
+    if (event.mode < 3) {
+        t_modules_par.common_noise                        = 0;
+    } else {
+        t_modules_par.common_noise                        = static_cast<Float_t>(event.common_noise) - 2048;
+    }
 }
 
 void SciDataFile::copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& trigger) {
