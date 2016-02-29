@@ -2,7 +2,8 @@
 *.log
 **/bin/**
 !**/bin/.*
-output/**
+**/output/**
+!**/output/.*
 listfile/**
 *_Dict.*
-test/**
+**/test/**
