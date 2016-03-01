@@ -1,5 +1,5 @@
-#ifndef TREEITERATOR
-#define TREEITERATOR
+#ifndef TREEITERATOR_H
+#define TREEITERATOR_H
 
 class TreeIterator {
 private:

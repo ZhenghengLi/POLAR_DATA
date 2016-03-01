@@ -1,5 +1,5 @@
-#ifndef MODULEITERATOR
-#define MODULEITERATOR
+#ifndef MODULEITERATOR_H
+#define MODULEITERATOR_H
 
 class ModuleIterator {
 private:

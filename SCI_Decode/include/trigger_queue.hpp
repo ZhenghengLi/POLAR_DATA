@@ -1,3 +1,6 @@
+#ifndef TRIGGER_QUEUE_H
+#define TRIGGER_QUEUE_H
+
 #include <queue>
 
 template <class T, class Container = std::vector<T>, class Compare = std::greater<typename Container::value_type> >
@@ -26,3 +29,5 @@ template <class T, class Container, class Compare>
 int trigger_queue<T, Container, Compare>::distance() const {
     return tail - std::priority_queue<T, Container, Compare>::top();
 }
+
+#endif

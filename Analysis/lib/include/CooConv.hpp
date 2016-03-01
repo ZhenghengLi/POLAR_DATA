@@ -1,5 +1,5 @@
-#ifndef COOCONV
-#define COOCONV
+#ifndef COOCONV_H
+#define COOCONV_H
 
 /*
  * for i of module:

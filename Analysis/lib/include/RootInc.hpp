@@ -1,5 +1,5 @@
-#ifndef ROOTINC_HPP
-#define ROOTINC_HPP
+#ifndef ROOTINC_H
+#define ROOTINC_H
 
 #include "TFile.h"
 #include "TTree.h"

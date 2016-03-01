@@ -1,5 +1,5 @@
-#ifndef GUITEST
-#define GUITEST
+#ifndef GUITEST_H
+#define GUITEST_H
 
 #include "RootInc.hpp"
 

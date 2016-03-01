@@ -1,5 +1,5 @@
-#ifndef EVENTITERATOR
-#define EVENTITERATOR
+#ifndef EVENTITERATOR_H
+#define EVENTITERATOR_H
 
 class EventIterator {
 private:
