@@ -7,8 +7,6 @@
 #include "SciDataFile.hpp"
 #include "OptionsManager.hpp"
 
-#define LOG_FLAG true
-
 using namespace std;
 
 int main(int argc, char** argv) {
