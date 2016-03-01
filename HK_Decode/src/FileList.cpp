@@ -10,8 +10,8 @@ FileList::~FileList() {
 
 }
 
-bool FileList::initialize(string listfile) {
-    ifstream infile(listfile.c_str(), ios::in);
+bool FileList::initialize(const char* listfile) {
+    ifstream infile(listfile, ios::in);
     if (!infile) {
         cerr << "Can not open file: " << listfile << endl;
         return false;
@@ -33,6 +33,16 @@ bool FileList::initialize(string listfile) {
         return true;
     }
 }
+
+void FileList::clear() {
+    fileList_.clear();
+}
+
+void FileList::add_back(const char* filename) {
+    string str_file(filename);
+    fileList_.push_back(str_file);
+}
+
 
 void FileList::set_start() {
     fileIter_ = fileList_.begin();

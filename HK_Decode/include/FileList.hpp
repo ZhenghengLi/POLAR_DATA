@@ -35,8 +35,10 @@ public:
 public:
     FileList();
     ~FileList();
-    bool initialize(string listfile);
+    bool initialize(const char* listfile);
+    void add_back(const char* filename);
     void set_start();
+    void clear();
     bool next();
     const char* cur_file();
 

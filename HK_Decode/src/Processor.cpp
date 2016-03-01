@@ -127,7 +127,7 @@ void Processor::write_meta_info(FileList& filelist, HkDataFile& datafile) {
     // dattype
     datafile.write_meta("m_dattype", "POLAR HK DIRECTLY DECODED DATA");
     // version
-    datafile.write_meta("m_version", "HK_Decode v1.0");
+    datafile.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str());
     // gentime
     TTimeStamp* cur_time = new TTimeStamp();
     datafile.write_meta("m_gentime", cur_time->AsString("lc"));
