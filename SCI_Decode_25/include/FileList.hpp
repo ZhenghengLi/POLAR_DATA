@@ -36,6 +36,7 @@ public:
     FileList();
     ~FileList();
     bool initialize(string listfile);
+    void add_back(const char* filename);
     void set_start();
     bool next();
     const char* cur_file();

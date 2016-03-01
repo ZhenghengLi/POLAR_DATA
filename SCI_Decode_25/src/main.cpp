@@ -5,6 +5,7 @@
 #include "FileList.hpp"
 #include "Processor.hpp"
 #include "SciDataFile.hpp"
+#include "OptionsManager.hpp"
 
 #define LOG_FLAG true
 
@@ -43,6 +44,7 @@ int main(int argc, char** argv) {
 
     bool have_started = false;
 
+    filelist.set_start();
     while (filelist.next_file()) {
         while (filelist.next_frame()) {
             frame.updated();
@@ -57,8 +59,9 @@ int main(int argc, char** argv) {
                         have_started = false;
                     }
                 } else {
-                    while (frame.next_packet())
+                    while (frame.next_packet()) {
                         pro.process_packet(frame, root_datafile);
+                    }
                 }
             }       
         }
