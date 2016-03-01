@@ -606,7 +606,7 @@ void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
     // dattype
     datafile.write_meta("m_dattype", "POLAR SCI DIRECTLY DECODED DATA AFTER TIME ALIGNED");
     // version
-    datafile.write_meta("m_version", "SCI_Decode v1.0");
+    datafile.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str());
     // gentime
     TTimeStamp * cur_time = new TTimeStamp();
     datafile.write_meta("m_gentime", cur_time->AsString("lc"));

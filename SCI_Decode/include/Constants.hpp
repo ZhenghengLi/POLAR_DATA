@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+using namespace std;
+
 const int ModuleIndex[25] = {405, 639, 415, 522, 424,
                              640, 408, 638, 441, 631,
                              411, 505, 503, 509, 410,
@@ -31,5 +33,9 @@ const int LSB_Value = 512;
 const int TriggerShiftRight = 9;
 
 const uint32_t EventTimeMask = 0x7FFFFF;
+
+const string SW_NAME = "SCI_Decode";
+
+const string SW_VERSION = "v1.0";
 
 #endif
