@@ -5,7 +5,8 @@ using namespace std;
 
 const string SW_NAME = "HK_Decode";
 
-const string SW_VERSION = "v1.0";
+const string SW_VERSION = "v1.0.0";
 
+const string RELEASE_DATE = "2016 Feb 29";
 
 #endif

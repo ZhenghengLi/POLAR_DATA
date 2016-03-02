@@ -36,6 +36,8 @@ const uint32_t EventTimeMask = 0x7FFFFF;
 
 const string SW_NAME = "SCI_Decode";
 
-const string SW_VERSION = "v1.0";
+const string SW_VERSION = "v1.0.0";
+
+const string RELEASE_DATE = "2016 Feb 29";
 
 #endif
