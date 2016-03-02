@@ -56,11 +56,23 @@ void Processor::process(HkDataFile& datafile) {
     
     if (!frame.check_valid()) {
         cnt.frm_invalid++;
+        if (can_log()) {
+            os_logfile_ << "== HK FRAME: " << cnt.frame << " | INVALID ======== " << endl;
+            os_logfile_ << "--------------------------------------------------------------" << endl;
+            frame.print_frame(os_logfile_);
+            os_logfile_ << "--------------------------------------------------------------" << endl;
+        }
         cur_is_bad = 2;
     } else {
         cnt.frm_valid++;
         if (!frame.check_crc()) {
             cnt.frm_crc_error++;
+            if (can_log()) {
+                os_logfile_ << "== HK FRAME: " << cnt.frame << " | CRC_ERROR ======== " << endl;
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+                frame.print_frame(os_logfile_);
+                os_logfile_ << "--------------------------------------------------------------" << endl;
+            }
             cur_is_bad = 1;
         } else {
             cnt.frm_crc_passed++;
@@ -85,11 +97,23 @@ void Processor::process(HkDataFile& datafile) {
                 int cur_obox_is_bad = 0;
                 if (!frame.obox_check_valid()) {
                     cnt.obox_invalid++;
+                    if (can_log()) {
+                        os_logfile_ << "== OBOX PACKET: " << cnt.obox_packet << " | INVALID ======== " << endl;
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                        frame.print_obox_packet(os_logfile_);
+                        os_logfile_ << "--------------------------------------------------------------" << endl;
+                    }
                     cur_obox_is_bad = 2;
                 } else {
                     cnt.obox_valid++;
                     if (!frame.obox_check_crc()) {
                         cnt.obox_crc_error++;
+                        if (can_log()) {
+                            os_logfile_ << "== OBOX PACKET: " << cnt.obox_packet << " | CRC_ERROR ======== " << endl;
+                            os_logfile_ << "--------------------------------------------------------------" << endl;
+                            frame.print_obox_packet(os_logfile_);
+                            os_logfile_ << "--------------------------------------------------------------" << endl;
+                        }
                         cur_obox_is_bad = 1;
                     } else {
                         cnt.obox_crc_passed++;

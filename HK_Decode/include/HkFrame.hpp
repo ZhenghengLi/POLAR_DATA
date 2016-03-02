@@ -70,6 +70,8 @@ public:
     void obox_copy_even();
     bool obox_check_valid();
     bool obox_check_crc();
+    void print_frame(ostream& os = cout);
+    void print_obox_packet(ostream& os = cout);
     
 };
 

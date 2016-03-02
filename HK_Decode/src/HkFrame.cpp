@@ -212,3 +212,21 @@ bool HkFrame::obox_check_crc() {
     else
         return false;
 }
+
+void HkFrame::print_frame(ostream& os) {
+    os << "[ ";
+    os << uppercase << hex << setfill('0');
+    for (int i = 0; i < 260; i++)
+        os << setw(2) << (int)(*((uint8_t*)(&frame_data_[i]))) << " ";
+    os <<  nouppercase << dec << setfill(' ');
+    os << "]" << endl;
+}
+
+void HkFrame::print_obox_packet(ostream& os) {
+    os << "[ ";
+    os << uppercase << hex << setfill('0');
+    for (int i = 0; i < 386; i++)
+        os << setw(2) << (int)(*((uint8_t*)(&obox_raw_data_[i]))) << " ";
+    os <<  nouppercase << dec << setfill(' ');
+    os << "]" << endl;
+}
