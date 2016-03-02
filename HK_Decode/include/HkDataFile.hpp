@@ -22,21 +22,21 @@ public:
         Int_t          obox_is_bad;                   // 3 when half, 2 when invalid, 1 when crc error, 0 when good
         UShort_t       packet_num;                    // raw data of obox packet number
         UInt_t         timestamp;                     // raw data of obox timestamp
-        UShort_t       obox_mode;                     // raw data of obox operational mode
+        UChar_t        obox_mode;                     // raw data of obox operational mode
         UShort_t       cpu_status;                    // raw data of ct_cpu status
-        UShort_t       trig_status;                   // raw data of ct_trig status
-        UShort_t       comm_status;                   // raw data of ct_com status
+        UChar_t        trig_status;                   // raw data of ct_trig status
+        UChar_t        comm_status;                   // raw data of ct_com status
         UShort_t       ct_temp;                       // raw data of ct temperature
         UShort_t       chain_temp;                    // raw data of sensor chain temperature
         UShort_t       reserved;                      // raw data of reserved information in obox hk packet
         UShort_t       lv_status;                     // raw data of lv power supply status
-        UShort_t       fe_pattern;                    // raw data of fes and flexes powered
+        UInt_t         fe_pattern;                    // raw data of fes and flexes powered
         UShort_t       lv_temp;                       // raw data of lv power supply temperature
         UShort_t       hv_pwm;                        // raw data of hv pwm setting
         UShort_t       hv_status;                     // raw data of hvps status
         UShort_t       hv_current[2];                 // raw data of hv current readout1 and readout2
-        UShort_t       fe_status[25];                 // raw data of ?
-        UShort_t       fe_temp[25];                   // raw data of ?
+        UChar_t        fe_status[25];                 // raw data of ?
+        UChar_t        fe_temp[25];                   // raw data of ?
         UShort_t       fe_hv[25];                     // raw data of ?
         UShort_t       fe_thr[25];                    // raw data of ?
         UShort_t       fe_rate[25];                   // raw data of ?
