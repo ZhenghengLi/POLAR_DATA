@@ -43,7 +43,7 @@ void HkOdd::set_cpu_status_() {
 }
 
 void HkOdd::set_trig_status_() {
-    trig_status = decode_byte<uint16_t>(frame_data_, 44, 44);
+    trig_status = decode_byte<uint8_t>(frame_data_, 44, 44);
 }
 
 void HkOdd::set_comm_status_() {
@@ -90,37 +90,37 @@ void HkOdd::set_hv_current_() {
 
 void HkOdd::set_fe_status_() {
     for (int i = 0; i < 18; i++) {
-        fe_status[i] = decode_byte<uint8_t>(frame_data_ + 68, 0 + 10 * i, 0 + 10 * i);
+        fe_status[i] = decode_byte<uint8_t>(frame_data_ + 68 + 10 * i, 0, 0);
     }
 }
 
 void HkOdd::set_fe_temp_() {
     for (int i = 0; i < 18; i++) {
-        fe_temp[i] = decode_byte<uint8_t>(frame_data_ + 68, 1 + 10 * i, 1 + 10 * i);
+        fe_temp[i] = decode_byte<uint8_t>(frame_data_ + 68 + 10 * i, 1, 1);
     }
 }
 
 void HkOdd::set_fe_hv_() {
     for (int i = 0; i < 18; i++) {
-        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 68, 2 + 10 * i, 3 + 10 * i);
+        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 2, 3);
     }
 }
 
 void HkOdd::set_fe_thr_() {
     for (int i = 0; i < 18; i++) {
-        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 68, 4 + 10 * i, 5 + 10 * i);
+        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 4, 5);
     }
 }
 
 void HkOdd::set_fe_rate_() {
     for (int i = 0; i < 18; i++) {
-        fe_rate[i] = decode_byte<uint16_t>(frame_data_ + 68, 6 + 10 * i, 7 + 10 * i);
+        fe_rate[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 6, 7);
     }
 }
 
 void HkOdd::set_fe_cosmic_() {
     for (int i = 0; i < 18; i++) {
-        fe_cosmic[i] = decode_byte<uint16_t>(frame_data_ + 68, 8 + 10 * i, 9 + 10 * i);
+        fe_cosmic[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 8, 9);
     }
 }
 

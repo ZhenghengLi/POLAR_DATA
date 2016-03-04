@@ -28,21 +28,21 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("obox_is_bad",          &t_hk_obox.obox_is_bad,          "obox_is_bad/I"         );
     t_hk_obox_tree_->Branch("packet_num",           &t_hk_obox.packet_num,           "packet_num/s"          );
     t_hk_obox_tree_->Branch("timestamp",            &t_hk_obox.timestamp,            "timestamp/i"           );
-    t_hk_obox_tree_->Branch("obox_mode",            &t_hk_obox.obox_mode,            "obox_mode/s"           );
+    t_hk_obox_tree_->Branch("obox_mode",            &t_hk_obox.obox_mode,            "obox_mode/b"           );
     t_hk_obox_tree_->Branch("cpu_status",           &t_hk_obox.cpu_status,           "cpu_status/s"          );
-    t_hk_obox_tree_->Branch("trig_status",          &t_hk_obox.trig_status,          "trig_status/s"         );
-    t_hk_obox_tree_->Branch("comm_status",          &t_hk_obox.comm_status,          "comm_status/s"         );
+    t_hk_obox_tree_->Branch("trig_status",          &t_hk_obox.trig_status,          "trig_status/b"         );
+    t_hk_obox_tree_->Branch("comm_status",          &t_hk_obox.comm_status,          "comm_status/b"         );
     t_hk_obox_tree_->Branch("ct_temp",              &t_hk_obox.ct_temp,              "ct_temp/s"             );
     t_hk_obox_tree_->Branch("chain_temp",           &t_hk_obox.chain_temp,           "chain_temp/s"          );
     t_hk_obox_tree_->Branch("reserved",             &t_hk_obox.reserved,             "reserved/s"            );
     t_hk_obox_tree_->Branch("lv_status",            &t_hk_obox.lv_status,            "lv_status/s"           );
-    t_hk_obox_tree_->Branch("fe_pattern",           &t_hk_obox.fe_pattern,           "fe_pattern/s"          );
+    t_hk_obox_tree_->Branch("fe_pattern",           &t_hk_obox.fe_pattern,           "fe_pattern/i"          );
     t_hk_obox_tree_->Branch("lv_temp",              &t_hk_obox.lv_temp,              "lv_temp/s"             );
     t_hk_obox_tree_->Branch("hv_pwm",               &t_hk_obox.hv_pwm,               "hv_pwm/s"              );
     t_hk_obox_tree_->Branch("hv_status",            &t_hk_obox.hv_status,            "hv_status/s"           );
     t_hk_obox_tree_->Branch("hv_current",            t_hk_obox.hv_current,           "hv_current[2]/s"       );
-    t_hk_obox_tree_->Branch("fe_status",             t_hk_obox.fe_status,            "fe_status[25]/s"       );
-    t_hk_obox_tree_->Branch("fe_temp",               t_hk_obox.fe_temp,              "fe_temp[25]/s"         );
+    t_hk_obox_tree_->Branch("fe_status",             t_hk_obox.fe_status,            "fe_status[25]/b"       );
+    t_hk_obox_tree_->Branch("fe_temp",               t_hk_obox.fe_temp,              "fe_temp[25]/b"         );
     t_hk_obox_tree_->Branch("fe_hv",                 t_hk_obox.fe_hv,                "fe_hv[25]/s"           );
     t_hk_obox_tree_->Branch("fe_thr",                t_hk_obox.fe_thr,               "fe_thr[25]/s"          );
     t_hk_obox_tree_->Branch("fe_rate",               t_hk_obox.fe_rate,              "fe_rate[25]/s"         );
@@ -172,6 +172,7 @@ void HkDataFile::copy_odd_packet_(const HkOdd& odd_pkt) {
     t_hk_obox.fe_pattern             = static_cast<UInt_t>(odd_pkt.fe_pattern);
     t_hk_obox.lv_temp                = static_cast<UShort_t>(odd_pkt.lv_temp);
     t_hk_obox.hv_pwm                 = static_cast<UShort_t>(odd_pkt.hv_pwm);
+    t_hk_obox.hv_status              = static_cast<UShort_t>(odd_pkt.hv_status);
     t_hk_obox.hv_current[0]          = static_cast<UShort_t>(odd_pkt.hv_current[0]);
     t_hk_obox.hv_current[1]          = static_cast<UShort_t>(odd_pkt.hv_current[1]);
     for (int i = 0; i < 18; i++) {
@@ -188,12 +189,12 @@ void HkDataFile::copy_even_packet_(const HkEven& even_pkt) {
     t_hk_obox.even_index             = static_cast<Int_t>(even_pkt.frm_index);
     t_hk_obox.even_is_bad            = static_cast<Int_t>(even_pkt.is_bad);
     for (int i = 0; i < 7; i++) {
-        t_hk_obox.fe_status[i]       = static_cast<UChar_t>(even_pkt.fe_status[i]);
-        t_hk_obox.fe_temp[i]         = static_cast<UChar_t>(even_pkt.fe_temp[i]);
-        t_hk_obox.fe_hv[i]           = static_cast<UShort_t>(even_pkt.fe_hv[i]);
-        t_hk_obox.fe_thr[i]          = static_cast<UShort_t>(even_pkt.fe_thr[i]);
-        t_hk_obox.fe_rate[i]         = static_cast<UShort_t>(even_pkt.fe_rate[i]);
-        t_hk_obox.fe_cosmic[i]       = static_cast<UShort_t>(even_pkt.fe_cosmic[i]);
+        t_hk_obox.fe_status[18 + i]       = static_cast<UChar_t>(even_pkt.fe_status[i]);
+        t_hk_obox.fe_temp[18 + i]         = static_cast<UChar_t>(even_pkt.fe_temp[i]);
+        t_hk_obox.fe_hv[18 + i]           = static_cast<UShort_t>(even_pkt.fe_hv[i]);
+        t_hk_obox.fe_thr[18 + i]          = static_cast<UShort_t>(even_pkt.fe_thr[i]);
+        t_hk_obox.fe_rate[18 + i]         = static_cast<UShort_t>(even_pkt.fe_rate[i]);
+        t_hk_obox.fe_cosmic[18 + i]       = static_cast<UShort_t>(even_pkt.fe_cosmic[i]);
     }
     for (int i = 0; i < 5; i++) {
         t_hk_obox.flex_i_p3v3[i]     = static_cast<UShort_t>(even_pkt.flex_i_p3v3[i]);

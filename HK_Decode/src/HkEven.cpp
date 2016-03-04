@@ -28,73 +28,73 @@ void HkEven::set_pkt_tag_() {
 
 void HkEven::set_fe_status_() {
     for (int i = 0; i < 7; i++) {
-        fe_status[i] = decode_byte<uint8_t>(frame_data_ + 34, 0 + 10 * i, 0 + 10 * i);
+        fe_status[i] = decode_byte<uint8_t>(frame_data_ + 34 + 10 * i, 0, 0);
     }
 }
 
 void HkEven::set_fe_temp_() {
     for (int i = 0; i < 7; i++) {
-        fe_temp[i] = decode_byte<uint8_t>(frame_data_ + 34, 1 + 10 * i, 1 + 10 * i);
+        fe_temp[i] = decode_byte<uint8_t>(frame_data_ + 34 + 10 * i, 1, 1);
     }
 }
 
 void HkEven::set_fe_hv_() {
     for (int i = 0; i < 7; i++) {
-        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 34, 2 + 10 * i, 3 + 10 * i);
+        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 34 + 10 * i, 2, 3);
     }
 }
 
 void HkEven::set_fe_thr_() {
     for (int i = 0; i < 7; i++) {
-        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 34, 4 + 10 * i, 5 + 10 * i);
+        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 34 + 10 * i, 4, 5);
     }
 }
 
 void HkEven::set_fe_rate_() {
     for (int i = 0; i < 7; i++) {
-        fe_rate[i] = decode_byte<uint16_t>(frame_data_ + 34, 6 + 10 * i, 7 + 10 * i);
+        fe_rate[i] = decode_byte<uint16_t>(frame_data_ + 34 + 10 * i, 6, 7);
     }
 }
 
 void HkEven::set_fe_cosmic_() {
     for (int i = 0; i < 7; i++) {
-        fe_cosmic[i] = decode_byte<uint16_t>(frame_data_ + 34, 8 + 10 * i, 9 + 10 * i);
+        fe_cosmic[i] = decode_byte<uint16_t>(frame_data_ + 34 + 10 * i, 8, 9);
     }
 }
 
 void HkEven::set_flex_i_p3v3_() {
     for (int i = 0; i < 5; i++) {
-        flex_i_p3v3[i] = decode_byte<uint16_t>(frame_data_ + 104, 0 + 12 * i, 1 + 12 * i);
+        flex_i_p3v3[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 0, 1);
     }
 }
 
 void HkEven::set_flex_i_p1v7_() {
     for (int i = 0; i < 5; i++) {
-        flex_i_p1v7[i] = decode_byte<uint16_t>(frame_data_ + 104, 2 + 12 * i, 3 + 12 * i);
+        flex_i_p1v7[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 2, 3);
     }
 }
 
 void HkEven::set_flex_i_n2v5_() {
     for (int i = 0; i < 5; i++) {
-        flex_i_n2v5[i] = decode_byte<uint16_t>(frame_data_ + 104, 4 + 12 * i, 5 + 12 * i);
+        flex_i_n2v5[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 4, 5);
     }
 }
 
 void HkEven::set_flex_v_p3v3_() {
     for (int i = 0; i < 5; i++) {
-        flex_v_p3v3[i] = decode_byte<uint16_t>(frame_data_ + 104, 6 + 12 * i, 7 + 12 * i);
+        flex_v_p3v3[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 6, 7);
     }
 }
 
 void HkEven::set_flex_v_p1v7_() {
     for (int i = 0; i < 5; i++) {
-        flex_v_p1v7[i] = decode_byte<uint16_t>(frame_data_ + 104, 8 + 12 * i, 9 + 12 * i);
+        flex_v_p1v7[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 8, 9);
     }
 }
 
 void HkEven::set_flex_v_n2v5_() {
     for (int i = 0; i < 5; i++) {
-        flex_v_n2v5[i] = decode_byte<uint16_t>(frame_data_ + 104, 10 + 12 * i, 11 + 12 * i);
+        flex_v_n2v5[i] = decode_byte<uint16_t>(frame_data_ + 104 + 12 * i, 10, 11);
     }
 }
 
