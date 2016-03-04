@@ -62,54 +62,54 @@ Float_t            | **dead_ratio**           | increased number of raw_dead div
 
 ### struct Event_Status_T
 
-Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
-Bool_t             | **trigger_fe_busy**      | 15
-Bool_t             | **fifo_full**            | 14
-Bool_t             | **fifo_empty**           | 13
-Bool_t             | **trigger_enable**       | 12
-Bool_t             | **trigger_waiting**      | 11
-Bool_t             | **trigger_hold_b**       | 10
-Bool_t             | **timestamp_enable**     |  9
-Bool_t             | **reduction_mode_b1**    |  8
-Bool_t             | **reduction_mode_b0**    |  7
-Bool_t             | **subsystem_busy**       |  6
-Bool_t             | **dynode_2**             |  5
-Bool_t             | **dynode_1**             |  4
-Bool_t             | **dy12_too_high**        |  3
-Bool_t             | **t_out_too_many**       |  2
-Bool_t             | **t_out_2**              |  1
-Bool_t             | **t_out_1**              |  0
+Type               | Name                     | Bit Position  | Description 
+-------------------|--------------------------|---------------|-------------------------
+Bool_t             | **trigger_fe_busy**      | 15            | Flag indicating Frontend Unit is busys.
+Bool_t             | **fifo_full**            | 14            | Flag indicating FIFO memory for events is full.
+Bool_t             | **fifo_empty**           | 13            | Flag indicating FIFO memory for events is empty.
+Bool_t             | **trigger_enable**       | 12            | Flag indicating trigger is enabled.
+Bool_t             | **trigger_waiting**      | 11            | Flag indicating FE is waiting for trigger acceptance.
+Bool_t             | **trigger_hold_b**       | 10            | Flag indicating HOLD B signal on FE is asserted.
+Bool_t             | **timestamp_enable**     |  9            | Flag indicating timestamp is enabled.
+Bool_t             | **reduction_mode_b1**    |  8            | bit 1 of Field indicating the reduction mode of the Frontend Unit.
+Bool_t             | **reduction_mode_b0**    |  7            | bit 0 of Field indicating the reduction mode of the Frontend Unit.
+Bool_t             | **subsystem_busy**       |  6            | Flag indicating one of three subsystems is busy.
+Bool_t             | **dynode_2**             |  5            | Flag indicating DYNODE 2 triggered.
+Bool_t             | **dynode_1**             |  4            | Flag indicating DYNODE 1 triggered.
+Bool_t             | **dy12_too_high**        |  3            | Flag indicating DY12 TOO HIGH triggered.
+Bool_t             | **t_out_too_many**       |  2            | Flag indicating T OUT TOO MANY triggered.
+Bool_t             | **t_out_2**              |  1            | Flag indicating T OUT 2 triggered.
+Bool_t             | **t_out_1**              |  0            | Flag indicating T OUT 1 triggered.
 
 ### struct Trigg_Status_T
 
-Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
-Bool_t             | **science_disable**      | 15
-Bool_t             | **master_clock_enable**  | 14
-Bool_t             | **saving_data**          | 13
-Bool_t             | **taking_event_or_ped**  | 12
-Bool_t             | **fifo_full**            | 11
-Bool_t             | **fifo_almost_full**     | 10
-Bool_t             | **fifo_empty**           |  9
-Bool_t             | **fifo_almost_empty**    |  8
-Bool_t             | **any_waiting**          |  7
-Bool_t             | **any_waiting_two_hits** |  6
-Bool_t             | **any_tmany_thigh**      |  5
-Bool_t             | **packet_type_b2**       |  4
-Bool_t             | **packet_type_b1**       |  3
-Bool_t             | **packet_type_b0**       |  2
+Type               | Name                     | Bit Position  | Description
+-------------------|--------------------------|---------------|-------------------------
+Bool_t             | **science_disable**      | 15            | Flag indicating the science packets generation by Central Trigger Unit is disabled.
+Bool_t             | **master_clock_enable**  | 14            | Flag indicating the Master Clock generation in enabled.
+Bool_t             | **saving_data**          | 13            | Flag indicating the science packet is being stored in FIFO.
+Bool_t             | **taking_event_or_ped**  | 12            | Flag indicating the Central Trigger Unit state machine is doing the event or pedestal acquisition.
+Bool_t             | **fifo_full**            | 11            | Flag indicating FIFO in Central Processing Unit is full.
+Bool_t             | **fifo_almost_full**     | 10            | Flag indicating FIFO in Central Processing Unit is almost full.
+Bool_t             | **fifo_empty**           |  9            | Flag indicating FIFO in Central Processing Unit is empty.
+Bool_t             | **fifo_almost_empty**    |  8            | Flag indicating FIFO in Central Processing Unit is almost empty.
+Bool_t             | **any_waiting**          |  7            | Flag indicating at least one FEE sent the WAITING signal to Central Processing Unit.
+Bool_t             | **any_waiting_two_hits** |  6            | Flag indicating at least one FEE, that has two hits, sent the WAITING signal to Central Processing Unit.
+Bool_t             | **any_tmany_thigh**      |  5            | Flag indicating at least one FEE, that has TooMany or TooHigh flags set, sent the WAITING signal to Central Processing Unit.
+Bool_t             | **packet_type_b2**       |  4            | bit 2 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit.
+Bool_t             | **packet_type_b1**       |  3            | bit 1 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit.
+Bool_t             | **packet_type_b0**       |  2            | bit 0 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit.
 
 ### struct Trig_Sig_Con_T
 
-Type               | Name                     | Bit Position
--------------------|--------------------------|------------------------
-Bool_t             | **fe_busy[25]**          |  5
-Bool_t             | **fe_waiting[25]**       |  4
-Bool_t             | **fe_hold_b[25]**        |  3
-Bool_t             | **fe_tmany_thigh[25]**   |  2
-Bool_t             | **fe_tout_2[25]**        |  1
-Bool_t             | **fe_tout_1[25]**        |  0
+Type               | Name                     | Bit Position  | Description
+-------------------|--------------------------|---------------|-------------------------
+Bool_t             | **fe_busy[25]**          |  5            | Flag indicating the status of the FE BUSY signal from this Frontend Unit.
+Bool_t             | **fe_waiting[25]**       |  4            | Flag indicating the status of the FE WAITING signal from this Frontend Unit.
+Bool_t             | **fe_hold_b[25]**        |  3            | Flag indicating the status of the FE HOLD B signal from this Frontend Unit.
+Bool_t             | **fe_tmany_thigh[25]**   |  2            | Flag indicating the status of the FE TMANY THIGH signal from this Frontend Unit.
+Bool_t             | **fe_tout_2[25]**        |  1            | Flag indicating the status of the FE TOUT 2 signal from this Frontend Unit.
+Bool_t             | **fe_tout_1[25]**        |  0            | Flag indicating the status of the FE TOUT 1 signal from this Frontend Unit.
 
 ## Data Structure Convention of HK
 
