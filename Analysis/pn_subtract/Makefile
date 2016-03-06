@@ -13,7 +13,7 @@ all: ../bin/pn_subtract ../bin/pn_fit
 ../bin/pn_subtract: obj/pn_subtract.o obj/PedTest.o $(MY_LIB)/obj/EventIterator.o
 	$(CC) -o $@ $^ $(ROOT_LIBS)
 
-../bin/pn_fit: obj/pn_fit.o obj/PedTest.o $(MY_LIB)/obj/ModuleIterator.o obj/GuiTest.o obj/GuiTest_Dict.o
+../bin/pn_fit: obj/pn_fit.o obj/PedTest.o $(MY_LIB)/obj/ModuleIterator.o $(MY_LIB)/obj/SciType.o obj/GuiTest.o obj/GuiTest_Dict.o
 	$(CC) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
