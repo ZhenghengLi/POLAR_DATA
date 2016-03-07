@@ -6,12 +6,16 @@
 class ModuleIterator: private SciType {
 private:
     int cur_ct_num_;
-    int cur_seq_num_;
+    Long64_t cur_seq_num_;
+    Long64_t pre_seq_num_;
     
     bool ped_trigg_reach_end_;
     bool ped_event_reach_end_;
     bool phy_trigg_reach_end_;
     bool phy_event_reach_end_;
+
+    bool trigg_start_flag_;
+    bool event_start_flag_;
     
     Long64_t ped_trigg_cur_entry_;
     Long64_t ped_trigg_tot_entries_;
@@ -54,6 +58,8 @@ public:
     bool set_module(int ct_num);
     bool set_trigger();
     bool set_start();
+    int  get_cur_seq();
+    int  get_bad_cnt();
 
 };
 
