@@ -156,7 +156,7 @@ bool ModuleIterator::phy_event_next_() {
 }
 
 bool ModuleIterator::trigg_next() {
-    if (!ped_trigg_reach_end_ && !phy_trigg_reach_end_)
+    if (ped_trigg_reach_end_ && phy_trigg_reach_end_)
         return false;
     bool ped_selected;
     if (ped_trigg_reach_end_) {
@@ -191,7 +191,7 @@ bool ModuleIterator::trigg_next() {
 }
 
 bool ModuleIterator::event_next() {
-    if (!ped_event_reach_end_ && !phy_event_reach_end_)
+    if (ped_event_reach_end_ && phy_event_reach_end_)
         return false;
     bool ped_selected;
     if (ped_event_reach_end_) {
