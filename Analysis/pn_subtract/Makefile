@@ -1,6 +1,7 @@
 CC := g++
 MY_LIB := ../lib
 CC_FLAGS := -Wall -O2 -I ./include -I $(MY_LIB)/include
+LINK_FLAGS := -Wl,--no-as-needed
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 
@@ -11,10 +12,10 @@ ROOT_LIBS := $(shell root-config --libs)
 all: ../bin/pn_subtract ../bin/pn_fit
 
 ../bin/pn_subtract: obj/pn_subtract.o obj/PedTest.o $(MY_LIB)/obj/EventIterator.o
-	$(CC) -o $@ $^ $(ROOT_LIBS)
+	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 ../bin/pn_fit: obj/pn_fit.o obj/PedTest.o $(MY_LIB)/obj/ModuleIterator.o $(MY_LIB)/obj/SciType.o obj/GuiTest.o obj/GuiTest_Dict.o
-	$(CC) -o $@ $^ $(ROOT_LIBS)
+	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
