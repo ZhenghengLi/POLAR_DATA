@@ -99,6 +99,8 @@ private:
     void copy_odd_packet_(const HkOdd& odd_pkt);
     void copy_even_packet_(const HkEven& even_pkt);
     void copy_ibox_info_(const HkFrame& frame);
+    void clear_obox_();
+    void convert_obox_();
     
 public:
     HkDataFile();

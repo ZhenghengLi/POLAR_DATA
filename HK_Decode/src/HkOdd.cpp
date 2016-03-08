@@ -51,11 +51,11 @@ void HkOdd::set_comm_status_() {
 }
 
 void HkOdd::set_ct_temp_() {
-    ct_temp = decode_byte<uint16_t>(frame_data_, 46, 47);
+    ct_temp = decode_bit<uint8_t>(frame_data_ + 46, 4, 11);
 }
 
 void HkOdd::set_chain_temp_() {
-    chain_temp = decode_byte<uint16_t>(frame_data_, 48, 49);
+    chain_temp = decode_bit<uint8_t>(frame_data_ + 48, 4, 11);
 }
 
 void HkOdd::set_reserved_() {
@@ -102,13 +102,13 @@ void HkOdd::set_fe_temp_() {
 
 void HkOdd::set_fe_hv_() {
     for (int i = 0; i < 18; i++) {
-        fe_hv[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 2, 3);
+        fe_hv[i] = decode_bit<uint16_t>(frame_data_ + 68 + 10 * i + 2, 0, 11);
     }
 }
 
 void HkOdd::set_fe_thr_() {
     for (int i = 0; i < 18; i++) {
-        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 4, 5);
+        fe_thr[i] = decode_bit<uint16_t>(frame_data_ + 68 + 10 * i + 4, 4, 15);
     }
 }
 

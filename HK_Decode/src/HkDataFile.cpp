@@ -122,26 +122,31 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
     t_hk_obox.obox_is_bad = cur_obox_is_bad;
     copy_odd_packet_(odd_pkt);
     copy_even_packet_(even_pkt);
+    convert_obox_();
     t_hk_obox_tree_->Fill();
 }
 
 void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     if (t_out_file_ == NULL)
         return;
+    clear_obox_();
     t_hk_obox.even_index = -1;
     t_hk_obox.even_is_bad = 3;
     t_hk_obox.obox_is_bad = 3;
     copy_odd_packet_(odd_pkt);
+    convert_obox_();
     t_hk_obox_tree_->Fill();
 }
 
 void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     if (t_out_file_ == NULL)
         return;
+    clear_obox_();
     t_hk_obox.odd_index = -1;
     t_hk_obox.odd_is_bad = 3;
     t_hk_obox.obox_is_bad = 3;
     copy_even_packet_(even_pkt);
+    convert_obox_();
     t_hk_obox_tree_->Fill();
 }
 
@@ -246,3 +251,100 @@ void HkDataFile::copy_ibox_info_(const HkFrame& frame) {
     t_hk_ibox.ibox_gps               = static_cast<ULong64_t>(frame.ibox_gps);
 }
 
+void HkDataFile::clear_obox_() {
+    t_hk_obox.odd_index = 0;
+    t_hk_obox.even_index = 0;
+    t_hk_obox.odd_is_bad = 0;
+    t_hk_obox.even_is_bad = 0;
+    t_hk_obox.obox_is_bad = 0;
+    t_hk_obox.packet_num = 0;
+    t_hk_obox.timestamp = 0;
+    t_hk_obox.obox_mode = 0;
+    t_hk_obox.cpu_status = 0;
+    t_hk_obox.trig_status = 0;
+    t_hk_obox.comm_status = 0;
+    t_hk_obox.ct_temp = 0;
+    t_hk_obox.chain_temp = 0;
+    t_hk_obox.reserved = 0;
+    t_hk_obox.lv_status = 0;
+    t_hk_obox.fe_pattern = 0;
+    t_hk_obox.lv_temp = 0;
+    t_hk_obox.hv_pwm = 0;
+    t_hk_obox.hv_status = 0;
+    t_hk_obox.hv_current[0] = 0;
+    t_hk_obox.hv_current[1] = 0;
+    for (int i = 0; i < 25; i++) {
+        t_hk_obox.fe_status[i] = 0;
+        t_hk_obox.fe_temp[i] = 0;
+        t_hk_obox.fe_hv[i] = 0;
+        t_hk_obox.fe_thr[i] = 0;
+        t_hk_obox.fe_rate[i] = 0;
+        t_hk_obox.fe_cosmic[i] = 0;
+    }
+    for (int i = 0; i < 5; i++) {
+        t_hk_obox.flex_i_p3v3[i] = 0;
+        t_hk_obox.flex_i_p1v7[i] = 0;
+        t_hk_obox.flex_i_n2v5[i] = 0;
+        t_hk_obox.flex_v_p3v3[i] = 0;
+        t_hk_obox.flex_v_p1v7[i] = 0;
+        t_hk_obox.flex_v_n2v5[i] = 0;
+    }
+    t_hk_obox.hv_v_hot = 0;
+    t_hk_obox.hv_i_hot = 0;
+    t_hk_obox.ct_v_hot[0] = 0;
+    t_hk_obox.ct_v_hot[1] = 0;
+    t_hk_obox.ct_i_hot[0] = 0;
+    t_hk_obox.ct_i_hot[1] = 0;
+    t_hk_obox.hv_v_cold = 0;
+    t_hk_obox.hv_i_cold = 0;
+    t_hk_obox.ct_v_cold[0] = 0;
+    t_hk_obox.ct_v_cold[1] = 0;
+    t_hk_obox.ct_i_cold[0] = 0;
+    t_hk_obox.ct_i_cold[1] = 0;
+    t_hk_obox.timestamp_sync = 0;
+    t_hk_obox.command_rec = 0;
+    t_hk_obox.command_exec = 0;
+    t_hk_obox.command_last_num = 0;
+    t_hk_obox.command_last_stamp = 0;
+    t_hk_obox.command_last_exec = 0;
+    t_hk_obox.command_last_arg[0] = 0;
+    t_hk_obox.command_last_arg[1] = 0;
+    t_hk_obox.obox_hk_crc = 0;
+    t_hk_obox.saa = 0;
+    t_hk_obox.sci_head = 0;
+    t_hk_obox.gps_pps_count = 0;
+    t_hk_obox.gps_sync_gen_count = 0;
+    t_hk_obox.gps_sync_send_count = 0;
+
+}
+
+void HkDataFile::convert_obox_() {
+    t_hk_obox.ct_temp                      = (t_hk_obox.ct_temp > 0x7F ? t_hk_obox.ct_temp - 2 * 0x80 : t_hk_obox.ct_temp);
+    t_hk_obox.chain_temp                   = (t_hk_obox.chain_temp > 0x7F ? t_hk_obox.chain_temp - 2 * 0x80 : t_hk_obox.chain_temp);
+    t_hk_obox.lv_temp                      = 27 + ((t_hk_obox.lv_temp - 0x8000) / 16384.0 * 2.5 / 2 - 28E-3) / 93.5E-6;
+    for (int i = 0; i < 25; i++) {
+        t_hk_obox.fe_temp[i]               = (t_hk_obox.fe_temp[i] > 0x7F ? t_hk_obox.fe_temp[i] - 2 * 0x80 : t_hk_obox.fe_temp[i]);
+        t_hk_obox.fe_hv[i]                 = t_hk_obox.fe_hv[i] * 0.303;
+        t_hk_obox.fe_thr[i]                = t_hk_obox.fe_thr[i] / 4096.0 * 3.5 - 2.0;
+    }
+    for (int i = 0; i < 5; i++) {
+        t_hk_obox.flex_i_p3v3[i]           = (t_hk_obox.flex_i_p3v3[i] - 0x8000) / 104.858;
+        t_hk_obox.flex_i_p1v7[i]           = (t_hk_obox.flex_i_p1v7[i] - 0x8000) / 104.858;
+        t_hk_obox.flex_i_n2v5[i]           = (t_hk_obox.flex_i_n2v5[i] - 0x8000) / 104.858;
+        t_hk_obox.flex_v_p3v3[i]           = (t_hk_obox.flex_v_p3v3[i] - 0x8000) / 4681.14;
+        t_hk_obox.flex_v_p1v7[i]           = (t_hk_obox.flex_v_p1v7[i] - 0x8000) / 8426.06;
+        t_hk_obox.flex_v_n2v5[i]           = (t_hk_obox.flex_v_n2v5[i] - 0x8000) / (-2407.44) + t_hk_obox.flex_v_p3v3[i];
+    }
+    t_hk_obox.hv_v_hot                     = (t_hk_obox.hv_v_hot - 0x8000) / 4681.14;
+    t_hk_obox.hv_v_cold                    = (t_hk_obox.hv_v_cold - 0x8000) / 4681.14;
+    t_hk_obox.hv_i_hot                     = (t_hk_obox.hv_i_hot - 0x8000) / 104.858;
+    t_hk_obox.hv_i_cold                    = (t_hk_obox.hv_i_cold - 0x8000) / 104.858;
+    t_hk_obox.ct_v_hot[0]                  = (t_hk_obox.ct_v_hot[0] - 0x8000) / 4681.14;
+    t_hk_obox.ct_v_cold[0]                 = (t_hk_obox.ct_v_cold[0] - 0x8000) / 4681.14;
+    t_hk_obox.ct_v_hot[1]                  = (t_hk_obox.ct_v_hot[1] - 0x8000) / 9011.20;
+    t_hk_obox.ct_v_cold[1]                 = (t_hk_obox.ct_v_cold[1] - 0x8000) / 9011.20;
+    t_hk_obox.ct_i_hot[0]                  = (t_hk_obox.ct_i_hot[0] - 0x8000) / 104.858;
+    t_hk_obox.ct_i_cold[0]                 = (t_hk_obox.ct_i_cold[0] - 0x8000) / 104.858;
+    t_hk_obox.ct_i_hot[1]                  = (t_hk_obox.ct_i_hot[1] - 0x8000) / 104.858;
+    t_hk_obox.ct_i_cold[1]                 = (t_hk_obox.ct_i_cold[1] - 0x8000) / 104.858;
+}

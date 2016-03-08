@@ -20,8 +20,8 @@ public:
     uint16_t  cpu_status;
     uint8_t   trig_status;
     uint8_t   comm_status;
-    uint16_t  ct_temp;
-    uint16_t  chain_temp;
+    uint8_t   ct_temp;
+    uint8_t   chain_temp;
     uint16_t  reserved;
     uint16_t  lv_status;
     uint32_t  fe_pattern;
