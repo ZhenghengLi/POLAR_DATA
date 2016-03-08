@@ -192,14 +192,6 @@ void HkEven::set_gps_sync_send_count_() {
     gps_sync_send_count = decode_byte<uint64_t>(frame_data_, 240, 247);
 }
 
-void HkEven::set_hk_head_() {
-    hk_head = decode_byte<uint8_t>(frame_data_, 248, 248);
-}
-
-void HkEven::set_hk_tail_() {
-    hk_tail = decode_byte<uint8_t>(frame_data_, 249, 249);
-}
-
 void HkEven::update(int32_t cur_is_bad) {
     is_bad = cur_is_bad;
     set_frm_index_();
@@ -237,7 +229,5 @@ void HkEven::update(int32_t cur_is_bad) {
     set_gps_pps_count_();
     set_gps_sync_gen_count_();
     set_gps_sync_send_count_();
-    set_hk_head_();
-    set_hk_tail_();
 }
 

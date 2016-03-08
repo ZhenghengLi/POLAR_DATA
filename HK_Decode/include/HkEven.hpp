@@ -47,8 +47,6 @@ public:
     uint64_t  gps_pps_count;
     uint64_t  gps_sync_gen_count;
     uint64_t  gps_sync_send_count;
-    uint8_t   hk_head;
-    uint8_t   hk_tail;
 
 public:
     int32_t is_bad;
@@ -89,8 +87,6 @@ private:
     void set_gps_pps_count_();
     void set_gps_sync_gen_count_();
     void set_gps_sync_send_count_();
-    void set_hk_head_();
-    void set_hk_tail_();
     
 public:
     void update(int32_t cur_is_bad);
