@@ -47,8 +47,17 @@ public:
     bool trigg_select(Long64_t entry_index);
     void module_set_start();
     bool module_next();
+    Long64_t get_trigg_cur_index() {
+        if (t_file_in_ == NULL)
+            return -1;
+        else
+            return trigg_cur_index_;
+    }
     Long64_t get_trigg_entries() {
-        return trigg_tot_entries_;
+        if (t_file_in_ == NULL)
+            return 0;
+        else
+            return trigg_tot_entries_;
     }
     
     void ped_trigg_set_start();
@@ -56,8 +65,17 @@ public:
     bool ped_trigg_select(Long64_t entry_index);
     void ped_module_set_start();
     bool ped_module_next();
+    Long64_t get_ped_trigg_cur_index() {
+        if (t_file_in_ == NULL)
+            return -1;
+        else
+            return ped_trigg_cur_index_;
+    }
     Long64_t get_ped_trigg_entries() {
-        return ped_trigg_tot_entries_;
+        if (t_file_in_ == NULL)
+            return 0;
+        else
+            return ped_trigg_tot_entries_;
     }
 
 };
