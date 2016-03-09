@@ -77,7 +77,7 @@ void SciIterator::ped_trigger_set_start() {
 
 void SciIterator::ped_modules_set_start() {
     ped_modules_cur_index_ = -1;
-    ped_trigger_reach_end_ = false;
+    ped_modules_reach_end_ = false;
 }
 
 bool SciIterator::trigger_next() {
