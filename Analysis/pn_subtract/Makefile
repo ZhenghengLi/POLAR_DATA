@@ -11,7 +11,7 @@ ROOT_LIBS := $(shell root-config --libs)
 
 all: ../bin/pn_subtract ../bin/pn_fit
 
-../bin/pn_subtract: obj/pn_subtract.o obj/PedTest.o $(MY_LIB)/obj/EventIterator.o
+../bin/pn_subtract: obj/pn_subtract.o obj/PedTest.o $(MY_LIB)/obj/EventIterator.o $(MY_LIB)/obj/SciType.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 ../bin/pn_fit: obj/pn_fit.o obj/PedTest.o $(MY_LIB)/obj/ModuleIterator.o $(MY_LIB)/obj/SciType.o obj/GuiTest.o obj/GuiTest_Dict.o
