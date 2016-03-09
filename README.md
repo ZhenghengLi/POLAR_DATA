@@ -170,8 +170,6 @@ UShort_t           | **sci_head**             | raw data of OBOX science packet 
 ULong64_t          | **gps_pps_count**        | raw data of Time_PPS
 ULong64_t          | **gps_sync_gen_count**   | raw data of Time_synchComGen
 ULong64_t          | **gps_sync_send_count**  | raw data of Time_synchComTx
-UShort_t           | **hk_head**              | raw data of OBOX HK header counter
-UShort_t           | **hk_tail**              | raw data of OBOX HK tail counter
 
 ### struct Hk_Ibox_T
 
