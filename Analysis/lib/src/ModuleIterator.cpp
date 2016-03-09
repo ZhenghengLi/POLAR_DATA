@@ -9,7 +9,8 @@ ModuleIterator::ModuleIterator() {
 }
 
 ModuleIterator::~ModuleIterator() {
-    
+    if (t_file_in_ != NULL)
+        close();
 }
 
 bool ModuleIterator::open(const char* filename) {
