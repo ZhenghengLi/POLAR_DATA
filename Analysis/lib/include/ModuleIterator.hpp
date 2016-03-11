@@ -58,19 +58,27 @@ public:
     ModuleIterator();
     ~ModuleIterator();
 
-    bool  open(const char* filename);
-    void  close();
-    bool  trigg_next();
-    bool  event_next();
-    bool  set_module(int ct_num, string filter = "");
-    bool  set_trigger(string filter = "");
-    void  set_start();
-    Int_t get_tot_N();
-    int   get_cur_seq();
-    int   get_bad_cnt();
-    
+    bool      open(const char* filename);
+    void      close();
+    bool      trigg_next();
+    bool      event_next();
+    bool      set_module(int ct_num, string filter = "");
+    bool      set_trigger(string filter = "");
+    void      set_start();
+    Int_t     get_tot_N();
+    int       get_cur_seq();
+    int       get_bad_cnt();
+    int       get_cur_ct_num();
+    string    get_cur_filter();
+    bool      cur_is_ped();
+
     Modules_T get_last_event();
     Trigger_T get_last_trigg();
+
+    const TTree* get_trigger_tree();
+    const TTree* get_modules_tree();
+    const TTree* get_ped_trigger_tree();
+    const TTree* get_ped_modules_tree();
     
 };
 

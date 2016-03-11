@@ -397,3 +397,34 @@ SciType::Trigger_T ModuleIterator::get_last_trigg() {
     ped_trigg_ = tmp_ped_trigg;
     return ret_trigg;
 }
+
+int ModuleIterator::get_cur_ct_num() {
+    return cur_ct_num_;
+}
+
+string ModuleIterator::get_cur_filter() {
+    return cur_filter_;
+}
+
+bool ModuleIterator::cur_is_ped() {
+    if (cur_ct_num_ > 0)
+        return (cur_event.compress == 2);
+    else
+        return (cur_trigg.type == 0x00F0);
+}
+
+const TTree* ModuleIterator::get_trigger_tree() {
+    return t_trigger_;
+}
+
+const TTree* ModuleIterator::get_modules_tree() {
+    return t_modules_;
+}
+
+const TTree* ModuleIterator::get_ped_trigger_tree() {
+    return t_ped_trigger_;
+}
+
+const TTree* ModuleIterator::get_ped_modules_tree() {
+    return t_ped_modules_;
+}
