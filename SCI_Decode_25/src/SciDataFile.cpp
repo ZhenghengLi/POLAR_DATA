@@ -34,6 +34,7 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("time_period",       &t_modules.time_period,       "time_period/i"         );
     t_modules_tree_->Branch("time_wait",         &t_modules.time_wait,         "time_wait/i"           );
     t_modules_tree_->Branch("time_align",        &t_modules.time_align,        "time_align/i"          );
+    t_modules_tree_->Branch("time_second",       &t_modules.time_second,       "time_second/D"         );
     t_modules_tree_->Branch("raw_rate",          &t_modules.raw_rate,          "raw_rate/I"            );
     t_modules_tree_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/i"            );
     t_modules_tree_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );
@@ -59,6 +60,7 @@ bool SciDataFile::open(const char* filename) {
     t_trigger_tree_->Branch("time_period",       &t_trigger.time_period,       "time_period/i"         );
     t_trigger_tree_->Branch("time_wait",         &t_trigger.time_wait,         "time_wait/i"           );
     t_trigger_tree_->Branch("time_align",        &t_trigger.time_align,        "time_align/i"          );
+    t_trigger_tree_->Branch("time_second",       &t_trigger.time_second,       "time_second/D"         );
     t_trigger_tree_->Branch("frm_ship_time",     &t_trigger.frm_ship_time,     "frm_ship_time/l"       );
     t_trigger_tree_->Branch("frm_gps_time",      &t_trigger.frm_gps_time,      "frm_gps_time/l"        );
     t_trigger_tree_->Branch("pkt_start",         &t_trigger.pkt_start,         "pkt_start/L"           );
@@ -93,6 +95,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("time_period",       &t_ped_modules.time_period,       "time_period/i"         );
     t_ped_modules_tree_->Branch("time_wait",         &t_ped_modules.time_wait,         "time_wait/i"           );
     t_ped_modules_tree_->Branch("time_align",        &t_ped_modules.time_align,        "time_align/i"          );
+    t_ped_modules_tree_->Branch("time_second",       &t_ped_modules.time_second,       "time_second/D"         );
     t_ped_modules_tree_->Branch("raw_rate",          &t_ped_modules.raw_rate,          "raw_rate/I"            );
     t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/i"            );
     t_ped_modules_tree_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
@@ -118,6 +121,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("time_period",       &t_ped_trigger.time_period,       "time_period/i"         );
     t_ped_trigger_tree_->Branch("time_wait",         &t_ped_trigger.time_wait,         "time_wait/i"           );
     t_ped_trigger_tree_->Branch("time_align",        &t_ped_trigger.time_align,        "time_align/i"          );
+    t_ped_trigger_tree_->Branch("time_second",       &t_ped_trigger.time_second,       "time_second/D"         );
     t_ped_trigger_tree_->Branch("frm_ship_time",     &t_ped_trigger.frm_ship_time,     "frm_ship_time/l"       );
     t_ped_trigger_tree_->Branch("frm_gps_time",      &t_ped_trigger.frm_gps_time,      "frm_gps_time/l"        );
     t_ped_trigger_tree_->Branch("pkt_start",         &t_ped_trigger.pkt_start,         "pkt_start/L"           );
@@ -332,6 +336,7 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
     t_modules_par.time_period                             = static_cast<UInt_t>(event.time_period);
     t_modules_par.time_wait                               = static_cast<UInt_t>(event.time_wait);
     t_modules_par.time_align                              = static_cast<UInt_t>(event.time_align);
+    t_modules_par.time_second                             = (static_cast<Double_t>(event.timestamp) + static_cast<Double_t>(event.time_period) * 16777216) * 8.0E-8 * LSB_Value;
     t_modules_par.raw_rate                                = static_cast<Int_t>(event.rate);
     t_modules_par.raw_dead                                = static_cast<UInt_t>(event.deadtime);
     t_modules_par.dead_ratio                              = static_cast<Float_t>(event.dead_ratio);
@@ -380,6 +385,7 @@ void SciDataFile::copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& 
     t_trigger_par.time_period                             = static_cast<UInt_t>(trigger.time_period);
     t_trigger_par.time_wait                               = static_cast<UInt_t>(trigger.time_wait);
     t_trigger_par.time_align                              = static_cast<UInt_t>(trigger.time_align);
+    t_trigger_par.time_second                             = (static_cast<Double_t>(trigger.timestamp) + static_cast<Double_t>(trigger.time_period) * 4294967296) * 8.0E-8;
     t_trigger_par.frm_ship_time                           = static_cast<ULong64_t>(trigger.frm_ship_time);
     t_trigger_par.frm_gps_time                            = static_cast<ULong64_t>(trigger.frm_gps_time);
     t_trigger_par.pkt_count                               = static_cast<Int_t>(trigger.get_pkt_count());
