@@ -1,11 +1,18 @@
 #include "ModuleIterator.hpp"
 
+using namespace std;
+
 ModuleIterator::ModuleIterator() {
     t_file_in_ = NULL;
     t_trigger_ = NULL;
     t_modules_ = NULL;
     t_ped_trigger_ = NULL;
     t_ped_modules_ = NULL;
+
+    ped_trigg_elist_ = NULL;
+    ped_event_elist_ = NULL;
+    phy_trigg_elist_ = NULL;
+    phy_event_elist_ = NULL;
 }
 
 ModuleIterator::~ModuleIterator() {
@@ -37,11 +44,6 @@ bool ModuleIterator::open(const char* filename) {
     bind_modules_tree(t_modules_, phy_event_);
     bind_modules_tree(t_ped_modules_, ped_event_);
 
-    ped_trigg_tot_entries_ = t_ped_trigger_->GetEntries();
-    ped_event_tot_entries_ = t_ped_modules_->GetEntries();
-    phy_trigg_tot_entries_ = t_trigger_->GetEntries();
-    phy_event_tot_entries_ = t_modules_->GetEntries();
-    
     return true;
 }
 
@@ -54,6 +56,11 @@ void ModuleIterator::close() {
     t_modules_ = NULL;
     t_ped_trigger_ = NULL;
     t_ped_modules_ = NULL;
+    
+    ped_trigg_elist_ = NULL;
+    ped_event_elist_ = NULL;
+    phy_trigg_elist_ = NULL;
+    phy_event_elist_ = NULL;
 }
 
 bool ModuleIterator::ped_trigg_next_() {
@@ -61,24 +68,18 @@ bool ModuleIterator::ped_trigg_next_() {
         return false;
     if (cur_ct_num_ > 0)
         return false;
+    if (get_tot_N() < 1)
+        return false;
     if (ped_trigg_reach_end_)
         return false;
-    bool ret_value;
-    while (true) {
-        ped_trigg_cur_entry_++;
-        if (ped_trigg_cur_entry_ < ped_trigg_tot_entries_) {
-            t_ped_trigger_->GetEntry(ped_trigg_cur_entry_);
-            if (ped_trigg_.is_bad <= 0) {
-                ret_value = true;
-                break;
-            }
-        } else {
-            ped_trigg_reach_end_ = true;
-            ret_value = false;
-            break;
-        }
+    ped_trigg_cur_index_++;
+    if (ped_trigg_cur_index_ < ped_trigg_elist_->GetN()) {
+        t_ped_trigger_->GetEntry(ped_trigg_elist_->GetEntry(ped_trigg_cur_index_));
+        return true;
+    } else {
+        ped_trigg_reach_end_ = true;
+        return false;
     }
-    return ret_value;
 }
 
 bool ModuleIterator::phy_trigg_next_() {
@@ -86,24 +87,18 @@ bool ModuleIterator::phy_trigg_next_() {
         return false;
     if (cur_ct_num_ > 0)
         return false;
+    if (get_tot_N() < 1)
+        return false;
     if (phy_trigg_reach_end_)
         return false;
-    bool ret_value;
-    while (true) {
-        phy_trigg_cur_entry_++;
-        if (phy_trigg_cur_entry_ < phy_trigg_tot_entries_) {
-            t_trigger_->GetEntry(phy_trigg_cur_entry_);
-            if (phy_trigg_.is_bad <= 0) {
-                ret_value = true;
-                break;
-            }
-        } else {
-            phy_trigg_reach_end_ = true;
-            ret_value = false;
-            break;
-        }
+    phy_trigg_cur_index_++;
+    if (phy_trigg_cur_index_ < phy_trigg_elist_->GetN()) {
+        t_trigger_->GetEntry(phy_trigg_elist_->GetEntry(phy_trigg_cur_index_));
+        return true;
+    } else {
+        phy_trigg_reach_end_ = true;
+        return false;
     }
-    return ret_value;
 }
 
 bool ModuleIterator::ped_event_next_() {
@@ -111,24 +106,18 @@ bool ModuleIterator::ped_event_next_() {
         return false;
     if (cur_ct_num_ < 1 || cur_ct_num_ > 25)
         return false;
+    if (get_tot_N() < 1)
+        return false;
     if (ped_event_reach_end_)
         return false;
-    bool ret_value;
-    while (true) {
-        ped_event_cur_entry_++;
-        if (ped_event_cur_entry_ < ped_event_tot_entries_) {
-            t_ped_modules_->GetEntry(ped_event_cur_entry_);
-            if (ped_event_.is_bad <= 0 && ped_event_.ct_num == cur_ct_num_) {
-                ret_value = true;
-                break;
-            }
-        } else {
-            ped_event_reach_end_ = true;
-            ret_value = false;
-            break;
-        }
+    ped_event_cur_index_++;
+    if (ped_event_cur_index_ < ped_event_elist_->GetN()) {
+        t_ped_modules_->GetEntry(ped_event_elist_->GetEntry(ped_event_cur_index_));
+        return true;
+    } else {
+        ped_event_reach_end_ = true;
+        return false;
     }
-    return ret_value;
 }
 
 bool ModuleIterator::phy_event_next_() {
@@ -136,24 +125,18 @@ bool ModuleIterator::phy_event_next_() {
         return false;
     if (cur_ct_num_ < 1 || cur_ct_num_ > 25)
         return false;
+    if (get_tot_N() < 1)
+        return false;
     if (phy_event_reach_end_)
         return false;
-    bool ret_value;
-    while (true) {
-        phy_event_cur_entry_++;
-        if (phy_event_cur_entry_ < phy_event_tot_entries_) {
-            t_modules_->GetEntry(phy_event_cur_entry_);
-            if (phy_event_.is_bad <= 0 && phy_event_.ct_num == cur_ct_num_) {
-                ret_value = true;
-                break;
-            }
-        } else {
-            phy_event_reach_end_ = true;
-            ret_value = false;
-            break;
-        }
+    phy_event_cur_index_++;
+    if (phy_event_cur_index_ < phy_event_elist_->GetN()) {
+        t_modules_->GetEntry(phy_event_elist_->GetEntry(phy_event_cur_index_));
+        return true;
+    } else {
+        phy_event_reach_end_ = true;
+        return false;
     }
-    return ret_value;
 }
 
 bool ModuleIterator::trigg_next() {
@@ -225,40 +208,121 @@ bool ModuleIterator::event_next() {
     return true;
 }
 
-bool ModuleIterator::set_module(int ct_num) {
-    if (ct_num < 1 || ct_num > 25)
-        ct_num = 1;
-    cur_ct_num_ = ct_num;
-    return set_start();
+Int_t ModuleIterator::get_tot_N() {
+    if (cur_ct_num_ > 0) {
+        if (phy_event_elist_ == NULL || ped_event_elist_ == NULL)
+            return 0;
+        else
+            return (phy_event_elist_->GetN() + ped_event_elist_->GetN());
+    } else {
+        if (phy_trigg_elist_ == NULL || ped_trigg_elist_ == NULL)
+            return 0;
+        else
+            return (phy_trigg_elist_->GetN() + ped_trigg_elist_->GetN());
+    }
+
 }
 
-bool ModuleIterator::set_trigger() {
-    cur_ct_num_ = 0;
-    return set_start();
-}
-
-bool ModuleIterator::set_start() {
+bool ModuleIterator::set_module(int ct_num, string filter) {
     if (t_file_in_ == NULL)
         return false;
-    bool ped_res, phy_res;
+    if (ct_num < 1 || ct_num > 25) {
+        cur_ct_num_ = 1;
+    } else {
+        cur_ct_num_ = ct_num;
+    }
+    cur_filter_ = filter;
+
+    char buffer[80];
+    sprintf(buffer, "is_bad <= 0 && ct_num == %d", cur_ct_num_);
+    string com_filter(buffer);
+    if (cur_filter_.length() > 0) {
+        com_filter += " && ";
+        com_filter += cur_filter_;
+    }
+    if (t_modules_->Draw(">>phy_event_elist", com_filter.c_str()) < 0)
+        return false;
+    phy_event_elist_ = static_cast<TEventList*>(gDirectory->Get("phy_event_elist"));
+    if (t_ped_modules_->Draw(">>ped_event_elist", com_filter.c_str()) < 0)
+        return false;
+    ped_event_elist_ = static_cast<TEventList*>(gDirectory->Get("ped_event_elist"));
+
+    if (get_tot_N() < 1)
+        return false;
+
+    if (phy_trigg_elist_ != NULL) {
+        delete phy_trigg_elist_;
+        phy_trigg_elist_ = NULL;
+    }
+    if (ped_trigg_elist_ != NULL) {
+        delete ped_trigg_elist_;
+        ped_trigg_elist_ = NULL;
+    }
+    phy_trigg_reach_end_ = true;
+    ped_trigg_reach_end_ = true;
+
+    set_start();
+    return true;
+}
+
+bool ModuleIterator::set_trigger(string filter) {
+    if (t_file_in_ == NULL)
+        return false;
+    cur_ct_num_ = 0;
+    cur_filter_ = filter;
+
+    string com_filter("is_bad <= 0");
+    if (cur_filter_.length() > 0) {
+        com_filter += " && ";
+        com_filter += cur_filter_;
+    }
+    if (t_trigger_->Draw(">>phy_trigg_elist", com_filter.c_str()) < 0)
+        return false;
+    phy_trigg_elist_ = static_cast<TEventList*>(gDirectory->Get("phy_trigg_elist"));
+    if (t_ped_trigger_->Draw(">>ped_trigg_elist", com_filter.c_str()) < 0)
+        return false;
+    ped_trigg_elist_ = static_cast<TEventList*>(gDirectory->Get("ped_trigg_elist"));
+
+    if (get_tot_N() < 1)
+        return false;
+
+    if (phy_event_elist_ != NULL) {
+        delete phy_event_elist_;
+        phy_event_elist_ = NULL;
+    }
+    if (ped_event_elist_ != NULL) {
+        delete ped_event_elist_;
+        ped_event_elist_ = NULL;
+    }
+    phy_event_reach_end_ = true;
+    ped_event_reach_end_ = true;
+    
+    set_start();
+    return true;
+}
+
+void ModuleIterator::set_start() {
+    if (t_file_in_ == NULL)
+        return;
+    if (get_tot_N() < 1)
+        return;
     if (cur_ct_num_ > 0) {
         event_start_flag_ = true;
-        ped_event_cur_entry_ = -1;
+        ped_event_cur_index_ = -1;
         ped_event_reach_end_ = false;
-        ped_res = ped_event_next_();
-        phy_event_cur_entry_ = -1;
+        ped_event_next_();
+        phy_event_cur_index_ = -1;
         phy_event_reach_end_ = false;
-        phy_res = phy_event_next_();
+        phy_event_next_();
     } else {
         trigg_start_flag_ = true;
-        ped_trigg_cur_entry_ = -1;
+        ped_trigg_cur_index_ = -1;
         ped_trigg_reach_end_ = false;
-        ped_res = ped_trigg_next_();
-        phy_trigg_cur_entry_ = -1;
+        ped_trigg_next_();
+        phy_trigg_cur_index_ = -1;
         phy_trigg_reach_end_ = false;
-        phy_res = phy_trigg_next_();
+        phy_trigg_next_();
     }
-    return (ped_res || phy_res);    
 }
 
 int ModuleIterator::get_cur_seq() {
@@ -266,5 +330,70 @@ int ModuleIterator::get_cur_seq() {
 }
 
 int ModuleIterator::get_bad_cnt() {
-    return cur_seq_num_ - pre_seq_num_ - 1;
+    if (cur_filter_.length() > 0)
+        return -1;
+    else
+        return (cur_seq_num_ - pre_seq_num_ - 1);
+}
+
+SciType::Modules_T ModuleIterator::get_last_event() {
+    Modules_T ret_event;
+    if (t_file_in_ == NULL)
+        return ret_event;
+    if (get_tot_N() < 1)
+        return ret_event;
+    
+    Modules_T tmp_phy_event = phy_event_;
+    Modules_T tmp_ped_event = ped_event_;
+
+    if (ped_event_elist_->GetN() < 1) {
+        t_modules_->GetEntry(phy_event_elist_->GetEntry(phy_event_elist_->GetN() - 1));
+        ret_event = phy_event_;
+    } else if (phy_event_elist_->GetN() < 1) {
+        t_ped_modules_->GetEntry(ped_event_elist_->GetEntry(ped_event_elist_->GetN() - 1));
+        ret_event = ped_event_;
+    } else {
+        t_modules_->GetEntry(phy_event_elist_->GetEntry(phy_event_elist_->GetN() - 1));
+        t_ped_modules_->GetEntry(ped_event_elist_->GetEntry(ped_event_elist_->GetN() - 1));
+        if (phy_event_.event_num_g > ped_event_.event_num_g) {
+            ret_event = phy_event_;
+        } else {
+            ret_event = ped_event_;
+        }
+    }
+
+    phy_event_ = tmp_phy_event;
+    ped_event_ = tmp_ped_event;
+    return ret_event;
+}
+
+SciType::Trigger_T ModuleIterator::get_last_trigg() {
+    Trigger_T ret_trigg;
+    if (t_file_in_ == NULL)
+        return ret_trigg;
+    if (get_tot_N() < 1)
+        return ret_trigg;
+
+    Trigger_T tmp_phy_trigg = phy_trigg_;
+    Trigger_T tmp_ped_trigg = ped_trigg_;
+
+    if (ped_trigg_elist_->GetN() < 1) {
+        t_trigger_->GetEntry(phy_trigg_elist_->GetEntry(phy_trigg_elist_->GetN() - 1));
+        ret_trigg = phy_trigg_;
+    } else if (phy_trigg_elist_->GetN() < 1) {
+        t_ped_trigger_->GetEntry(ped_trigg_elist_->GetEntry(ped_trigg_elist_->GetN() - 1));
+        ret_trigg = ped_trigg_;
+    } else {
+        t_trigger_->GetEntry(phy_trigg_elist_->GetEntry(phy_trigg_elist_->GetN() - 1));
+        t_ped_trigger_->GetEntry(ped_trigg_elist_->GetEntry(ped_trigg_elist_->GetN() - 1));
+        if (phy_trigg_.trigg_num_g > ped_trigg_.trigg_num_g) {
+            ret_trigg = phy_trigg_;
+        } else {
+            ret_trigg = ped_trigg_;
+        }
+    }
+
+    phy_trigg_ = tmp_phy_trigg;
+    ped_trigg_ = tmp_ped_trigg;
+    return ret_trigg;
 }

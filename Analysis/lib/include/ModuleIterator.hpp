@@ -1,11 +1,21 @@
 #ifndef MODULEITERATOR_H
 #define MODULEITERATOR_H
 
+#include <cstdio>
 #include "SciType.hpp"
+
+using namespace std;
 
 class ModuleIterator: private SciType {
 private:
-    int cur_ct_num_;
+    TFile* t_file_in_;
+    TTree* t_trigger_;
+    TTree* t_modules_;
+    TTree* t_ped_trigger_;
+    TTree* t_ped_modules_;
+
+    int      cur_ct_num_;
+    string   cur_filter_;
     Long64_t cur_seq_num_;
     Long64_t pre_seq_num_;
     
@@ -16,21 +26,18 @@ private:
 
     bool trigg_start_flag_;
     bool event_start_flag_;
-    
-    Long64_t ped_trigg_cur_entry_;
-    Long64_t ped_trigg_tot_entries_;
-    Long64_t ped_event_cur_entry_;
-    Long64_t ped_event_tot_entries_;
-    Long64_t phy_trigg_cur_entry_;
-    Long64_t phy_trigg_tot_entries_;
-    Long64_t phy_event_cur_entry_;
-    Long64_t phy_event_tot_entries_;
 
-    TFile* t_file_in_;
-    TTree* t_trigger_;
-    TTree* t_modules_;
-    TTree* t_ped_trigger_;
-    TTree* t_ped_modules_;
+    TEventList* ped_trigg_elist_;
+    Int_t       ped_trigg_cur_index_;
+
+    TEventList* ped_event_elist_;
+    Int_t       ped_event_cur_index_;
+
+    TEventList* phy_trigg_elist_;
+    Int_t       phy_trigg_cur_index_;
+
+    TEventList* phy_event_elist_;
+    Int_t       phy_event_cur_index_;
 
     Trigger_T phy_trigg_;
     Trigger_T ped_trigg_;
@@ -51,16 +58,20 @@ public:
     ModuleIterator();
     ~ModuleIterator();
 
-    bool open(const char* filename);
-    void close();
-    bool trigg_next();
-    bool event_next();
-    bool set_module(int ct_num);
-    bool set_trigger();
-    bool set_start();
-    int  get_cur_seq();
-    int  get_bad_cnt();
-
+    bool  open(const char* filename);
+    void  close();
+    bool  trigg_next();
+    bool  event_next();
+    bool  set_module(int ct_num, string filter = "");
+    bool  set_trigger(string filter = "");
+    void  set_start();
+    Int_t get_tot_N();
+    int   get_cur_seq();
+    int   get_bad_cnt();
+    
+    Modules_T get_last_event();
+    Trigger_T get_last_trigg();
+    
 };
 
 #endif
