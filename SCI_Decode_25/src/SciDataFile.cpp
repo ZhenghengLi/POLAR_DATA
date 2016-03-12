@@ -47,6 +47,7 @@ bool SciDataFile::open(const char* filename) {
     t_modules_tree_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );
     t_modules_tree_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );
     t_modules_tree_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/F"        );
+    t_modules_tree_->Branch("multiplicity",      &t_modules.multiplicity,      "multiplicity/I"        );
 
     t_trigger_tree_ = new TTree("t_trigger", "physical trigger packets");
     t_trigger_tree_->SetDirectory(t_out_file_);
@@ -108,6 +109,7 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("trigger_bit",        t_ped_modules.trigger_bit,       "trigger_bit[64]/O"     );
     t_ped_modules_tree_->Branch("energy_adc",         t_ped_modules.energy_adc,        "energy_adc[64]/F"      );
     t_ped_modules_tree_->Branch("common_noise",      &t_ped_modules.common_noise,      "common_noise/F"        );
+    t_ped_modules_tree_->Branch("multiplicity",      &t_ped_modules.multiplicity,      "multiplicity/I"        );
 
     t_ped_trigger_tree_ = new TTree("t_ped_trigger", "pedestal trigger packets");
     t_ped_trigger_tree_->SetDirectory(t_out_file_);
@@ -372,6 +374,12 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
         t_modules_par.common_noise                        = 0;
     } else {
         t_modules_par.common_noise                        = static_cast<Float_t>(event.common_noise) - 2048;
+    }
+    t_modules_par.multiplicity = 0;
+    for (int i = 0; i < 64; i++) {
+        if (event.trigger_bit[i] > 0) {
+            t_modules_par.multiplicity++;
+        }
     }
 }
 

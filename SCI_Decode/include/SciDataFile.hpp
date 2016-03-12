@@ -87,6 +87,7 @@ public:
         Bool_t          trigger_bit[64];          // raw data of the TRIGGERBIT, the same as pattern[64]
         Float_t         energy_adc[64];           // ADC of energy of the 64 channels, the same as pm[64]
         Float_t         common_noise;             // raw data of COMMON NOISE field for compress mode 3, 0 for other compress mode
+        Int_t           multiplicity;             // sum of trigger_bit[64] of this packet
     };
 
     struct Trigger_T {
