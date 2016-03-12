@@ -10,8 +10,8 @@
 #include <list>
 #include <stdint.h>
 
-#define BUFFER_SIZE 780
-#define CHECK_MAX 20
+#define BUFFER_SIZE 520
+#define CHECK_MAX 500
 
 using namespace std;
 
@@ -29,7 +29,7 @@ private:
     bool found_start_frame_;
 private:
     void shift_left_();
-    bool check_valid_();
+    bool check_header_();
 public:
     char data_buffer[BUFFER_SIZE];
 public:
