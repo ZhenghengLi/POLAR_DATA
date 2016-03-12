@@ -76,9 +76,9 @@ public:
         Int_t           ct_num;                   // CT number, from 1 to 25
         UInt_t          time_stamp;               // raw data of TIMESTAMP field of the packet
         UInt_t          time_period;              // overflow counter of time_stamp
-        UInt_t          time_wait;                // time_stamp difference since previous event
         UInt_t          time_align;               // 23 LSB of time_stamp
         Double_t        time_second;              // time in seconds from start
+        Double_t        time_wait;                // time_second difference since previous event
         Int_t           raw_rate;                 // raw data of RATE field of the packet
         UInt_t          raw_dead;                 // raw data of DEADTIME field of the packet
         Float_t         dead_ratio;               // increased number of raw_dead divided by time_wait
@@ -102,9 +102,9 @@ public:
         Int_t           packet_num;               // raw data of packet number of the trigger packet
         UInt_t          time_stamp;               // raw data of Timestamp register of the trigger packet
         UInt_t          time_period;              // overflow counter of time_stamp
-        UInt_t          time_wait;                // time_stamp difference since previous event
         UInt_t          time_align;               // 23 MSB of time_stamp
         Double_t        time_second;              // time in seconds from start
+        Double_t        time_wait;                // time_second difference since previous event
         ULong64_t       frm_ship_time;            // raw data of the ship time from frame in which this packet is.
         ULong64_t       frm_gps_time;             // raw data of the GPS time from frame in which this packet is.
         //                                           Other forms of frm_ship_time and frm_gps_time will be converted when doing UTC calculating.

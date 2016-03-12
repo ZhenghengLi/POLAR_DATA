@@ -9,9 +9,9 @@ void SciType::bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) {
     t_trigger_tree->SetBranchAddress("packet_num",        &t_trigger.packet_num                  );
     t_trigger_tree->SetBranchAddress("time_stamp",        &t_trigger.time_stamp                  );
     t_trigger_tree->SetBranchAddress("time_period",       &t_trigger.time_period                 );
-    t_trigger_tree->SetBranchAddress("time_wait",         &t_trigger.time_wait                   );
     t_trigger_tree->SetBranchAddress("time_align",        &t_trigger.time_align                  );
     t_trigger_tree->SetBranchAddress("time_second",       &t_trigger.time_second                 );
+    t_trigger_tree->SetBranchAddress("time_wait",         &t_trigger.time_wait                   );
     t_trigger_tree->SetBranchAddress("frm_ship_time",     &t_trigger.frm_ship_time               );
     t_trigger_tree->SetBranchAddress("frm_gps_time",      &t_trigger.frm_gps_time                );
     t_trigger_tree->SetBranchAddress("pkt_start",         &t_trigger.pkt_start                   );
@@ -38,9 +38,9 @@ void SciType::bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules) {
     t_modules_tree->SetBranchAddress("ct_num",            &t_modules.ct_num                      );
     t_modules_tree->SetBranchAddress("time_stamp",        &t_modules.time_stamp                  );
     t_modules_tree->SetBranchAddress("time_period",       &t_modules.time_period                 );
-    t_modules_tree->SetBranchAddress("time_wait",         &t_modules.time_wait                   );
     t_modules_tree->SetBranchAddress("time_align",        &t_modules.time_align                  );
     t_modules_tree->SetBranchAddress("time_second",       &t_modules.time_second                 );
+    t_modules_tree->SetBranchAddress("time_wait",         &t_modules.time_wait                   );
     t_modules_tree->SetBranchAddress("raw_rate",          &t_modules.raw_rate                    );
     t_modules_tree->SetBranchAddress("raw_dead",          &t_modules.raw_dead                    );
     t_modules_tree->SetBranchAddress("dead_ratio",        &t_modules.dead_ratio                  );
