@@ -231,21 +231,23 @@ bool ModuleIterator::set_module(int ct_num, string filter) {
     } else {
         cur_ct_num_ = ct_num;
     }
-    cur_filter_ = filter;
 
     char buffer[80];
     sprintf(buffer, "is_bad <= 0 && ct_num == %d", cur_ct_num_);
-    string com_filter(buffer);
-    if (cur_filter_.length() > 0) {
-        com_filter += " && ";
-        com_filter += cur_filter_;
+    cur_filter_.assign(buffer);
+    if (filter.length() > 0) {
+        cur_filter_ += " && (";
+        cur_filter_ += filter;
+        cur_filter_ += ")";
     }
-    if (t_modules_->Draw(">>phy_event_elist", com_filter.c_str()) < 0)
+    if (t_modules_->Draw(">>phy_event_elist", cur_filter_.c_str()) < 0)
         return false;
     phy_event_elist_ = static_cast<TEventList*>(gDirectory->Get("phy_event_elist"));
-    if (t_ped_modules_->Draw(">>ped_event_elist", com_filter.c_str()) < 0)
+    t_modules_->SetEventList(phy_event_elist_);
+    if (t_ped_modules_->Draw(">>ped_event_elist", cur_filter_.c_str()) < 0)
         return false;
     ped_event_elist_ = static_cast<TEventList*>(gDirectory->Get("ped_event_elist"));
+    t_ped_modules_->SetEventList(ped_event_elist_);
 
     if (get_tot_N() < 1)
         return false;
@@ -269,19 +271,21 @@ bool ModuleIterator::set_trigger(string filter) {
     if (t_file_in_ == NULL)
         return false;
     cur_ct_num_ = 0;
-    cur_filter_ = filter;
 
-    string com_filter("is_bad <= 0");
-    if (cur_filter_.length() > 0) {
-        com_filter += " && ";
-        com_filter += cur_filter_;
+    cur_filter_.assign("is_bad <= 0");
+    if (filter.length() > 0) {
+        cur_filter_ += " && (";
+        cur_filter_ += filter;
+        cur_filter_ += ")";
     }
-    if (t_trigger_->Draw(">>phy_trigg_elist", com_filter.c_str()) < 0)
+    if (t_trigger_->Draw(">>phy_trigg_elist", cur_filter_.c_str()) < 0)
         return false;
     phy_trigg_elist_ = static_cast<TEventList*>(gDirectory->Get("phy_trigg_elist"));
-    if (t_ped_trigger_->Draw(">>ped_trigg_elist", com_filter.c_str()) < 0)
+    t_trigger_->SetEventList(phy_trigg_elist_);
+    if (t_ped_trigger_->Draw(">>ped_trigg_elist", cur_filter_.c_str()) < 0)
         return false;
     ped_trigg_elist_ = static_cast<TEventList*>(gDirectory->Get("ped_trigg_elist"));
+    t_ped_trigger_->SetEventList(ped_trigg_elist_);
 
     if (get_tot_N() < 1)
         return false;
@@ -330,7 +334,7 @@ int ModuleIterator::get_cur_seq() {
 }
 
 int ModuleIterator::get_bad_cnt() {
-    if (cur_filter_.length() > 0)
+    if (cur_filter_.find("(") != string::npos)
         return -1;
     else
         return (cur_seq_num_ - pre_seq_num_ - 1);
@@ -475,18 +479,18 @@ bool ModuleIterator::cur_is_ped() {
         return (cur_trigg.type == 0x00F0);
 }
 
-const TTree* ModuleIterator::get_trigger_tree() {
+TTree* ModuleIterator::get_trigger_tree() {
     return t_trigger_;
 }
 
-const TTree* ModuleIterator::get_modules_tree() {
+TTree* ModuleIterator::get_modules_tree() {
     return t_modules_;
 }
 
-const TTree* ModuleIterator::get_ped_trigger_tree() {
+TTree* ModuleIterator::get_ped_trigger_tree() {
     return t_ped_trigger_;
 }
 
-const TTree* ModuleIterator::get_ped_modules_tree() {
+TTree* ModuleIterator::get_ped_modules_tree() {
     return t_ped_modules_;
 }

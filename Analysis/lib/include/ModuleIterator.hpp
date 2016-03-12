@@ -77,10 +77,10 @@ public:
     Trigger_T get_first_trigg();
     Trigger_T get_last_trigg();
 
-    const TTree* get_trigger_tree();
-    const TTree* get_modules_tree();
-    const TTree* get_ped_trigger_tree();
-    const TTree* get_ped_modules_tree();
+    TTree* get_trigger_tree();
+    TTree* get_modules_tree();
+    TTree* get_ped_trigger_tree();
+    TTree* get_ped_modules_tree();
     
 };
 
