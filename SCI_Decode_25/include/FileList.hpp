@@ -10,8 +10,8 @@
 #include <list>
 #include <stdint.h>
 
-#define BUFFER_SIZE 6156
-#define CHECK_MAX 20
+#define BUFFER_SIZE 4104
+#define CHECK_MAX 100
 
 using namespace std;
 
@@ -25,11 +25,10 @@ private:
     int vernier_begin_;
     int vernier_end_;
     bool reach_file_end_;
-    int remain_counter_;
     bool found_start_frame_;
 private:
     void shift_left_();
-    bool check_valid_();
+    bool check_header_();
 public:
     char data_buffer[BUFFER_SIZE];
 public:
