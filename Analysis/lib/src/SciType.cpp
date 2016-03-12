@@ -49,4 +49,5 @@ void SciType::bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules) {
     t_modules_tree->SetBranchAddress("trigger_bit",        t_modules.trigger_bit                 );
     t_modules_tree->SetBranchAddress("energy_adc",         t_modules.energy_adc                  );
     t_modules_tree->SetBranchAddress("common_noise",      &t_modules.common_noise                );
+    t_modules_tree->SetBranchAddress("multiplicity",      &t_modules.multiplicity                );
 }
