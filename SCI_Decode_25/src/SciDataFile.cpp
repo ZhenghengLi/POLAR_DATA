@@ -429,7 +429,7 @@ void SciDataFile::copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& 
 }
 
 template <class T>
-bool SciDataFile::bit_extract_(T data, int n) {
+bool SciDataFile::bit_extract_(T data, size_t n) {
     if (n >= sizeof(T) * 8)
         return false;
     data &= (1 << n);

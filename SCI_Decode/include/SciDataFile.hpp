@@ -148,7 +148,7 @@ private:
 private:
     void copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& event);
     void copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& trigger);
-    template <class T> bool bit_extract_(T data, int n);
+    template <class T> bool bit_extract_(T data, size_t n);
 
 public:
     SciDataFile();
