@@ -336,6 +336,37 @@ int ModuleIterator::get_bad_cnt() {
         return (cur_seq_num_ - pre_seq_num_ - 1);
 }
 
+SciType::Modules_T ModuleIterator::get_first_event() {
+    Modules_T ret_event;
+    if (t_file_in_ == NULL)
+        return ret_event;
+    if (get_tot_N() < 1)
+        return ret_event;
+
+    Modules_T tmp_phy_event = phy_event_;
+    Modules_T tmp_ped_event = ped_event_;
+
+    if (ped_event_elist_->GetN() < 1) {
+        t_modules_->GetEntry(phy_event_elist_->GetEntry(0));
+        ret_event = phy_event_;
+    } else if (phy_event_elist_->GetN() < 1) {
+        t_ped_modules_->GetEntry(ped_event_elist_->GetEntry(0));
+        ret_event = ped_event_;
+    } else {
+        t_modules_->GetEntry(phy_event_elist_->GetEntry(0));
+        t_ped_modules_->GetEntry(ped_event_elist_->GetEntry(0));
+        if (phy_event_.event_num_g < ped_event_.event_num_g) {
+            ret_event = phy_event_;
+        } else {
+            ret_event = ped_event_;
+        }
+    }
+
+    phy_event_ = tmp_phy_event;
+    ped_event_ = tmp_ped_event;
+    return ret_event;
+}
+
 SciType::Modules_T ModuleIterator::get_last_event() {
     Modules_T ret_event;
     if (t_file_in_ == NULL)
@@ -365,6 +396,37 @@ SciType::Modules_T ModuleIterator::get_last_event() {
     phy_event_ = tmp_phy_event;
     ped_event_ = tmp_ped_event;
     return ret_event;
+}
+
+SciType::Trigger_T ModuleIterator::get_first_trigg() {
+    Trigger_T ret_trigg;
+    if (t_file_in_ == NULL)
+        return ret_trigg;
+    if (get_tot_N() < 1)
+        return ret_trigg;
+
+    Trigger_T tmp_phy_trigg = phy_trigg_;
+    Trigger_T tmp_ped_trigg = ped_trigg_;
+
+    if (ped_trigg_elist_->GetN() < 1) {
+        t_trigger_->GetEntry(phy_trigg_elist_->GetEntry(0));
+        ret_trigg = phy_trigg_;
+    } else if (phy_trigg_elist_->GetN() < 1) {
+        t_ped_trigger_->GetEntry(ped_trigg_elist_->GetEntry(0));
+        ret_trigg = ped_trigg_;
+    } else {
+        t_trigger_->GetEntry(phy_trigg_elist_->GetEntry(0));
+        t_ped_trigger_->GetEntry(ped_trigg_elist_->GetEntry(0));
+        if (phy_trigg_.trigg_num_g < ped_trigg_.trigg_num_g) {
+            ret_trigg = phy_trigg_;
+        } else {
+            ret_trigg = ped_trigg_;
+        }
+    }
+
+    phy_trigg_ = tmp_phy_trigg;
+    ped_trigg_ = tmp_ped_trigg;
+    return ret_trigg;
 }
 
 SciType::Trigger_T ModuleIterator::get_last_trigg() {

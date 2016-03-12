@@ -72,7 +72,9 @@ public:
     string    get_cur_filter();
     bool      cur_is_ped();
 
+    Modules_T get_first_event();
     Modules_T get_last_event();
+    Trigger_T get_first_trigg();
     Trigger_T get_last_trigg();
 
     const TTree* get_trigger_tree();
