@@ -81,21 +81,21 @@ bool FileList::check_header_() {
     uint16_t frame_header = 0;
     for (int i = 0; i < 2; i++) {
         frame_header <<= 8;
-        frame_header += static_cast<uint8_t>(data_buffer[0 + i]);
+        frame_header += static_cast<uint8_t>(data_buffer[vernier_begin_ + 0 + i]);
     }
     if (frame_header != 0x0749)
         return false;
     uint16_t frame_length = 0;
     for (int i = 0; i < 2; i++) {
         frame_length <<= 8;
-        frame_length += static_cast<uint8_t>(data_buffer[4 + i]);
+        frame_length += static_cast<uint8_t>(data_buffer[vernier_begin_ + 4 + i]);
     }
     if (frame_length != 0x00F9)
         return false;
     uint32_t hk_header = 0;
     for (int i = 0; i < 4; i++) {
         hk_header <<= 8;
-        hk_header += static_cast<uint8_t>(data_buffer[6 + i]);
+        hk_header += static_cast<uint8_t>(data_buffer[vernier_begin_ + 6 + i]);
     }
     if (hk_header != 0xD9A4C2EA)
         return false;
@@ -125,21 +125,32 @@ bool FileList::next_file() {
     while (!reach_file_end_) {
         datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
         vernier_end_ += datafile_.gcount();
+        if (datafile_.eof()) {
+            reach_file_end_ = true;
+            break;
+        }
         check_size += datafile_.gcount();
         if (check_size / 260 > CHECK_MAX) {
             cerr << "INVALID POLAR HK FILE." << endl;
             return false;
         }
-        if (datafile_.eof()) {
-            reach_file_end_ = true;
-            break;
-        }
         if (check_header_()) {
             found_start_frame_ = true;
-            break;
+            while (vernier_begin_ < 259) {
+                vernier_begin_++;
+                if (check_header_()) {
+                    shift_left_();
+                    found_start_frame_ = false;
+                    break;
+                }
+            }
+            vernier_begin_ = 0;
         } else {
             vernier_begin_++;
             shift_left_();
+        }
+        if (found_start_frame_) {
+            break;
         }
     }
     if (found_start_frame_) {
@@ -169,29 +180,50 @@ bool FileList::next_frame() {
         return false;
     bool found_header = false;
     while (!reach_file_end_) {
-        if (check_header_()) {
-            found_header = true;
-        } else {
-            vernier_begin_++;
-            shift_left_();
-        }
         datafile_.read(data_buffer + vernier_end_, BUFFER_SIZE - vernier_end_);
         vernier_end_ += datafile_.gcount();
         if (datafile_.eof()) {
             reach_file_end_ = true;
             break;
         }
-        if (found_header)
+        if (check_header_()) {
+            found_header = true;
+            while (vernier_begin_ < 259) {
+                vernier_begin_++;
+                if (check_header_()) {
+                    shift_left_();
+                    found_header = false;
+                    break;
+                }
+            }
+            vernier_begin_ = 0;
+        } else {
+            vernier_begin_++;
+            shift_left_();
+        }
+        if (found_header) {
             break;
+        }
     }
     if (!found_header) {
         while (vernier_end_ - vernier_begin_ >= 260) {
             if (check_header_()) {
                 found_header = true;
-                break;
+                while (vernier_begin_ < 250) {
+                    vernier_begin_++;
+                    if (check_header_()) {
+                        shift_left_();
+                        found_header = false;
+                        break;
+                    }
+                }
+                vernier_begin_ = 0;
             } else {
                 vernier_begin_++;
                 shift_left_();
+            }
+            if (found_header) {
+                break;
             }
         }
     }
