@@ -6,7 +6,7 @@ using boost::crc_optimal;
 
 SciFrame::SciFrame() {
     frame_data_ = NULL;
-    pre_half_packet_ = new char[256];
+    pre_half_packet_ = new char[520];
     pre_half_packet_len_ = 0;
     pre_frame_index_ = 0;
     cur_packet_buffer_ = NULL;
@@ -17,7 +17,7 @@ SciFrame::SciFrame() {
 
 SciFrame::SciFrame(const char* data) {
     frame_data_ = data;
-    pre_half_packet_ = new char[256];
+    pre_half_packet_ = new char[520];
     pre_half_packet_len_ = 0;
     pre_frame_index_ = 0;
     cur_packet_buffer_ = NULL;
