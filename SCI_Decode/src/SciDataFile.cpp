@@ -94,9 +94,9 @@ bool SciDataFile::open(const char* filename) {
     t_ped_modules_tree_->Branch("ct_num",            &t_ped_modules.ct_num,            "ct_num/I"              );
     t_ped_modules_tree_->Branch("time_stamp",        &t_ped_modules.time_stamp,        "time_stamp/i"          );
     t_ped_modules_tree_->Branch("time_period",       &t_ped_modules.time_period,       "time_period/i"         );
-    t_ped_modules_tree_->Branch("time_wait",         &t_ped_modules.time_wait,         "time_wait/i"           );
     t_ped_modules_tree_->Branch("time_align",        &t_ped_modules.time_align,        "time_align/i"          );
     t_ped_modules_tree_->Branch("time_second",       &t_ped_modules.time_second,       "time_second/D"         );
+    t_ped_modules_tree_->Branch("time_wait",         &t_ped_modules.time_wait,         "time_wait/D"           );
     t_ped_modules_tree_->Branch("raw_rate",          &t_ped_modules.raw_rate,          "raw_rate/I"            );
     t_ped_modules_tree_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/i"            );
     t_ped_modules_tree_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
@@ -121,9 +121,9 @@ bool SciDataFile::open(const char* filename) {
     t_ped_trigger_tree_->Branch("packet_num",        &t_ped_trigger.packet_num,        "packet_num/I"          );
     t_ped_trigger_tree_->Branch("time_stamp",        &t_ped_trigger.time_stamp,        "time_stamp/i"          );
     t_ped_trigger_tree_->Branch("time_period",       &t_ped_trigger.time_period,       "time_period/i"         );
-    t_ped_trigger_tree_->Branch("time_wait",         &t_ped_trigger.time_wait,         "time_wait/i"           );
     t_ped_trigger_tree_->Branch("time_align",        &t_ped_trigger.time_align,        "time_align/i"          );
     t_ped_trigger_tree_->Branch("time_second",       &t_ped_trigger.time_second,       "time_second/D"         );
+    t_ped_trigger_tree_->Branch("time_wait",         &t_ped_trigger.time_wait,         "time_wait/D"           );
     t_ped_trigger_tree_->Branch("frm_ship_time",     &t_ped_trigger.frm_ship_time,     "frm_ship_time/l"       );
     t_ped_trigger_tree_->Branch("frm_gps_time",      &t_ped_trigger.frm_gps_time,      "frm_gps_time/l"        );
     t_ped_trigger_tree_->Branch("pkt_start",         &t_ped_trigger.pkt_start,         "pkt_start/L"           );
