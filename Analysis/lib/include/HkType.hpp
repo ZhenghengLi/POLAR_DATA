@@ -57,7 +57,7 @@ public:
         UShort_t       saa;                           // raw data of SAA flag
         UShort_t       sci_head;                      // raw data of OBOX science packet header counter
         ULong64_t      gps_pps_count;                 // raw data of Time_PPS
-        ULong64_t      gps_sync_gen_count;            // raw data of Time_synchComGen                                                                                                                               
+        ULong64_t      gps_sync_gen_count;            // raw data of Time_synchComGen
         ULong64_t      gps_sync_send_count;           // raw data of Time_synchComTx
     };
 
@@ -75,7 +75,7 @@ public:
         UShort_t       head;                          // raw data of OBOX HK header counter
         UShort_t       tail;                          // raw data of OBOX HK tail counter
         ULong64_t      ibox_gps;                      // raw data of IBOX GPS time
-    };  
+    };
 
 public:
     void bind_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox);
