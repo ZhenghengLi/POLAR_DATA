@@ -22,7 +22,7 @@ public:
         Bool_t t_out_too_many;            //  2
         Bool_t t_out_2;                   //  1
         Bool_t t_out_1;                   //  0
-    };  
+    };
 
     struct Trigg_Status_T {
         Bool_t science_disable;           // 15
@@ -39,7 +39,7 @@ public:
         Bool_t packet_type_b2;            //  4
         Bool_t packet_type_b1;            //  3
         Bool_t packet_type_b0;            //  2
-    };  
+    };
 
     struct Trig_Sig_Con_T {
         Bool_t fe_busy[25];               //  5
@@ -48,7 +48,7 @@ public:
         Bool_t fe_tmany_thigh[25];        //  2
         Bool_t fe_tout_2[25];             //  1
         Bool_t fe_tout_1[25];             //  0
-    };  
+    };
         
     struct Modules_T {
         Long64_t        trigg_num;                // Sequential number of the trigger packet of an event.
