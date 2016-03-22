@@ -49,7 +49,7 @@ public:
     }
     Long64_t get_trigger_entries() {
         if (t_file_in_ == NULL)
-            return 0;
+            return -1;
         else
             return trigger_tot_entries_;
     }
@@ -64,7 +64,7 @@ public:
     }
     Long64_t get_modules_entries() {
         if (t_file_in_ == NULL)
-            return 0;
+            return -1;
         else
             return modules_tot_entries_;
     }
@@ -80,7 +80,7 @@ public:
     }
     Long64_t get_ped_trigger_entries() {
         if (t_file_in_ == NULL) 
-            return 0;
+            return -1;
         else
             return ped_trigger_tot_entries_;
     }
@@ -95,7 +95,7 @@ public:
     }
     Long64_t get_ped_modules_entries() {
         if (t_file_in_ == NULL)
-            return 0;
+            return -1;
         else
             return ped_modules_tot_entries_;
     }

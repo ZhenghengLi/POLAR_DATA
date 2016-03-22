@@ -55,7 +55,7 @@ public:
     }
     Long64_t get_trigg_entries() {
         if (t_file_in_ == NULL)
-            return 0;
+            return -1;
         else
             return trigg_tot_entries_;
     }
@@ -73,7 +73,7 @@ public:
     }
     Long64_t get_ped_trigg_entries() {
         if (t_file_in_ == NULL)
-            return 0;
+            return -1;
         else
             return ped_trigg_tot_entries_;
     }
