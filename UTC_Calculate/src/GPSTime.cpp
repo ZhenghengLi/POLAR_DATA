@@ -1,18 +1,20 @@
 #include "GPSTime.hpp"
 
-void GPSTime::update6(const uint64_t raw_gps) {
+GPSTime& GPSTime::update6(const uint64_t raw_gps) {
     week = static_cast<double>((raw_gps >> 32) & 0xFFFF);
     second = static_cast<double>((raw_gps >> 12) & 0xFFFFF)
         + static_cast<double>(raw_gps & 0xFFF) * 0.5 * 1.0E-3;
+    return *this;
 }
 
-void GPSTime::update8(const uint64_t raw_gps_clkcount) {
+GPSTime& GPSTime::update8(const uint64_t raw_gps_clkcount) {
     week = static_cast<double>((raw_gps_clkcount >> 48) & 0xFFFF);
     second = static_cast<double>((raw_gps_clkcount >> 28) & 0xFFFFF)
         + static_cast<double>((raw_gps_clkcount >> 16) & 0xFFF) * 0.5 * 1.0E-3;
     double clkcount = static_cast<double>(raw_gps_clkcount & 0xFFFF);
     if (clkcount < 32768) 
         second += clkcount * 25 * 1.0E-9;
+    return *this;
 }
 
 double GPSTime::operator-(const GPSTime& right) const {

@@ -10,8 +10,8 @@ public:
     double second;
 
 public:
-    void update6(const uint64_t raw_gps);
-    void update8(const uint64_t raw_gps_clkcount);
+    GPSTime& update6(const uint64_t raw_gps);
+    GPSTime& update8(const uint64_t raw_gps_clkcount);
 
     double operator-(const GPSTime& right) const;
     GPSTime operator+(const double right_second) const;
