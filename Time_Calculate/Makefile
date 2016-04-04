@@ -8,9 +8,9 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 .PHONY : all clean
 
-all: ../bin/UTC_Calculate
+all: ../bin/Time_Calculate
 
-../bin/UTC_Calculate: $(OBJ_FILES)
+../bin/Time_Calculate: $(OBJ_FILES)
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp

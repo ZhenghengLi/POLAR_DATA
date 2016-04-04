@@ -20,7 +20,7 @@ void print(const HkGPSIterator& iter) {
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        cout << "USAGE" << argv[0] << " <filename>" << endl;
+        cout << "USAGE: " << argv[0] << " <filename>" << endl;
         return 0;
     }
 
