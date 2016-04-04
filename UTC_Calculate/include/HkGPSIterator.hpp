@@ -22,17 +22,18 @@ private:
     Long64_t hk_obox_tot_entries_;
     Long64_t hk_obox_cur_index_;
     bool hk_obox_reach_end_;
-
-    bool start_flag_;
-    pair<GPSTime, uint32_t> pre_gps_sync_;
-    pair<GPSTime, uint32_t> cur_gps_sync_;        
-    pair<GPSTime, uint32_t> before_gps_sync_;
-    pair<GPSTime, uint32_t> after_gps_sync_;
-    pair<GPSTime, uint32_t> first_gps_sync_;
-    pair<GPSTime, uint32_t> last_gps_sync_;
-
-    double cur_ticks_per_second_;
     bool passed_last_;
+
+    pair<GPSTime, uint32_t> pre_gps_sync_;
+    pair<GPSTime, uint32_t> cur_gps_sync_;
+
+public:
+    pair<GPSTime, uint32_t> before_gps_sync;
+    pair<GPSTime, uint32_t> after_gps_sync;
+    pair<GPSTime, uint32_t> first_gps_sync;
+    pair<GPSTime, uint32_t> last_gps_sync;
+
+    double cur_ticks_per_second;
     
 private:
     bool next_pair_();

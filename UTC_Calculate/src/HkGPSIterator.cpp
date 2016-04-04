@@ -43,16 +43,18 @@ bool HkGPSIterator::initialize() {
     if (hk_obox_tot_entries_ < 100)
         return false;
     
-    start_flag_ = true;
     hk_obox_cur_index_ = -1;
     hk_obox_reach_end_ = false;
     passed_last_ = false;
     
     if (set_first_()) {
-        before_gps_sync_ = first_gps_sync_;
-        after_gps_sync_ = first_gps_sync_;
-        set_last_();
-        return true;
+        before_gps_sync = first_gps_sync;
+        after_gps_sync = first_gps_sync;
+        cur_ticks_per_second = 12500000.0;
+        if (set_last_())
+            return true;
+        else
+            return false;
     } else {
         return false;
     }
@@ -77,6 +79,7 @@ bool HkGPSIterator::set_first_() {
     }
     if (hk_obox_reach_end_)
         return false;
+    // find first
     int repeat_count = 0;
     bool found = false;
     while (true) {
@@ -102,8 +105,7 @@ bool HkGPSIterator::set_first_() {
         }
     }
     if (found) {
-        first_gps_sync_ = pre_gps_sync_;
-        cur_ticks_per_second_ = 12500000.0;
+        first_gps_sync = pre_gps_sync_;
         return true;
     } else {
         return false;
@@ -133,6 +135,7 @@ bool HkGPSIterator::set_last_() {
     }
     if (bak_reach_end)
         return false;
+    // find last
     int repeat_count = 0;
     bool found = false;
     while (true) {
@@ -170,7 +173,7 @@ bool HkGPSIterator::set_last_() {
         }
     }
     if (found) {
-        last_gps_sync_ = bak_pre_gps_sync_;
+        last_gps_sync = bak_pre_gps_sync_;
         return true;
     } else {
         return false;
@@ -204,7 +207,8 @@ bool HkGPSIterator::next_minute() {
         return false;
     if (hk_obox_reach_end_) {
         if (!passed_last_) {
-            before_gps_sync_ = after_gps_sync_;
+            before_gps_sync = after_gps_sync;
+            cur_ticks_per_second = 12500000.0;
             passed_last_ = true;
         }
         return false;
@@ -234,16 +238,16 @@ bool HkGPSIterator::next_minute() {
         }
     }
     if (found) {
-        if (start_flag_) {
-            start_flag_ = false;
-        }
-        before_gps_sync_ = after_gps_sync_;
-        after_gps_sync_ = pre_gps_sync_;
-        cur_ticks_per_second_ = ((static_cast<double>(after_gps_sync_.second) - static_cast<double>(before_gps_sync_.second))
-                                 / (after_gps_sync_.first - before_gps_sync_.first));
+        before_gps_sync = after_gps_sync;
+        after_gps_sync = pre_gps_sync_;
+        double time_diff = static_cast<double>(after_gps_sync.second) - static_cast<double>(before_gps_sync.second);
+        if (time_diff < 0)
+            time_diff += 4294967296;
+        cur_ticks_per_second = time_diff / (after_gps_sync.first - before_gps_sync.first);
         return true;
     } else {
-        before_gps_sync_ = after_gps_sync_;
+        before_gps_sync = after_gps_sync;
+        cur_ticks_per_second = 12500000.0;
         passed_last_ = true;
         return false;
     }
