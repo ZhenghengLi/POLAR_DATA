@@ -16,10 +16,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    hkGPSIter.set_start();
-    while (hkGPSIter.next_pair()) {
-        hkGPSIter.print_pair();
-    }
 
+    hkGPSIter.close();
     return 0;
 }
