@@ -24,8 +24,8 @@ bool HkGPSIterator::open(const char* filename) {
     
     t_hk_obox_->SetBranchAddress("timestamp_sync",      &b_timestamp_);
     t_hk_obox_->SetBranchAddress("gps_sync_send_count", &b_gps_count_);
-    t_hk_obox_->SetBranchAddress("gps_pps_count",       &b_gps_count_pps_);
     t_hk_obox_->SetBranchAddress("gps_sync_gen_count",  &b_gps_count_gen_);
+    t_hk_obox_->SetBranchAddress("gps_pps_count",       &b_gps_count_pps_);
     t_hk_obox_->SetBranchAddress("obox_is_bad",         &b_obox_is_bad_);
     
     return true;
@@ -91,6 +91,7 @@ bool HkGPSIterator::set_first_() {
     // find first
     int repeat_count = 0;
     bool found = false;
+    cur_is_valid_ = false;
     while (true) {
         repeat_count = 0;
         while (true) {
@@ -118,7 +119,6 @@ bool HkGPSIterator::set_first_() {
     if (found) {
         first_gps_sync = pre_gps_sync_;
         first_valid_ = cur_is_valid_;
-        cur_is_valid_ = false;
         return true;
     } else {
         return false;
@@ -229,6 +229,7 @@ bool HkGPSIterator::next_minute() {
     }
     int repeat_count = 0;
     bool found = false;
+    cur_is_valid_ = false;
     while (true) {
         repeat_count = 0;
         while (true) {
@@ -258,7 +259,6 @@ bool HkGPSIterator::next_minute() {
         before_valid_ = after_valid_;
         after_gps_sync = pre_gps_sync_;
         after_valid_ = cur_is_valid_;
-        cur_is_valid_ = false;
         double time_diff = static_cast<double>(after_gps_sync.second) - static_cast<double>(before_gps_sync.second);
         if (time_diff < 0)
             time_diff += 4294967296;
