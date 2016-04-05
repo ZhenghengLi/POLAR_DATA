@@ -17,6 +17,8 @@ private:
     TTree*    t_hk_obox_;
     UInt_t    b_timestamp_;
     ULong64_t b_gps_count_;
+    ULong64_t b_gps_count_pps_;
+    ULong64_t b_gps_count_gen_;
     Int_t     b_obox_is_bad_;
 
     Long64_t hk_obox_tot_entries_;
@@ -26,6 +28,11 @@ private:
 
     pair<GPSTime, uint32_t> pre_gps_sync_;
     pair<GPSTime, uint32_t> cur_gps_sync_;
+
+    bool first_valid_;
+    bool before_valid_;
+    bool after_valid_;
+    bool cur_is_valid_;
 
 public:
     pair<GPSTime, uint32_t> before_gps_sync;
@@ -39,7 +46,8 @@ private:
     bool next_pair_();
     bool set_first_();
     bool set_last_();
-    
+    bool check_cur_valid_();
+
 public:
     HkGPSIterator();
     ~HkGPSIterator();
@@ -49,7 +57,15 @@ public:
     bool initialize();
     bool next_minute();
 
-    bool is_passed_last() {
+    bool is_before_valid() const {
+        return before_valid_;
+    }
+
+    bool is_after_valid() const {
+        return after_valid_;
+    }
+
+    bool is_passed_last() const {
         return passed_last_;
     }
 };

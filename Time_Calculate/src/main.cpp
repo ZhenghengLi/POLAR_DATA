@@ -14,6 +14,8 @@ void print(const HkGPSIterator& iter) {
          << setw(16) << iter.after_gps_sync.second
          << setw(18) << "ticks_per_second:"
          << setw(16) << static_cast<int>(iter.cur_ticks_per_second)
+         << setw(7) << "valid:"
+         << setw(5) << iter.is_after_valid()
          << right
          << endl;
 }
