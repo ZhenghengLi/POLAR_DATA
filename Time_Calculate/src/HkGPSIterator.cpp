@@ -221,6 +221,7 @@ bool HkGPSIterator::next_minute() {
     if (hk_obox_reach_end_) {
         if (!passed_last_) {
             before_gps_sync = after_gps_sync;
+            before_valid_ = after_valid_;
             cur_ticks_per_second = 12500000.0;
             passed_last_ = true;
         }
@@ -265,6 +266,7 @@ bool HkGPSIterator::next_minute() {
         return true;
     } else {
         before_gps_sync = after_gps_sync;
+        before_valid_ = after_valid_;
         cur_ticks_per_second = 12500000.0;
         passed_last_ = true;
         return false;
