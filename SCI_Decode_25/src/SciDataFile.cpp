@@ -168,6 +168,9 @@ void SciDataFile::write_after_decoding() {
 }
 
 void SciDataFile::close() {
+    if (t_out_file_ == NULL)
+        return;
+
     delete t_modules_tree_;
     t_modules_tree_ = NULL;
     
