@@ -10,7 +10,6 @@ using namespace std;
 
 class SciTransfer {
 public:
-public:
     struct Event_Status_T {
         Bool_t trigger_fe_busy;           // 15
         Bool_t fifo_full;                 // 14
@@ -128,17 +127,30 @@ public:
     Trigger_T t_ped_trigger;
     
 private:
-    TFile* t_file_in_;
-    TTree* t_modules_tree_in_;
-    TTree* t_trigger_tree_in_;
-    TTree* t_ped_modules_tree_in_;
-    TTree* t_ped_trigger_tree_in_;
+    TFile*   t_file_in_;
+    TTree*   t_modules_tree_in_;
+    TTree*   t_trigger_tree_in_;
+    TTree*   t_ped_modules_tree_in_;
+    TTree*   t_ped_trigger_tree_in_;
+
+    Long64_t t_modules_tot_entries_;
+    Long64_t t_modules_cur_index_;
+    bool     t_modules_reach_end_;
+    Long64_t t_trigger_tot_entries_;
+    Long64_t t_trigger_cur_index_;
+    bool     t_trigger_reach_end_;
+    Long64_t t_ped_modules_tot_entries_;
+    Long64_t t_ped_modules_cur_index_;
+    bool     t_ped_modules_reach_end_;
+    Long64_t t_ped_trigger_tot_entries_;
+    Long64_t t_ped_trigger_cur_index_;
+    bool     t_ped_trigger_reach_end_;
     
-    TFile* t_file_out_;
-    TTree* t_modules_tree_out_;
-    TTree* t_trigger_tree_out_;
-    TTree* t_ped_modules_tree_out_;
-    TTree* t_ped_trigger_tree_out_;
+    TFile*   t_file_out_;
+    TTree*   t_modules_tree_out_;
+    TTree*   t_trigger_tree_out_;
+    TTree*   t_ped_modules_tree_out_;
+    TTree*   t_ped_trigger_tree_out_;
 
 public:
     SciTransfer();
@@ -149,6 +161,18 @@ public:
     void close_read();
     void close_write();
 
+    void read_set_start();
+    bool modules_next();
+    bool trigger_next();
+    bool ped_modules_next();
+    bool ped_trigger_next();
+
+    void modules_fill();
+    void trigger_fill();
+    void ped_modules_fill();
+    void ped_trigger_fill();
+    void write_all_tree();
+    void write_meta(const char* key, const char* value);
 };
 
 #endif

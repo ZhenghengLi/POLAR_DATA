@@ -40,6 +40,29 @@ bool SciTransfer::open_read(const char* filename) {
     if (t_ped_modules_tree_in_ == NULL)
         return false;
 
+    // get total entries
+    t_trigger_tot_entries_ = t_trigger_tree_in_->GetEntries();
+    if (t_trigger_tot_entries_ < 1) {
+        close_read();
+        return false;
+    }
+    t_modules_tot_entries_ = t_modules_tree_in_->GetEntries();
+    if (t_modules_tot_entries_ < 1) {
+        close_read();
+        return false;
+    }
+    t_ped_trigger_tot_entries_ = t_ped_trigger_tree_in_->GetEntries();
+    if (t_ped_trigger_tot_entries_ < 1) {
+        close_read();
+        return false;
+    }
+    t_ped_modules_tot_entries_ = t_ped_modules_tree_in_->GetEntries();
+    if (t_ped_modules_tot_entries_ < 1) {
+        close_read();
+        return false;
+    }
+    read_set_start();
+    
     // t_trigger
     t_trigger_tree_in_->SetBranchAddress("trigg_num",         &t_trigger.trigg_num                   );
     t_trigger_tree_in_->SetBranchAddress("trigg_num_g",       &t_trigger.trigg_num_g                 );
@@ -319,4 +342,117 @@ void SciTransfer::close_write() {
     t_file_out_->Close();
     delete t_file_out_;
     t_file_out_ = NULL;
+}
+
+void SciTransfer::read_set_start() {
+    t_modules_cur_index_ = -1;
+    t_modules_reach_end_ = false;
+    t_trigger_cur_index_ = -1;
+    t_trigger_reach_end_ = false;
+    t_ped_modules_cur_index_ = -1;
+    t_ped_modules_reach_end_ = false;
+    t_ped_trigger_cur_index_ = -1;
+    t_ped_trigger_reach_end_ = false;
+}
+
+bool SciTransfer::modules_next() {
+    if (t_file_in_ == NULL)
+        return false;
+    if (t_modules_reach_end_)
+        return false;
+    t_modules_cur_index_++;
+    if (t_modules_cur_index_ < t_modules_tot_entries_) {
+        t_modules_tree_in_->GetEntry(t_modules_cur_index_);
+        return true;
+    } else {
+        t_modules_reach_end_ = true;
+        return false;
+    }
+}
+
+bool SciTransfer::trigger_next() {
+    if (t_file_in_ == NULL)
+        return false;
+    if (t_trigger_reach_end_)
+        return false;
+    t_trigger_cur_index_++;
+    if (t_trigger_cur_index_ < t_modules_tot_entries_) {
+        t_trigger_tree_in_->GetEntry(t_trigger_cur_index_);
+        return true;
+    } else {
+        t_trigger_reach_end_ = true;
+        return false;
+    }
+}
+
+bool SciTransfer::ped_modules_next() {
+    if (t_file_in_ == NULL)
+        return false;
+    if (t_ped_modules_reach_end_)
+        return false;
+    t_ped_modules_cur_index_++;
+    if (t_ped_modules_cur_index_ < t_ped_modules_tot_entries_) {
+        t_ped_modules_tree_in_->GetEntry(t_ped_modules_cur_index_);
+        return true;
+    } else {
+        t_ped_modules_reach_end_ = true;
+        return false;
+    }
+}
+
+bool SciTransfer::ped_trigger_next() {
+    if (t_file_in_ == NULL)
+        return false;
+    if (t_ped_trigger_reach_end_)
+        return false;
+    t_ped_trigger_cur_index_++;
+    if (t_ped_trigger_cur_index_ < t_ped_modules_tot_entries_) {
+        t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_cur_index_);
+        return true;
+    } else {
+        t_ped_trigger_reach_end_ = true;
+        return false;
+    }
+}
+
+void SciTransfer::modules_fill() {
+    if (t_file_out_ == NULL)
+        return;
+    t_modules_tree_out_->Fill();
+}
+
+void SciTransfer::trigger_fill() {
+    if (t_file_out_ == NULL)
+        return;
+    t_trigger_tree_out_->Fill();
+}
+
+void SciTransfer::ped_modules_fill() {
+    if (t_file_out_ == NULL)
+        return;
+    t_ped_modules_tree_out_->Fill();
+}
+
+void SciTransfer::ped_trigger_fill() {
+    if (t_file_out_ == NULL)
+        return;
+    t_ped_trigger_tree_out_->Fill();
+}
+
+void SciTransfer::write_all_tree() {
+    if (t_file_out_ == NULL)
+        return;
+    t_modules_tree_out_->Write();
+    t_trigger_tree_out_->Write();
+    t_ped_modules_tree_out_->Write();
+    t_ped_trigger_tree_out_->Write();
+}
+
+void SciTransfer::write_meta(const char* key, const char* value) {
+    if (t_file_out_ == NULL)
+        return;
+    TNamed * cur_meta = new TNamed(key, value);
+    cur_meta->Write();
+    delete cur_meta;
+    cur_meta = NULL;
 }
