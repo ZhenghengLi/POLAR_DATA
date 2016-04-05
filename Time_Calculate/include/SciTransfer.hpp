@@ -145,6 +145,12 @@ private:
     Long64_t t_ped_trigger_tot_entries_;
     Long64_t t_ped_trigger_cur_index_;
     bool     t_ped_trigger_reach_end_;
+
+    TNamed*  m_dattype_named_in_;
+    TNamed*  m_version_named_in_;
+    TNamed*  m_gentime_named_in_;
+    TNamed*  m_rawfile_named_in_;
+    TNamed*  m_dcdinfo_named_in_;
     
     TFile*   t_file_out_;
     TTree*   t_modules_tree_out_;
@@ -173,6 +179,26 @@ public:
     void ped_trigger_fill();
     void write_all_tree();
     void write_meta(const char* key, const char* value);
+
+    const TNamed* get_dattype() const {
+        return m_dattype_named_in_;
+    }
+
+    const TNamed* get_version() const {
+        return m_version_named_in_;
+    }
+
+    const TNamed* get_gentime() const {
+        return m_gentime_named_in_;
+    }
+
+    const TNamed* get_rawfile() const {
+        return m_rawfile_named_in_;
+    }
+
+    const TNamed* get_dcdinfo() const {
+        return m_dcdinfo_named_in_;
+    }
 };
 
 #endif

@@ -39,6 +39,21 @@ bool SciTransfer::open_read(const char* filename) {
     t_ped_modules_tree_in_ = static_cast<TTree*>(t_file_in_->Get("t_ped_modules"));
     if (t_ped_modules_tree_in_ == NULL)
         return false;
+    m_dattype_named_in_ = static_cast<TNamed*>(t_file_in_->Get("m_dattype"));
+    if (m_dattype_named_in_ == NULL)
+        return false;
+    m_version_named_in_ = static_cast<TNamed*>(t_file_in_->Get("m_version"));
+    if (m_version_named_in_ == NULL)
+        return false;
+    m_gentime_named_in_ = static_cast<TNamed*>(t_file_in_->Get("m_gentime"));
+    if (m_gentime_named_in_ == NULL)
+        return false;
+    m_rawfile_named_in_ = static_cast<TNamed*>(t_file_in_->Get("m_rawfile"));
+    if (m_rawfile_named_in_ == NULL)
+        return false;
+    m_dcdinfo_named_in_ = static_cast<TNamed*>(t_file_in_->Get("m_dcdinfo"));
+    if (m_dcdinfo_named_in_ == NULL)
+        return false;
 
     // get total entries
     t_trigger_tot_entries_ = t_trigger_tree_in_->GetEntries();
