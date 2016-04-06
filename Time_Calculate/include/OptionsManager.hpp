@@ -15,6 +15,7 @@ public:
     TString scifile;
     TString hkfile;
     TString outfile;
+    TString logfile;
     
 public:
     OptionsManager();

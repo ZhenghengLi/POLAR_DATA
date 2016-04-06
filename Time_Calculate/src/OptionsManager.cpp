@@ -46,6 +46,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'g':
+                if (idx < argc_par - 1) {
+                    logfile = argv_par[++idx];
+                    if (logfile[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -65,11 +75,12 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " " << "[-o <POL_SCI_decoded_data_time.root>]" << endl;
+    cout << " " << "[-o <POL_SCI_decoded_data_time.root>] [-g <POL_SCI_time_error.log>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -k <hk_decoded_data.root>        root file that stores hk decoded data" << endl;
     cout << "  -o <sci_decoded_data.root>       root file that stores sci decoded data after absolute time is added" << endl;
+    cout << "  -g <time_error.log>              text file that records time calculating error log info" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;

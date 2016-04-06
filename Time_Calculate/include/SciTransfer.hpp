@@ -214,6 +214,38 @@ public:
     const TNamed* get_dcdinfo() const {
         return m_dcdinfo_named_in_;
     }
+
+    Long64_t get_modules_tot_entries() const {
+        return t_modules_tot_entries_;
+    }
+
+    Long64_t get_modules_cur_index() const {
+        return t_modules_cur_index_;
+    }
+
+    Long64_t get_trigger_tot_entries() const {
+        return t_trigger_tot_entries_;
+    }
+
+    Long64_t get_trigger_cur_index() const {
+        return t_trigger_cur_index_;
+    }
+
+    Long64_t get_ped_modules_tot_entries() const {
+        return t_ped_modules_tot_entries_;
+    }
+
+    Long64_t get_ped_modules_cur_index() const {
+        return t_ped_modules_cur_index_;
+    }
+
+    Long64_t get_ped_trigger_tot_entries() const {
+        return t_ped_trigger_tot_entries_;
+    }
+
+    Long64_t get_ped_trigger_cur_index() const {
+        return t_ped_trigger_cur_index_;
+    }
 };
 
 #endif
