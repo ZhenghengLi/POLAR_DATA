@@ -76,6 +76,7 @@ bool SciTransfer::open_read(const char* filename) {
         close_read();
         return false;
     }
+
     read_set_start();
     
     // t_trigger
@@ -177,6 +178,20 @@ bool SciTransfer::open_read(const char* filename) {
     t_ped_modules_tree_in_->SetBranchAddress("energy_adc",         t_ped_modules.energy_adc                  );
     t_ped_modules_tree_in_->SetBranchAddress("common_noise",      &t_ped_modules.common_noise                );
     t_ped_modules_tree_in_->SetBranchAddress("multiplicity",      &t_ped_modules.multiplicity                );
+
+    t_trigger_tree_in_->GetEntry(0);
+    phy_first_gps.update6(t_trigger.frm_gps_time);
+    phy_first_timestamp = t_trigger.time_stamp;
+    t_trigger_tree_in_->GetEntry(t_trigger_tot_entries_ - 1);
+    phy_last_gps.update6(t_trigger.frm_gps_time);
+    phy_last_timestamp = t_trigger.time_stamp;
+
+    t_ped_trigger_tree_in_->GetEntry(0);
+    ped_first_gps.update6(t_ped_trigger.frm_gps_time);
+    ped_first_timestamp = t_ped_trigger.time_stamp;
+    t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_tot_entries_ - 1);
+    ped_last_gps.update6(t_ped_trigger.frm_gps_time);
+    ped_last_timestamp = t_ped_trigger.time_stamp;
     
     return true;
 }
@@ -393,6 +408,8 @@ bool SciTransfer::trigger_next() {
     t_trigger_cur_index_++;
     if (t_trigger_cur_index_ < t_modules_tot_entries_) {
         t_trigger_tree_in_->GetEntry(t_trigger_cur_index_);
+        phy_cur_gps.update6(t_trigger.frm_gps_time);
+        phy_cur_timestamp = t_trigger.time_stamp;
         return true;
     } else {
         t_trigger_reach_end_ = true;
@@ -423,6 +440,8 @@ bool SciTransfer::ped_trigger_next() {
     t_ped_trigger_cur_index_++;
     if (t_ped_trigger_cur_index_ < t_ped_modules_tot_entries_) {
         t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_cur_index_);
+        ped_cur_gps.update6(t_ped_trigger.frm_gps_time);
+        ped_cur_timestamp = t_ped_trigger.time_stamp;
         return true;
     } else {
         t_ped_trigger_reach_end_ = true;

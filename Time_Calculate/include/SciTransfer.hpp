@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <stdint.h>
+#include "GPSTime.hpp"
 #include "RootInc.hpp"
 
 using namespace std;
@@ -125,6 +126,20 @@ public:
     Trigger_T t_trigger;
     Modules_T t_ped_modules;
     Trigger_T t_ped_trigger;
+
+    GPSTime   phy_cur_gps;
+    uint32_t  phy_cur_timestamp;
+    GPSTime   ped_cur_gps;
+    uint32_t  ped_cur_timestamp;
+
+    GPSTime   phy_first_gps;
+    uint32_t  phy_first_timestamp;
+    GPSTime   phy_last_gps;
+    uint32_t  phy_last_timestamp;
+    GPSTime   ped_first_gps;
+    uint32_t  ped_first_timestamp;
+    GPSTime   ped_last_gps;
+    uint32_t  ped_last_timestamp;
     
 private:
     TFile*   t_file_in_;
