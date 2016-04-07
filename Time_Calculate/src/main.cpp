@@ -5,18 +5,10 @@
 #include "GPSTime.hpp"
 #include "HkGPSIterator.hpp"
 #include "SciTransfer.hpp"
+#include "Processor.hpp"
 #include "OptionsManager.hpp"
 
 using namespace std;
-
-void print_time(const GPSTime gps, const uint32_t timestamp) {
-    cout << left << setprecision(15)
-         << setw(6) << "week:" << setw(10) << gps.week
-         << setw(8) << "second:" << setw(20) << gps.second
-         << setw(11) << "timestamp:" << setw(20) << timestamp
-         << right
-         << endl;
-}
 
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
@@ -30,36 +22,89 @@ int main(int argc, char** argv) {
     }
 
     SciTransfer scitran;
-    if (!scitran.open_read(options_mgr.scifile)) {
-        cerr << "file open failed: " << options_mgr.scifile << endl;
+    if (!scitran.open_read(options_mgr.scifile.Data())) {
+        cerr << "root file open failed: " << options_mgr.scifile << endl;
         return 1;
     }
 
     HkGPSIterator hkGPSIter;
-    if (!hkGPSIter.open(options_mgr.hkfile)) {
-        cerr << "file open falied: " << options_mgr.hkfile << endl;
+    if (!hkGPSIter.open(options_mgr.hkfile.Data())) {
+        cerr << "root file open falied: " << options_mgr.hkfile << endl;
+        scitran.close_read();
         return 1;
     }
 
-    cout << "ped_first ----" << endl;
-    print_time(scitran.ped_first_gps, scitran.ped_first_timestamp);
-    cout << "phy_first ----" << endl;
-    print_time(scitran.phy_first_gps, scitran.phy_first_timestamp);
-
-    cout << "all_hk_time ----" << endl;
-    hkGPSIter.initialize();
-    print_time(hkGPSIter.after_gps_sync.first, hkGPSIter.after_gps_sync.second);
-    while (hkGPSIter.next_minute()) {
-        print_time(hkGPSIter.after_gps_sync.first, hkGPSIter.after_gps_sync.second);
+    Processor pro;
+    bool log_flag = false;
+    if (!options_mgr.logfile.IsNull()) {
+        log_flag = true;
+        pro.set_log(log_flag);
+        if (!pro.logfile_open(options_mgr.logfile.Data())) {
+            cerr << "log file open failed: "
+                 << options_mgr.logfile.Data() << endl;
+            scitran.close_read();
+            hkGPSIter.close();
+            return 1;
+        }
+    } else {
+        pro.set_log(log_flag);
     }
 
-    cout << "ped_last ----" << endl;
-    print_time(scitran.ped_last_gps, scitran.ped_last_timestamp);
-    cout << "phy_last ----" << endl;
-    print_time(scitran.phy_last_gps, scitran.phy_last_timestamp);
+    hkGPSIter.initialize();
+    if (!pro.check_sci_hk_match(scitran, hkGPSIter)) {
+        cerr << "SCI file and HK file do not match in GPS time." << endl;
+        scitran.close_read();
+        hkGPSIter.close();
+        if (log_flag) {
+            pro.logfile_close();
+        }
+        return 1;
+    }
+
+    if (!options_mgr.outfile.IsNull()) {
+        if (!scitran.open_write(options_mgr.outfile.Data())) {
+            cerr << "root file open failed: "
+                 << options_mgr.outfile.Data() << endl;
+            scitran.close_read();
+            hkGPSIter.close();
+            if (log_flag) {
+                pro.logfile_close();
+            }
+            return 1;
+        }
+    } else {
+        if (!scitran.open_write("POL_SCI_decoded_data_time.root")) {
+            cerr << "root file open failed: "
+                 << "POL_SCI_decoded_data_time.root" << endl;
+            scitran.close_read();
+            hkGPSIter.close();
+            if (log_flag) {
+                pro.logfile_close();
+            }
+            return 1;
+        }
+    }
+
+    // === Start Process Data =======================================
+
+    pro.copy_modules(scitran);
+    pro.calc_time_trigger(scitran, hkGPSIter);
+    pro.copy_ped_modules(scitran);
+    pro.calc_time_ped_trigger(scitran, hkGPSIter);
+
+    // === End Process Data ====================================
+
+    scitran.write_all_tree();
+    pro.write_meta_info(scitran);
 
     scitran.close_read();
+    scitran.close_write();
     hkGPSIter.close();
+    if (log_flag) {
+        pro.logfile_close();
+    }
+
+    pro.print_error_count(scitran);
 
     return 0;
 }

@@ -3,11 +3,12 @@
 using namespace std;
 
 Processor::Processor() {
-
+    initialize();
 }
 
 Processor::~Processor() {
-
+    if (os_logfile_.is_open())
+        os_logfile_.close();
 }
 
 void Processor::initialize() {
@@ -129,6 +130,14 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
             cout << "#" << flush;
         }
 
+        if (scitran.t_trigger.is_bad != 0) {
+            scitran.t_trigger.abs_gps_week = -1;
+            scitran.t_trigger.abs_gps_second = -1;
+            scitran.t_trigger.abs_gps_valid = false;
+            scitran.trigger_fill();
+            continue;
+        }
+
         // start calculating absolute time
         while (!hkgpsiter.is_passed_last() && scitran.phy_cur_gps > hkgpsiter.after_gps_sync.first) {
             hkgpsiter.next_minute();
@@ -213,6 +222,7 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
 
         scitran.trigger_fill();
     }
+    cout << " DONE ] " << endl;
 }
 
 void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter) {
@@ -227,6 +237,14 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
         if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
             pre_percent = cur_percent;
             cout << "#" << flush;
+        }
+
+        if (scitran.t_ped_trigger.is_bad != 0) {
+            scitran.t_ped_trigger.abs_gps_week = -1;
+            scitran.t_ped_trigger.abs_gps_second = -1;
+            scitran.t_ped_trigger.abs_gps_valid = false;
+            scitran.ped_trigger_fill();
+            continue;
         }
 
         // start calculating absolute time
@@ -313,6 +331,7 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
 
         scitran.ped_trigger_fill();
     }
+    cout << " DONE ] " << endl;
 }
 
 void Processor::write_meta_info(SciTransfer& scitran) {
@@ -351,4 +370,17 @@ void Processor::write_meta_info(SciTransfer& scitran) {
     meta_key = scitran.get_dcdinfo()->GetName();
     meta_value = scitran.get_dcdinfo()->GetTitle();
     scitran.write_meta(meta_key.c_str(), meta_value.c_str());
+}
+
+void Processor::print_error_count(const SciTransfer& scitran) {
+    char phy_buffer[100];
+    sprintf(phy_buffer, "%ld / %lld", phy_error_count_, scitran.get_trigger_tot_entries());
+    char ped_buffer[100];
+    sprintf(ped_buffer, "%ld / %lld", ped_error_count_, scitran.get_ped_trigger_tot_entries());
+    cout << "================================================================================" << endl;
+    cout << left
+         << setw(17) << "phy_error_count:" << setw(20) << phy_buffer
+         << setw(17) << "ped_error_count:" << setw(20) << ped_buffer
+         << right << endl;
+    cout << "================================================================================" << endl;
 }

@@ -406,7 +406,7 @@ bool SciTransfer::trigger_next() {
     if (t_trigger_reach_end_)
         return false;
     t_trigger_cur_index_++;
-    if (t_trigger_cur_index_ < t_modules_tot_entries_) {
+    if (t_trigger_cur_index_ < t_trigger_tot_entries_) {
         t_trigger_tree_in_->GetEntry(t_trigger_cur_index_);
         phy_cur_gps.update6(t_trigger.frm_gps_time);
         phy_cur_timestamp = t_trigger.time_stamp;
@@ -438,7 +438,7 @@ bool SciTransfer::ped_trigger_next() {
     if (t_ped_trigger_reach_end_)
         return false;
     t_ped_trigger_cur_index_++;
-    if (t_ped_trigger_cur_index_ < t_ped_modules_tot_entries_) {
+    if (t_ped_trigger_cur_index_ < t_ped_trigger_tot_entries_) {
         t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_cur_index_);
         ped_cur_gps.update6(t_ped_trigger.frm_gps_time);
         ped_cur_timestamp = t_ped_trigger.time_stamp;

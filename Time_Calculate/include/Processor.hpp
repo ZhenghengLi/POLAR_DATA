@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
+#include <cstdio>
 #include <stdint.h>
 #include "Constants.hpp"
 #include "GPSTime.hpp"
@@ -50,6 +51,8 @@ public:
     void calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter);
     void calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter);
     void write_meta_info(SciTransfer& scitran);
+
+    void print_error_count(const SciTransfer& scitran);
 };
 
 #endif
