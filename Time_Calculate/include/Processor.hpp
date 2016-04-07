@@ -13,6 +13,7 @@
 
 #define MAX_DIFF 5
 #define MAX_OFFSET 300
+#define MAX_ABS_DIFF 1
 
 using namespace std;
 
@@ -41,10 +42,13 @@ public:
     bool logfile_open(const char* filename);
     void logfile_close();
 
+    bool check_sci_hk_match(const SciTransfer& scitran,
+                            const HkGPSIterator& hkgpsiter);
+
     void copy_modules(SciTransfer& scitran);
     void copy_ped_modules(SciTransfer& scitran);
-    void calc_time_trigger(SciTransfer& scitran);
-    void calc_time_ped_trigger(SciTransfer& scitran);
+    void calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter);
+    void calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter);
     void write_meta_info(SciTransfer& scitran);
 };
 
