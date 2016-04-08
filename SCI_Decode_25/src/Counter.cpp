@@ -109,7 +109,7 @@ void Counter::print(ostream& os) {
     os << setw(20) << "total lost percent:" << setw(15) << str_buffer1
          << setw(17) << "mean event rate:"  << setw(20) << str_buffer2 
          << setw(17) << "np_evts per sec:" << setw(20) << str_buffer3 << endl;
-    sprintf(str_buffer1, "%4.2f Mbps",  (sec_ped_trigger > 0 ? static_cast<double>(frm_valid * 2026 - tin_ped_trigger * (50 + 122 * 25)) * 8 / 1024 / 1024 / sec_ped_trigger : 0));
+    sprintf(str_buffer1, "%4.2f Mbps",  (sec_ped_trigger > 0 ? static_cast<double>(frm_valid * 2026 - tin_ped_trigger * (50 + 122 * 25)) * 8 / 1000 / 1000 / sec_ped_trigger : 0));
     sprintf(str_buffer3, "%4.2f%%", noped_event_sum > 0 ? static_cast<double>(aligned_event_sum) / noped_event_sum * 100 : 0.0);
     os << setw(20) << "transmission rate:" << setw(15) << str_buffer1
          << setw(17) << "aligned sum:" << setw(20) << aligned_event_sum 
