@@ -7,6 +7,6 @@ const string SW_NAME = "HK_Decode";
 
 const string SW_VERSION = "v1.0.0";
 
-const string RELEASE_DATE = "2016 Feb 29";
+const string RELEASE_DATE = "2016 Apr  8";
 
 #endif
