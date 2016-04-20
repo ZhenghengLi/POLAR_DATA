@@ -16,6 +16,8 @@
 #include "trigger_queue.hpp"
 #include "Constants.hpp"
 
+#define MAX_DIFF 20
+
 using namespace std;
 
 class EventMerger {

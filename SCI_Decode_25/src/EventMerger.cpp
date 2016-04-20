@@ -216,7 +216,6 @@ bool EventMerger::ped_check_valid() {
 void EventMerger::ped_update_time_diff() {
     int idx;
     int time_diff;
-    int max_diff = 5;
     for (size_t i = 0; i < result_ped_events_vec_.size(); i++) {
         if (result_ped_events_vec_[i].is_bad != 0)
             continue;
@@ -227,14 +226,14 @@ void EventMerger::ped_update_time_diff() {
             event_first_time_diff_vec_[idx].push_back(time_diff);
         } else if (!event_first_ready_[idx]) {
             int time_diff_common = find_common_(event_first_time_diff_vec_[idx]);
-            if (abs(time_diff - time_diff_common) <= max_diff) {
+            if (abs(time_diff - time_diff_common) <= MAX_DIFF) {
                 event_time_diff_[idx] = time_diff;
             } else {
                 event_time_diff_[idx] = time_diff_common;
             }
             event_first_ready_[idx] = true;
         } else {
-            if (abs(time_diff - event_time_diff_[idx]) <= max_diff) {
+            if (abs(time_diff - event_time_diff_[idx]) <= MAX_DIFF) {
                 event_time_diff_[idx] = time_diff;
             }
         }
