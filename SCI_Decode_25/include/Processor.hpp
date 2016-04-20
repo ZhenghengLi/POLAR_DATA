@@ -32,8 +32,8 @@ private:
     bool log_flag_;
     ofstream os_logfile_;
     // two type of packet
-    SciEvent sci_event;
-    SciTrigger sci_trigger;
+    SciEvent sci_event_;
+    SciTrigger sci_trigger_;
     // EventMerger
     EventMerger evtMgr_;
 

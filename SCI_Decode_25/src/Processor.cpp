@@ -141,7 +141,7 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
     // check bad and update and add extra info for this packet
     if (is_trigger) {
         cnt.trigger++;
-        sci_trigger.set_frm_time(frame.get_ship_time(), frame.get_gps_time());                    
+        sci_trigger_.set_frm_time(frame.get_ship_time(), frame.get_gps_time());
         if (frame.get_cur_pkt_len() < 50) {
             cnt.pkt_too_short++;
             if (can_log()) {
@@ -150,25 +150,25 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 frame.cur_print_packet(os_logfile_);
                 os_logfile_ << "--------------------------------------------------------------" << endl;
             }
-            sci_trigger.clear_all_info();
-            sci_trigger.is_bad      = 3;
-            sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
-            cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
-            sci_trigger.trigg_num_g = -1;
-            sci_trigger.mode        = frame.cur_get_mode();
-            if (sci_trigger.mode == 0x00F0) {
-                datafile.write_ped_trigger_alone(sci_trigger);
+            sci_trigger_.clear_all_info();
+            sci_trigger_.is_bad      = 3;
+            sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
+            cur_trigg_pre_is_bad_   = sci_trigger_.is_bad;
+            sci_trigger_.trigg_num_g = -1;
+            sci_trigger_.mode        = frame.cur_get_mode();
+            if (sci_trigger_.mode == 0x00F0) {
+                datafile.write_ped_trigger_alone(sci_trigger_);
             } else {
-                datafile.write_trigger_alone(sci_trigger);
+                datafile.write_trigger_alone(sci_trigger_);
             }
             return;
         } else {
             
-            sci_trigger.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-            sci_trigger.trigg_num_g = 0;
-            sci_trigger.time_period = 0;
-            sci_trigger.time_wait   = 0;
-            sci_trigger.dead_ratio  = 0;
+            sci_trigger_.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
+            sci_trigger_.trigg_num_g = 0;
+            sci_trigger_.time_period = 0;
+            sci_trigger_.time_wait   = 0;
+            sci_trigger_.dead_ratio  = 0;
             
             if (!frame.cur_check_valid()) {
                 cnt.pkt_invalid++;
@@ -178,14 +178,14 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     frame.cur_print_packet(os_logfile_);
                     os_logfile_ << "--------------------------------------------------------------" << endl;
                 }
-                sci_trigger.is_bad      = 2;
-                sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
-                cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
-                sci_trigger.trigg_num_g = -1;
-                if (sci_trigger.mode == 0x00F0) {
-                    datafile.write_ped_trigger_alone(sci_trigger);
+                sci_trigger_.is_bad      = 2;
+                sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
+                cur_trigg_pre_is_bad_   = sci_trigger_.is_bad;
+                sci_trigger_.trigg_num_g = -1;
+                if (sci_trigger_.mode == 0x00F0) {
+                    datafile.write_ped_trigger_alone(sci_trigger_);
                 } else {
-                    datafile.write_trigger_alone(sci_trigger);
+                    datafile.write_trigger_alone(sci_trigger_);
                 }
                 return;
             } else {
@@ -198,53 +198,53 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                         frame.cur_print_packet(os_logfile_);
                         os_logfile_ << "--------------------------------------------------------------" << endl;
                     }
-                    sci_trigger.is_bad      = 1;
-                    sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
-                    cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
-                    sci_trigger.trigg_num_g = -1;
-                    if (sci_trigger.mode == 0x00F0) {
-                        datafile.write_ped_trigger_alone(sci_trigger);
+                    sci_trigger_.is_bad      = 1;
+                    sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
+                    cur_trigg_pre_is_bad_   = sci_trigger_.is_bad;
+                    sci_trigger_.trigg_num_g = -1;
+                    if (sci_trigger_.mode == 0x00F0) {
+                        datafile.write_ped_trigger_alone(sci_trigger_);
                     } else {
-                        datafile.write_trigger_alone(sci_trigger);
+                        datafile.write_trigger_alone(sci_trigger_);
                     }
                     return;
                 } else {
                     cnt.pkt_crc_passed++;
-                    sci_trigger.is_bad      = 0;
-                    sci_trigger.pre_is_bad  = cur_trigg_pre_is_bad_;
-                    cur_trigg_pre_is_bad_   = sci_trigger.is_bad;
-                    sci_trigger.trigg_num_g = cur_trigg_num_g_;
+                    sci_trigger_.is_bad      = 0;
+                    sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
+                    cur_trigg_pre_is_bad_   = sci_trigger_.is_bad;
+                    sci_trigger_.trigg_num_g = cur_trigg_num_g_;
                     cur_trigg_num_g_++;
                     if (cur_trigg_is_first_) {
                         cur_trigg_is_first_ = false;
-                        cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
+                        cur_trigg_pre_time_stamp_ = sci_trigger_.timestamp;
                         cur_trigg_time_period_    = 0;
-                        sci_trigger.time_period   = cur_trigg_time_period_;
-                        sci_trigger.time_wait     = 0;
-                        cur_trigg_pre_raw_dead_   = static_cast<int32_t>(sci_trigger.deadtime);
-                        sci_trigger.dead_ratio    = 0;
+                        sci_trigger_.time_period   = cur_trigg_time_period_;
+                        sci_trigger_.time_wait     = 0;
+                        cur_trigg_pre_raw_dead_   = static_cast<int32_t>(sci_trigger_.deadtime);
+                        sci_trigger_.dead_ratio    = 0;
                     } else {
-                        if (sci_trigger.timestamp == 0) {
+                        if (sci_trigger_.timestamp == 0) {
                             cnt.timestamp_zero_sum++;
                             if (can_log()) {
                                 os_logfile_ << "== PACKET: " << cnt.packet << " - trigger" << " | TIMESTAMP 0 ======== " << endl;
                             }
-                            sci_trigger.is_bad = -1;
-                            sci_trigger.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
-                            sci_trigger.time_align = (sci_trigger.timestamp >> TriggerShiftRight);
+                            sci_trigger_.is_bad = -1;
+                            sci_trigger_.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
+                            sci_trigger_.time_align = (sci_trigger_.timestamp >> TriggerShiftRight);
                         }
-                        int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
-                        cur_trigg_pre_time_stamp_ = sci_trigger.timestamp;
+                        int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger_.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
+                        cur_trigg_pre_time_stamp_ = sci_trigger_.timestamp;
                         if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
                             tmp_time_wait += 4294967296;
                             cur_trigg_time_period_++;
                         }
-                        sci_trigger.time_period  = cur_trigg_time_period_;
-                        sci_trigger.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger.deadtime) - cur_trigg_pre_raw_dead_;
-                        cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger.deadtime);
+                        sci_trigger_.time_period  = cur_trigg_time_period_;
+                        sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
+                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
+                        cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_trigger.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger.time_wait));
+                        sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger_.time_wait));
                     }
                 }
             }
@@ -266,72 +266,72 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 frame.cur_print_packet(os_logfile_);
                 os_logfile_ << "--------------------------------------------------------------" << endl;
             }
-            sci_event.clear_all_info();
-            sci_event.is_bad            = 3;
-            sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
-            cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
-            sci_event.event_num_g       = -1;
-            sci_event.ct_num            = idx + 1;
+            sci_event_.clear_all_info();
+            sci_event_.is_bad            = 3;
+            sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+            cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
+            sci_event_.event_num_g       = -1;
+            sci_event_.ct_num            = idx + 1;
             if (frame.get_cur_pkt_len() < 8) {
-                sci_event.mode = 4;
-                datafile.write_modules_alone(sci_event);
+                sci_event_.mode = 4;
+                datafile.write_modules_alone(sci_event_);
             } else {
-                sci_event.mode = frame.cur_get_mode();
-                if (sci_event.mode == 2) {
-                    datafile.write_ped_modules_alone(sci_event);
+                sci_event_.mode = frame.cur_get_mode();
+                if (sci_event_.mode == 2) {
+                    datafile.write_ped_modules_alone(sci_event_);
                 } else {
-                    datafile.write_modules_alone(sci_event);
+                    datafile.write_modules_alone(sci_event_);
                 }
             }
             return;
         } else {
-            sci_event.mode = frame.cur_get_mode();
-            if (sci_event.mode == 0 || sci_event.mode == 2) {
+            sci_event_.mode = frame.cur_get_mode();
+            if (sci_event_.mode == 0 || sci_event_.mode == 2) {
                 if (frame.get_cur_pkt_len() < 122) {
                     cnt.pkt_too_short++;
                     if (can_log()) {
-                        os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << idx + 1 << " | TOO_SHORT for mode " << sci_event.mode << " ======== " << endl;
+                        os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << idx + 1 << " | TOO_SHORT for mode " << sci_event_.mode << " ======== " << endl;
                         os_logfile_ << "--------------------------------------------------------------" << endl;
                         frame.cur_print_packet(os_logfile_);
                         os_logfile_ << "--------------------------------------------------------------" << endl;
                     }
-                    sci_event.clear_all_info();
-                    sci_event.is_bad            = 3;
-                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
-                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
-                    sci_event.event_num_g       = -1;
-                    sci_event.ct_num            = idx + 1;
-                    if (sci_event.mode == 2) {
-                        datafile.write_ped_modules_alone(sci_event);
+                    sci_event_.clear_all_info();
+                    sci_event_.is_bad            = 3;
+                    sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
+                    sci_event_.event_num_g       = -1;
+                    sci_event_.ct_num            = idx + 1;
+                    if (sci_event_.mode == 2) {
+                        datafile.write_ped_modules_alone(sci_event_);
                     } else {
-                        datafile.write_modules_alone(sci_event);
+                        datafile.write_modules_alone(sci_event_);
                     }
                     return;
                 }
             }
             
-            sci_event.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
-            sci_event.event_num_g = 0;
-            sci_event.time_period = 0;
-            sci_event.time_wait   = 0;
-            sci_event.dead_ratio  = 0;
+            sci_event_.update(frame.get_cur_pkt_buf(), frame.get_cur_pkt_len());
+            sci_event_.event_num_g = 0;
+            sci_event_.time_period = 0;
+            sci_event_.time_wait   = 0;
+            sci_event_.dead_ratio  = 0;
 
             if (!frame.cur_check_valid()) {
                 cnt.pkt_invalid++;
                 if (can_log()) {
-                    os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event.ct_num << " | INVALID ======== " << endl;
+                    os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event_.ct_num << " | INVALID ======== " << endl;
                     os_logfile_ << "--------------------------------------------------------------" << endl;
                     frame.cur_print_packet(os_logfile_);
                     os_logfile_ << "--------------------------------------------------------------" << endl;
                 }
-                sci_event.is_bad            = 2;
-                sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
-                cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
-                sci_event.event_num_g       = -1;
-                if (sci_event.mode == 2) {
-                    datafile.write_ped_modules_alone(sci_event);
+                sci_event_.is_bad            = 2;
+                sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
+                sci_event_.event_num_g       = -1;
+                if (sci_event_.mode == 2) {
+                    datafile.write_ped_modules_alone(sci_event_);
                 } else {
-                    datafile.write_modules_alone(sci_event);
+                    datafile.write_modules_alone(sci_event_);
                 }
                 return;
             } else {
@@ -339,58 +339,58 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                 if (!frame.cur_check_crc()) {
                     cnt.pkt_crc_error++;
                     if (can_log()) {
-                        os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event.ct_num << " | CRC_ERROR ======== " << endl;
+                        os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event_.ct_num << " | CRC_ERROR ======== " << endl;
                         os_logfile_ << "--------------------------------------------------------------" << endl;
                         frame.cur_print_packet(os_logfile_);
                         os_logfile_ << "--------------------------------------------------------------" << endl;
                     }
-                    sci_event.is_bad            = 1;
-                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
-                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
-                    sci_event.event_num_g       = -1;
-                    if (sci_event.mode == 2) {
-                        datafile.write_ped_modules_alone(sci_event);
+                    sci_event_.is_bad            = 1;
+                    sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
+                    sci_event_.event_num_g       = -1;
+                    if (sci_event_.mode == 2) {
+                        datafile.write_ped_modules_alone(sci_event_);
                     } else {
-                        datafile.write_modules_alone(sci_event);
+                        datafile.write_modules_alone(sci_event_);
                     }
                     return;
                 } else {
                     cnt.pkt_crc_passed++;
-                    sci_event.is_bad            = 0;
-                    sci_event.pre_is_bad        = cur_event_pre_is_bad_[idx];
-                    cur_event_pre_is_bad_[idx]  = sci_event.is_bad;
-                    sci_event.event_num_g = cur_event_num_g_[idx];
+                    sci_event_.is_bad            = 0;
+                    sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+                    cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
+                    sci_event_.event_num_g = cur_event_num_g_[idx];
                     cur_event_num_g_[idx]++;
                     if (cur_event_is_first_[idx]) {
                         cur_event_is_first_[idx]        = false;
-                        cur_event_pre_time_stamp_[idx]  = sci_event.timestamp;
+                        cur_event_pre_time_stamp_[idx]  = sci_event_.timestamp;
                         cur_event_time_period_[idx]     = 0;
-                        sci_event.time_period           = cur_event_time_period_[idx];
-                        sci_event.time_wait             = 0;
-                        cur_event_pre_raw_dead_[idx]    = static_cast<int32_t>(sci_event.deadtime);
-                        sci_event.dead_ratio            = 0;
+                        sci_event_.time_period           = cur_event_time_period_[idx];
+                        sci_event_.time_wait             = 0;
+                        cur_event_pre_raw_dead_[idx]    = static_cast<int32_t>(sci_event_.deadtime);
+                        sci_event_.dead_ratio            = 0;
                     } else {
-                        if (sci_event.timestamp == 0) {
+                        if (sci_event_.timestamp == 0) {
                             cnt.timestamp_zero_sum++;
                             if (can_log()) {
-                                os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event.ct_num << " | TIMESTAMP 0 ======== " << endl;
+                                os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event_.ct_num << " | TIMESTAMP 0 ======== " << endl;
                             }
-                            sci_event.is_bad = -1;
-                            sci_event.timestamp = (cur_event_pre_time_stamp_[idx] == 16777215 ? 0 : cur_event_pre_time_stamp_[idx] + 1);
-                            sci_event.time_align = (sci_event.timestamp & EventTimeMask);
+                            sci_event_.is_bad = -1;
+                            sci_event_.timestamp = (cur_event_pre_time_stamp_[idx] == 16777215 ? 0 : cur_event_pre_time_stamp_[idx] + 1);
+                            sci_event_.time_align = (sci_event_.timestamp & EventTimeMask);
                         }
-                        int64_t tmp_time_wait = static_cast<int64_t>(sci_event.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
-                        cur_event_pre_time_stamp_[idx] = sci_event.timestamp;
+                        int64_t tmp_time_wait = static_cast<int64_t>(sci_event_.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
+                        cur_event_pre_time_stamp_[idx] = sci_event_.timestamp;
                         if (tmp_time_wait < -1 * PedCircle) {
                             tmp_time_wait += 16777216;
                             cur_event_time_period_[idx]++;
                         }
-                        sci_event.time_period  = cur_event_time_period_[idx];
-                        sci_event.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_event.deadtime) - cur_event_pre_raw_dead_[idx];
-                        cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event.deadtime);
+                        sci_event_.time_period  = cur_event_time_period_[idx];
+                        sci_event_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
+                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_event_.deadtime) - cur_event_pre_raw_dead_[idx];
+                        cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event_.deadtime);
                         tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_event.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event.time_wait));
+                        sci_event_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event_.time_wait));
                     }
                 }
             }
@@ -399,27 +399,27 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
 
     // start process good packet
     if (is_trigger) {
-        if (sci_trigger.mode == 0x00F0) {
+        if (sci_trigger_.mode == 0x00F0) {
             cnt.ped_trigger++;
             if (start_flag_) {
                 start_flag_ = false;
-                pre_ped_trigg_time_ = sci_trigger.time_align;
+                pre_ped_trigg_time_ = sci_trigger_.time_align;
             } else {
-                int time_diff = sci_trigger.time_align - pre_ped_trigg_time_;
+                int time_diff = sci_trigger_.time_align - pre_ped_trigg_time_;
                 if (time_diff < 0)
                     time_diff += CircleTime;
                 if (time_diff < PedCircle / 2)
                     cnt.tin_ped_trigger++;
                 else
                     cnt.sec_ped_trigger++;
-                pre_ped_trigg_time_ = sci_trigger.time_align;
+                pre_ped_trigg_time_ = sci_trigger_.time_align;
             }
             for (int i = 0; i < 25; i++) {
-                if (sci_trigger.trig_accepted[i] == 1)
+                if (sci_trigger_.trig_accepted[i] == 1)
                     cnt.ped_trig[i]++;
             }
             // ===========================================
-            evtMgr_.add_ped_trigger(sci_trigger);
+            evtMgr_.add_ped_trigger(sci_trigger_);
             if (evtMgr_.ped_check_valid()) {
                 evtMgr_.ped_move_result(true);
                 evtMgr_.ped_update_time_diff();
@@ -464,10 +464,10 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
         } else {
             cnt.noped_trigger++;
             for (int i = 0; i < 25; i++)
-                if (sci_trigger.trig_accepted[i] == 1)
+                if (sci_trigger_.trig_accepted[i] == 1)
                     cnt.noped_trig[i]++;
             // ===========================================
-            evtMgr_.add_noped_trigger(sci_trigger);
+            evtMgr_.add_noped_trigger(sci_trigger_);
             if (evtMgr_.noped_do_merge()) {
                 while (!evtMgr_.before_lost_queue.empty()) {
                     datafile.write_modules_alone(evtMgr_.before_lost_queue.front());
@@ -496,15 +496,15 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
             // -------------------------------------------
         }
     } else {
-        if (sci_event.mode == 2) {
-            cnt.ped_event[sci_event.ct_num - 1]++;
+        if (sci_event_.mode == 2) {
+            cnt.ped_event[sci_event_.ct_num - 1]++;
             // ===========================================
-            evtMgr_.add_ped_event(sci_event);
+            evtMgr_.add_ped_event(sci_event_);
             // -------------------------------------------
         } else {
-            cnt.noped_event[sci_event.ct_num - 1]++;
+            cnt.noped_event[sci_event_.ct_num - 1]++;
             // ===========================================
-            evtMgr_.add_noped_event(sci_event);
+            evtMgr_.add_noped_event(sci_event_);
             if (evtMgr_.noped_do_merge()) {
                 while (!evtMgr_.before_lost_queue.empty()) {
                     datafile.write_modules_alone(evtMgr_.before_lost_queue.front());
