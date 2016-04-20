@@ -31,9 +31,18 @@ private:
     // log file
     bool log_flag_;
     ofstream os_logfile_;
+    
     // two type of packet
     SciEvent sci_event_;
+    SciEvent pre_sci_event_[25];
+    SciEvent tmp_sci_event_;
+    bool module_is_started_[25];
+    
     SciTrigger sci_trigger_;
+    SciTrigger pre_sci_trigger_;
+    SciTrigger tmp_sci_trigger_;
+    bool trigger_is_started_;
+
     // EventMerger
     EventMerger evtMgr_;
 
@@ -59,6 +68,12 @@ private:
     
 public:
     Counter cnt;
+
+private:
+    void sci_trigger_before_sync_();
+    void sci_event_before_sync_(int idx);
+    void count_ped_trigger_();
+    void save_ped_event_(SciDataFile& datafile);
     
 public:
     Processor();

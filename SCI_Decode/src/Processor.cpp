@@ -33,8 +33,10 @@ void Processor::initialize() {
         cur_event_time_period_[i] = 0;
         cur_event_pre_raw_dead_[i] = 0;
         cur_event_is_first_[i] = true;
+        module_is_started_[i] = false;
     }
 
+    trigger_is_started_ = false;
     noped_start_flag_ = false;
     for (int i = 0; i < SAA_LEN; i++) {
         noped_trigg_counter_[i] = 0;
@@ -128,6 +130,136 @@ bool Processor::process_frame(SciFrame& frame) {
     }
 }
 
+void Processor::sci_trigger_before_sync_() {
+    cnt.pkt_crc_passed++;
+    sci_trigger_.is_bad      = 0;
+    sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
+    cur_trigg_pre_is_bad_    = sci_trigger_.is_bad;
+    sci_trigger_.trigg_num_g = cur_trigg_num_g_;
+    cur_trigg_num_g_++;
+    if (cur_trigg_is_first_) {
+        cur_trigg_is_first_ = false;
+        cur_trigg_pre_time_stamp_  = sci_trigger_.timestamp;
+        cur_trigg_time_period_     = 0;
+        sci_trigger_.time_period   = cur_trigg_time_period_;
+        sci_trigger_.time_wait     = 0;
+        cur_trigg_pre_raw_dead_    = static_cast<int32_t>(sci_trigger_.deadtime);
+        sci_trigger_.dead_ratio    = 0;
+    } else {
+        if (sci_trigger_.timestamp == 0) {
+            cnt.timestamp_zero_sum++;
+            if (can_log()) {
+                os_logfile_ << "== PACKET: " << cnt.packet << " - trigger" << " | TIMESTAMP 0 ======== " << endl;
+            }
+            sci_trigger_.is_bad = -1;
+            sci_trigger_.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
+            sci_trigger_.time_align = (sci_trigger_.timestamp >> TriggerShiftRight);
+        }
+        int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger_.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
+        cur_trigg_pre_time_stamp_ = sci_trigger_.timestamp;
+        if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
+            tmp_time_wait += 4294967296;
+            cur_trigg_time_period_++;
+        }
+        sci_trigger_.time_period  = cur_trigg_time_period_;
+        sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
+        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
+        cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
+        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
+        sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger_.time_wait));
+    }
+}
+
+void Processor::sci_event_before_sync_(int idx) {
+    cnt.pkt_crc_passed++;
+    sci_event_.is_bad            = 0;
+    sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
+    cur_event_pre_is_bad_[idx]   = sci_event_.is_bad;
+    sci_event_.event_num_g       = cur_event_num_g_[idx];
+    cur_event_num_g_[idx]++;
+    if (cur_event_is_first_[idx]) {
+        cur_event_is_first_[idx]         = false;
+        cur_event_pre_time_stamp_[idx]   = sci_event_.timestamp;
+        cur_event_time_period_[idx]      = 0;
+        sci_event_.time_period           = cur_event_time_period_[idx];
+        sci_event_.time_wait             = 0;
+        cur_event_pre_raw_dead_[idx]     = static_cast<int32_t>(sci_event_.deadtime);
+        sci_event_.dead_ratio            = 0;
+    } else {
+        if (sci_event_.timestamp == 0) {
+            cnt.timestamp_zero_sum++;
+            if (can_log()) {
+                os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event_.ct_num << " | TIMESTAMP 0 ======== " << endl;
+            }
+            sci_event_.is_bad = -1;
+            sci_event_.timestamp = (cur_event_pre_time_stamp_[idx] == 16777215 ? 0 : cur_event_pre_time_stamp_[idx] + 1);
+            sci_event_.time_align = (sci_event_.timestamp & EventTimeMask);
+        }
+        int64_t tmp_time_wait = static_cast<int64_t>(sci_event_.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
+        cur_event_pre_time_stamp_[idx] = sci_event_.timestamp;
+        if (tmp_time_wait < -1 * PedCircle) {
+            tmp_time_wait += 16777216;
+            cur_event_time_period_[idx]++;
+        }
+        sci_event_.time_period  = cur_event_time_period_[idx];
+        sci_event_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
+        int32_t tmp_dead_diff = static_cast<int32_t>(sci_event_.deadtime) - cur_event_pre_raw_dead_[idx];
+        cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event_.deadtime);
+        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
+        sci_event_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event_.time_wait));
+    }
+}
+
+void Processor::count_ped_trigger_() {
+    if (start_flag_) {
+        start_flag_ = false;
+        pre_ped_trigg_time_ = sci_trigger_.time_align;
+    } else {
+        int time_diff = sci_trigger_.time_align - pre_ped_trigg_time_;
+        if (time_diff < 0)
+            time_diff += CircleTime;
+        if (time_diff < PedCircle / 2)
+            cnt.tin_ped_trigger++;
+        else
+            cnt.sec_ped_trigger++;
+        pre_ped_trigg_time_ = sci_trigger_.time_align;
+    }
+}
+
+void Processor::save_ped_event_(SciDataFile& datafile) {
+    if (evtMgr_.ped_check_valid()) {
+        evtMgr_.ped_move_result(true);
+        evtMgr_.ped_update_time_diff();
+        while (!evtMgr_.alone_ped_queue.empty()) {
+            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+            evtMgr_.alone_ped_queue.pop();
+        }
+        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+        evtMgr_.ped_clear_result();
+    } else {
+        evtMgr_.ped_move_result(false);
+        while (!evtMgr_.alone_ped_queue.empty()) {
+            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
+            evtMgr_.alone_ped_queue.pop();
+        }
+        if (evtMgr_.get_result_ped_events_vec().empty()) {
+            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                datafile.write_ped_trigger_alone(evtMgr_.get_result_ped_trigger());
+            }
+        } else {
+            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
+                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
+            } else {
+                for (vector<SciEvent>::const_iterator vecItr = evtMgr_.get_result_ped_events_vec().begin();
+                     vecItr != evtMgr_.get_result_ped_events_vec().end(); vecItr++) {
+                    datafile.write_ped_modules_alone(*vecItr);
+                }
+            }
+            evtMgr_.ped_clear_result();
+        }
+    }
+}
+
 void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
     cnt.packet++;
     // check packet
@@ -209,43 +341,30 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     }
                     return;
                 } else {
-                    cnt.pkt_crc_passed++;
-                    sci_trigger_.is_bad      = 0;
-                    sci_trigger_.pre_is_bad  = cur_trigg_pre_is_bad_;
-                    cur_trigg_pre_is_bad_   = sci_trigger_.is_bad;
-                    sci_trigger_.trigg_num_g = cur_trigg_num_g_;
-                    cur_trigg_num_g_++;
-                    if (cur_trigg_is_first_) {
-                        cur_trigg_is_first_ = false;
-                        cur_trigg_pre_time_stamp_ = sci_trigger_.timestamp;
-                        cur_trigg_time_period_    = 0;
-                        sci_trigger_.time_period   = cur_trigg_time_period_;
-                        sci_trigger_.time_wait     = 0;
-                        cur_trigg_pre_raw_dead_   = static_cast<int32_t>(sci_trigger_.deadtime);
-                        sci_trigger_.dead_ratio    = 0;
-                    } else {
-                        if (sci_trigger_.timestamp == 0) {
-                            cnt.timestamp_zero_sum++;
-                            if (can_log()) {
-                                os_logfile_ << "== PACKET: " << cnt.packet << " - trigger" << " | TIMESTAMP 0 ======== " << endl;
+                    // trigger CRC passed
+                    // === shift wrong order ============
+                    if (trigger_is_started_) {
+                        if (sci_trigger_.timestamp == 0 || pre_sci_trigger_.timestamp == 0) {
+                            tmp_sci_trigger_ = pre_sci_trigger_;
+                            pre_sci_trigger_ = sci_trigger_;
+                            sci_trigger_ = tmp_sci_trigger_;
+                        } else {
+                            int64_t time_diff = static_cast<int64_t>(sci_trigger_.timestamp) - static_cast<int64_t>(pre_sci_trigger_.timestamp);
+                            if ((time_diff >= 0 && time_diff < 60 * PedCircle * LSB_Value) || (time_diff + 4294967296 < 60 * PedCircle * LSB_Value)) {
+                                tmp_sci_trigger_ = pre_sci_trigger_;
+                                pre_sci_trigger_ = sci_trigger_;
+                                sci_trigger_ = tmp_sci_trigger_;
+                            } else { // for debug
+                                cout << "trigg: " << time_diff << endl;
                             }
-                            sci_trigger_.is_bad = -1;
-                            sci_trigger_.timestamp = (cur_trigg_pre_time_stamp_ == 4294967295 ? 0 : cur_trigg_pre_time_stamp_ + 1);
-                            sci_trigger_.time_align = (sci_trigger_.timestamp >> TriggerShiftRight);
                         }
-                        int64_t tmp_time_wait = static_cast<int64_t>(sci_trigger_.timestamp) - static_cast<int64_t>(cur_trigg_pre_time_stamp_);
-                        cur_trigg_pre_time_stamp_ = sci_trigger_.timestamp;
-                        if (tmp_time_wait < -1 * PedCircle * LSB_Value) {
-                            tmp_time_wait += 4294967296;
-                            cur_trigg_time_period_++;
-                        }
-                        sci_trigger_.time_period  = cur_trigg_time_period_;
-                        sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
-                        cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
-                        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger_.time_wait));
+                    } else {
+                        pre_sci_trigger_ = sci_trigger_;
+                        trigger_is_started_ = true;
+                        return;
                     }
+                    // --- shift wrong order ------------
+                    sci_trigger_before_sync_();
                 }
             }
         }
@@ -355,43 +474,30 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     }
                     return;
                 } else {
-                    cnt.pkt_crc_passed++;
-                    sci_event_.is_bad            = 0;
-                    sci_event_.pre_is_bad        = cur_event_pre_is_bad_[idx];
-                    cur_event_pre_is_bad_[idx]  = sci_event_.is_bad;
-                    sci_event_.event_num_g = cur_event_num_g_[idx];
-                    cur_event_num_g_[idx]++;
-                    if (cur_event_is_first_[idx]) {
-                        cur_event_is_first_[idx]        = false;
-                        cur_event_pre_time_stamp_[idx]  = sci_event_.timestamp;
-                        cur_event_time_period_[idx]     = 0;
-                        sci_event_.time_period           = cur_event_time_period_[idx];
-                        sci_event_.time_wait             = 0;
-                        cur_event_pre_raw_dead_[idx]    = static_cast<int32_t>(sci_event_.deadtime);
-                        sci_event_.dead_ratio            = 0;
-                    } else {
-                        if (sci_event_.timestamp == 0) {
-                            cnt.timestamp_zero_sum++;
-                            if (can_log()) {
-                                os_logfile_ << "== PACKET: " << cnt.packet << " - module ct_" << sci_event_.ct_num << " | TIMESTAMP 0 ======== " << endl;
+                    // event CRC passed
+                    // === shift wrong order ============
+                    if (module_is_started_[idx]) {
+                        if (sci_event_.timestamp == 0 || pre_sci_event_[idx].timestamp == 0) {
+                            tmp_sci_event_      = pre_sci_event_[idx];
+                            pre_sci_event_[idx] = sci_event_;
+                            sci_event_          = tmp_sci_event_;
+                        } else {
+                            int64_t time_diff = static_cast<int64_t>(sci_event_.timestamp) - static_cast<int64_t>(pre_sci_event_[idx].timestamp);
+                            if ((time_diff >= 0 && time_diff < 60 * PedCircle) || (time_diff + 16777216 < 60 * PedCircle)) {
+                                tmp_sci_event_      = pre_sci_event_[idx];
+                                pre_sci_event_[idx] = sci_event_;
+                                sci_event_          = tmp_sci_event_;
+                            } else { // for debug
+                                cout << "event: " << time_diff << " " << cur_event_num_g_[idx] << " " << idx << endl;
                             }
-                            sci_event_.is_bad = -1;
-                            sci_event_.timestamp = (cur_event_pre_time_stamp_[idx] == 16777215 ? 0 : cur_event_pre_time_stamp_[idx] + 1);
-                            sci_event_.time_align = (sci_event_.timestamp & EventTimeMask);
                         }
-                        int64_t tmp_time_wait = static_cast<int64_t>(sci_event_.timestamp) - static_cast<int64_t>(cur_event_pre_time_stamp_[idx]);
-                        cur_event_pre_time_stamp_[idx] = sci_event_.timestamp;
-                        if (tmp_time_wait < -1 * PedCircle) {
-                            tmp_time_wait += 16777216;
-                            cur_event_time_period_[idx]++;
-                        }
-                        sci_event_.time_period  = cur_event_time_period_[idx];
-                        sci_event_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-                        int32_t tmp_dead_diff = static_cast<int32_t>(sci_event_.deadtime) - cur_event_pre_raw_dead_[idx];
-                        cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event_.deadtime);
-                        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-                        sci_event_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event_.time_wait));
+                    } else {
+                        pre_sci_event_[idx] = sci_event_;
+                        module_is_started_[idx] = true;
+                        return;
                     }
+                    // --- shift wrong order ------------
+                    sci_event_before_sync_(idx);
                 }
             }
         }
@@ -401,56 +507,15 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
     if (is_trigger) {
         if (sci_trigger_.mode == 0x00F0) {
             cnt.ped_trigger++;
-            if (start_flag_) {
-                start_flag_ = false;
-                pre_ped_trigg_time_ = sci_trigger_.time_align;
-            } else {
-                int time_diff = sci_trigger_.time_align - pre_ped_trigg_time_;
-                if (time_diff < 0)
-                    time_diff += CircleTime;
-                if (time_diff < PedCircle / 2)
-                    cnt.tin_ped_trigger++;
-                else
-                    cnt.sec_ped_trigger++;
-                pre_ped_trigg_time_ = sci_trigger_.time_align;
-            }
+            count_ped_trigger_();
             for (int i = 0; i < 25; i++) {
                 if (sci_trigger_.trig_accepted[i] == 1)
                     cnt.ped_trig[i]++;
             }
             // ===========================================
             evtMgr_.add_ped_trigger(sci_trigger_);
-            if (evtMgr_.ped_check_valid()) {
-                evtMgr_.ped_move_result(true);
-                evtMgr_.ped_update_time_diff();
-                while (!evtMgr_.alone_ped_queue.empty()) {
-                    datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
-                    evtMgr_.alone_ped_queue.pop();
-                }
-                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-                evtMgr_.ped_clear_result();
-            } else {
-                evtMgr_.ped_move_result(false);
-                while (!evtMgr_.alone_ped_queue.empty()) {
-                    datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
-                    evtMgr_.alone_ped_queue.pop();
-                }
-                if (evtMgr_.get_result_ped_events_vec().empty()) {
-                    if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
-                        datafile.write_ped_trigger_alone(evtMgr_.get_result_ped_trigger());
-                    }   
-                } else {
-                    if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
-                        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-                    } else {
-                        for (vector<SciEvent>::const_iterator vecItr = evtMgr_.get_result_ped_events_vec().begin();
-                             vecItr != evtMgr_.get_result_ped_events_vec().end(); vecItr++) {
-                            datafile.write_ped_modules_alone(*vecItr);
-                        }   
-                    }   
-                    evtMgr_.ped_clear_result();                        
-                }   
-            }
+            save_ped_event_(datafile);
+
             // saa detection
             for (int i = 1; i < SAA_LEN; i++) {
                 noped_trigg_counter_[i - 1] = noped_trigg_counter_[i];
@@ -532,39 +597,45 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
 }
 
 void Processor::do_the_last_work(SciDataFile& datafile) {
-    // ===========================================
-    if (evtMgr_.ped_check_valid()) {
-        evtMgr_.ped_move_result(true);
-        evtMgr_.ped_update_time_diff();
-        while (!evtMgr_.alone_ped_queue.empty()) {
-            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
-            evtMgr_.alone_ped_queue.pop();
-        }
-        datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-        evtMgr_.ped_clear_result();
-    } else {
-        evtMgr_.ped_move_result(false);
-        while (!evtMgr_.alone_ped_queue.empty()) {
-            datafile.write_ped_modules_alone(evtMgr_.alone_ped_queue.front());
-            evtMgr_.alone_ped_queue.pop();
-        }
-        if (evtMgr_.get_result_ped_events_vec().empty()) {
-            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
-                datafile.write_ped_trigger_alone(evtMgr_.get_result_ped_trigger());
-            }   
+    // === add the last trigger and event packet ===
+    if (trigger_is_started_) {
+        sci_trigger_ = pre_sci_trigger_;
+        sci_trigger_before_sync_();
+        if (sci_trigger_.mode == 0x00F0) {
+            cnt.ped_trigger++;
+            count_ped_trigger_();
+            for (int i = 0; i < 25; i++) {
+                if (sci_trigger_.trig_accepted[i] == 1)
+                    cnt.ped_trig[i]++;
+            }
+            evtMgr_.add_ped_trigger(sci_trigger_);
+            save_ped_event_(datafile);
         } else {
-            if (evtMgr_.get_result_ped_trigger().is_bad == 0) {
-                datafile.write_ped_event_align(evtMgr_.get_result_ped_trigger(), evtMgr_.get_result_ped_events_vec());
-            } else {
-                for (vector<SciEvent>::const_iterator vecItr = evtMgr_.get_result_ped_events_vec().begin();
-                     vecItr != evtMgr_.get_result_ped_events_vec().end(); vecItr++) {
-                    datafile.write_ped_modules_alone(*vecItr);
-                }   
-            }   
-            evtMgr_.ped_clear_result();                        
-        }   
+            cnt.noped_trigger++;
+            for (int i = 0; i < 25; i++)
+                if (sci_trigger_.trig_accepted[i] == 1)
+                    cnt.noped_trig[i]++;
+            evtMgr_.add_noped_trigger(sci_trigger_);
+        }
     }
-    // -------------------------------------------
+    for (int i = 0; i < 25; i++) {
+        if (module_is_started_[i]) {
+            sci_event_ = pre_sci_event_[i];
+            sci_event_before_sync_(i);
+            if (sci_event_.mode == 2) {
+                cnt.ped_event[sci_event_.ct_num - 1]++;
+                evtMgr_.add_ped_event(sci_event_);
+            } else {
+                cnt.noped_event[sci_event_.ct_num - 1]++;
+                evtMgr_.add_noped_event(sci_event_);
+            }
+        }
+    }
+
+    // === save the last ped event =================
+    save_ped_event_(datafile);
+
+    // === save all remaining no ped events ========
     if (!evtMgr_.global_start()) {
         evtMgr_.move_remainder_noped();
         while (!evtMgr_.remainder_noped_queue.empty()) {
@@ -578,7 +649,7 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
         }
         return;
     }
-    // ===========================================
+    // ---------------------------------------------
     while (!evtMgr_.noped_trigger_empty()) {
         if (evtMgr_.noped_do_merge(true)) {
             while (!evtMgr_.before_lost_queue.empty()) {
@@ -599,7 +670,7 @@ void Processor::do_the_last_work(SciDataFile& datafile) {
         datafile.write_modules_alone(evtMgr_.remainder_noped_queue.front());
         evtMgr_.remainder_noped_queue.pop();
     }
-    // -------------------------------------------
+    // =============================================
 }
 
 void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
