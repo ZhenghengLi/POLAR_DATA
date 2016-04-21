@@ -346,8 +346,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                                 tmp_sci_trigger_ = pre_sci_trigger_;
                                 pre_sci_trigger_ = sci_trigger_;
                                 sci_trigger_ = tmp_sci_trigger_;
-                            } else { // for debug
-                                cout << "trigg: " << time_diff << endl;
                             }
                         }
                     } else {
@@ -479,8 +477,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                                 tmp_sci_event_      = pre_sci_event_[idx];
                                 pre_sci_event_[idx] = sci_event_;
                                 sci_event_          = tmp_sci_event_;
-                            } else { // for debug
-                                cout << "event: " << time_diff << " " << cur_event_num_g_[idx] << " " << idx << endl;
                             }
                         }
                     } else {
