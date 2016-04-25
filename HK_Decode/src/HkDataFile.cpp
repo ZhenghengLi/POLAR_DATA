@@ -327,9 +327,16 @@ void HkDataFile::convert_obox_() {
         t_hk_obox.fe_hv[i]                 = t_hk_obox.fe_hv[i] * 0.303;
         t_hk_obox.fe_thr[i]                = t_hk_obox.fe_thr[i] / 4096.0 * 3.5 - 2.0;
     }
+
+    // correct FE HV map error
+    Float_t tmp_fe_hv[25];
     for (int i = 0; i < 25; i++) {
-        t_hk_obox.fe_hv[i]                 = t_hk_obox.fe_hv[FEHVIndex[i]];    // correct FE HV map error
+        tmp_fe_hv[i]                       = t_hk_obox.fe_hv[FEHVIndex[i]];
     }
+    for (int i = 0; i < 25; i++) {
+        t_hk_obox.fe_hv[i]                 = tmp_fe_hv[i];
+    }
+
     for (int i = 0; i < 5; i++) {
         t_hk_obox.flex_i_p3v3[i]           = (t_hk_obox.flex_i_p3v3[i] - 0x8000) / 104.858;
         t_hk_obox.flex_i_p1v7[i]           = (t_hk_obox.flex_i_p1v7[i] - 0x8000) / 104.858;
