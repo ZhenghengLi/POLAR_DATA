@@ -9,6 +9,7 @@
 #include "HkOdd.hpp"
 #include "HkEven.hpp"
 #include "HkFrame.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 
