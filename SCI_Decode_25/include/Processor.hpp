@@ -33,15 +33,8 @@ private:
     ofstream os_logfile_;
     
     // two type of packet
-    SciEvent sci_event_;
-    SciEvent pre_sci_event_[25];
-    SciEvent tmp_sci_event_;
-    bool module_is_started_[25];
-    
+    SciEvent   sci_event_;
     SciTrigger sci_trigger_;
-    SciTrigger pre_sci_trigger_;
-    SciTrigger tmp_sci_trigger_;
-    bool trigger_is_started_;
 
     // EventMerger
     EventMerger evtMgr_;

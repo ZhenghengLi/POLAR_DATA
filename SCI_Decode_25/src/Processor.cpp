@@ -33,10 +33,8 @@ void Processor::initialize() {
         cur_event_time_period_[i] = 0;
         cur_event_pre_raw_dead_[i] = 0;
         cur_event_is_first_[i] = true;
-        module_is_started_[i] = false;
     }
 
-    trigger_is_started_ = false;
     noped_start_flag_ = false;
     for (int i = 0; i < SAA_LEN; i++) {
         noped_trigg_counter_[i] = 0;
@@ -334,26 +332,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     return;
                 } else {
                     // trigger CRC passed
-                    // === shift wrong order ============
-                    if (trigger_is_started_) {
-                        if (sci_trigger_.timestamp == 0 || pre_sci_trigger_.timestamp == 0) {
-                            tmp_sci_trigger_ = pre_sci_trigger_;
-                            pre_sci_trigger_ = sci_trigger_;
-                            sci_trigger_ = tmp_sci_trigger_;
-                        } else {
-                            int64_t time_diff = static_cast<int64_t>(sci_trigger_.timestamp) - static_cast<int64_t>(pre_sci_trigger_.timestamp);
-                            if ((time_diff >= 0 && time_diff < 60 * PedCircle * LSB_Value) || (time_diff + 4294967296 < 60 * PedCircle * LSB_Value)) {
-                                tmp_sci_trigger_ = pre_sci_trigger_;
-                                pre_sci_trigger_ = sci_trigger_;
-                                sci_trigger_ = tmp_sci_trigger_;
-                            }
-                        }
-                    } else {
-                        pre_sci_trigger_ = sci_trigger_;
-                        trigger_is_started_ = true;
-                        return;
-                    }
-                    // --- shift wrong order ------------
                     sci_trigger_before_sync_();
                 }
             }
@@ -465,26 +443,6 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
                     return;
                 } else {
                     // event CRC passed
-                    // === shift wrong order ============
-                    if (module_is_started_[idx]) {
-                        if (sci_event_.timestamp == 0 || pre_sci_event_[idx].timestamp == 0) {
-                            tmp_sci_event_      = pre_sci_event_[idx];
-                            pre_sci_event_[idx] = sci_event_;
-                            sci_event_          = tmp_sci_event_;
-                        } else {
-                            int64_t time_diff = static_cast<int64_t>(sci_event_.timestamp) - static_cast<int64_t>(pre_sci_event_[idx].timestamp);
-                            if ((time_diff >= 0 && time_diff < 60 * PedCircle) || (time_diff + 16777216 < 60 * PedCircle)) {
-                                tmp_sci_event_      = pre_sci_event_[idx];
-                                pre_sci_event_[idx] = sci_event_;
-                                sci_event_          = tmp_sci_event_;
-                            }
-                        }
-                    } else {
-                        pre_sci_event_[idx] = sci_event_;
-                        module_is_started_[idx] = true;
-                        return;
-                    }
-                    // --- shift wrong order ------------
                     sci_event_before_sync_(idx);
                 }
             }
@@ -585,44 +543,8 @@ void Processor::process_packet(SciFrame& frame, SciDataFile& datafile) {
 }
 
 void Processor::do_the_last_work(SciDataFile& datafile) {
-    // === add the last trigger and event packet ===
-    if (trigger_is_started_) {
-        sci_trigger_ = pre_sci_trigger_;
-        sci_trigger_before_sync_();
-        if (sci_trigger_.mode == 0x00F0) {
-            cnt.ped_trigger++;
-            count_ped_trigger_();
-            for (int i = 0; i < 25; i++) {
-                if (sci_trigger_.trig_accepted[i] == 1)
-                    cnt.ped_trig[i]++;
-            }
-            evtMgr_.add_ped_trigger(sci_trigger_);
-            save_ped_event_(datafile);
-        } else {
-            cnt.noped_trigger++;
-            for (int i = 0; i < 25; i++)
-                if (sci_trigger_.trig_accepted[i] == 1)
-                    cnt.noped_trig[i]++;
-            evtMgr_.add_noped_trigger(sci_trigger_);
-        }
-    }
-    for (int i = 0; i < 25; i++) {
-        if (module_is_started_[i]) {
-            sci_event_ = pre_sci_event_[i];
-            sci_event_before_sync_(i);
-            if (sci_event_.mode == 2) {
-                cnt.ped_event[sci_event_.ct_num - 1]++;
-                evtMgr_.add_ped_event(sci_event_);
-            } else {
-                cnt.noped_event[sci_event_.ct_num - 1]++;
-                evtMgr_.add_noped_event(sci_event_);
-            }
-        }
-    }
-
     // === save the last ped event =================
     save_ped_event_(datafile);
-
     // === save all remaining no ped events ========
     if (!evtMgr_.global_start()) {
         evtMgr_.move_remainder_noped();
