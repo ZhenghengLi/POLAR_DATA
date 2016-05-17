@@ -124,6 +124,10 @@ void HkOdd::set_fe_cosmic_() {
     }
 }
 
+void HkOdd::set_ibox_gps_() {
+    ibox_gps = decode_byte<uint64_t>(frame_data_, 250, 255);
+}
+
 void HkOdd::update(int32_t cur_is_bad) {
     is_bad = cur_is_bad;
     set_frm_index_();
@@ -149,4 +153,5 @@ void HkOdd::update(int32_t cur_is_bad) {
     set_fe_thr_();
     set_fe_rate_();
     set_fe_cosmic_();
+    set_ibox_gps_();
 }

@@ -74,6 +74,9 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("gps_pps_count",        &t_hk_obox.gps_pps_count,        "gps_pps_count/l"       );
     t_hk_obox_tree_->Branch("gps_sync_gen_count",   &t_hk_obox.gps_sync_gen_count,   "gps_sync_gen_count/l"  );
     t_hk_obox_tree_->Branch("gps_sync_send_count",  &t_hk_obox.gps_sync_send_count,  "gps_sync_send_count/l" );
+    t_hk_obox_tree_->Branch("ibox_gps",             &t_hk_obox.ibox_gps,             "ibox_gps/l"            );
+    t_hk_obox_tree_->Branch("abs_gps_week",         &t_hk_obox.abs_gps_week,         "abs_gps_week/I"        );
+    t_hk_obox_tree_->Branch("abs_gps_second",       &t_hk_obox.abs_gps_second,       "abs_gps_second/D"      );
 
     t_hk_ibox_tree_ = new TTree("t_hk_ibox", "ibox housekeeping info");
     t_hk_ibox_tree_->SetDirectory(t_out_file_);
@@ -90,6 +93,8 @@ bool HkDataFile::open(const char* filename) {
     t_hk_ibox_tree_->Branch("head",                 &t_hk_ibox.head,                 "head/s"                );
     t_hk_ibox_tree_->Branch("tail",                 &t_hk_ibox.tail,                 "tail/s"                );
     t_hk_ibox_tree_->Branch("ibox_gps",             &t_hk_ibox.ibox_gps,             "ibox_gps/l"            );
+    t_hk_ibox_tree_->Branch("abs_gps_week",         &t_hk_ibox.abs_gps_week,         "abs_gps_week/I"        );
+    t_hk_ibox_tree_->Branch("abs_gps_second",       &t_hk_ibox.abs_gps_second,       "abs_gps_second/D"      );
     
     return true;
 }
@@ -113,6 +118,9 @@ void HkDataFile::close() {
 
 void HkDataFile::write_ibox_info(const HkFrame& frame) {
     copy_ibox_info_(frame);
+    t_hk_ibox.ibox_gps       = static_cast<ULong64_t>(frame.ibox_gps);
+    t_hk_ibox.abs_gps_week   = week_of_gps6_(t_hk_ibox.ibox_gps);
+    t_hk_ibox.abs_gps_second = second_of_gps6_(t_hk_ibox.ibox_gps);
     t_hk_ibox_tree_->Fill();
 }
 
@@ -123,6 +131,9 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
     copy_odd_packet_(odd_pkt);
     copy_even_packet_(even_pkt);
     convert_obox_();
+    t_hk_obox.ibox_gps       = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+    t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
 }
 
@@ -135,6 +146,9 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     t_hk_obox.obox_is_bad = 3;
     copy_odd_packet_(odd_pkt);
     convert_obox_();
+    t_hk_obox.ibox_gps       = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+    t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
 }
 
@@ -147,6 +161,9 @@ void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     t_hk_obox.obox_is_bad = 3;
     copy_even_packet_(even_pkt);
     convert_obox_();
+    t_hk_obox.ibox_gps       = static_cast<ULong64_t>(even_pkt.ibox_gps);
+    t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
 }
 
@@ -248,7 +265,6 @@ void HkDataFile::copy_ibox_info_(const HkFrame& frame) {
     t_hk_ibox.command_arg[1]         = static_cast<UShort_t>(frame.command_arg[1]);
     t_hk_ibox.head                   = static_cast<UShort_t>(frame.head);
     t_hk_ibox.tail                   = static_cast<UShort_t>(frame.tail);
-    t_hk_ibox.ibox_gps               = static_cast<ULong64_t>(frame.ibox_gps);
 }
 
 void HkDataFile::clear_obox_() {
@@ -357,4 +373,12 @@ void HkDataFile::convert_obox_() {
     t_hk_obox.ct_i_cold[0]                 = (t_hk_obox.ct_i_cold[0] - 0x8000) / 104.858;
     t_hk_obox.ct_i_hot[1]                  = (t_hk_obox.ct_i_hot[1] - 0x8000) / 104.858;
     t_hk_obox.ct_i_cold[1]                 = (t_hk_obox.ct_i_cold[1] - 0x8000) / 104.858;
+}
+
+int HkDataFile::week_of_gps6_(const uint64_t raw_gps) {
+    return static_cast<int>((raw_gps >> 32) & 0xFFFF);
+}
+
+double HkDataFile::second_of_gps6_(const uint64_t raw_gps) {
+    return static_cast<double>((raw_gps >> 12) & 0xFFFFF) + static_cast<double>(raw_gps & 0xFFF) * 0.5 * 1.0E-3;
 }

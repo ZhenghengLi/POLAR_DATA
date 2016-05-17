@@ -35,6 +35,7 @@ public:
     uint16_t  fe_thr[18];
     uint16_t  fe_rate[18];
     uint16_t  fe_cosmic[18];
+    uint64_t  ibox_gps;
 
 public:
     int32_t is_bad;
@@ -63,6 +64,7 @@ private:
     void set_fe_thr_();
     void set_fe_rate_();
     void set_fe_cosmic_();
+    void set_ibox_gps_();
     
 public:
     void update(int32_t cur_is_bad);
