@@ -173,6 +173,9 @@ UShort_t           | **sci_head**             | raw data of OBOX science packet 
 ULong64_t          | **gps_pps_count**        | raw data of Time_PPS
 ULong64_t          | **gps_sync_gen_count**   | raw data of Time_synchComGen
 ULong64_t          | **gps_sync_send_count**  | raw data of Time_synchComTx
+ULong64_t          | **ibox_gps**             | raw data of IBOX GPS time
+Int_t              | **abs_gps_week**         | week of ibox_gps time of this packet.
+Double_t           | **abs_gps_second**       | second of ibox_gps time of this packet.
 
 ### struct Hk_Ibox_T
 
@@ -191,4 +194,6 @@ UShort_t           | **command_arg[2]**       | raw data of Command argument1 an
 UShort_t           | **head**                 | raw data of OBOX HK header counter
 UShort_t           | **tail**                 | raw data of OBOX HK tail counter
 ULong64_t          | **ibox_gps**             | raw data of IBOX GPS time
+Int_t              | **abs_gps_week**         | week of ibox_gps time of this packet.
+Double_t           | **abs_gps_second**       | second of ibox_gps time of this packet.
 
