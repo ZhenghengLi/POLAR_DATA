@@ -341,7 +341,9 @@ void HkDataFile::convert_obox_() {
     for (int i = 0; i < 25; i++) {
         t_hk_obox.fe_temp[i]               = (t_hk_obox.fe_temp[i] > 0x7F ? t_hk_obox.fe_temp[i] - 2 * 0x80 : t_hk_obox.fe_temp[i]);
         t_hk_obox.fe_hv[i]                 = t_hk_obox.fe_hv[i] * 0.303;
-        t_hk_obox.fe_thr[i]                = t_hk_obox.fe_thr[i] / 4096.0 * 3.5 - 2.0;
+        if (t_hk_obox.packet_num % 4 == 0) {
+            t_hk_obox.fe_thr[i]            = t_hk_obox.fe_thr[i] / 4096.0 * 3.5 - 2.0;
+        }
     }
 
     // correct FE HV map error
