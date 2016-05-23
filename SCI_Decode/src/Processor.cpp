@@ -169,6 +169,7 @@ void Processor::sci_trigger_before_sync_() {
             sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(cur_trigg_pre_dead_diff_) / static_cast<double>(sci_trigger_.time_wait));
             cur_trigg_pre_dead_diff_ = tmp_dead_diff;
         } else {
+            sci_trigger_.dead_ratio = 0;
             cur_trigg_pre_dead_diff_ = tmp_dead_diff;
             cur_trigg_pre_dead_diff_ready_ = true;
         }
