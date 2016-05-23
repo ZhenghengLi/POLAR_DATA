@@ -25,6 +25,7 @@ void Processor::initialize() {
     cur_trigg_time_period_ = 0;
     cur_trigg_pre_raw_dead_ = 0;
     cur_trigg_is_first_ = true;
+    cur_trigg_pre_dead_diff_ready_ = false;
 
     for (int i = 0; i < 25; i++) {
         cur_event_num_g_[i] = 0;
@@ -163,8 +164,14 @@ void Processor::sci_trigger_before_sync_() {
         sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
         int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
         cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
-        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
-        sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_trigger_.time_wait));
+        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536) / 4;
+        if (cur_trigg_pre_dead_diff_ready_) {
+            sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(cur_trigg_pre_dead_diff_) / static_cast<double>(sci_trigger_.time_wait));
+            cur_trigg_pre_dead_diff_ = tmp_dead_diff;
+        } else {
+            cur_trigg_pre_dead_diff_ = tmp_dead_diff;
+            cur_trigg_pre_dead_diff_ready_ = true;
+        }
     }
 }
 

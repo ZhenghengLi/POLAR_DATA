@@ -46,6 +46,8 @@ private:
     uint32_t   cur_trigg_time_period_;
     int32_t    cur_trigg_pre_raw_dead_;
     bool       cur_trigg_is_first_;
+    bool       cur_trigg_pre_dead_diff_ready_;
+    int32_t    cur_trigg_pre_dead_diff_;
     // packet extra info for event
     int64_t    cur_event_num_g_[25];
     int32_t    cur_event_pre_is_bad_[25];
