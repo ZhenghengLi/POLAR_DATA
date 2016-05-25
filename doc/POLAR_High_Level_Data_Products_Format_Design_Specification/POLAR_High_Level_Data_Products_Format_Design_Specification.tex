@@ -7,6 +7,7 @@
 \usepackage{fancyvrb}
 \usepackage[aboveskip=5pt, belowskip=0pt]{caption}
 \usepackage{array}
+\usepackage{paralist}
 \begin{document}
 % ==== title page =====================
 \begin{titlepage}
@@ -288,7 +289,7 @@ because of the different methods of doing time sync for physical events and pede
 After these two kinds of events are stored separately, it is easy to make the order of both trigger and module packets right as time.
 And it is not hard to iterate all packets (including pedestal and physical, excluding bad) of one module as the order of time by using a global index number.
 The method will be introduced later.
-Here will introduce the data structure of TTree t\_modules and TTree t\_trigger. Firstly, contents of TTree t\_modules are shown in Table \ref{tab:t-modules}
+Here will introduce the data structure of TTree t\_modules and TTree t\_trigger. Firstly, contents of TTree t\_modules and t\_ped\_modules are shown in Table \ref{tab:t-modules}.
 
 \begin{center}
   \tablecaption{Contents of TTree t\_modules and t\_ped\_modules}\label{tab:t-modules}    
@@ -303,7 +304,7 @@ Here will introduce the data structure of TTree t\_modules and TTree t\_trigger.
   \begin{supertabular}{| p{28mm} | p{25mm} | p{70mm} |}
     Long64\_t          & trigg\_num          & Sequential number of the trigger packet of an event. \\\hline
     Long64\_t          & event\_num          & Sequential number of the event packet of a module. \\\hline
-    Long64\_t          & event\_num\_g       & Order number at the sequence of appearing in the raw data file. \\\hline
+    Long64\_t          & event\_num\_g       & Order number of the sequence of appearing in the raw data file. \\\hline
     Int\_t             & is\_bad             & if the packet is invalid or has CRC error. \\\hline
     Int\_t             & pre\_is\_bad        & if the previous packet is invalid or has CRC error. \\\hline
     Int\_t             & compress            & compress mode \\\hline
@@ -320,19 +321,19 @@ Here will introduce the data structure of TTree t\_modules and TTree t\_trigger.
     Event\_Status\_T   & status\_bit         & each bit in status \\\hline
     Bool\_t            & trigger\_bit[64]    & raw data of the TRIGGERBIT \\\hline
     Float\_t           & energy\_adc[64]     & ADC of energy of the 64 channels \\\hline
-    Float\_t           & common\_noise       & raw data of COMMON NOISE field for compress mode 3 \\\hline
+    Float\_t           & common\_noise       & COMMON NOISE for compress mode 3 \\\hline
     Int\_t             & multiplicity        & sum of trigger\_bit[64] of this packet \\
   \end{supertabular}
 \end{center}
 
-Type Event\_Status\_T is a C struct. It is used to extract and store each bit of status. Definition of it is shown in Table \ref{tab:event-status-bit}
+Type Event\_Status\_T is a C struct. It is used to extract and store each bit of status. Definition of it is shown in Table \ref{tab:event-status-bit}.
 
 \begin{center}
   \tablecaption{Definition of struct Event\_Status\_T}\label{tab:event-status-bit}    
   \tablefirsthead{\hline
     \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\\hline}
   \tablehead{
-    \multicolumn{4}{r}{\small Table \ref{tab:t-modules} (Continue)}\\\hline
+    \multicolumn{4}{r}{\small Table \ref{tab:event-status-bit} (Continue)}\\\hline
     \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\}
   \tabletail{\hline
     \multicolumn{4}{r}{\small Next}\\}
@@ -357,6 +358,165 @@ Type Event\_Status\_T is a C struct. It is used to extract and store each bit of
   \end{supertabular}
 \end{center}
 
+Then, contents of TTree t\_trigger and t\_ped\_trigger are shown in Table \ref{tab:t-trigger}.
+
+\begin{center}
+  \tablecaption{Contents of TTree t\_trigger and t\_ped\_trigger}\label{tab:t-trigger}    
+  \tablefirsthead{\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Descriptions} \\\hline}
+  \tablehead{
+    \multicolumn{3}{r}{\small Table \ref{tab:t-trigger} (Continue)}\\\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Descriptions} \\}
+  \tabletail{\hline
+    \multicolumn{3}{r}{\small Next}\\}
+  \tablelasttail{\hline}
+  \begin{supertabular}{| p{28mm} | p{29mm} | p{66mm} |}
+    Long64\_t          & trigg\_num           & Sequential number of the trigger packet of an event. \\\hline
+    Long64\_t          & trigg\_num\_g        & Order number of the sequence of appearing in the raw data file. \\\hline
+    Int\_t             & is\_bad              & if the packet is invalid or has CRC error. \\\hline
+    Int\_t             & pre\_is\_bad         & if the previous packet is invalid or has CRC error. \\\hline
+    Int\_t             & type                 & code of the 4 types of trigger packet \\\hline
+    Int\_t             & packet\_num          & raw data of packet number of the trigger packet \\\hline
+    UInt\_t            & time\_stamp          & raw data of Timestamp register of the trigger packet \\\hline
+    UInt\_t            & time\_period         & overflow counter of time\_stamp \\\hline
+    UInt\_t            & time\_align          & 23 MSB of time\_stamp \\\hline
+    Double\_t          & time\_second         & time in seconds from start \\\hline
+    Double\_t          & time\_wait           & time\_second difference since previous event \\\hline
+    ULong64\_t         & frm\_ship\_time      & raw data of the ship time from frame in which this packet is. \\\hline
+    ULong64\_t         & frm\_gps\_time       & raw data of the GPS time from frame in which this packet is. \\\hline
+    Long64\_t          & pkt\_start           & first entry index of all the adjacent event packets of this event in the modules tree. \\\hline
+    Int\_t             & pkt\_count           & number of entries of event packets for this event in the modules tree \\\hline
+    Int\_t             & lost\_count          & number of lost event packets for this event \\\hline
+    Int\_t             & trigger\_n           & sum of the trigger\_bit[64] of all the event packets for this event \\\hline
+    UShort\_t          & status               & raw data of Status register of the trigger packet \\\hline
+    Trigg\_Status\_T   & status\_bit          & each bit in status \\\hline
+    UChar\_t           & trig\_sig\_con[25]   & raw data of Trigger signals conditions for each frontend \\\hline
+    Trig\_Sig\_Con\_T  & trig\_sig\_con\_bit  & each bit in trig\_sig\_con[25] for each frontend \\\hline
+    Bool\_t            & trig\_accepted[25]   & raw data of FEE TRIGGER ACCEPTED for each frontend \\\hline
+    Bool\_t            & trig\_rejected[25]   & raw data of FEE TRIGGER REJECTED for each frontend \\\hline
+    UInt\_t            & raw\_dead            & raw data of the dead time counter field \\\hline
+    Float\_t           & dead\_ratio          & delta(raw\_dead) / delta(time\_stamp) / 4 \\\hline
+    Int\_t             & abs\_gps\_week$^*$   & week of absolute gps time of this event. \\\hline
+    Double\_t          & abs\_gps\_second$^*$ & second of absolute gps time of this event. \\\hline
+    Bool\_t            & abs\_gps\_valid$^*$  & if the absolute gps time is valid. \\
+  \end{supertabular}
+\end{center}
+
+Type Trigg\_Status\_T and Trig\_Sig\_Con\_T are C structs. They are used to extract and store each bit of status and trig\_sig\_con[25] respectively.
+Definitions of the two struct types are shown in Table \ref{tab:trigg-status-bit} and Table \ref{tab:trig-sig-con-bit} respectively.
+
+\begin{center}
+  \tablecaption{Definition of struct Trigg\_Status\_T}\label{tab:trigg-status-bit}    
+  \tablefirsthead{\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\\hline}
+  \tablehead{
+    \multicolumn{4}{r}{\small Table \ref{tab:trigg-status-bit} (Continue)}\\\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\}
+  \tabletail{\hline
+    \multicolumn{4}{r}{\small Next}\\}
+  \tablelasttail{\hline}
+  \begin{supertabular}{| p{15mm} | p{37mm} | p{7mm} | p{60mm} |}
+    Bool\_t   & science\_disable        & 15  & Flag indicating the science packets generation by Central Trigger Unit is disabled. \\\hline
+    Bool\_t   & master\_clock\_enable   & 14  & Flag indicating the Master Clock generation is enabled. \\\hline
+    Bool\_t   & saving\_data            & 13  & Flag indicating the science packet is being stored in FIFO. \\\hline
+    Bool\_t   & taking\_event\_or\_ped  & 12  & Flag indicating the Central Trigger Unit state machine is doing the event or pedestal acquisition. \\\hline
+    Bool\_t   & fifo\_full              & 11  & Flag indicating FIFO in Central Processing Unit is full. \\\hline
+    Bool\_t   & fifo\_almost\_full      & 10  & Flag indicating FIFO in Central Processing Unit is almost full. \\\hline
+    Bool\_t   & fifo\_empty             & 9   & Flag indicating FIFO in Central Processing Unit is empty. \\\hline
+    Bool\_t   & fifo\_almost\_empty     & 8   & Flag indicating FIFO in Central Processing Unit is almost empty. \\\hline
+    Bool\_t   & any\_waiting            & 7   & Flag indicating at least one FEE sent the WAITING signal to Central Processing Unit. \\\hline
+    Bool\_t   & any\_waiting\_two\_hits & 6   & Flag indicating at least one FEE, that has two hits, sent the WAITING signal to Central Processing Unit. \\\hline
+    Bool\_t   & any\_tmany\_thigh       & 5   & Flag indicating at least one FEE, that has Too Many or Too High flags set, sent the WAITING signal to Central Processing Unit. \\\hline
+    Bool\_t   & packet\_type\_b2        & 4   & bit 2 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit. \\\hline
+    Bool\_t   & packet\_type\_b1        & 3   & bit 1 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit. \\\hline
+    Bool\_t   & packet\_type\_b0        & 2   & bit 0 of Field indicating the type of science packet being processed by the state machine of Central Trigger Unit. \\
+  \end{supertabular}
+\end{center}
+
+\begin{center}
+  \tablecaption{Definition of struct Trig\_Sig\_Con\_T}\label{tab:trig-sig-con-bit}    
+  \tablefirsthead{\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\\hline}
+  \tablehead{
+    \multicolumn{4}{r}{\small Table \ref{tab:trig-sig-con-bit} (Continue)}\\\hline
+    \textbf{Type}  & \textbf{Name}  & \textbf{Bit}  & \textbf{Descriptions} \\}
+  \tabletail{\hline
+    \multicolumn{4}{r}{\small Next}\\}
+  \tablelasttail{\hline}
+  \begin{supertabular}{| p{15mm} | p{34mm} | p{7mm} | p{63mm} |}
+    Bool\_t   & fe\_busy[25]         & 5  & Flag indicating the status of the FE BUSY signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_waiting[25]      & 4  & Flag indicating the status of the FE WAITING signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_hold\_b[25]      & 3  & Flag indicating the status of the FE HOLD B signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_tmany\_thigh[25] & 2  & Flag indicating the status of the FE TMANY THIGH signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_tout\_2[25]      & 1  & Flag indicating the status of the FE TOUT 2 signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_tout\_1[25]      & 0  & Flag indicating the status of the FE TOUT 1 signal from this Frontend Unit. \\\hline
+  \end{supertabular}
+\end{center}
+
+\subsubsection{Directly decoded data in t\_modules}
+Some data in t\_modules is directly decoded from module packet without any change. Here list and explain all of them.
+
+\begin{asparadesc}
+\item[compress] Bit [8:7] of module status word. It is the code of reduction mode. There are four different reduction mode types.
+  0 is for default mode, 1 is for simple mode, 2 is for pedestal mode, and 3 is for full reduction mode.
+\item[ct\_num] This is the CT number, raw data of FEE Unit number. The range of it is from 1 to 25, indicating which module this packet is from.
+\item[time\_stamp] Raw data of TIMESTAMP field of this packet. The number of valid bits is 24. The unit of it is $40.96\mu s$.
+\item[raw\_rate] Raw data of RATE word of this packet.
+\item[raw\_dead] Raw data of DEADTIME word of this packet. The unit of it is the same as TIMESTAMP.
+\item[status] Raw data of module STATUS word.
+\item[status\_bit] This is a C struct of pure bool type. Each bit of STATUS word is extracted and stored in this struct respectively.
+  Names of the fields indicate the meaning of each bit.
+\item[trigger\_bit[64]] Array of each bit of TRIGGERBIT. The type of it is Bool\_t. True means the corresponding channel is triggered.
+\item[energy\_adc[64]] Array of ADC of each channel. For mode 2 and mode 3, some channels have no ADC data, in this case, ADC of the channel is 0.
+  ADC of mode 3 is special. The output ADC of mode 3 is $(ADC_{raw} - 2048) \times 2$. After this calculation, the unit of ADC of mode 3 is the same as other modes.
+  One important thing is that ADC of mode 3 is already pedestal subtracted in firmware, but common noise is not subtracted.
+  The common noise for mode 3 is stored in common\_noise.
+  For mode 0, 1 and 2, the output ADC is equal to the raw ADC.
+\item[common\_noise] Raw data of COMMON NOISE for mode 3 subtracted by 2048. The reason to subtract 2048 is that firmware add an extra 2048 to common noise.
+  For ohter compress modes, the value of common\_noise is 0.
+\end{asparadesc}
+
+\subsubsection{Auxiliary data in t\_modules}
+One important fact is that packets of a specific module and trigger packets are ordered exactly as time in the raw data file.
+It is better to add some auxiliary data related to the sequence of time that is helpful for data monitor and data analysis later.
+All of the auxiliary data in t\_modules is listed and explained here.
+
+\begin{asparadesc}
+\item[trigg\_num] This is the sequential number of trigger packet of this event. Module packets which belong to the same event have the same trigg\_num.
+  This number is used for organization of event data.
+\item[event\_num] Sequential number of module packets. This number for different modules is independent. This number is added when saving data into TTree.
+  In ohter words, this number is also independent for pedestal and physical packets.
+  This number is continuous and incremental for a specific module in the same TTree, t\_modules or t\_ped\_modules.
+  It start from 0, and it is $-1$ when this packet is bad.
+\item[event\_num\_g] Order number of the sequence of appearing in the raw data file. This number for different modules is independent.
+  The difference between this number and event\_num is that this number is added when scanning the raw data file. It counts both pedestal and physical packets.
+  Because pedestal and physical packets are stored in different TTree, this number is incremental but sometimes discontinuous for a specific module in the same TTree.
+  It start from 0, and it is $-1$ when this packet is bad. This number is used for iterating all packets of one module including pedestal and physical as the order of time.
+\item[is\_bad] An integer value that indicates whether this packet is bad. The value is 3 when this packet is too short, 2 when invalid, 1 when CRC error, and 0 when good.
+  The value is $-1$ when this packet is good but the timestamp is 0.
+\item[pre\_is\_bad] Value of is\_bad of the previous packet of the same module.
+  This value is necessary because if the previous packet is bad, some ohter auxiliary data in t\_modules such as time\_wait, dead\_ratio is unknown and wrong.
+\item[time\_period] time\_stamp of module packet will overflow about every 11.45 minutes. This value records the total number of overflow from start.
+\item[time\_align] It is the 23 LSB of time\_stamp of this packet. This is useful for time alignment. It is the counterpart of 23 MSB of time\_stamp of trigger packet,
+  that is the time\_align of trigger packet. time\_align of both module packet and trigger packet have the same time unit and range.
+\item[time\_second] This is the time in second unit from start. It is equal to $(\textrm{time\_period}\times 2^{24} + \textrm{time\_stamp})\times 40.96 \times 10^{-6}$
+\item[time\_wait] This is the difference of time\_second between this packet and previous packet of the same module. The unit of it is second.
+\item[dead\_ratio] Ratio of the increment of raw\_dead to the increment of time\_stamp. The increment is between this packet and previous packet of the same module.
+  In formula, $\textrm{dead\_ratio} = \Delta(\textrm{raw\_dead}) / \Delta(\textrm{time\_stamp})$.
+\item[multiplicity] Sum of array trigger\_bit[64] of this packet. It indicates how many bars of this module is fired.
+\end{asparadesc}
+
+\subsubsection{Directly decoded data in t\_trigger}
+
+\subsubsection{Auxiliary data in t\_trigger}
+
+\subsubsection{Iterating pedestal and physical packets together}
+
+\subsubsection{Organization of event data}
+
+\subsection{1M level HK data}
+
+\section{About splitting data by orbit}
 %==== references =======================
 \begin{thebibliography}{9}
 \bibitem{POAC-data-products} POLAR\_space\_data\_from\_GESSA/POAC data products.pdf
