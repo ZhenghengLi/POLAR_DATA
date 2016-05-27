@@ -108,7 +108,7 @@ void HkOdd::set_fe_hv_() {
 
 void HkOdd::set_fe_thr_() {
     for (int i = 0; i < 18; i++) {
-        fe_thr[i] = decode_bit<uint16_t>(frame_data_ + 68 + 10 * i + 4, 4, 15);
+        fe_thr[i] = decode_byte<uint16_t>(frame_data_ + 68 + 10 * i, 4, 5);
     }
 }
 
