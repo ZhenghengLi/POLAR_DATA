@@ -8,6 +8,7 @@
 \usepackage[aboveskip=5pt, belowskip=0pt]{caption}
 \usepackage{array}
 \usepackage{paralist}
+\renewcommand{\thempfootnote}{\arabic{mpfootnote}}
 \begin{document}
 % ==== title page =====================
 \begin{titlepage}
@@ -301,9 +302,9 @@ Here will introduce the data structure of TTree t\_modules and TTree t\_trigger.
   \tabletail{\hline
     \multicolumn{3}{r}{\small Next}\\}
   \tablelasttail{\hline}
-  \begin{supertabular}{| p{28mm} | p{25mm} | p{70mm} |}
+  \begin{mpsupertabular}{| p{28mm} | p{25mm} | p{70mm} |}
     Long64\_t          & trigg\_num          & Sequential number of the trigger packet of an event. \\\hline
-    Long64\_t          & event\_num          & Sequential number of the event packet of a module. \\\hline
+    Long64\_t          & event\_num          & Sequential number of the event packet\footnote{When I say event packet, it is equal to module packet} of a module. \\\hline
     Long64\_t          & event\_num\_g       & Order number of the sequence of appearing in the raw data file. \\\hline
     Int\_t             & is\_bad             & if the packet is invalid or has CRC error. \\\hline
     Int\_t             & pre\_is\_bad        & if the previous packet is invalid or has CRC error. \\\hline
@@ -323,7 +324,7 @@ Here will introduce the data structure of TTree t\_modules and TTree t\_trigger.
     Float\_t           & energy\_adc[64]     & ADC of energy of the 64 channels \\\hline
     Float\_t           & common\_noise       & COMMON NOISE for compress mode 3 \\\hline
     Int\_t             & multiplicity        & sum of trigger\_bit[64] of this packet \\
-  \end{supertabular}
+  \end{mpsupertabular}
 \end{center}
 
 Type Event\_Status\_T is a C struct. It is used to extract and store each bit of status. Definition of it is shown in Table \ref{tab:event-status-bit}.
@@ -405,6 +406,8 @@ Then, contents of TTree t\_trigger and t\_ped\_trigger are shown in Table \ref{t
 Type Trigg\_Status\_T and Trig\_Sig\_Con\_T are C structs. They are used to extract and store each bit of status and trig\_sig\_con[25] respectively.
 Definitions of the two struct types are shown in Table \ref{tab:trigg-status-bit} and Table \ref{tab:trig-sig-con-bit} respectively.
 
+\newpage
+
 \begin{center}
   \tablecaption{Definition of struct Trigg\_Status\_T}\label{tab:trigg-status-bit}    
   \tablefirsthead{\hline
@@ -449,7 +452,7 @@ Definitions of the two struct types are shown in Table \ref{tab:trigg-status-bit
     Bool\_t   & fe\_hold\_b[25]      & 3  & Flag indicating the status of the FE HOLD B signal from this Frontend Unit. \\\hline
     Bool\_t   & fe\_tmany\_thigh[25] & 2  & Flag indicating the status of the FE TMANY THIGH signal from this Frontend Unit. \\\hline
     Bool\_t   & fe\_tout\_2[25]      & 1  & Flag indicating the status of the FE TOUT 2 signal from this Frontend Unit. \\\hline
-    Bool\_t   & fe\_tout\_1[25]      & 0  & Flag indicating the status of the FE TOUT 1 signal from this Frontend Unit. \\\hline
+    Bool\_t   & fe\_tout\_1[25]      & 0  & Flag indicating the status of the FE TOUT 1 signal from this Frontend Unit. \\
   \end{supertabular}
 \end{center}
 
@@ -483,7 +486,7 @@ All of the auxiliary data in t\_modules is listed and explained here.
 
 \begin{asparadesc}
 \item[trigg\_num] This is the sequential number of trigger packet of this event. Module packets which belong to the same event have the same trigg\_num.
-  This number is used for organization of event data.
+  This number is used for organization of event data. It start from 0. It is -1 if this module packet has no corresponding trigger packet and -2 when this module packet is bad.
 \item[event\_num] Sequential number of module packets. This number for different modules is independent. This number is added when saving data into TTree.
   In ohter words, this number is also independent for pedestal and physical packets.
   This number is continuous and incremental for a specific module in the same TTree, t\_modules or t\_ped\_modules.
@@ -501,18 +504,196 @@ All of the auxiliary data in t\_modules is listed and explained here.
   that is the time\_align of trigger packet. time\_align of both module packet and trigger packet have the same time unit and range.
 \item[time\_second] This is the time in second unit from start. It is equal to $(\textrm{time\_period}\times 2^{24} + \textrm{time\_stamp})\times 40.96 \times 10^{-6}$
 \item[time\_wait] This is the difference of time\_second between this packet and previous packet of the same module. The unit of it is second.
-\item[dead\_ratio] Ratio of the increment of raw\_dead to the increment of time\_stamp. The increment is between this packet and previous packet of the same module.
+\item[dead\_ratio] Ratio of the increment of raw\_dead to the increment of \\ time\_stamp. The increment is between this packet and previous packet of the same module.
   In formula, $\textrm{dead\_ratio} = \Delta(\textrm{raw\_dead}) / \Delta(\textrm{time\_stamp})$.
 \item[multiplicity] Sum of array trigger\_bit[64] of this packet. It indicates how many bars of this module is fired.
 \end{asparadesc}
 
 \subsubsection{Directly decoded data in t\_trigger}
+Here list and explain the directly decoded data of trigger packet in TTree t\_trigger.
+
+\begin{asparadesc}
+\item[type] Code of the 4 types of trigger packet.
+  0x00F0 is for pedestal event, 0x00FF is for normal event, 0xF000 is for prescale single event, and 0xFF00 is for cosmic event.
+\item[packet\_num] Raw data of the packet number word of this trigger packet.
+\item[time\_stamp] Raw data of the timestamp register double word of this trigger packet. The number of valid bits is 32. The unit of it is $80ns$.
+\item[frm\_ship\_time] Raw data of the 6 bytes ship time decoded from the header of frame in which this trigger packet is.
+\item[frm\_gps\_time] Raw data of the 6 bytes GPS time decoded from the header of frame in which this trigger packet is.
+\item[status] Raw data of the status register word of this trigger packet.
+\item[status\_bit] This is a C struct of pure bool type which is used to extract and store each bit of status respectively.
+  Names of the fields indicate the meaning of each bit.
+\item[trig\_sig\_con[25]] Array to store the byte of trigger signals conditions for each frontend.
+\item[trig\_sig\_con\_bit] C struct to extract and store each bit of trigger signals conditions for each frontend respectively.
+  Each field of this C struct is of type bool[25].
+\item[trig\_accepted[25]] Array to store each bit of FEE TRIGGER ACCEPTED for each frontend respectively.
+\item[trig\_rejected[25]] Array to store each bit of FEE TRIGGER REJECTED for each frontend respectively.
+\item[raw\_dead] Raw data of the dead time counter word of this trigger packet.
+\end{asparadesc}
 
 \subsubsection{Auxiliary data in t\_trigger}
+Some of the auxiliary data added in t\_trigger is similar to that is added in t\_modules.
+Some are used to organize the event data, that is, to find the corresponding module packets of the same event in t\_modules.
+The three GPS related branches with a star tagged shown in Table \ref{tab:t-trigger} are added by program \texttt{Time\_Calculate}. 
+They belong to the 1P level SCI data, and the 1M level SCI data does not have these three branches.
+All the auxiliary data in t\_trigger is listed and explained below.
+
+\begin{asparadesc}
+\item[trigg\_num] Sequential number of trigger packet.
+  Like event\_num of \\ t\_modules, this number is independent for pedestal and physical trigger packets
+  and is always continuous and incremental in the same TTree, t\_trigger or t\_ped\_trigger.
+  It start from 0, and it is $-1$ when this trigger packet is bad.
+\item[trigg\_num\_g] Order number of the sequence of appearing in the raw data file.
+  Also similar to event\_num\_g for module packets, this number is added when scanning the raw data file and counts both pedestal and physical trigger packets.
+  Because pedestal and physical trigger packets are stored in different TTree, This number is incremental but sometimes discontinuous in the same TTree.
+  It start from 0, and it is $-1$ when this trigger packet is bad.
+\item[is\_bad] The same as that in t\_modules but for trigger packets.
+\item[pre\_is\_bad] The same as that in t\_modules but for trigger packets.
+\item[time\_period] The same as that in t\_modules but for trigger packets. time\_stamp of trigger packet will overflow about every 5.73 minutes.
+\item[time\_align] It is the 23 MSB of time\_stamp of this trigger packet. It is also useful for time alignment.
+  It is the counterpart of 23 LSB of time\_stamp of module packet.
+\item[time\_second] Time in second unit from start when this trigger packet is generated.
+  It is equal to $(\textrm{time\_period} \times 2^{32} + \textrm{time\_stamp}) \times 80 \times 10^{-9}$.
+\item[time\_wait] The same as that in t\_modules but for trigger packets.
+\item[pkt\_start] This is the branch that records the first entry index of the module packets in t\_modules for the same event.
+  In t\_modules, module packets that belong to the same event are adjacent to each other. The total number of module packets for the same event is recorded by pkt\_count.
+\item[pkt\_count] This is the branch that records the total number of module packets in t\_modules that belong to the same event as this trigger packet.
+  We can use pkt\_start and pkt\_count to find all the corresponding module packets of this trigger packet in t\_modules.
+\item[lost\_count] An integer value that indicates how many packets this event loses. There are two reasons for the lost.
+  The first is that it is realy lost. And the second is that some module packets failed to time align with this trigger packet because of timestamp issue.
+\item[trigger\_n] Sum of the trigger\_bit[64] of all the module packets of this event. It is the number of how many bars are fired in this event. It may includes several modules.
+\item[dead\_ratio] It should be the same as that of t\_modules, but there is a difference. For trigger packets,
+  $\textrm{dead\_ratio} = pre\Delta(\textrm{raw\_dead}) / \Delta(\textrm{time\_stamp})$.
+  That means $\textrm{dead\_ratio}_3 = \frac{\textrm{raw\_dead}_2 - \textrm{raw\_dead}_1}{\textrm{time\_stamp}_3 - \textrm{time\_stamp}_2}$.
+\item[abs\_gps\_week] Added by \texttt{Time\_Calculate}. It is the week of absolute GPS time when this event occurred.
+\item[abs\_gps\_second] Added by \texttt{Time\_Calculate}. It is the second of absolute GPS time when this event occurred.
+\item[abs\_gps\_valid] Added by \texttt{Time\_Calculate}. It indicates if the absolute GPS time is valid.
+\end{asparadesc}
 
 \subsubsection{Iterating pedestal and physical packets together}
+Because of the different mehtods of doing time alignment for pedestal and physical packets, if save both pedestal packets and physical packets in the same TTree,
+it is hard to make the sequence between pedestal and physical packets as the order of time.
+But it is easy to make the sequence of only pedestal or physical packets as the order of time in the same TTree.
+So I have to save pedestal and physical data separately.
+But sometimes it is needed to iterate pedestal and physical packets together as the order of time.
+We can use event\_num\_g in both t\_modules and t\_ped\_modules, and trigg\_num\_g in both t\_trigger and t\_ped\_trigger to do this thing easily.
+event\_num\_g (for module packets) and trigg\_num\_g (for trigger packets) are added when scanning the raw data file.
+They are the order of appearing in raw data file of the packet. Pedestal and physical packets for the same module use the same counter.
+In pedestal and physical TTree, event\_num\_g (or trigger\_num\_g) looks like Table \ref{tab:event-num-g}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{number in t\_modules and t\_ped\_modules}\label{tab:event-num-g}
+  \begin{tabular}{| c | c !{\vrule\,\vrule} c | c |}\hline
+    \multicolumn{2}{| c !{\vrule\,\vrule}}{\textbf{t\_ped\_modules}}   & \multicolumn{2}{ c |}{\textbf{t\_modules}} \\\hline
+    event\_num        & event\_num\_g         & event\_num        & evnet\_num\_g \\\hline
+    0                 & 0                     &                   &               \\\hline
+    1                 & 1                     &                   &               \\\hline
+    2                 & 2                     &                   &               \\\hline
+                      &                       & 0                 & 3             \\\hline
+                      &                       & 1                 & 4             \\\hline
+                      &                       & 2                 & 5             \\\hline
+                      &                       & 3                 & 6             \\\hline
+    3                 & 7                     &                   &               \\\hline
+                      &                       & 4                 & 8             \\\hline
+                      &                       & 5                 & 9             \\\hline
+    4                 & 10                    &                   &               \\\hline
+                      &                       & 6                 & 11            \\\hline
+                      &                       & 7                 & 12            \\\hline
+                      &                       & 8                 & 13            \\\hline
+  \end{tabular}
+\end{table}
+
+Notice that event\_num and event\_num\_g are all independent for different modules.
+Table \ref{tab:event-num-g} just shows the case of only a specific module.
+
+It is clear that we can open the two TTree t\_ped\_modules and t\_modules at the same time and iterate both pedestal
+and physical packets of one specific module together as the order of time by comparing event\_num\_g.
+For trigger packets, the method is the same, by comparing trigg\_num\_g.
+
+Notice that event\_num is ``local'' in the same TTree t\_ped\_modules or t\_modules,
+but event\_num\_g is ``global'' between the two TTree t\_ped\_modules and t\_modules. That is what the suffix ``\_g'' mean.
 
 \subsubsection{Organization of event data}
+Data of an event (both pedestal and physical) contains one trigger packet and one or more module packets.
+Packets of trigger and module have different data structure, so they must be stored in different TTree.
+But the matching between trigger packet and module packet of the same event is also important.
+For one trigger packet in t\_trigger, we have to know which module packets in t\_modules are the corresponding module packets of the same event.
+And on the contrary, for one module packet in t\_modules, we have to know which trigger packet in t\_trigger is the corresponding trigger packet of the same event.
+Six extra branches in t\_trigger and t\_modules are used to do this kind of data organization.
+They are trigg\_num, pkt\_start, pkt\_count, lost\_count in trigger packet, and trigg\_num, event\_num in t\_modules.
+The relationship among them is shown in Table \ref{tab:org-event-data}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{organization of event data between t\_trigger and t\_modules}\label{tab:org-event-data}
+  \scriptsize
+  \begin{tabular}{| c | c | c | c !{\vrule\,\vrule} c | c | c | c |}\hline
+    \multicolumn{4}{| c !{\vrule\,\vrule}}{\textbf{t\_trigger}}   & \multicolumn{4}{ c |}{\textbf{t\_modules}} \\\hline
+    entry & trigg\_num  & pkt\_start & pkt\_count    & entry & trigg\_num    & ct\_num & event\_num  \\\hline
+    0     & 0           & 0          & 2             & 0     & 0             & 2       & 0           \\\hline
+          &             &            &               & 1     & 0             & 3       & 0           \\\hline
+    1     & 1           & 2          & 3             & 2     & 1             & 8       & 0           \\\hline
+          &             &            &               & 3     & 1             & 7       & 0           \\\hline
+          &             &            &               & 4     & 1             & 2       & 1           \\\hline
+    2     & 2           & 5          & 1             & 5     & 2             & 3       & 1           \\\hline
+    3     & 3           & 6          & 2             & 6     & 3             & 6       & 0           \\\hline
+          &             &            &               & 7     & 3             & 7       & 1           \\\hline
+    4     & 4           & 8          & 2             & 8     & 4             & 3       & 2           \\\hline
+          &             &            &               & 9     & 4             & 4       & 0           \\\hline
+    5     & 5           & 10         & 3             & 10    & 5             & 12      & 0           \\\hline
+          &             &            &               & 11    & 5             & 7       & 2           \\\hline
+          &             &            &               & 12    & 5             & 8       & 1           \\\hline
+    6     & 6           & 13         & 1             & 13    & 6             & 3       & 3           \\\hline
+    7     & 7           & 14         & 2             & 14    & 7             & 2       & 2           \\\hline
+          &             &            &               & 15    & 7             & 3       & 4           \\\hline
+  \end{tabular}
+\end{table}
+
+The organization of event data between t\_trigger and t\_modules is shown clearly in Table \ref{tab:org-event-data}.
+There are two key rules:
+1) trigger packet in TTree t\_trigger records the position of modules packets in TTree t\_modules using pkt\_start and pkt\_count;
+2) module packet in TTree t\_modules records the trigg\_num of the trigger packet in TTree t\_trigger of the same event.
+trigg\_num is unique for each trigger packet in t\_trigger.
+event\_num of module packets in t\_modules is independent for different modules, but unique for a specific module.
+
+This organization looks some complicated. But it has some advantages comparing just storing the ADC data of one event into a 1600 array.
+Because the packet data is stored module by module, all data in module packet and trigger packet can be kept.
+And it is helpful for data analysis, because some steps of the analysis chain, such as pedestal subtraction, crosstalk correction and energy calibration,
+are always done module by module. Only the calculation of scattering angle is done in the whole instrument scope.
+Though, the disadvantage is that we have to keep the structure not changed when we do pedestal subtraction, crosstalk correction and energy calibration etc. before
+doing the calculation of scattering angle.
+
+When we want to merge the module data of each event into a 1600 array, or when we calculate the scattering angle directly, we must iterate the data event by event.
+The best way to do this is as following.
+
+\begin{Verbatim}[fontsize=\scriptsize, frame=lines, numbers=left]
+// value declaration. 
+t_trigger->SetBranchAddress("pkt_start", pkt_start);
+t_trigger->SetBranchAddress("pkt_count", pkt_count);
+t_trigger->SetBranchAddress("lost_count", lost_count);
+t_trigger->SetBracnhAddress("is_bad", trigg_is_bad);
+// SetBranchAddress for other branches in t_trigger
+t_modules->SetBranchAddress("ct_num", ct_num);
+// SetBranchAddress for other branches in t_modules
+for (Long64_t i = 0; i < t_trigger->GetEntries(); i++) {
+    t_trigger->GetEntry(i);
+    // when lost_count > 0, this event may lose module packets
+    if (trigg_is_bad > 0 || lost_count > 0)
+        continue;
+    // process trigger packet data of this event.
+    for (Long64_t j = pkt_start; j < pkt_start + pkt_count; j++) {
+        t_modules->GetEntry(j);
+        // process each module packet data of this event, 
+        // merge them into a 1600 array or calculate scattering angle directly.
+        // use ct_num to identify which module this packet is from.
+        // do not need to check if this module packet is bad, 
+        // because bad module packet can not be here.
+    }
+}  
+\end{Verbatim}
+
+In addition, the lost\_count branch records how many module packets this event loses.
+When lost\_count is not 0, this event is bad, because it loses information.
 
 \subsection{1M level HK data}
 
