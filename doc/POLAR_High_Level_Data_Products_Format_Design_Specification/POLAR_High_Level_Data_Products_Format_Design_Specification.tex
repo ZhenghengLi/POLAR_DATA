@@ -9,29 +9,41 @@
 \usepackage{array}
 \usepackage{paralist}
 \renewcommand{\thempfootnote}{\arabic{mpfootnote}}
+
+\newcommand{\versDoc}{0.1}
+\newcommand{\codeDoc}{POLAR\_TN\_410}
+\newcommand{\kindDoc}{Technical Note}
+
 \begin{document}
 % ==== title page =====================
 \begin{titlepage}
-  \vspace*{5cm}
-  \begin{center}
-    \huge \bf POLAR High Level Data Products Format Design Specification
-  \end{center}
+  \centering
+  \vspace*{4cm}
+  \begin{flushleft}
+    \huge \bf POLAR \\ High Level Data Products \\ Format Design Specification
+  \end{flushleft}
   \vspace*{6cm}
-  \begin{center}
-    \large
-    \begin{tabular}{ | l | l | l | }
-      \hline
-      & \bf Name & \bf Date \\ \hline
-      Prepared by & Zhengheng Li & May 20, 2016 \\ \hline
-    \end{tabular}
-  \end{center}
+  
+  \begin{tabular}{ l l }
+    Document No   & : \codeDoc \\
+    Issue         & : \versDoc \\
+    Date          & : \today   \\
+  \end{tabular}
+  \vfill
+  \begin{tabular}{ | l | l | l | l | }
+    \hline
+                & \bf Name     & \bf Signature  & \bf Date      \\\hline
+    Prepared by & Zhengheng Li &                & May 20, 2016  \\\hline
+    Reviewed by &              &                &               \\\hline
+    Aproved by  &              &                &               \\\hline
+  \end{tabular}
 \end{titlepage}
 
 % ==== header and footer
 \pagestyle{fancy}
-\lhead{}
-\chead{\small POLAR High Level Data Products Format Design Specification}
-\rhead{}
+\lhead{\small \bf POLAR -- \kindDoc}
+\chead{}
+\rhead{\small \bf \codeDoc}
 \lfoot{\today}
 \cfoot{}
 \rfoot{\thepage}
@@ -190,6 +202,8 @@ total lost percent: 0.01%          mean event rate: 12719 cnts/sec      np_evts 
 transmission rate:  19.96 Mbps     aligned sum:     9675497             aligned percent: 100.00%             
 ===========================================================================================================
 \end{Verbatim}
+
+\newpage
 
 Screen output of \texttt{HK\_Decode} is as following:
 
@@ -479,7 +493,7 @@ Some data in t\_modules is directly decoded from module packet without any chang
   One important thing is that ADC of mode 3 is already pedestal subtracted in firmware, but common noise is not subtracted.
   The common noise for mode 3 is stored in common\_noise.
   For mode 0, 1 and 2, the output ADC is equal to the raw ADC.
-\item[common\_noise] Raw data of COMMON NOISE for mode 3 subtracted by 2048. The reason to subtract 2048 is that firmware add an extra 2048 to common noise.
+\item[common\_noise] Raw data of COMMON NOISE for mode 3 is subtracted by 2048. The reason to subtract 2048 is that firmware add an extra 2048 to common noise.
   For ohter compress modes, the value of common\_noise is 0.
 \end{asparadesc}
 
@@ -560,10 +574,11 @@ All the auxiliary data in t\_trigger is listed and explained below.
 \item[time\_wait] The same as that in t\_modules but for trigger packets.
 \item[pkt\_start] This is the branch that records the first entry index of the module packets in t\_modules for the same event.
   In t\_modules, module packets that belong to the same event are adjacent to each other. The total number of module packets for the same event is recorded by pkt\_count.
+  The value of pkt\_start is $-1$ when this trigger packet loses all event packets, and -2 when this trigger packet is bad.
 \item[pkt\_count] This is the branch that records the total number of module packets in t\_modules that belong to the same event as this trigger packet.
   We can use pkt\_start and pkt\_count to find all the corresponding module packets of this trigger packet in t\_modules.
 \item[lost\_count] An integer value that indicates how many packets this event loses. There are two reasons for the lost.
-  The first is that it is realy lost. And the second is that some module packets failed to time align with this trigger packet because of timestamp issue.
+  The first is that it is realy lost. And the second is that some module packets failed to time align with this trigger packet because of possible timestamp issue.
 \item[trigger\_n] Sum of the trigger\_bit[64] of all the module packets of this event. It is the number of how many bars are fired in this event. It may includes several modules.
 \item[dead\_ratio] It should be the same as that of t\_modules, but there is a difference. For trigger packets,
   $\textrm{dead\_ratio} = pre\Delta(\textrm{raw\_dead}) / \Delta(\textrm{time\_stamp})$.
@@ -832,18 +847,84 @@ Secondly, the contents of TTree t\_hk\_ibox are shown in Table \ref{tab:t-hk-ibo
 \subsubsection{Conversion of physical value}
 The meaning of each branch in the two TTree t\_hk\_obox and t\_hk\_ibox is explained clearly in Table \ref{tab:t-hk-obox} and Table \ref{tab:t-hk-ibox}.
 There is no need to give more detailed information of them in this document.
-What we concern more about is how the physcial values are converted from raw data. Here will give the formula of each of them.
+What we concern more about is how the physcial values are converted from raw data. 
+Notice that all branches in t\_hk\_obox with type Float\_t are physical value converted.
+Here will give the formula of each of them.
 
 \begin{asparadesc}
-\item[ct\_temp] raw data of it is one word. ct\_temp = raw\_data[11:4] $>$ 0x7F ? raw\_data[11:4] - 2 * 0x80 : raw\_data[11:4].
-\item[chain\_temp] raw data of it is one word. chain\_temp = raw\_data[11:4] $>$ 0x7F ? raw\_data[11:4] - 2 * 0x80 : raw\_data[11:4].
-\item[lv\_temp] raw data of it is one word. lv\_temp = 27 + ((raw\_data - 0x8000) / 16384.0 * 2.5 / 2 - 28E-3) / 93.5E-6.
-\item[fe\_temp[25]] raw data of it is one byte for each module. fe\_temp = raw\_data $>$ 0x7F ? raw\_data - 2 * 0x80 : raw\_data.
-\item[fe\_hv[25]] raw data of it is one word. fe\_hv = raw\_data[0:11] 
+\item[ct\_temp] raw data of it is one word. \\
+  ct\_temp = raw\_data[11:4] $>$ 0x7F ? raw\_data[11:4] - 2 * 0x80 : raw\_data[11:4]
+\item[chain\_temp] raw data of it is one word. \\
+  chain\_temp = raw\_data[11:4] $>$ 0x7F ? raw\_data[11:4] - 2 * 0x80 : raw\_data[11:4]
+\item[lv\_temp] raw data of it is one word. \\
+  lv\_temp = 27 + ((raw\_data - 0x8000) / 16384.0 * 2.5 / 2 - 28E-3) / 93.5E-6
+\item[fe\_temp[25]] raw data of it is one byte for each module. \\
+  fe\_temp = raw\_data $>$ 0x7F ? raw\_data - 2 * 0x80 : raw\_data
+\item[fe\_hv[25]] raw data of it is one word for each module. \\
+  fe\_hv = raw\_data[15:4] * 0.303
+\item[fe\_thr[25]] raw data of it is one word for each module. \\
+  fe\_thr = packet\_num \% 4 == 0 ? raw\_data / 4096.0 * 3.5 - 2.0 : raw\_data
+\item[flex\_i\_p3v3[5]] raw data of it is one word. \\
+  flex\_i\_p3v3 = (raw\_data - 0x8000) / 104.858
+\item[flex\_i\_p1v7[5]] raw data of it is one word. \\
+  flex\_i\_p1v7 = (raw\_data - 0x8000) / 104.858
+\item[flex\_i\_n2v5[5]] raw data of it is one word. \\
+  flex\_i\_n2v5 = (raw\_data - 0x8000) / 104.858
+\item[flex\_v\_p3v3[5]] raw data of it is one word. \\
+  flex\_v\_p3v3 = (raw\_data - 0x8000) / 4681.14
+\item[flex\_v\_p1v7[5]] raw data of it is one word. \\
+  flex\_v\_p1v7 = (raw\_data - 0x8000) / 8426.06
+\item[flex\_v\_n2v5]] raw data of it is one word. \\
+  flex\_v\_n2v5 = (raw\_data - 0x8000) / (-2407.44) + flex\_v\_p3v3
+\item[hv\_v\_hot] raw data of it is one word. \\
+  hv\_v\_hot = (raw\_data - 0x8000) / 4681.14
+\item[hv\_v\_cold] raw data of it is one word. \\
+  hv\_v\_cold = (raw\_data - 0x8000) / 4681.14
+\item[hv\_i\_hot] raw data of it is one word. \\
+  hv\_i\_hot = (raw\_data - 0x8000) / 104.858
+\item[hv\_i\_cold] raw data of it is one word. \\
+  hv\_i\_cold = (raw\_data - 0x8000) / 104.858
+\item[ct\_v\_hot[2]] raw data of it is one word. \\
+  ct\_v\_hot[0] = (raw\_data - 0x8000) / 4681.14 \\
+  ct\_v\_hot[1] = (raw\_data - 0x8000) / 9011.20
+\item[ct\_v\_cold[2]] raw data of it is one word. \\
+  ct\_v\_cold[0] = (raw\_data - 0x8000) / 4681.14 \\
+  ct\_v\_cold[1] = (raw\_data - 0x8000) / 9011.20
+\item[ct\_i\_hot[2]] raw data of it is one word. \\
+  ct\_i\_hot[0] = (raw\_data - 0x8000) / 104.858 \\
+  ct\_i\_hot[1] = (raw\_data - 0x8000) / 104.858 
+\item[ct\_i\_cold[2]] raw data of it is one word. \\
+  ct\_i\_cold[0] = (raw\_data - 0x8000) / 104.858 \\
+  ct\_i\_cold[1] = (raw\_data - 0x8000) / 104.858 
 \end{asparadesc}
 
+One thing should be noticed. Some data fields in OBOX HK packet provide multiple information, such as the Threshold setting.
+Only when packet\_num \% 4 == 0, this field is the threshold value, it should be converted.
+When packet\_num \% 4 == 1, 2 or 3, this field is some other counters, and it should not be converted.
+See the housekeeping packet structure in document\cite{POLAR-OBOX-software} for more detail about this.
+
+\newpage
 
 \section{About splitting data by orbit}
+After POLAR is in orbit, one file from POAC can be very big, because it may contains the data of one day.
+The size of one data file can be several GBs. It must be not convenient to analyze so big a file at a time.
+It is necessary to split the big decoded file into some small files. That may be a good way to split file by orbit,
+because the orientation of POLAR, space environment, etc. are all changing periodically between differnt orbits.
+The level of orbit splitted data is 1R.
+
+\subsection{Some rules to obey when splitting data by orbit}
+The orbit splitting program is not started yet. But here will list some rules that are planned to obey when splitting data by orbit.
+
+\begin{enumerate}
+\item The data structure of 1R level data (orbit splitted) should be the same as 1P level for SCI data and 1M level for HK data.
+  So that the data monitor and data analysis software can apply to the data before and after splitted without any change.
+\item Some index numbers, such as trigg\_num, trigg\_num\_g, event\_num, \\ event\_num\_g and pkt\_start in trigger packet should be rearranged.
+  They all should be started from 0 in the small orbit splitted data file. \\ time\_second and time\_period should also be started from 0 after splitted.
+\item The data is planned to split by orbit according to GPS time when TG-2 pass through the start point of the orbit.
+  We can get the time from the platform information in 1553B data.
+\item A global orbit number should be added into each of the orbit splitted data files.
+\end{enumerate}
+
 %==== references =======================
 \begin{thebibliography}{9}
 \bibitem{POAC-data-products} POLAR\_space\_data\_from\_GESSA/POAC data products.pdf
