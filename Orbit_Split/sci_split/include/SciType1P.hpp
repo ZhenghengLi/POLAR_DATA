@@ -119,6 +119,9 @@ public:
     void bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger);
     void bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules);
 
+    void build_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger);
+    void build_modules_tree(TTree* t_modules_tree, Modules_T& t_modules);
+
 };
 
 #endif
