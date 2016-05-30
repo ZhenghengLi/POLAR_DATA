@@ -77,6 +77,7 @@ bool HkGPSIterator::set_first_() {
         hk_obox_cur_index_++;
         if (hk_obox_cur_index_ < hk_obox_tot_entries_) {
             t_hk_obox_->GetEntry(hk_obox_cur_index_);
+            cur_is_valid_ = check_cur_valid_();
             if ((b_gps_count_ != 0 || b_timestamp_ != 0) && b_obox_is_bad_ == 0) {
                 cur_gps_sync_ = make_pair(GPSTime().update8(b_gps_count_), b_timestamp_);
                 break;
@@ -91,7 +92,6 @@ bool HkGPSIterator::set_first_() {
     // find first
     int repeat_count = 0;
     bool found = false;
-    cur_is_valid_ = false;
     while (true) {
         repeat_count = 0;
         while (true) {
