@@ -95,7 +95,7 @@ bool HkGPSIterator::set_first_() {
     while (true) {
         repeat_count = 0;
         while (true) {
-            if (b_gps_count_pps_ == b_gps_count_gen_)
+            if (abs(cur_gps_sync_.first - pre_gps_sync_.first) > 25 * 1.0E-9)
                 cur_is_valid_ = check_cur_valid_();
             if (!next_pair_()) {
                 break;
@@ -233,7 +233,7 @@ bool HkGPSIterator::next_minute() {
     while (true) {
         repeat_count = 0;
         while (true) {
-            if (b_gps_count_pps_ == b_gps_count_gen_)
+            if (abs(cur_gps_sync_.first - pre_gps_sync_.first) > 25 * 1.0E-9)
                 cur_is_valid_ = check_cur_valid_();
             if (!next_pair_()) {
                 break;
