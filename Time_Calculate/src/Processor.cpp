@@ -14,6 +14,24 @@ Processor::~Processor() {
 void Processor::initialize() {
     phy_error_count_ = 0;
     ped_error_count_ = 0;
+
+    phy_first_valid_found_     = false;
+    phy_first_valid_index_     = -1;
+    phy_first_valid_week_      = -1;
+    phy_first_valid_second_    = -1;
+    phy_last_valid_index_      = -1;
+    phy_last_valid_week_       = -1;
+    phy_last_valid_second_     = -1;
+    phy_total_valid_count_     = 0;
+    ped_first_valid_found_     = false;
+    ped_first_valid_index_     = -1;
+    ped_first_valid_week_      = -1;
+    ped_first_valid_second_    = -1;
+    ped_last_valid_index_      = -1;
+    ped_last_valid_week_       = -1;
+    ped_last_valid_second_     = -1;
+    ped_total_valid_count_     = 0;
+    
 }
 
 bool Processor::logfile_open(const char* filename) {
@@ -221,8 +239,33 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
         // finish calculating absolute time
 
         scitran.trigger_fill();
+        if (scitran.t_trigger.abs_gps_week >= 0 &&
+            scitran.t_trigger.abs_gps_second >= 0 &&
+            scitran.t_trigger.abs_gps_valid) {
+            phy_total_valid_count_++;
+            if (!phy_first_valid_found_) {
+                phy_first_valid_found_  = true;
+                phy_first_valid_index_  = scitran.get_trigger_cur_index();
+                phy_first_valid_week_   = scitran.t_trigger.abs_gps_week;
+                phy_first_valid_second_ = scitran.t_trigger.abs_gps_second;
+            }
+            phy_last_valid_index_  = scitran.get_trigger_cur_index();
+            phy_last_valid_week_   = scitran.t_trigger.abs_gps_week;
+            phy_last_valid_second_ = scitran.t_trigger.abs_gps_second;
+        }
     }
     cout << " DONE ] " << endl;
+    char str_buffer[200];
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_valid_week_),
+            static_cast<int>(phy_first_valid_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_valid_week_),
+            static_cast<int>(phy_last_valid_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(scitran.get_trigger_tot_entries()));
+    phy_gps_result_str_.assign(str_buffer);
 }
 
 void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter) {
@@ -330,8 +373,33 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
         // finish calculating absolute time
 
         scitran.ped_trigger_fill();
+        if (scitran.t_ped_trigger.abs_gps_week >= 0 &&
+            scitran.t_ped_trigger.abs_gps_second >= 0 &&
+            scitran.t_ped_trigger.abs_gps_valid) {
+            ped_total_valid_count_++;
+            if (!ped_first_valid_found_) {
+                ped_first_valid_found_  = true;
+                ped_first_valid_index_  = scitran.get_ped_trigger_cur_index();
+                ped_first_valid_week_   = scitran.t_ped_trigger.abs_gps_week;
+                ped_first_valid_second_ = scitran.t_ped_trigger.abs_gps_second;
+            }
+            ped_last_valid_index_  = scitran.get_ped_trigger_cur_index();
+            ped_last_valid_week_   = scitran.t_ped_trigger.abs_gps_week;
+            ped_last_valid_second_ = scitran.t_ped_trigger.abs_gps_second;
+        }
     }
     cout << " DONE ] " << endl;
+    char str_buffer[200];
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_valid_week_),
+            static_cast<int>(ped_first_valid_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_valid_week_),
+            static_cast<int>(ped_last_valid_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(scitran.get_ped_trigger_tot_entries()));
+    ped_gps_result_str_.assign(str_buffer);
 }
 
 void Processor::write_meta_info(SciTransfer& scitran) {
@@ -370,6 +438,10 @@ void Processor::write_meta_info(SciTransfer& scitran) {
     meta_key = scitran.get_dcdinfo()->GetName();
     meta_value = scitran.get_dcdinfo()->GetTitle();
     scitran.write_meta(meta_key.c_str(), meta_value.c_str());
+
+    // gps_info
+    scitran.write_meta("m_phy_gps", phy_gps_result_str_.c_str());
+    scitran.write_meta("m_ped_gps", ped_gps_result_str_.c_str());
 }
 
 void Processor::print_error_count(const SciTransfer& scitran) {
@@ -382,5 +454,8 @@ void Processor::print_error_count(const SciTransfer& scitran) {
          << setw(17) << "phy_error_count:" << setw(20) << phy_buffer
          << setw(17) << "ped_error_count:" << setw(20) << ped_buffer
          << right << endl;
+    cout << "--------------------------------------------------------------------------------" << endl;
+    cout << "phy_gps: { " << phy_gps_result_str_ << " }" << endl;
+    cout << "ped_gps: { " << ped_gps_result_str_ << " }" << endl;
     cout << "================================================================================" << endl;
 }
