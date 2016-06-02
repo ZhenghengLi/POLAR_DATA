@@ -112,17 +112,17 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
 
     // check GPS span matching
     if (gps_str_begin_ != "begin") {
-        if (gps_value_begin_ < min(gps_value_first_ped_, gps_value_first_phy_)) {
+        if (gps_value_begin_ < max(gps_value_first_ped_, gps_value_first_phy_)) {
             cerr << "GPS string of beginning is out of range: "
-                 << min(gps_value_first_ped_, gps_value_first_phy_) - gps_value_begin_
+                 << max(gps_value_first_ped_, gps_value_first_phy_) - gps_value_begin_
                  << " seconds" << endl;
             return false;
         }
     }
     if (gps_str_end_ != "end") {
-        if (gps_value_end_ > max(gps_value_last_ped_, gps_value_last_phy_)) {
+        if (gps_value_end_ > min(gps_value_last_ped_, gps_value_last_phy_)) {
             cerr << "GPS string of ending is out range: "
-                 << gps_value_end_ - max(gps_value_last_ped_, gps_value_last_phy_)
+                 << gps_value_end_ - min(gps_value_last_ped_, gps_value_last_phy_)
                  << " seconds" << endl;
             return false;
         }
@@ -180,7 +180,7 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
             phy_trigger_last_entry_ = t_trigger_tree_->GetEntries();
             phy_modules_last_entry_ = t_modules_tree_->GetEntries();
             ped_trigger_last_entry_ = t_ped_trigger_tree_->GetEntries();
-            ped_modules_last_entry_ = t_ped_trigger_tree_->GetEntries();
+            ped_modules_last_entry_ = t_ped_modules_tree_->GetEntries();
             sprintf(str_buffer,
                     "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
                     "abs_gps_week >= 0 && abs_gps_second >= 0 && abs_gps_valid &&"
@@ -354,15 +354,15 @@ void SciFileR::print_file_info() {
         } else {
             t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
             sprintf(str_buffer, "%d:%d",
-                    static_cast<int>(t_trigger.abs_gps_week),
-                    static_cast<int>(t_trigger.abs_gps_second)
+                    static_cast<int>(t_ped_trigger.abs_gps_week),
+                    static_cast<int>(t_ped_trigger.abs_gps_second)
                 );
             ped_last_gps.assign(str_buffer);
         }
     }
     // phy
     sprintf(str_buffer,
-            "%s[%ld, %ld] => %s[%ld, %ld] of total [%ld, %ld]",
+            "%s [%ld, %ld] => %s [%ld, %ld] / [%ld, %ld]",
             phy_first_gps.c_str(),
             static_cast<long int>(phy_trigger_first_entry_),
             static_cast<long int>(phy_modules_first_entry_),
@@ -375,7 +375,7 @@ void SciFileR::print_file_info() {
     phy_result_str.assign(str_buffer);
     // ped
     sprintf(str_buffer,
-            "%s[%ld, %ld] => %s[%ld, %ld] of total [%ld, %ld]",
+            "%s [%ld, %ld] => %s [%ld, %ld] / [%ld, %ld]",
             ped_first_gps.c_str(),
             static_cast<long int>(ped_trigger_first_entry_),
             static_cast<long int>(ped_modules_first_entry_),
