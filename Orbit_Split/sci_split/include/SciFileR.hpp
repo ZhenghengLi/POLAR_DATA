@@ -138,6 +138,19 @@ public:
     Long64_t all_modules_last_event_num_g[25];
     UInt_t   all_modules_last_time_stamp[25];
     UInt_t   all_modules_last_time_period[25];
+
+private:
+    Long64_t phy_trigger_cur_entry_;
+    bool     phy_trigger_reach_end_;
+
+    Long64_t phy_modules_cur_entry_;
+    bool     phy_modules_reach_end_;
+
+    Long64_t ped_trigger_cur_entry_;
+    bool     ped_trigger_reach_end_;
+
+    Long64_t ped_modules_cur_entry_;
+    bool     ped_modules_reach_end_;
     
 public:
     SciFileR();
@@ -146,5 +159,25 @@ public:
     bool open(const char* filename, const char* gps_begin, const char* gps_end);
     void close();
     void print_file_info();
+
+    void     phy_trigger_set_start();
+    Long64_t phy_trigger_get_tot_entries();
+    Long64_t phy_trigger_get_cur_entry();
+    bool     phy_trigger_next();
+
+    void     phy_modules_set_start();
+    Long64_t phy_modules_get_tot_entries();
+    Long64_t phy_modules_get_cur_entry();
+    bool     phy_modules_next();
+
+    void     ped_trigger_set_start();
+    Long64_t ped_trigger_get_tot_entries();
+    Long64_t ped_trigger_get_cur_entry();
+    bool     ped_trigger_next();
+
+    void     ped_modules_set_start();
+    Long64_t ped_modules_get_tot_entries();
+    Long64_t ped_modules_get_cur_entry();
+    bool     ped_modules_next();
     
 };

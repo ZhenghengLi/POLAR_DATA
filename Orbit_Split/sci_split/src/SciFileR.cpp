@@ -659,3 +659,108 @@ void SciFileR::find_modules_last_() {
         }
     }
 }
+
+void SciFileR::phy_trigger_set_start() {
+    phy_trigger_cur_entry_ = phy_trigger_first_entry_ - 1;
+    phy_trigger_reach_end_ = false;
+}
+
+Long64_t SciFileR::phy_trigger_get_tot_entries() {
+    return phy_trigger_last_entry_ - phy_trigger_first_entry_;
+}
+
+Long64_t SciFileR::phy_trigger_get_cur_entry() {
+    return phy_trigger_cur_entry_ - phy_trigger_first_entry_;
+}
+
+bool SciFileR::phy_trigger_next() {
+    if (phy_trigger_reach_end_)
+        return false;
+    phy_trigger_cur_entry_++;
+    if (phy_trigger_cur_entry_ < phy_trigger_last_entry_) {
+        t_trigger_tree_->GetEntry(phy_trigger_cur_entry_);
+        return true;
+    } else {
+        phy_trigger_reach_end_ = true;
+        return false;
+    }
+}
+
+void SciFileR::phy_modules_set_start() {
+    phy_modules_cur_entry_ = phy_modules_first_entry_ - 1;
+    phy_modules_reach_end_ = false;
+}
+
+Long64_t SciFileR::phy_modules_get_tot_entries() {
+    return phy_modules_last_entry_ - phy_modules_first_entry_;
+}
+
+Long64_t SciFileR::phy_modules_get_cur_entry() {
+    return phy_modules_cur_entry_ - phy_modules_first_entry_;
+}
+
+bool SciFileR::phy_modules_next() {
+    if (phy_modules_reach_end_)
+        return false;
+    phy_modules_cur_entry_++;
+    if (phy_modules_cur_entry_ < phy_modules_last_entry_) {
+        t_modules_tree_->GetEntry(phy_modules_cur_entry_);
+        return true;
+    } else {
+        phy_modules_reach_end_ = true;
+        return false;
+    }
+}
+
+void SciFileR::ped_trigger_set_start() {
+    ped_trigger_cur_entry_ = ped_trigger_first_entry_ - 1;
+    ped_trigger_reach_end_ = false;
+}
+
+Long64_t SciFileR::ped_trigger_get_tot_entries() {
+    return ped_trigger_last_entry_ - ped_trigger_first_entry_;
+}
+
+Long64_t SciFileR::ped_trigger_get_cur_entry() {
+    return ped_trigger_cur_entry_ - ped_trigger_first_entry_;
+}
+
+bool SciFileR::ped_trigger_next() {
+    if (ped_trigger_reach_end_)
+        return false;
+    ped_trigger_cur_entry_++;
+    if (ped_trigger_cur_entry_ < ped_trigger_last_entry_) {
+        t_ped_trigger_tree_->GetEntry(ped_trigger_cur_entry_);
+        return true;
+    } else {
+        ped_trigger_reach_end_ = true;
+        return false;
+    }
+}
+
+void SciFileR::ped_modules_set_start() {
+    ped_modules_cur_entry_ = ped_modules_first_entry_ - 1;
+    ped_modules_reach_end_ = false;
+}
+
+Long64_t SciFileR::ped_modules_get_tot_entries() {
+    return ped_modules_last_entry_ - ped_modules_first_entry_;
+}
+
+Long64_t SciFileR::ped_modules_get_cur_entry() {
+    return ped_modules_cur_entry_ - ped_modules_first_entry_;
+}
+
+bool SciFileR::ped_modules_next() {
+    if (ped_modules_reach_end_)
+        return false;
+    ped_modules_cur_entry_++;
+    if (ped_modules_cur_entry_ < ped_modules_last_entry_) {
+        t_ped_modules_tree_->GetEntry(ped_modules_cur_entry_);
+        return true;
+    } else {
+        ped_modules_reach_end_ = true;
+        return false;
+    }
+}
+
