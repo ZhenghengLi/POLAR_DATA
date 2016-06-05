@@ -14,7 +14,7 @@ SciFileR::SciFileR() {
 }
 
 SciFileR::~SciFileR() {
-
+    close();
 }
 
 bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps_end) {
