@@ -134,7 +134,7 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
     bind_trigger_tree(t_ped_trigger_tree_, t_ped_trigger);
     bind_modules_tree(t_ped_modules_tree_, t_ped_modules);
     
-    // find the first entry
+    // find the first and last entry
     char str_buffer[200];
     bool found_last;
     TEventList* cur_elist;
@@ -274,6 +274,12 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
             }
         }
     }
+
+    // find the first and last number, time_stamp, ets. of each module
+    find_trigger_first_();
+    find_trigger_last_();
+    find_modules_first_();
+    find_modules_last_();
     
     return true;
 }
@@ -390,4 +396,266 @@ void SciFileR::print_file_info() {
     cout << name_str_file_in_ << endl;
     cout << " - phy GPS span: { " << phy_result_str << " }" << endl;
     cout << " - ped GPS span: { " << ped_result_str << " }" << endl;
+}
+
+void SciFileR::find_trigger_first_() {
+    if (t_file_in_ == NULL)
+        return;
+    
+    // find phy trigger first
+    t_trigger_tree_->GetEntry(phy_trigger_first_entry_);
+    phy_trigger_first_trigg_num      = t_trigger.trigg_num;
+    phy_trigger_first_trigg_num_g    = t_trigger.trigg_num_g;
+    phy_trigger_first_time_stamp     = t_trigger.time_stamp;
+    phy_trigger_first_time_period    = t_trigger.time_period;
+    phy_trigger_first_pkt_start      = t_trigger.pkt_start;
+
+    // find ped trigger first
+    t_ped_trigger_tree_->GetEntry(ped_trigger_first_entry_);
+    ped_trigger_first_trigg_num      = t_ped_trigger.trigg_num;
+    ped_trigger_first_trigg_num_g    = t_ped_trigger.trigg_num_g;
+    ped_trigger_first_time_stamp     = t_ped_trigger.time_stamp;
+    ped_trigger_first_time_period    = t_ped_trigger.time_period;
+    ped_trigger_first_pkt_start      = t_ped_trigger.pkt_start;
+
+
+    // find all trigger first
+    all_trigger_first_trigg_num_g = min(phy_trigger_first_trigg_num_g, ped_trigger_first_trigg_num_g);
+    if (phy_trigger_first_time_period > ped_trigger_first_time_period) {
+        all_trigger_first_time_period = ped_trigger_first_time_period;
+        all_trigger_first_time_stamp  = ped_trigger_first_time_stamp;
+    } else if ( phy_trigger_first_time_period < ped_trigger_first_time_period) {
+        all_trigger_first_time_period = phy_trigger_first_time_period;
+        all_trigger_first_time_stamp  = phy_trigger_first_time_stamp;
+    } else {
+        all_trigger_first_time_period = phy_trigger_first_time_period;
+        all_trigger_first_time_stamp  = min(phy_trigger_first_time_stamp, ped_trigger_first_time_stamp);
+    }
+}
+
+void SciFileR::find_trigger_last_() {
+    if (t_file_in_ == NULL)
+        return;
+    
+    // find phy trigger last
+    if (phy_trigger_last_entry_ < t_trigger_tree_->GetEntries()) {
+        t_trigger_tree_->GetEntry(phy_trigger_last_entry_);
+        phy_trigger_last_pkt_start = t_trigger.pkt_start;
+    } else {
+        phy_trigger_last_pkt_start = t_trigger_tree_->GetEntries();
+    }
+    for (Long64_t i = phy_trigger_last_entry_ - 1; i >= phy_trigger_first_entry_; i--) {
+        t_trigger_tree_->GetEntry(i);
+        if (t_trigger.is_bad <= 0) {
+            phy_trigger_last_trigg_num    = t_trigger.trigg_num;
+            phy_trigger_last_trigg_num_g  = t_trigger.trigg_num_g;
+            phy_trigger_last_time_stamp   = t_trigger.time_stamp;
+            phy_trigger_last_time_period  = t_trigger.time_period;
+            break;
+        }
+    }
+
+    // find ped trigger last
+    if (ped_trigger_last_entry_ < t_ped_trigger_tree_->GetEntries()) {
+        t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
+        ped_trigger_last_pkt_start = t_ped_trigger.pkt_start;
+    } else {
+        ped_trigger_last_pkt_start = t_ped_trigger_tree_->GetEntries();
+    }
+    for (Long64_t i = ped_trigger_last_entry_ - 1; i >= ped_trigger_first_entry_; i--) {
+        t_ped_trigger_tree_->GetEntry(i);
+        if (t_ped_trigger.is_bad <= 0) {
+            ped_trigger_last_trigg_num    = t_ped_trigger.trigg_num;
+            ped_trigger_last_trigg_num_g  = t_ped_trigger.trigg_num_g;
+            ped_trigger_last_time_stamp   = t_ped_trigger.time_stamp;
+            ped_trigger_last_time_period  = t_ped_trigger.time_period;
+            break;
+        }
+    }
+
+    // find all trigger last
+    all_trigger_last_trigg_num_g = max(phy_trigger_last_trigg_num_g, ped_trigger_last_trigg_num_g);
+    if (phy_trigger_last_time_period < ped_trigger_last_time_period) {
+        all_trigger_last_time_period = ped_trigger_last_time_period;
+        all_trigger_last_time_stamp  = ped_trigger_last_time_stamp;
+    } else if ( phy_trigger_last_time_period > ped_trigger_last_time_period) {
+        all_trigger_last_time_period = phy_trigger_last_time_period;
+        all_trigger_last_time_stamp  = phy_trigger_last_time_stamp;
+    } else {
+        all_trigger_last_time_period = phy_trigger_last_time_period;
+        all_trigger_last_time_stamp  = max(phy_trigger_last_time_stamp, ped_trigger_last_time_stamp);
+    }
+    
+}
+
+void SciFileR::find_modules_first_() {
+    if (t_file_in_ == NULL)
+        return;
+
+    // find phy modules first
+    for (int i = 0; i < 25; i++) {
+        phy_modules_first_found[i] = false;
+    }
+    for (Long64_t i = phy_modules_first_entry_; i < phy_modules_last_entry_; i++) {
+        t_modules_tree_->GetEntry(i);
+        int idx = t_modules.ct_num - 1;
+        if (t_modules.is_bad <= 0 && !phy_modules_first_found[idx]) {
+            phy_modules_first_found[idx]        = true;
+            phy_modules_first_event_num[idx]    = t_modules.event_num;
+            phy_modules_first_event_num_g[idx]  = t_modules.event_num_g;
+            phy_modules_first_time_stamp[idx]   = t_modules.time_stamp;
+            phy_modules_first_time_period[idx]  = t_modules.time_period;
+        }
+        int found_sum = 0;
+        for (int i = 0; i < 25; i++) {
+            found_sum += static_cast<int>(phy_modules_first_found[i]);
+        }
+        if (found_sum == 25)
+            break;
+    }
+    for (int i = 0; i < 25; i++) {
+        if (!phy_modules_first_found[i]) {
+            cerr << "Cannot find the first physical event packet of module CT_" << i + 1 << ". " << endl;
+        }
+    }
+    
+    // find ped modules first
+    for (int i = 0; i < 25; i++) {
+        ped_modules_first_found[i] = false;
+    }
+    for (Long64_t i = ped_modules_first_entry_; i < ped_modules_last_entry_; i++) {
+        t_ped_modules_tree_->GetEntry(i);
+        int idx = t_ped_modules.ct_num - 1;
+        if (t_ped_modules.is_bad <= 0 && !ped_modules_first_found[idx]) {
+            ped_modules_first_found[idx]        = true;
+            ped_modules_first_event_num[idx]    = t_ped_modules.event_num;
+            ped_modules_first_event_num_g[idx]  = t_ped_modules.event_num_g;
+            ped_modules_first_time_stamp[idx]   = t_ped_modules.time_stamp;
+            ped_modules_first_time_period[idx]  = t_ped_modules.time_period;
+        }
+        int found_sum = 0;
+        for (int i = 0; i < 25; i++) {
+            found_sum += static_cast<int>(ped_modules_first_found[i]);
+        }
+        if (found_sum == 25)
+            break;
+    }
+    for (int i = 0; i < 25; i++) {
+        if (!ped_modules_first_found[i]) {
+            cerr << "Cannot find the first pedestal event packet of module CT_" << i + 1 << ". " << endl;
+        }
+    }
+
+    // find all modules first
+    for (int i = 0; i < 25; i++) {
+        if (!phy_modules_first_found[i] && !ped_modules_first_found[i]) {
+            continue;
+        } else if (!phy_modules_first_found[i]) {
+            all_modules_first_event_num_g[i] = ped_modules_first_event_num_g[i];
+            all_modules_first_time_period[i] = ped_modules_first_time_period[i];
+            all_modules_first_time_stamp[i]  = ped_modules_first_time_stamp[i];
+        } else if (!ped_modules_first_found[i]) {
+            all_modules_first_event_num_g[i] = phy_modules_first_event_num_g[i];
+            all_modules_first_time_period[i] = phy_modules_first_time_period[i];
+            all_modules_first_time_stamp[i]  = phy_modules_first_time_stamp[i];
+        } else {
+            all_modules_first_event_num_g[i] = min(phy_modules_first_event_num_g[i], ped_modules_first_event_num_g[i]);
+            if (phy_modules_first_time_period[i] > ped_modules_first_time_period[i]) {
+                all_modules_first_time_period[i] = ped_modules_first_time_period[i];
+                all_modules_first_time_stamp[i]  = ped_modules_first_time_stamp[i];
+            } else if (phy_modules_first_time_period[i] < ped_modules_first_time_period[i]) {
+                all_modules_first_time_period[i] = phy_modules_first_time_period[i];
+                all_modules_first_time_stamp[i]  = phy_modules_first_time_stamp[i];
+            } else {
+                all_modules_first_time_period[i] = phy_modules_first_time_period[i];
+                all_modules_first_time_stamp[i]  = min(phy_modules_first_time_stamp[i], ped_modules_first_time_stamp[i]);
+            }
+        }
+    }
+}
+
+void SciFileR::find_modules_last_() {
+    if (t_file_in_ == NULL)
+        return;
+
+    // find phy modules last
+    for (int i = 0; i < 25; i++) {
+        phy_modules_last_found[i] = false;
+    }
+    for (Long64_t i = phy_modules_last_entry_ - 1; i >= phy_modules_first_entry_; i--) {
+        t_modules_tree_->GetEntry(i);
+        int idx = t_modules.ct_num - 1;
+        if (t_modules.is_bad <= 0 && !phy_modules_last_found[idx]) {
+            phy_modules_last_found[idx]        = true;
+            phy_modules_last_event_num[idx]    = t_modules.event_num;
+            phy_modules_last_event_num_g[idx]  = t_modules.event_num_g;
+            phy_modules_last_time_stamp[idx]   = t_modules.time_stamp;
+            phy_modules_last_time_period[idx]  = t_modules.time_period;
+        }
+        int found_sum = 0;
+        for (int i = 0; i < 25; i++) {
+            found_sum += static_cast<int>(phy_modules_last_found[i]);
+        }
+        if (found_sum == 25)
+            break;
+    }
+    for (int i = 0; i < 25; i++) {
+        if (!phy_modules_last_found[i]) {
+            cerr << "Cannot find the last physical event packet of module CT_" << i + 1 << ". " << endl;
+        }
+    }
+    
+    // find ped modules last
+    for (int i = 0; i < 25; i++) {
+        ped_modules_last_found[i] = false;
+    }
+    for (Long64_t i = ped_modules_last_entry_ - 1; i >= ped_modules_first_entry_; i--) {
+        t_ped_modules_tree_->GetEntry(i);
+        int idx = t_ped_modules.ct_num - 1;
+        if (t_ped_modules.is_bad <= 0 && !ped_modules_last_found[idx]) {
+            ped_modules_last_found[idx]        = true;
+            ped_modules_last_event_num[idx]    = t_ped_modules.event_num;
+            ped_modules_last_event_num_g[idx]  = t_ped_modules.event_num_g;
+            ped_modules_last_time_stamp[idx]   = t_ped_modules.time_stamp;
+            ped_modules_last_time_period[idx]  = t_ped_modules.time_period;
+        }
+        int found_sum = 0;
+        for (int i = 0; i < 25; i++) {
+            found_sum += static_cast<int>(ped_modules_last_found[i]);
+        }
+        if (found_sum == 25)
+            break;
+    }
+    for (int i = 0; i < 25; i++) {
+        if (!ped_modules_last_found[i]) {
+            cerr << "Cannot find the last pedestal event packet of module CT_" << i + 1 << ". " << endl;
+        }
+    }
+
+    // find all modules last
+    for (int i = 0; i < 25; i++) {
+        if (!phy_modules_last_found[i] && !ped_modules_last_found[i]) {
+            continue;
+        } else if (!phy_modules_last_found[i]) {
+            all_modules_last_event_num_g[i] = ped_modules_last_event_num_g[i];
+            all_modules_last_time_period[i] = ped_modules_last_time_period[i];
+            all_modules_last_time_stamp[i]  = ped_modules_last_time_stamp[i];
+        } else if (!ped_modules_last_found[i]) {
+            all_modules_last_event_num_g[i] = phy_modules_last_event_num_g[i];
+            all_modules_last_time_period[i] = phy_modules_last_time_period[i];
+            all_modules_last_time_stamp[i]  = phy_modules_last_time_stamp[i];
+        } else {
+            all_modules_last_event_num_g[i] = max(phy_modules_last_event_num_g[i], ped_modules_last_event_num_g[i]);
+            if (phy_modules_last_time_period[i] < ped_modules_last_time_period[i]) {
+                all_modules_last_time_period[i] = ped_modules_last_time_period[i];
+                all_modules_last_time_stamp[i]  = ped_modules_last_time_stamp[i];
+            } else if (phy_modules_last_time_period[i] > ped_modules_last_time_period[i]) {
+                all_modules_last_time_period[i] = phy_modules_last_time_period[i];
+                all_modules_last_time_stamp[i]  = phy_modules_last_time_stamp[i];
+            } else {
+                all_modules_last_time_period[i] = phy_modules_last_time_period[i];
+                all_modules_last_time_stamp[i]  = max(phy_modules_last_time_stamp[i], ped_modules_last_time_stamp[i]);
+            }
+        }
+    }
 }

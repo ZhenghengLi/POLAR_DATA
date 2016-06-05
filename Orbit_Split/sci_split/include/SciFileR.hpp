@@ -51,12 +51,93 @@ private:
 
 private:
     double value_of_gps_str_(const string gps_str);
-
+    void find_trigger_first_();
+    void find_trigger_last_();
+    void find_modules_first_();
+    void find_modules_last_();
+    
 public:
     Modules_T t_modules;
     Trigger_T t_trigger;
     Modules_T t_ped_modules;
     Trigger_T t_ped_trigger;
+
+public:
+    // phy_trigger_first
+    Long64_t phy_trigger_first_trigg_num;
+    Long64_t phy_trigger_first_trigg_num_g;
+    UInt_t   phy_trigger_first_time_stamp;
+    UInt_t   phy_trigger_first_time_period;
+    Long64_t phy_trigger_first_pkt_start;
+
+    // ped_trigger_first
+    Long64_t ped_trigger_first_trigg_num;
+    Long64_t ped_trigger_first_trigg_num_g;
+    UInt_t   ped_trigger_first_time_stamp;
+    UInt_t   ped_trigger_first_time_period;
+    Long64_t ped_trigger_first_pkt_start;
+
+    // all_trigger_first
+    Long64_t all_trigger_first_trigg_num_g;
+    UInt_t   all_trigger_first_time_stamp;
+    UInt_t   all_trigger_first_time_period;
+
+    // phy_trigger_last
+    Long64_t phy_trigger_last_trigg_num;
+    Long64_t phy_trigger_last_trigg_num_g;
+    UInt_t   phy_trigger_last_time_stamp;
+    UInt_t   phy_trigger_last_time_period;
+    Long64_t phy_trigger_last_pkt_start;
+
+    // ped_trigger_last
+    Long64_t ped_trigger_last_trigg_num;
+    Long64_t ped_trigger_last_trigg_num_g;
+    UInt_t   ped_trigger_last_time_stamp;
+    UInt_t   ped_trigger_last_time_period;
+    Long64_t ped_trigger_last_pkt_start;
+
+    // all_trigger_last
+    Long64_t all_trigger_last_trigg_num_g;
+    UInt_t   all_trigger_last_time_stamp;
+    UInt_t   all_trigger_last_time_period;
+
+    // phy_modules_first
+    bool     phy_modules_first_found[25];
+    Long64_t phy_modules_first_event_num[25];
+    Long64_t phy_modules_first_event_num_g[25];
+    UInt_t   phy_modules_first_time_stamp[25];
+    UInt_t   phy_modules_first_time_period[25];
+
+    // ped_modules_first
+    bool     ped_modules_first_found[25];
+    Long64_t ped_modules_first_event_num[25];
+    Long64_t ped_modules_first_event_num_g[25];
+    UInt_t   ped_modules_first_time_stamp[25];
+    UInt_t   ped_modules_first_time_period[25];
+
+    // all_modules_first
+    Long64_t all_modules_first_event_num_g[25];
+    UInt_t   all_modules_first_time_stamp[25];
+    UInt_t   all_modules_first_time_period[25];
+
+    // phy_modules_last
+    bool     phy_modules_last_found[25];
+    Long64_t phy_modules_last_event_num[25];
+    Long64_t phy_modules_last_event_num_g[25];
+    UInt_t   phy_modules_last_time_stamp[25];
+    UInt_t   phy_modules_last_time_period[25];
+
+    // ped_modules_last
+    bool     ped_modules_last_found[25];
+    Long64_t ped_modules_last_event_num[25];
+    Long64_t ped_modules_last_event_num_g[25];
+    UInt_t   ped_modules_last_time_stamp[25];
+    UInt_t   ped_modules_last_time_period[25];
+
+    // all_modules_last
+    Long64_t all_modules_last_event_num_g[25];
+    UInt_t   all_modules_last_time_stamp[25];
+    UInt_t   all_modules_last_time_period[25];
     
 public:
     SciFileR();
