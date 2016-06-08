@@ -39,6 +39,8 @@ bool SciFileW::open(const char* filename) {
     t_ped_trigger_tree_ = new TTree("t_ped_trigger", "pedestal trigger packets");
     build_trigger_tree(t_ped_trigger_tree_, t_ped_trigger);
 
+    cur_scifile_r = NULL;
+    
     return true;
 }
 
@@ -61,4 +63,8 @@ void SciFileW::close() {
     t_file_out_->Close();
     delete t_file_out_;
     t_file_out_ = NULL;
+}
+
+void SciFileW::set_scifile_r(SciFileR* scifile_r) {
+    
 }

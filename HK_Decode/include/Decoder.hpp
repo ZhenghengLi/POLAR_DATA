@@ -24,43 +24,18 @@ T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
     int begin_pos = begin % 8;
     int end_byte = end / 8;
     int end_pos = end % 8;
-    switch (begin_pos) {
-    case 0:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0xFF;
-        break;
-    case 1:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x7F;
-        break;
-    case 2:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x3F;
-        break;
-    case 3:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x1F;
-        break;
-    case 4:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x0F;
-        break;
-    case 5:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x07;
-        break;
-    case 6:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x03;
-        break;
-    case 7:
-        sum = static_cast<uint8_t>(buffer[begin_byte]) & 0x01;
-        break;
-    }
+    sum = static_cast<uint8_t>(buffer[begin_byte]) & ((1 << (8 - begin_pos)) - 1);
     if (begin_byte == end_byte) {
         sum >>= (8 - end_pos - 1);
         return sum;
     } else {
         for (int i = 1; begin_byte + i < end_byte; i++) {
             sum <<= 4;
-            sum <<= 4;
+            sum <<= 4; // equivalent to sum <<= 8, when the type of sum is uint8_t this may cause warnings.
             sum += static_cast<uint8_t>(buffer[begin_byte + i]);
         }
         sum <<= end_pos;
-        sum <<= 1;
+        sum <<= 1; // equivalent to sum <<= (end_pos + 1)
         sum += static_cast<uint8_t>(buffer[end_byte]) >> (8 - end_pos -1);
         return sum;
     }
@@ -71,7 +46,7 @@ T Decoder::decode_byte(const char* buffer, size_t begin, size_t end) {
     T sum = 0;
     for (int i = 0; begin + i <= end; i++) {
         sum <<= 4;
-        sum <<= 4;
+        sum <<= 4; // equivalent to sum <<= 8
         sum += static_cast<uint8_t>(buffer[begin + i]);
     }
     return sum;
