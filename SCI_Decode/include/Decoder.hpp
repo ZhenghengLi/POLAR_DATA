@@ -55,7 +55,8 @@ T Decoder::decode_bit(const char* buffer, size_t begin, size_t end) {
         return sum;
     } else {
         for (int i = 1; begin_byte + i < end_byte; i++) {
-            sum <<= 8;
+            sum <<= 4;
+            sum <<= 4;
             sum += static_cast<uint8_t>(buffer[begin_byte + i]);
         }
         sum <<= (end_pos + 1);
@@ -68,7 +69,8 @@ template <class T>
 T Decoder::decode_byte(const char* buffer, size_t begin, size_t end) {
     T sum = 0;
     for (int i = 0; begin + i <= end; i++) {
-        sum <<= 8;
+        sum <<= 4;
+        sum <<= 4;
         sum += static_cast<uint8_t>(buffer[begin + i]);
     }
     return sum;

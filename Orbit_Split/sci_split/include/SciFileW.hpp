@@ -23,11 +23,11 @@ private:
     Long64_t  cur_trigg_num_g_offset_;
     Long64_t  cur_event_num_g_offset_[25];
 
-    UInt_t    phy_trigger_last_time_stamp_;
-    UInt_t    ped_trigger_last_time_stamp_;    
-    UInt_t    phy_modules_last_time_stamp_[25];
-    UInt_t    ped_modules_last_time_stamp_[25];
-    
+    UInt_t    cur_trigger_last_time_stamp_;
+    UInt_t    cur_modules_last_time_stamp_[25];
+
+    Int_t     cur_trigger_time_period_offset_;
+    Int_t     cur_modules_time_period_offset_[25];
 
 public:
     Modules_T t_modules;
