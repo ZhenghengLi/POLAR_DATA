@@ -160,6 +160,10 @@ public:
     void close();
     void print_file_info();
 
+    string    get_filename();
+    double    get_gps_value_first();
+    double    get_gps_value_last();
+
     void     phy_trigger_set_start();
     Long64_t phy_trigger_get_tot_entries();
     Long64_t phy_trigger_get_cur_entry();

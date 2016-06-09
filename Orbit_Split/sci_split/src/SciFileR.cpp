@@ -398,6 +398,18 @@ void SciFileR::print_file_info() {
     cout << " - ped GPS span: { " << ped_result_str << " }" << endl;
 }
 
+string SciFileR::get_filename() {
+    return string(TSystem().BaseName(name_str_file_in_.c_str()));
+}
+
+double SciFileR::get_gps_value_first() {
+    return min(gps_value_first_phy_, gps_value_first_ped_);
+}
+
+double SciFileR::get_gps_value_last() {
+    return max(gps_value_last_phy_, gps_value_last_ped_);
+}
+
 void SciFileR::find_trigger_first_() {
     if (t_file_in_ == NULL)
         return;
