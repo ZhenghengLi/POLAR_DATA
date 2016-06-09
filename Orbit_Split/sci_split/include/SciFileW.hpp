@@ -1,8 +1,12 @@
 #include <iostream>
 #include <stdio.h>
+#include <stdint.h>
 #include "RootInc.hpp"
 #include "SciType1P.hpp"
 #include "SciFileR.hpp"
+
+#define TRIGG_MIN_TIMESTAMP_DIFF (-5 * 12500000)
+#define EVENT_MIN_TIMESTAMP_DIFF (-5 * 24414)
 
 using namespace std;
 
@@ -23,12 +27,14 @@ private:
     Long64_t  cur_trigg_num_g_offset_;
     Long64_t  cur_event_num_g_offset_[25];
 
-    UInt_t    cur_trigger_last_time_stamp_;
-    UInt_t    cur_modules_last_time_stamp_[25];
-
     Int_t     cur_trigger_time_period_offset_;
     Int_t     cur_modules_time_period_offset_[25];
 
+    Long64_t  cur_phy_pkt_start_offset_;
+    Long64_t  cur_ped_pkt_start_offset_;
+
+    int64_t   cur_time_stamp_diff_;
+    
 public:
     Modules_T t_modules;
     Trigger_T t_trigger;
