@@ -1,20 +1,27 @@
 #include <iostream>
-#include "SciFileR.hpp"
+#include <iomanip>
+#include "OptionsManager.hpp"
+#include "Processor.hpp"
 
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (argc < 4) {
-        cout << "USAGE: " << argv[0] << " <filename.root> <week1:second1> <week2:second2>" << endl;
+    OptionsManager options_mgr;
+    if (!options_mgr.parse(argc, argv)) {
+        if (options_mgr.get_version_flag()) {
+            options_mgr.print_version();
+        } else {
+            options_mgr.print_help();
+        }
         return 0;
     }
-    SciFileR scifileR;
-    if (scifileR.open(argv[1], argv[2], argv[3])) {
-        scifileR.print_file_info();
+
+    Processor pro(&options_mgr);
+    if (pro.open_and_check()) {
+        cout << "OK" << endl;
     } else {
-        cout << "file open failed" << endl;
+        cout << "not OK" << endl;
     }
-    scifileR.close();
 
     return 0;
 }

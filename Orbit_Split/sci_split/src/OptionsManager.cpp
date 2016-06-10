@@ -63,10 +63,17 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             raw_file_vector.push_back(cur_par_str);
         }
     }
-    if (raw_file_vector.empty())
+    if (raw_file_vector.empty()) {
         return false;
-    else
+    } else {
+        if (gps_begin.IsNull())
+            gps_begin = "begin";
+        if (gps_end.IsNull())
+            gps_end = "end";
+        if (out_file.IsNull())
+            out_file = "POL_SCI_decoded_data_time_split.root";
         return true;
+    }
 }
 
 void OptionsManager::print_help() {
