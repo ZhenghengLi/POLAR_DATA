@@ -78,9 +78,9 @@ void OptionsManager::print_help() {
     cout << " " << "[-B <gps_begin_str>] [-E <gps_end_str>] [-o <POL_SCI_decoded_data_time_split.root]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -B <gps_begin_str>               text file that contains raw data file list" << endl;
-    cout << "  -E <gps_end_str>                 root file that stores decoded data" << endl;
-    cout << "  -o <splitted_data.root>          text file that records decoding error log info" << endl;
+    cout << "  -B <gps_begin_str>               string of GPS beginning time, the format is week:second or begin" << endl;
+    cout << "  -E <gps_end_str>                 string of GPS ending time, the format is week:second or end" << endl;
+    cout << "  -o <splitted_data.root>          root file that stores the splitted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;

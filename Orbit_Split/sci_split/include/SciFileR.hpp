@@ -1,3 +1,6 @@
+#ifndef SCIFILER_H
+#define SCIFILER_H
+
 #include <iostream>
 #include <limits>
 #include <stdio.h>
@@ -186,3 +189,5 @@ public:
     bool     ped_modules_next();
     
 };
+
+#endif

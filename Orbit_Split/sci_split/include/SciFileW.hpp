@@ -1,3 +1,6 @@
+#ifndef SCIFILEW_H
+#define SCIFILEW_H
+
 #include <iostream>
 #include <stdio.h>
 #include <stdint.h>
@@ -56,3 +59,5 @@ public:
     void set_scifile_r(SciFileR* scifile_r);
 
 };
+
+#endif
