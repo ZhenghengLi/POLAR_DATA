@@ -7,6 +7,7 @@
 #include "SciType1P.hpp"
 
 #define GPS_SPAN_MIN 120
+#define GPS_DIFF_MIN 30
 
 using namespace std;
 using boost::regex;

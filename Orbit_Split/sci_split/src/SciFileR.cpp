@@ -21,7 +21,7 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
     // record gps time
     gps_str_begin_.assign(gps_begin);
     if (gps_str_begin_ == "begin") {
-        gps_value_begin_ = 0;
+        gps_value_begin_ = -2 * GPS_SPAN_MIN;
     } else {
         gps_value_begin_ = value_of_gps_str_(gps_str_begin_);
         if (gps_value_begin_ < 0) {
@@ -31,7 +31,7 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
     }
     gps_str_end_.assign(gps_end);    
     if (gps_str_end_ == "end") {
-        gps_value_end_ = numeric_limits<double>::max();
+        gps_value_end_ = numeric_limits<double>::max() - 3 * GPS_SPAN_MIN;
     } else {
         gps_value_end_ = value_of_gps_str_(gps_str_end_);
         if (gps_value_end_ < 0) {
@@ -118,11 +118,23 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
                  << " seconds" << endl;
             return false;
         }
+        if (gps_str_end_ == "end" && min(gps_value_last_ped_, gps_value_last_phy_) - gps_value_begin_ < GPS_DIFF_MIN) {
+            cerr << "GPS string of beginning is too large: "
+                 << min(gps_value_last_ped_, gps_value_last_phy_) - gps_value_begin_
+                 << " seconds" << endl;
+            return false;
+        }
     }
     if (gps_str_end_ != "end") {
         if (gps_value_end_ > min(gps_value_last_ped_, gps_value_last_phy_)) {
             cerr << "GPS string of ending is out range: "
                  << gps_value_end_ - min(gps_value_last_ped_, gps_value_last_phy_)
+                 << " seconds" << endl;
+            return false;
+        }
+        if (gps_str_begin_ == "begin" && gps_value_end_ - max(gps_value_first_ped_, gps_value_first_phy_) < GPS_DIFF_MIN) {
+            cerr << "GPS string of ending is too small: "
+                 << gps_value_end_ - max(gps_value_first_ped_, gps_value_first_phy_)
                  << " seconds" << endl;
             return false;
         }
@@ -415,21 +427,48 @@ void SciFileR::find_trigger_first_() {
         return;
     
     // find phy trigger first
-    t_trigger_tree_->GetEntry(phy_trigger_first_entry_);
-    phy_trigger_first_trigg_num      = t_trigger.trigg_num;
-    phy_trigger_first_trigg_num_g    = t_trigger.trigg_num_g;
-    phy_trigger_first_time_stamp     = t_trigger.time_stamp;
-    phy_trigger_first_time_period    = t_trigger.time_period;
-    phy_trigger_first_pkt_start      = t_trigger.pkt_start;
-
+    if (gps_str_begin_ == "begin") {
+        phy_trigger_first_pkt_start              = 0;
+        for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
+            t_trigger_tree_->GetEntry(i);
+            if (t_trigger.is_bad <= 0) {
+                phy_trigger_first_trigg_num      = t_trigger.trigg_num;
+                phy_trigger_first_trigg_num_g    = t_trigger.trigg_num_g;
+                phy_trigger_first_time_stamp     = t_trigger.time_stamp;
+                phy_trigger_first_time_period    = t_trigger.time_period;
+                break;
+            }
+        }
+    } else {
+        t_trigger_tree_->GetEntry(phy_trigger_first_entry_);
+        phy_trigger_first_pkt_start              = t_trigger.pkt_start;
+        phy_trigger_first_trigg_num              = t_trigger.trigg_num;
+        phy_trigger_first_trigg_num_g            = t_trigger.trigg_num_g;
+        phy_trigger_first_time_stamp             = t_trigger.time_stamp;
+        phy_trigger_first_time_period            = t_trigger.time_period;
+    }
+    
     // find ped trigger first
-    t_ped_trigger_tree_->GetEntry(ped_trigger_first_entry_);
-    ped_trigger_first_trigg_num      = t_ped_trigger.trigg_num;
-    ped_trigger_first_trigg_num_g    = t_ped_trigger.trigg_num_g;
-    ped_trigger_first_time_stamp     = t_ped_trigger.time_stamp;
-    ped_trigger_first_time_period    = t_ped_trigger.time_period;
-    ped_trigger_first_pkt_start      = t_ped_trigger.pkt_start;
-
+    if (gps_str_begin_ == "begin") {
+        ped_trigger_first_pkt_start              = 0;
+        for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
+            t_ped_trigger_tree_->GetEntry(i);
+            if (t_ped_trigger.is_bad <= 0) {
+                ped_trigger_first_trigg_num      = t_ped_trigger.trigg_num;
+                ped_trigger_first_trigg_num_g    = t_ped_trigger.trigg_num_g;
+                ped_trigger_first_time_stamp     = t_ped_trigger.time_stamp;
+                ped_trigger_first_time_period    = t_ped_trigger.time_period;
+                break;
+            }
+        }
+    } else {
+        t_ped_trigger_tree_->GetEntry(ped_trigger_first_entry_);
+        ped_trigger_first_pkt_start              = t_ped_trigger.pkt_start;
+        ped_trigger_first_trigg_num              = t_ped_trigger.trigg_num;
+        ped_trigger_first_trigg_num_g            = t_ped_trigger.trigg_num_g;
+        ped_trigger_first_time_stamp             = t_ped_trigger.time_stamp;
+        ped_trigger_first_time_period            = t_ped_trigger.time_period;
+    }
 
     // find all trigger first
     all_trigger_first_trigg_num_g = min(phy_trigger_first_trigg_num_g, ped_trigger_first_trigg_num_g);
