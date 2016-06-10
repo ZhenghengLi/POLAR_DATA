@@ -8,9 +8,9 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 
 .PHONY : all clean
 
-all: ../bin/sci_split
+all: ../bin/SCI_Split
 
-../bin/sci_split: $(OBJ_FILES)
+../bin/SCI_Split: $(OBJ_FILES)
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
