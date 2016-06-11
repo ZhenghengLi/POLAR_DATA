@@ -13,15 +13,30 @@ int main(int argc, char** argv) {
         } else {
             options_mgr.print_help();
         }
-        return 0;
+        return 1;
     }
 
     Processor pro(&options_mgr);
-    if (pro.open_and_check()) {
-        cout << "OK" << endl;
+    if (!pro.open_and_check()) {
+        cerr << "Error occurred when opening 1P level SCI decoded files." << endl;
+        return 1;
     } else {
-        cout << "not OK" << endl;
+        cout << "All files open successfully." << endl;
     }
 
+    SciFileW scifile_w;
+    if (!scifile_w.open(options_mgr.out_file.Data())) {
+        cerr << "output file open failed: " << options_mgr.out_file.Data() << endl;
+        return 1;
+    }
+
+    pro.set_start();
+    while (pro.next_file(scifile_w)) {
+        pro.write_the_file(scifile_w);
+    }
+
+    scifile_w.write_before_close();
+    scifile_w.close();
+    
     return 0;
 }

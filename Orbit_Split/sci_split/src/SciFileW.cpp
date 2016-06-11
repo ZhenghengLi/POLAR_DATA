@@ -65,6 +65,13 @@ void SciFileW::close() {
     t_file_out_ = NULL;
 }
 
+void SciFileW::write_before_close() {
+    t_modules_tree_->Write();
+    t_trigger_tree_->Write();
+    t_ped_modules_tree_->Write();
+    t_ped_trigger_tree_->Write();
+}
+
 void SciFileW::set_scifile_r(SciFileR* scifile_r) {
     if (cur_scifile_r == NULL) {
         cur_phy_trigg_num_offset_               = 0;
@@ -240,4 +247,13 @@ void SciFileW::write_ped_modules() {
         t_ped_modules_tree_->Fill();
     }
     cout << " DONE ]" << endl;
+}
+
+void SciFileW::write_meta(const char* key, const char* value) {
+    if (t_file_out_ == NULL)
+        return;
+    TNamed* cur_meta = new TNamed(key, value);
+    cur_meta->Write();
+    delete cur_meta;
+    cur_meta = NULL;
 }

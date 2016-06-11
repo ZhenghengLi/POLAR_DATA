@@ -70,3 +70,34 @@ bool Processor::open_and_check() {
         return true;
     }
 }
+
+void Processor::set_start() {
+    cur_index_ = -1;
+    reach_end_ = false;
+}
+
+bool Processor::next_file(SciFileW& scifile_w) {
+    if (reach_end_)
+        return false;
+    cur_index_++;
+    if (cur_index_ < scifile_r_len_) {
+        scifile_w.set_scifile_r(&scifile_r_arr_[cur_index_]);
+        return true;
+    } else {
+        reach_end_ = true;
+        return false;
+    }
+}
+
+void Processor::write_the_file(SciFileW& scifile_w) {
+    cout << "-----------------------------------------------------------------------------" << endl;
+    cout << "Processing file: " << cur_options_mgr_->raw_file_vector[cur_index_] << " ... " << endl;
+    scifile_w.write_phy_modules();
+    scifile_w.write_phy_trigger();
+    scifile_w.write_ped_modules();
+    scifile_w.write_ped_trigger();
+}
+
+void Processor::write_meta_info(SciFileW& scifile_w) {
+
+}

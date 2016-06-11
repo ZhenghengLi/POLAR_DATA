@@ -493,7 +493,7 @@ void SciFileR::find_trigger_last_() {
         t_trigger_tree_->GetEntry(phy_trigger_last_entry_);
         phy_trigger_last_pkt_start = t_trigger.pkt_start;
     } else {
-        phy_trigger_last_pkt_start = t_trigger_tree_->GetEntries();
+        phy_trigger_last_pkt_start = t_modules_tree_->GetEntries();
     }
     for (Long64_t i = phy_trigger_last_entry_ - 1; i >= phy_trigger_first_entry_; i--) {
         t_trigger_tree_->GetEntry(i);
@@ -511,7 +511,7 @@ void SciFileR::find_trigger_last_() {
         t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
         ped_trigger_last_pkt_start = t_ped_trigger.pkt_start;
     } else {
-        ped_trigger_last_pkt_start = t_ped_trigger_tree_->GetEntries();
+        ped_trigger_last_pkt_start = t_ped_modules_tree_->GetEntries();
     }
     for (Long64_t i = ped_trigger_last_entry_ - 1; i >= ped_trigger_first_entry_; i--) {
         t_ped_trigger_tree_->GetEntry(i);

@@ -50,13 +50,15 @@ public:
 
     bool open(const char* filename);
     void close();
-
+    void set_scifile_r(SciFileR* scifile_r);
     void write_phy_trigger();
     void write_ped_trigger();
     void write_phy_modules();
     void write_ped_modules();
 
-    void set_scifile_r(SciFileR* scifile_r);
+    void write_before_close();
+
+    void write_meta(const char* key, const char* value);
 
 };
 
