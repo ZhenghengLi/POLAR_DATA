@@ -38,8 +38,8 @@ int main(int argc, char** argv) {
     scifile_w.gen_gps_result_str();
     // == end process ====
     
-    pro.write_meta_info(scifile_w);
     scifile_w.write_before_close();
+    pro.write_meta_info(scifile_w);
     scifile_w.close();
 
     scifile_w.print_gps_span();
