@@ -40,6 +40,26 @@ bool SciFileW::open(const char* filename) {
     build_trigger_tree(t_ped_trigger_tree_, t_ped_trigger);
 
     cur_scifile_r = NULL;
+
+    phy_trigger_cur_index_     = -1;
+    ped_trigger_cur_index_     = -1;
+
+    phy_first_valid_found_     = false;
+    phy_first_valid_index_     = -1;
+    phy_first_valid_week_      = -1;
+    phy_first_valid_second_    = -1;
+    phy_last_valid_index_      = -1;
+    phy_last_valid_week_       = -1;
+    phy_last_valid_second_     = -1;
+    phy_total_valid_count_     = 0;
+    ped_first_valid_found_     = false;
+    ped_first_valid_index_     = -1;
+    ped_first_valid_week_      = -1;
+    ped_first_valid_second_    = -1;
+    ped_last_valid_index_      = -1;
+    ped_last_valid_week_       = -1;
+    ped_last_valid_second_     = -1;
+    ped_total_valid_count_     = 0;
     
     return true;
 }
@@ -113,11 +133,11 @@ void SciFileW::set_scifile_r(SciFileR* scifile_r) {
         }
         cur_phy_pkt_start_offset_              += cur_scifile_r->phy_trigger_last_pkt_start - cur_scifile_r->phy_trigger_first_pkt_start;
         if (cur_phy_pkt_start_offset_ != t_modules_tree_->GetEntries()) {
-            cerr << "pkt_start of physical events has error." << endl;
+            cerr << "WARNING: pkt_start of physical events has error." << endl;
         }
         cur_ped_pkt_start_offset_              += cur_scifile_r->ped_trigger_last_pkt_start - cur_scifile_r->ped_trigger_first_pkt_start;
         if (cur_ped_pkt_start_offset_ != t_ped_modules_tree_->GetEntries()) {
-            cerr << "pkt_start of pedestal events has error." << endl;
+            cerr << "WARNING: pkt_start of pedestal events has error." << endl;
         }
     }
     cur_scifile_r = scifile_r;
@@ -150,6 +170,21 @@ void SciFileW::write_phy_trigger() {
         }
         // fill data
         t_trigger_tree_->Fill();
+
+        // record first and last GPS time and entry
+        phy_trigger_cur_index_++;
+        if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 && t_trigger.abs_gps_valid) {
+            phy_total_valid_count_++;
+            if (!phy_first_valid_found_) {
+                phy_first_valid_found_  = true;
+                phy_first_valid_index_  = phy_trigger_cur_index_;
+                phy_first_valid_week_   = t_trigger.abs_gps_week;
+                phy_first_valid_second_ = t_trigger.abs_gps_second;
+            }
+            phy_last_valid_index_       = phy_trigger_cur_index_;
+            phy_last_valid_week_        = t_trigger.abs_gps_week;
+            phy_last_valid_second_      = t_trigger.abs_gps_second;
+        }
     }
     cout << " DONE ] " << endl;
 }
@@ -181,6 +216,21 @@ void SciFileW::write_ped_trigger() {
         }
         // fill data
         t_ped_trigger_tree_->Fill();
+
+        // record first and last GPS time and entry
+        ped_trigger_cur_index_++;
+        if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 && t_ped_trigger.abs_gps_valid) {
+            ped_total_valid_count_++;
+            if (!ped_first_valid_found_) {
+                ped_first_valid_found_  = true;
+                ped_first_valid_index_  = ped_trigger_cur_index_;
+                ped_first_valid_week_   = t_ped_trigger.abs_gps_week;
+                ped_first_valid_second_ = t_ped_trigger.abs_gps_second;
+            }
+            ped_last_valid_index_       = ped_trigger_cur_index_;
+            ped_last_valid_week_        = t_ped_trigger.abs_gps_week;
+            ped_last_valid_second_      = t_ped_trigger.abs_gps_second;
+        }
     }
     cout << " DONE ] " << endl;
 }
@@ -256,4 +306,42 @@ void SciFileW::write_meta(const char* key, const char* value) {
     cur_meta->Write();
     delete cur_meta;
     cur_meta = NULL;
+}
+
+void SciFileW::gen_gps_result_str() {
+    // phy
+    char str_buffer[200];
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_valid_week_),
+            static_cast<int>(phy_first_valid_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_valid_week_),
+            static_cast<int>(phy_last_valid_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(t_trigger_tree_->GetEntries()));
+    phy_gps_result_str_.assign(str_buffer);
+    // ped
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_valid_week_),
+            static_cast<int>(ped_first_valid_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_valid_week_),
+            static_cast<int>(ped_last_valid_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(t_ped_trigger_tree_->GetEntries()));
+    ped_gps_result_str_.assign(str_buffer);
+}
+
+void SciFileW::write_gps_span() {
+    write_meta("m_phy_gps", phy_gps_result_str_.c_str());
+    write_meta("m_ped_gps", ped_gps_result_str_.c_str());
+}
+
+void SciFileW::print_gps_span() {
+    cout << "================================================================================" << endl;
+    cout << "phy_gps: { " << phy_gps_result_str_ << " }" << endl;
+    cout << "ped_gps: { " << ped_gps_result_str_ << " }" << endl;
+    cout << "================================================================================" << endl;
 }

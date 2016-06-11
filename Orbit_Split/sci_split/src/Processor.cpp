@@ -99,5 +99,5 @@ void Processor::write_the_file(SciFileW& scifile_w) {
 }
 
 void Processor::write_meta_info(SciFileW& scifile_w) {
-
+    scifile_w.write_gps_span();
 }

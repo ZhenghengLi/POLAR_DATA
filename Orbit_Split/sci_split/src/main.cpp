@@ -30,13 +30,19 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // == start process ====
     pro.set_start();
     while (pro.next_file(scifile_w)) {
         pro.write_the_file(scifile_w);
     }
-
+    scifile_w.gen_gps_result_str();
+    // == end process ====
+    
+    pro.write_meta_info(scifile_w);
     scifile_w.write_before_close();
     scifile_w.close();
+
+    scifile_w.print_gps_span();
     
     return 0;
 }
