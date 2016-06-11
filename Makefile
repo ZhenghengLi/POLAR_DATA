@@ -6,7 +6,7 @@
 all: sci sci_25 hk time orbit_split tools analysis
 
 clean: sci_clean sci_25_clean hk_clean time_clean orbit_split_clean \
-	tools_clean analysis_clean orbit_split_clean bin_clean
+	tools_clean analysis_clean bin_clean
 
 sci:
 	cd SCI_Decode && $(MAKE)
