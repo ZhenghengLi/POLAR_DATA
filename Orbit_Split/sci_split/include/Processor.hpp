@@ -9,6 +9,7 @@
 #include "SciFileR.hpp"
 #include "SciFileW.hpp"
 #include "OptionsManager.hpp"
+#include "Constants.hpp"
 
 #define GPS_DIFF_MAX 150
 

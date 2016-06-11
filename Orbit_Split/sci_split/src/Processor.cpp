@@ -99,5 +99,23 @@ void Processor::write_the_file(SciFileW& scifile_w) {
 }
 
 void Processor::write_meta_info(SciFileW& scifile_w) {
+    // dattype
+    scifile_w.write_meta("m_dattype", "POLAR 1R LEVEL SCI DECODED DATA");
+    // version
+    scifile_w.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str());
+    // gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    scifile_w.write_meta("m_gentime", cur_time->AsString("lc"));
+    delete cur_time;
+    cur_time = NULL;
+    // dcdfile
+    TSystem sys;
+    string dcd_file_list = sys.BaseName(cur_options_mgr_->raw_file_vector[0].Data());
+    for (int i = 1; i < scifile_r_len_; i++) {
+        dcd_file_list += "; ";
+        dcd_file_list += sys.BaseName(cur_options_mgr_->raw_file_vector[i].Data());
+    }
+    scifile_w.write_meta("m_dcdfile", dcd_file_list.c_str());
+    // gps span
     scifile_w.write_gps_span();
 }
