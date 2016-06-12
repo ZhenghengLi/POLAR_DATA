@@ -2,6 +2,7 @@
 #include <iomanip>
 #include "OptionsManager.hpp"
 #include "Processor.hpp"
+#include "SciFileW.hpp"
 
 using namespace std;
 

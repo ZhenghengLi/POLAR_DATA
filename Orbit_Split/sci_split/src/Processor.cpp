@@ -96,6 +96,8 @@ void Processor::write_the_file(SciFileW& scifile_w) {
     scifile_w.write_phy_trigger();
     scifile_w.write_ped_modules();
     scifile_w.write_ped_trigger();
+    // close current reading file
+    scifile_r_arr_[cur_index_].close();
 }
 
 void Processor::write_meta_info(SciFileW& scifile_w) {
