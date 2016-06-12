@@ -160,11 +160,17 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
     copy_odd_packet_(odd_pkt);
     copy_even_packet_(even_pkt);
     convert_obox_();
-    t_hk_obox.ibox_gps       = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+    if (t_hk_obox.odd_is_bad == 0) {
+        t_hk_obox.ibox_gps   = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+    } else if (t_hk_obox.even_is_bad == 0) {
+        t_hk_obox.ibox_gps   = static_cast<ULong64_t>(even_pkt.ibox_gps);
+    } else {
+        t_hk_obox.ibox_gps   = 0;
+    }
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
-    if (t_hk_obox.odd_is_bad == 0) {
+    if (t_hk_obox.odd_is_bad == 0 || t_hk_obox.even_is_bad == 0) {
         hk_obox_total_gps_count_++;
         if (!hk_obox_first_gps_found_) {
             hk_obox_first_gps_found_  = true;

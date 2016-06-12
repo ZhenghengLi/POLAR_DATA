@@ -71,7 +71,7 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
         t_modules_tree_->GetEntries() < 1 ||
         t_ped_trigger_tree_->GetEntries() < 1 ||
         t_ped_modules_tree_->GetEntries() < 1) {
-        cerr << "File: " << filename << " may be empty.";
+        cerr << "File: " << filename << " may be empty." << endl;
         return false;
     }
     m_phy_gps_ = static_cast<TNamed*>(t_file_in_->Get("m_phy_gps"));
