@@ -1,5 +1,5 @@
 
-.PHONY : sci_split sci_split_clean hk_split hk_split_clean
+.PHONY : sci_split sci_split_clean hk_split hk_split_clean bin_clean
 
 all: sci_split hk_split
 

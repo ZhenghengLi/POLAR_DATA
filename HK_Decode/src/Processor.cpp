@@ -172,4 +172,6 @@ void Processor::write_meta_info(FileList& filelist, HkDataFile& datafile) {
         }
     }
     datafile.write_meta("m_rawfile", raw_data_file_list.c_str());
+    // GPS span
+    datafile.write_gps_span();
 }
