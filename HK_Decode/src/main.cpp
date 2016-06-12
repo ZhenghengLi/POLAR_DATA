@@ -75,14 +75,17 @@ int main(int argc, char** argv) {
     // === End Process Data =========================================
 
     pro.do_the_last_work(root_datafile);
+    root_datafile.gen_gps_result_str();
     root_datafile.write_after_decoding();
     pro.write_meta_info(filelist, root_datafile);
+    root_datafile.write_gps_span();
     root_datafile.close();
     if (log_flag) {
         pro.logfile_close();
     }
     
     pro.cnt.print();
+    root_datafile.print_gps_span();
 
     return 0;
 }

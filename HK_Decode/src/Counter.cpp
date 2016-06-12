@@ -31,5 +31,5 @@ void Counter::print(ostream& os) {
          << setw(28) <<     "obox crc error count: " << setw(20) << obox_crc_error << endl;
     cout << setw(28) << "frame interruption count: " << setw(20) << frm_con_error << endl;
     cout << right;
-    cout << "=============================================================================================" << endl;
+    cout << "---------------------------------------------------------------------------------------------" << endl;
 }

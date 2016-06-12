@@ -2,6 +2,7 @@
 #define HKDATAFILE_H
 
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 #include <iomanip>
 #include <stdint.h>
@@ -102,6 +103,26 @@ private:
     TTree* t_hk_ibox_tree_;
 
 private:
+    bool     hk_obox_first_gps_found_;
+    Long64_t hk_obox_first_gps_index_;
+    Long64_t hk_obox_first_gps_week_;
+    Long64_t hk_obox_first_gps_second_;
+    Long64_t hk_obox_last_gps_index_;
+    Long64_t hk_obox_last_gps_week_;
+    Long64_t hk_obox_last_gps_second_;
+    Long64_t hk_obox_total_gps_count_;
+    string   hk_obox_gps_result_str_;
+    bool     hk_ibox_first_gps_found_;
+    Long64_t hk_ibox_first_gps_index_;
+    Long64_t hk_ibox_first_gps_week_;
+    Long64_t hk_ibox_first_gps_second_;
+    Long64_t hk_ibox_last_gps_index_;
+    Long64_t hk_ibox_last_gps_week_;
+    Long64_t hk_ibox_last_gps_second_;
+    Long64_t hk_ibox_total_gps_count_;
+    string   hk_ibox_gps_result_str_;
+    
+private:
     void copy_odd_packet_(const HkOdd& odd_pkt);
     void copy_even_packet_(const HkEven& even_pkt);
     void copy_ibox_info_(const HkFrame& frame);
@@ -124,6 +145,9 @@ public:
     void write_odd_packet_alone(const HkOdd& odd_pkt);
     void write_even_packet_alone(const HkEven& even_pkt);
     void write_meta(const char* key, const char* value);
+    void gen_gps_result_str();
+    void write_gps_span();
+    void print_gps_span();
     
 };
 
