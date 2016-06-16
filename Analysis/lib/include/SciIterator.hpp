@@ -11,6 +11,8 @@ private:
     TTree* t_ped_trigger_;
     TTree* t_ped_modules_;
 
+    bool   cur_is_1P_;
+
     Long64_t trigger_tot_entries_;
     Long64_t trigger_cur_index_;
     bool     trigger_reach_end_;
@@ -98,6 +100,10 @@ public:
             return -1;
         else
             return ped_modules_tot_entries_;
+    }
+
+    bool is_1P() {
+        return cur_is_1P_;
     }
 
 };

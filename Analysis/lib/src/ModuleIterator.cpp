@@ -9,6 +9,8 @@ ModuleIterator::ModuleIterator() {
     t_ped_trigger_ = NULL;
     t_ped_modules_ = NULL;
 
+    cur_is_1P_ = false;
+
     ped_trigg_elist_ = NULL;
     ped_event_elist_ = NULL;
     phy_trigg_elist_ = NULL;
@@ -39,6 +41,7 @@ bool ModuleIterator::open(const char* filename) {
     if (t_ped_modules_ == NULL)
         return false;
 
+    cur_is_1P_ = check_1P(t_trigger_);
     bind_trigger_tree(t_trigger_, phy_trigg_);
     bind_trigger_tree(t_ped_trigger_, ped_trigg_);
     bind_modules_tree(t_modules_, phy_event_);

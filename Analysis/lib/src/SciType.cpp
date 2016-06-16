@@ -1,5 +1,16 @@
 #include "SciType.hpp"
 
+SciType::SciType() {
+    is_1P_ = false;
+}
+
+bool SciType::check_1P(TTree* t_trigger_tree) {
+    is_1P_ = !(t_trigger_tree->FindBranch("abs_gps_week") == NULL ||
+            t_trigger_tree->FindBranch("abs_gps_second") == NULL ||
+            t_trigger_tree->FindBranch("abs_gps_valid") == NULL);
+    return is_1P_;
+}
+
 void SciType::bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) {
     t_trigger_tree->SetBranchAddress("trigg_num",         &t_trigger.trigg_num                   );
     t_trigger_tree->SetBranchAddress("trigg_num_g",       &t_trigger.trigg_num_g                 );
@@ -26,6 +37,11 @@ void SciType::bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) {
     t_trigger_tree->SetBranchAddress("trig_rejected",      t_trigger.trig_rejected               );
     t_trigger_tree->SetBranchAddress("raw_dead",          &t_trigger.raw_dead                    );
     t_trigger_tree->SetBranchAddress("dead_ratio",        &t_trigger.dead_ratio                  );
+    if (is_1P_) {
+        t_trigger_tree->SetBranchAddress("abs_gps_week",      &t_trigger.abs_gps_week            );
+        t_trigger_tree->SetBranchAddress("abs_gps_second",    &t_trigger.abs_gps_second          );
+        t_trigger_tree->SetBranchAddress("abs_gps_valid",     &t_trigger.abs_gps_valid           );
+    }
 }
 
 void SciType::bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules) {

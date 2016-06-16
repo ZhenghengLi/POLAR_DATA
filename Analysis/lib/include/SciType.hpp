@@ -4,6 +4,9 @@
 #include "RootInc.hpp"
 
 class SciType {
+private:
+    bool is_1P_;
+    
 public:
     struct Event_Status_T {
         Bool_t trigger_fe_busy;           // 15
@@ -110,9 +113,14 @@ public:
         Bool_t          trig_rejected[25];        // raw data of FEE TRIGGER REJECTED for each frontend
         UInt_t          raw_dead;                 // raw data of the dead time counter field
         Float_t         dead_ratio;               // increased number of raw_dead divided by time_wait
+        Int_t           abs_gps_week;             // week of absolute gps time of this event.
+        Double_t        abs_gps_second;           // second of absolute gps time of this event.
+        Bool_t          abs_gps_valid;            // if the absolute gps time is valid.
     };
 
 public:
+    SciType();
+    bool check_1P(TTree* t_trigger_tree);
     void bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger);
     void bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules);
 

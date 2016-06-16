@@ -6,6 +6,8 @@ EventIterator::EventIterator() {
     t_modules_ = NULL;
     t_ped_trigger_ = NULL;
     t_ped_modules_ = NULL;
+
+    cur_is_1P_ = false;
 }
 
 EventIterator::~EventIterator() {
@@ -32,6 +34,7 @@ bool EventIterator::open(const char* filename) {
     if (t_ped_modules_ == NULL)
         return false;
 
+    cur_is_1P_ = check_1P(t_trigger_);
     bind_trigger_tree(t_trigger_, cur_trigg);
     bind_trigger_tree(t_ped_trigger_, cur_ped_trigg);
     bind_modules_tree(t_modules_, cur_module);

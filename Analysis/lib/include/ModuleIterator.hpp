@@ -14,6 +14,8 @@ private:
     TTree* t_ped_trigger_;
     TTree* t_ped_modules_;
 
+    bool   cur_is_1P_;
+
     int      cur_ct_num_;
     string   cur_filter_;
     Long64_t cur_seq_num_;
@@ -81,6 +83,10 @@ public:
     TTree* get_modules_tree();
     TTree* get_ped_trigger_tree();
     TTree* get_ped_modules_tree();
+
+    bool is_1P() {
+        return cur_is_1P_;
+    }
     
 };
 
