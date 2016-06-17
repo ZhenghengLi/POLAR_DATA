@@ -253,6 +253,7 @@ void HkFileR::close() {
     if (t_file_in_ == NULL)
         return;
     t_file_in_->Close();
+    delete t_file_in_;
     t_file_in_ = NULL;
     t_hk_obox_tree_ = NULL;
     t_hk_ibox_tree_ = NULL;

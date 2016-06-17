@@ -1,15 +1,88 @@
 #ifndef SCIITERATOR_H
 #define SCIITERATOR_H
 
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <boost/regex.hpp>
+#include "RootInc.hpp"
 #include "SciType.hpp"
+
+using namespace std;
+using boost::regex;
+using boost::cmatch;
+using boost::regex_match;
 
 class SciIterator: private SciType {
 private:
+    regex  re_gps_;
+    string gps_str_begin_;
+    string gps_str_end_;
+    double gps_value_begin_;
+    double gps_value_end_;
+
+    TFile* t_file_in_;
+    TTree* t_modules_tree_;
+    TTree* t_trigger_tree_;
+    TTree* t_ped_modules_tree_;
+    TTree* t_ped_trigger_tree_;
+    
     bool   cur_is_1P_;
 
+    Long64_t phy_modules_first_entry_;
+    Long64_t phy_trigger_first_entry_;
+    Long64_t ped_modules_first_entry_;
+    Long64_t ped_trigger_first_entry_;
+    Long64_t phy_modules_last_entry_;
+    Long64_t phy_trigger_last_entry_;
+    Long64_t ped_modules_last_entry_;
+    Long64_t ped_trigger_last_entry_;
+
+private:
+    
+    Long64_t phy_trigger_cur_entry_;
+    bool     phy_trigger_reach_end_;
+
+    Long64_t phy_modules_cur_entry_;
+    bool     phy_modules_reach_end_;
+
+    Long64_t ped_trigger_cur_entry_;
+    bool     ped_trigger_reach_end_;
+
+    Long64_t ped_modules_cur_entry_;
+    bool     ped_modules_reach_end_;
+
+private:
+    double value_of_gps_str_(const string gps_str);
+    
 public:
     SciIterator();
     ~SciIterator();
+
+    bool open(const char* filename);
+    bool open(const char* filename,
+              const char* gps_begin, const char* gps_end);
+    void close();
+
+    void     phy_trigger_set_start();
+    Long64_t phy_trigger_get_tot_entries();
+    Long64_t phy_trigger_get_cur_entry();
+    bool     phy_trigger_next();
+
+    void     phy_modules_set_start();
+    Long64_t phy_modules_get_tot_entries();
+    Long64_t phy_modules_get_cur_entry();
+    bool     phy_modules_next();
+
+    void     ped_trigger_set_start();
+    Long64_t ped_trigger_get_tot_entries();
+    Long64_t ped_trigger_get_cur_entry();
+    bool     ped_trigger_next();
+
+    void     ped_modules_set_start();
+    Long64_t ped_modules_get_tot_entries();
+    Long64_t ped_modules_get_cur_entry();
+    bool     ped_modules_next();
 
 };
 
