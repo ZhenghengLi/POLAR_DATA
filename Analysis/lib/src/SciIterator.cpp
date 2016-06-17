@@ -9,6 +9,8 @@ SciIterator::SciIterator() {
     t_trigger_tree_ = NULL;
     t_ped_modules_tree_ = NULL;
     t_ped_trigger_tree_ = NULL;
+    m_phy_gps_ = NULL;
+    m_ped_gps_ = NULL;
     
     cur_is_1P_ = false;
 
@@ -98,6 +100,12 @@ bool SciIterator::open(const char* filename, const char* gps_begin, const char* 
     bind_modules_tree(t_ped_modules_tree_, t_ped_modules);
 
     if (cur_is_1P_) {
+        m_phy_gps_ = static_cast<TNamed*>(t_file_in_->Get("m_phy_gps"));
+        if (m_phy_gps_ == NULL)
+            return false;
+        m_ped_gps_ = static_cast<TNamed*>(t_file_in_->Get("m_ped_gps"));
+        if (m_ped_gps_ == NULL)
+            return false;
         // find the first and last gps
         cmatch cm; 
         if (regex_match(m_phy_gps_->GetTitle(), cm, re_gps_span_)) {
@@ -283,6 +291,21 @@ bool SciIterator::open(const char* filename, const char* gps_begin, const char* 
     
     return true;
 }
+
+void SciIterator::close() {
+    if (t_file_in_ == NULL)
+        return;
+    t_file_in_->Close();
+    delete t_file_in_;
+    t_file_in_ = NULL;
+    t_modules_tree_ = NULL;
+    t_trigger_tree_ = NULL;
+    t_ped_modules_tree_ = NULL;
+    t_ped_trigger_tree_ = NULL;
+    m_phy_gps_ = NULL;
+    m_ped_gps_ = NULL;
+}
+
 
 void SciIterator::print_file_info() {
     if (t_file_in_ == NULL)
