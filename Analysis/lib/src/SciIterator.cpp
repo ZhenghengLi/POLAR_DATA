@@ -17,14 +17,7 @@ SciIterator::SciIterator() {
 }
 
 SciIterator::~SciIterator() {
-    if (t_file_in_ == NULL)
-        return;
-    t_file_in_->Close();
-    t_file_in_ = NULL;
-    t_modules_tree_ = NULL;
-    t_trigger_tree_ = NULL;
-    t_ped_modules_tree_ = NULL;
-    t_ped_trigger_tree_ = NULL;
+    close();
 }
 
 double SciIterator::value_of_gps_str_(const string gps_str) {
@@ -133,9 +126,40 @@ bool SciIterator::open(const char* filename, const char* gps_begin, const char* 
         } else {
             cerr << "GPS span regex match failed: " << m_ped_gps_->GetTitle() << endl;
             return false;
-        }   
+        }
+        // check GPS span matching
+        if (gps_str_begin_ != "begin") {
+            if (gps_value_begin_ < max(gps_value_first_ped_, gps_value_first_phy_)) {
+                cerr << "GPS string of beginning is out of range: "
+                     << max(gps_value_first_ped_, gps_value_first_phy_) - gps_value_begin_
+                     << " seconds" << endl;
+                return false;
+            }
+            if (gps_str_end_ == "end" && min(gps_value_last_ped_, gps_value_last_phy_) - gps_value_begin_ < GPS_DIFF_MIN) {
+                cerr << "GPS string of beginning is too large: "
+                     << min(gps_value_last_ped_, gps_value_last_phy_) - gps_value_begin_
+                     << " seconds" << endl;
+                return false;
+            }
+        }
+        if (gps_str_end_ != "end") {
+            if (gps_value_end_ > min(gps_value_last_ped_, gps_value_last_phy_)) {
+                cerr << "GPS string of ending is out range: "
+                     << gps_value_end_ - min(gps_value_last_ped_, gps_value_last_phy_)
+                     << " seconds" << endl;
+                return false;
+            }
+            if (gps_str_begin_ == "begin" && gps_value_end_ - max(gps_value_first_ped_, gps_value_first_phy_) < GPS_DIFF_MIN) {
+                cerr << "GPS string of ending is too small: "
+                     << gps_value_end_ - max(gps_value_first_ped_, gps_value_first_phy_)
+                     << " seconds" << endl;
+                return false;
+            }
+        }
     }
 
+    // find the first and last entry
+    // for 1M Level
     if (!cur_is_1P_) {
         phy_trigger_first_entry_ = 0;
         phy_modules_first_entry_ = 0;
@@ -148,7 +172,7 @@ bool SciIterator::open(const char* filename, const char* gps_begin, const char* 
         return true;
     }
 
-    // find the first and last entry
+    // for 1P/1R Level
     char str_buffer[200];
     bool found_last;
     TEventList* cur_elist;
@@ -306,13 +330,12 @@ void SciIterator::close() {
     m_ped_gps_ = NULL;
 }
 
-
 void SciIterator::print_file_info() {
     if (t_file_in_ == NULL)
         return;
     if (!cur_is_1P_) {
         cout << name_str_file_in_ << endl;
-        cout << " - This is not a 1P level SCI data, all data in this file will be iterated." << endl;
+        cout << " - This may be 1M level SCI data, all data in this file will be iterated." << endl;
         return;
     }
     char str_buffer[200];
