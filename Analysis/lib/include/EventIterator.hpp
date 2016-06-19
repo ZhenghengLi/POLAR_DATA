@@ -1,15 +1,108 @@
 #ifndef EVENTITERATOR_H
 #define EVENTITERATOR_H
 
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <boost/regex.hpp>
+#include "RootInc.hpp"
 #include "SciType.hpp"
+
+#define GPS_SPAN_MIN 10
+#define GPS_DIFF_MIN 10
+
+using namespace std;
+using boost::regex;
+using boost::cmatch;
+using boost::regex_match;
 
 class EventIterator: private SciType {
 private:
+    regex  re_gps_;
+    regex  re_gps_span_;
+    string gps_str_begin_;
+    string gps_str_end_;
+    double gps_value_begin_;
+    double gps_value_end_;
+
+    string  name_str_file_in_;
+    TFile* t_file_in_;
+    TTree* t_modules_tree_;
+    TTree* t_trigger_tree_;
+    TTree* t_ped_modules_tree_;
+    TTree* t_ped_trigger_tree_;
+    TNamed* m_phy_gps_;
+    TNamed* m_ped_gps_;
+
+    string gps_str_first_phy_;
+    string gps_str_first_ped_;
+    string gps_str_last_phy_;
+    string gps_str_last_ped_;
+    double gps_value_first_phy_;
+    double gps_value_first_ped_;
+    double gps_value_last_phy_;
+    double gps_value_last_ped_;
+
     bool   cur_is_1P_;
+
+    Long64_t phy_modules_first_entry_;
+    Long64_t phy_trigger_first_entry_;
+    Long64_t ped_modules_first_entry_;
+    Long64_t ped_trigger_first_entry_;
+    Long64_t phy_modules_last_entry_;
+    Long64_t phy_trigger_last_entry_;
+    Long64_t ped_modules_last_entry_;
+    Long64_t ped_trigger_last_entry_;
+
+private:
+    double value_of_gps_str_(const string gps_str);
+    
+public:
+    Trigger_T t_trigger;
+    Modules_T t_modules;
+    Trigger_T t_ped_trigger;
+    Modules_T t_ped_modules;
+
+private:
+    Long64_t phy_trigger_cur_entry_;
+    bool     phy_trigger_reach_end_;
+
+    Long64_t phy_modules_event_start_entry_;
+    Long64_t phy_modules_event_stop_entry_;
+    Long64_t phy_modules_event_cur_entry_;
+    bool     phy_modules_event_reach_end_;
+
+    Long64_t ped_trigger_cur_entry_;
+    bool     ped_trigger_reach_end_;
+
+    Long64_t ped_modules_event_start_entry_;
+    Long64_t ped_modules_event_stop_entry_;
+    Long64_t ped_modules_event_cur_entry_;
+    bool     ped_modules_event_reach_end_;
 
 public:
     EventIterator();
     ~EventIterator();
+
+    bool open(const char* filename);
+    bool open(const char* filename,
+              const char* gps_begin, const char* gps_end);
+    void close();
+    void print_file_info();
+
+    void     phy_trigger_set_start();
+    Long64_t phy_trigger_get_tot_entries();
+    Long64_t phy_trigger_get_cur_entry();
+    bool     phy_trigger_next_event();
+    void     phy_modules_set_start();
+    bool     phy_modules_next_packet();
+
+    void     ped_trigger_set_start();
+    Long64_t ped_trigger_get_tot_entries();
+    Long64_t ped_trigger_get_cur_entry();
+    bool     ped_trigger_next_event();
+    void     ped_modules_set_start();
+    bool     ped_modules_next_packet();
 
 };
 
