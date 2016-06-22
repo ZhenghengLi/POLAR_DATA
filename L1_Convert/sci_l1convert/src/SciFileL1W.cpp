@@ -6,6 +6,7 @@ SciFileL1W::SciFileL1W() {
     t_file_out_ = NULL;
     t_pol_event_tree_ = NULL;
     first_valid_found_ = false;
+    strcpy(t_pol_event.type, "NULL");
 }
 
 SciFileL1W::~SciFileL1W() {
@@ -24,7 +25,7 @@ bool SciFileL1W::open(const char* filename) {
     t_pol_event_tree_->Branch("abs_gps_week",      &t_pol_event.abs_gps_week,      "abs_gps_week/I"           );
     t_pol_event_tree_->Branch("abs_gps_second",    &t_pol_event.abs_gps_second,    "abs_gps_second/D"         );
     t_pol_event_tree_->Branch("abs_gps_valid",     &t_pol_event.abs_gps_valid,     "abs_gps_valid/O"          );
-    t_pol_event_tree_->Branch("type",              &t_pol_event.type,              "type/C"                   );
+    t_pol_event_tree_->Branch("type",               t_pol_event.type,              "type/C"                   );
     t_pol_event_tree_->Branch("trig_accepted",      t_pol_event.trig_accepted,     "trig_accepted[25]/O"      );
     t_pol_event_tree_->Branch("time_aligned",       t_pol_event.time_aligned,      "time_aligned[25]/O"       );
     t_pol_event_tree_->Branch("pkt_count",         &t_pol_event.pkt_count,         "pkt_count/I"              );
