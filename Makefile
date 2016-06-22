@@ -1,12 +1,13 @@
 
 .PHONY : all sci sci_clean sci_25 sci_25_clean hk hk_clean \
 	time time_clean tools tools_clean analysis analysis_clean \
-	orbit_split orbit_split_clean bin_clean
+	orbit_split orbit_split_clean l1_convert l1_convert_clean \
+	bin_clean
 
-all: sci sci_25 hk time orbit_split tools analysis
+all: sci sci_25 hk time orbit_split l1_convert tools analysis
 
 clean: sci_clean sci_25_clean hk_clean time_clean orbit_split_clean \
-	tools_clean analysis_clean bin_clean
+	l1_convert_clean tools_clean analysis_clean bin_clean
 
 sci:
 	cd SCI_Decode && $(MAKE)
@@ -37,6 +38,12 @@ orbit_split:
 
 orbit_split_clean:
 	cd Orbit_Split && $(MAKE) clean
+
+l1_convert:
+	cd L1_Convert && $(MAKE)
+
+l1_convert_clean:
+	cd L1_Convert && $(MAKE) clean
 
 tools:
 	cd tools && $(MAKE)

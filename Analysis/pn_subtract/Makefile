@@ -1,7 +1,7 @@
 CC := g++
 MY_LIB := ../lib
 CC_FLAGS := -Wall -O2 -I ./include -I $(MY_LIB)/include
-LINK_FLAGS := -Wl,--no-as-needed
+LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 
