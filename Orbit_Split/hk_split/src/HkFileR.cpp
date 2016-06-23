@@ -19,6 +19,9 @@ HkFileR::~HkFileR() {
 }
 
 bool HkFileR::open(const char* filename, const char* gps_begin, const char* gps_end) {
+    if (t_file_in_ != NULL)
+        return false;
+
     // record gps time
     gps_str_begin_.assign(gps_begin);
     if (gps_str_begin_ == "begin") {
