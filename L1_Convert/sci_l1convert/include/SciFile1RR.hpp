@@ -11,12 +11,13 @@ using namespace std;
 class SciFile1RR {
 public:
     struct TriggerL1_T {
-        Long64_t   trigg_num;        
+        Int_t      is_bad;        
+        Long64_t   trigg_num;
         Int_t      abs_gps_week;
         Double_t   abs_gps_second;
         Bool_t     abs_gps_valid;
         Int_t      type;
-        Bool_t     trig_rejected[25];
+        Bool_t     trig_accepted[25];
         Long64_t   pkt_start;
         Int_t      pkt_count;
         Int_t      lost_count;
@@ -51,10 +52,12 @@ private:
     Long64_t modules_event_cur_entry_;
     bool     modules_event_reach_end_;
 
-    Long64_t trigger_total_bad_count_;
+    Long64_t trigg_total_bad_count_;
+    Long64_t event_total_intact_count_;    
     Long64_t modules_total_aligned_count_;
-    Long64_t event_total_good_count_;
     Long64_t modules_total_match_err_count_;
+
+    string   align_info_str_;
     
 public:
     SciFile1RR();
@@ -67,10 +70,19 @@ public:
     Long64_t trigger_get_tot_entries();
     Long64_t trigger_get_cur_entry();
     bool     trigger_next_event();
-    void     modules_set_start();
     bool     modules_next_packet();
+    bool     modules_cur_matched();
+    Long64_t modules_get_tot_entries();
+
+    Long64_t get_bad_trigger_cnt();
+    Long64_t get_intact_event_cnt();
+    Long64_t get_aligned_cnt();
+    Long64_t get_match_err_cnt();
+
+    void     gen_align_info_str();
+    string   get_align_info_str();
     
-    void print_aligned_info();
+    void print_align_info();
 };
 
 #endif
