@@ -7,4 +7,5 @@
 !**/output/.*
 listfile/**
 *_Dict.*
+*_Dict_rdict.pcm
 **/test/**
