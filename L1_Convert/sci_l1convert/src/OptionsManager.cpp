@@ -26,26 +26,6 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
             char cur_option = cur_par_str[1];
             switch (cur_option) {
-            case 'B':
-                if (idx < argc_par - 1) {
-                    gps_begin = argv_par[++idx];
-                    if (gps_begin[0] == '-') {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-                break;
-            case 'E':
-                if (idx < argc_par - 1) {
-                    gps_end = argv_par[++idx];
-                    if (gps_end[0] == '-') {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-                break;
             case 'o':
                 if (idx < argc_par - 1) {
                     out_file = argv_par[++idx];
@@ -60,34 +40,28 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
             }
         } else {
-            raw_file_vector.push_back(cur_par_str);
+            if (in_file.IsNull()) {
+                in_file = cur_par_str;
+            } else {
+                return false;
+            }
         }
     }
-    if (raw_file_vector.empty()) {
+    if (in_file.IsNull()) {
         return false;
     } else {
-        if (gps_begin.IsNull())
-            gps_begin = "begin";
-        if (gps_end.IsNull())
-            gps_end = "end";
         if (out_file.IsNull())
-            out_file = "POL_SCI_decoded_data_time_split.root";
+            out_file = "POL_SCI_decoded_data_L1.root";
         return true;
     }
 }
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " " << "<POL_SCI_decoded_data_time_1.root> <POL_SCI_decoded_data_time_2.root> ..." << endl;
-    cout << "  ";
-    for (size_t i = 0; i < SW_NAME.length(); i++)
-        cout << " ";
-    cout << " " << "[-B <gps_begin_str>] [-E <gps_end_str>] [-o <POL_SCI_decoded_data_time_split.root>]" << endl;
+    cout << "  " << SW_NAME << " " << "<POL_SCI_decoded_data_time.root> [-o <POL_SCI_decoded_data_L1.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -B <gps_begin_str>               string of GPS beginning time, the format is week:second or begin" << endl;
-    cout << "  -E <gps_end_str>                 string of GPS ending time, the format is week:second or end" << endl;
-    cout << "  -o <splitted_data.root>          root file that stores the splitted data" << endl;
+    cout << "  -o <splitted_data.root>          root file that stores the Level 1 decoded data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -95,7 +69,7 @@ void OptionsManager::print_help() {
 
 void OptionsManager::print_version() {
     cout << endl;
-    cout << "    " << SW_NAME << " - POLAR SCI decoded data splitting" << endl;
+    cout << "    " << SW_NAME << " - POLAR SCI decoded data Level 1 converting" << endl;
     cout << "    " << SW_VERSION << " (" << RELEASE_DATE << ", compiled " << __DATE__ << " " << __TIME__ << ")" << endl;
     cout << endl;
     cout << " Copyright (C) 2015-2016 Zhengheng Li <lizhengheng@ihep.ac.cn>" << endl;
@@ -104,9 +78,8 @@ void OptionsManager::print_version() {
 }
 
 void OptionsManager::init() {
-    gps_begin.Clear();
-    gps_end.Clear();
-    raw_file_vector.clear();
+    in_file.Clear();
+    out_file.Clear();
     version_flag_ = false;
 }
 

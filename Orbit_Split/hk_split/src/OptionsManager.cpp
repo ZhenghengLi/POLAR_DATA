@@ -78,11 +78,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " " << "POL_HK_decoded_data_1.root POL_HK_decoded_data_2.root ..." << endl;
+    cout << "  " << SW_NAME << " " << "<POL_HK_decoded_data_1.root> <POL_HK_decoded_data_2.root> ..." << endl;
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " " << "[-B <gps_begin_str>] [-E <gps_end_str>] [-o <POL_HK_decoded_data_split.root]" << endl;
+    cout << " " << "[-B <gps_begin_str>] [-E <gps_end_str>] [-o <POL_HK_decoded_data_split.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B <gps_begin_str>               string of GPS beginning time, the format is week:second or begin" << endl;
