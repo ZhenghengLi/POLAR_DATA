@@ -32,5 +32,6 @@ clean:
 	@echo "Cleaning objects ..."
 	@rm -f obj/*.o
 	@rm -f include/*_Dict.h
+	@rm -r include/*_Dict_rdict.pcm
 	@rm -f src/*_Dict.cpp
 
