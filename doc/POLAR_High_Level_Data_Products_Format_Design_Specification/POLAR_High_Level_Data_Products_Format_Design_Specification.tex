@@ -759,6 +759,7 @@ Firstly the contents of TTree t\_hk\_obox are shown in Table \ref{tab:t-hk-obox}
     Int\_t      & even\_index              & Frame Index of even packet, -1 when lost. \\\hline
     Int\_t      & odd\_is\_bad             & code that indicates if the odd half packet is bad. 3 when lost, 2 when invalid, 1 when crc error, 0 when good. \\\hline
     Int\_t      & even\_is\_bad            & code that indicates if the even half packet is bad. 3 when lost, 2 when invalid, 1 when crc error, 0 when good. \\\hline
+    Int\_t      & obox\_is\_bad            & code that indicates if the whole obox packet is bad. 3 when half, 2 when invalid, 1 when crc error, 0 when good. \\\hline
     UShort\_t   & packet\_num              & raw data of the Packet number word \\\hline
     UInt\_t     & timestamp                & raw data of the OBOX time-stamp double word \\\hline
     UChar\_t    & obox\_mode               & raw data of the 4 bits OBOX operational mode \\\hline
@@ -812,8 +813,6 @@ Firstly the contents of TTree t\_hk\_obox are shown in Table \ref{tab:t-hk-obox}
     Double\_t   & abs\_gps\_second         & the GPS second of ibox\_gps of this packet \\ 
   \end{supertabular}
 \end{center}
-
-\newpage
 
 Secondly, the contents of TTree t\_hk\_ibox are shown in Table \ref{tab:t-hk-ibox}.
 \vspace{5mm}
@@ -920,7 +919,7 @@ The orbit splitting program is not started yet. But here will list some rules th
   So that the data monitor and data analysis software can apply to the data before and after splitted without any change.
 \item Some index numbers, such as trigg\_num, trigg\_num\_g, event\_num, \\ event\_num\_g and pkt\_start in trigger packet should be rearranged.
   They all should be started from 0 in the small orbit splitted data file. \\ time\_second and time\_period should also be started from 0 after splitted.
-\item The data is planned to split by orbit according to GPS time when TG-2 pass through the start point of the orbit.
+\item The data is planned to be splitted by orbit according to GPS time when TG-2 pass through the start point of the orbit.
   We can get the time from the platform information in 1553B data.
 \item A global orbit number should be added into each of the orbit splitted data files.
 \end{enumerate}
