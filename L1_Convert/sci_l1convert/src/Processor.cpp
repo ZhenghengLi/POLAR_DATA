@@ -76,7 +76,7 @@ void Processor::write_meta_info(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) 
     cur_time = NULL;
     // dcdfile
     TSystem sys;
-    scifile_l1.write_meta("m_dcdfile", cur_options_mgr_->in_file.Data());
+    scifile_l1.write_meta("m_dcdfile", sys.BaseName(cur_options_mgr_->in_file.Data()));
     // gps span
     scifile_l1.write_gps_span();
     // align info
