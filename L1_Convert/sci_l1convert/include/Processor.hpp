@@ -7,14 +7,16 @@
 #include <cstdio>
 #include "SciFile1RR.hpp"
 #include "SciFileL1W.hpp"
+#include "OptionsManager.hpp"
 
 using namespace std;
 
 class Processor {
 private:
+    OptionsManager* cur_options_mgr_;
         
 public:
-    Processor();
+    Processor(OptionsManager* my_options_mgr);
     ~Processor();
 
     void convert_data(SciFile1RR& scifile_1r,

@@ -184,5 +184,6 @@ string SciFile1RR::get_align_info_str() {
 }
 
 void SciFile1RR::print_align_info() {
-    cout << "align_info => { " << align_info_str_ << " }" << endl;
+    cout << "align_info: { " << align_info_str_ << " }" << endl;
+    cout << "==========================================================================================================" << endl;
 }

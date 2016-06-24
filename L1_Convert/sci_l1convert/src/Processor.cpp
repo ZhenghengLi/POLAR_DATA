@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Processor::Processor() {
-
+Processor::Processor(OptionsManager* my_options_mgr) {
+    cur_options_mgr_ = my_options_mgr;
 }
 
 Processor::~Processor() {
@@ -13,7 +13,7 @@ Processor::~Processor() {
 void Processor::convert_data(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "Converting data ..." << endl;
+    cout << "Converting data file: " << cur_options_mgr_->in_file.Data() << " ... " << endl;
     cout << "[ " << flush;
     scifile_1r.trigger_set_start();
     while (scifile_1r.trigger_next_event()) {
@@ -37,9 +37,9 @@ void Processor::convert_data(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
             scifile_l1.t_pol_event.compress[i]          = -1;
             scifile_l1.t_pol_event.common_noise[i]      = 0;
         }
-        for (int i = 0; i < 1600; i++) {
-            scifile_l1.t_pol_event.trigger_bit[i]       = false;
-            scifile_l1.t_pol_event.energy_adc[i]        = 0;
+        for (int k = 0; k < 1600; k++) {
+            scifile_l1.t_pol_event.trigger_bit[k]       = false;
+            scifile_l1.t_pol_event.energy_adc[k]        = 0;
         }
         
         while (scifile_1r.modules_next_packet()) {
@@ -65,5 +65,20 @@ void Processor::convert_data(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
 }
 
 void Processor::write_meta_info(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
-
+    // dattype
+    scifile_l1.write_meta("m_dattype", "POLAR 1 LEVEL SCI DECODED DATA");
+    // version
+    scifile_l1.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str());
+    // gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    scifile_l1.write_meta("m_gentime", cur_time->AsString("lc"));
+    delete cur_time;
+    cur_time = NULL;
+    // dcdfile
+    TSystem sys;
+    scifile_l1.write_meta("m_dcdfile", cur_options_mgr_->in_file.Data());
+    // gps span
+    scifile_l1.write_gps_span();
+    // align info
+    scifile_l1.write_meta("m_algninf", scifile_1r.get_align_info_str().c_str());
 }
