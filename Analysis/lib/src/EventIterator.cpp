@@ -430,6 +430,93 @@ void EventIterator::print_file_info() {
     cout << " - ped GPS span: { " << ped_result_str << " }" << endl;
 }
 
+string EventIterator::get_filename() {
+    if (t_file_in_ == NULL)
+        return "";
+    TSystem sys;
+    return string(sys.BaseName(name_str_file_in_.c_str()));
+}
+
+string EventIterator::get_ped_first_gps() {
+    if (t_file_in_ == NULL)
+        return "";
+    char str_buffer[50];
+    if (cur_is_1P_) {
+        for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
+            t_ped_trigger_tree_->GetEntry(i);
+            if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 &&
+                t_ped_trigger.abs_gps_valid)
+                break;
+        }
+        sprintf(str_buffer, "%d:%d",
+                static_cast<int>(t_ped_trigger.abs_gps_week),
+                static_cast<int>(t_ped_trigger.abs_gps_second));
+        return string(str_buffer);
+    } else {
+        return "begin";
+    }
+}
+
+string EventIterator::get_ped_last_gps() {
+    if (t_file_in_ == NULL)
+        return "";
+    char str_buffer[50];
+    if (cur_is_1P_) {
+        for (Long64_t i = ped_trigger_last_entry_ - 1; i >= ped_trigger_first_entry_; i--) {
+            t_ped_trigger_tree_->GetEntry(i);
+            if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 &&
+                t_ped_trigger.abs_gps_valid)
+                break;
+        }
+        sprintf(str_buffer, "%d:%d",
+                static_cast<int>(t_ped_trigger.abs_gps_week),
+                static_cast<int>(t_ped_trigger.abs_gps_second));
+        return string(str_buffer);
+    } else {
+        return "end";
+    }
+}
+
+string EventIterator::get_phy_first_gps() {
+    if (t_file_in_ == NULL)
+        return "";
+    char str_buffer[50];
+    if (cur_is_1P_) {
+        for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
+            t_trigger_tree_->GetEntry(i);
+            if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 &&
+                t_trigger.abs_gps_valid)
+                break;
+        }
+        sprintf(str_buffer, "%d:%d",
+                static_cast<int>(t_trigger.abs_gps_week),
+                static_cast<int>(t_trigger.abs_gps_second));
+        return string(str_buffer);
+    } else {
+        return "begin";
+    }
+}
+
+string EventIterator::get_phy_last_gps() {
+    if (t_file_in_ == NULL)
+        return "";
+    char str_buffer[50];
+    if (cur_is_1P_) {
+        for (Long64_t i = phy_trigger_last_entry_ - 1; i >= phy_trigger_first_entry_; i--) {
+            t_trigger_tree_->GetEntry(i);
+            if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 &&
+                t_trigger.abs_gps_valid)
+                break;
+        }
+        sprintf(str_buffer, "%d:%d",
+                static_cast<int>(t_trigger.abs_gps_week),
+                static_cast<int>(t_trigger.abs_gps_second));
+        return string(str_buffer);
+    } else {
+        return "end";
+    }
+}
+
 void EventIterator::phy_trigger_set_start() {
     phy_trigger_cur_entry_ = phy_trigger_first_entry_ - 1;
     phy_trigger_reach_end_ = false;

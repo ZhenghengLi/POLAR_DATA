@@ -22,5 +22,8 @@
 #include "TLine.h"
 #include "TRandom3.h"
 #include "TEventList.h"
+#include "TNamed.h"
+#include "TTimeStamp.h"
+#include "TSystem.h"
 
 #endif

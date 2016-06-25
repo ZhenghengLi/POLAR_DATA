@@ -90,6 +90,12 @@ public:
     void close();
     void print_file_info();
 
+    string   get_filename();
+    string   get_ped_first_gps();
+    string   get_ped_last_gps();
+    string   get_phy_first_gps();
+    string   get_phy_last_gps();
+
     void     phy_trigger_set_start();
     Long64_t phy_trigger_get_tot_entries();
     Long64_t phy_trigger_get_cur_entry();
