@@ -41,6 +41,10 @@ bool PedDataFile::open(const char* filename, char m) {
             }
         }
         if (mode_ == 'r') {
+            m_fromfile_ = static_cast<TNamed*>(t_ped_file_->Get("m_fromfile"));
+            m_gps_span_ = static_cast<TNamed*>(t_ped_file_->Get("m_gps_span"));
+            if (m_fromfile_ == NULL || m_gps_span_ == NULL)
+                return false;
             t_ped_data_tree_[i]->SetBranchAddress("ped_adc", t_ped_data[i].ped_adc);
             mod_set_start(i + 1);
         } else {
@@ -198,4 +202,20 @@ bool PedDataFile::mod_next(int ct_num) {
         mod_reach_end_[idx] = true;
         return false;
     }
+}
+
+string PedDataFile::get_fromfile_str() {
+    if (t_ped_file_ == NULL)
+        return "";
+    if (mode_ == 'w')
+        return "";
+    return string(m_fromfile_->GetTitle());
+}
+
+string PedDataFile::get_gps_span_str() {
+    if (t_ped_file_ == NULL)
+        return "";
+    if (mode_ == 'w')
+        return "";
+    return string(m_gps_span_->GetTitle());
 }

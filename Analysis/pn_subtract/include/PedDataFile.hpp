@@ -18,8 +18,10 @@ public:
     PedData_T t_ped_data[25];
 
 private:
-    TFile* t_ped_file_;
-    TTree* t_ped_data_tree_[25];
+    TFile*  t_ped_file_;
+    TTree*  t_ped_data_tree_[25];
+    TNamed* m_fromfile_;
+    TNamed* m_gps_span_;
 
     bool is_first_created_[25];
     
@@ -51,6 +53,8 @@ public: // read
     Long64_t mod_get_cur_entry(int ct_num);
     Long64_t mod_get_tot_entries(int ct_num);
     bool     mod_next(int ct_num);
+    string   get_fromfile_str();
+    string   get_gps_span_str();
     
 };
 
