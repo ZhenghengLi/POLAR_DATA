@@ -12,6 +12,7 @@ ROOT_LIBS := $(shell root-config --libs)
 all: ../bin/ped_calc
 
 ../bin/ped_calc: obj/main.o obj/PedMeanCalc.o obj/PedDataFile.o obj/PedMeanShow.o obj/PedMeanShow_Dict.o \
+	obj/OptionsManager.o \
 	$(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/SciIterator.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
