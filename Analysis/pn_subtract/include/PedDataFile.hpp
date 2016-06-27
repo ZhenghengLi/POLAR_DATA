@@ -41,7 +41,7 @@ public:
     void close();
     
 public: // write
-    void mod_fill(int ct_num);
+    void mod_fill(int ct_idx);
     void write_all_tree();
     void write_meta(const char* key, const char* value);
     void write_fromfile(const char* filename);
@@ -49,10 +49,10 @@ public: // write
     void write_lasttime();
 
 public: // read
-    void     mod_set_start(int ct_num);
-    Long64_t mod_get_cur_entry(int ct_num);
-    Long64_t mod_get_tot_entries(int ct_num);
-    bool     mod_next(int ct_num);
+    void     mod_set_start(int ct_idx);
+    Long64_t mod_get_cur_entry(int ct_idx);
+    Long64_t mod_get_tot_entries(int ct_idx);
+    bool     mod_next(int ct_idx);
     string   get_fromfile_str();
     string   get_gps_span_str();
     

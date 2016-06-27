@@ -71,14 +71,14 @@ void PedDataFile::close() {
     t_ped_file_ = NULL;
 }
 
-void PedDataFile::mod_fill(int ct_num) {
+void PedDataFile::mod_fill(int ct_idx) {
     if (t_ped_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
-    if (ct_num < 1 || ct_num > 25)
+    if (ct_idx < 0 || ct_idx > 24)
         return;
-    t_ped_data_tree_[ct_num - 1]->Fill();
+    t_ped_data_tree_[ct_idx]->Fill();
 }
 
 void PedDataFile::write_all_tree() {
@@ -153,53 +153,52 @@ void PedDataFile::write_lasttime() {
     }
 }
 
-void PedDataFile::mod_set_start(int ct_num) {
+void PedDataFile::mod_set_start(int ct_idx) {
     if (t_ped_file_ == NULL)
         return;
     if (mode_ == 'w')
         return;
-    if (ct_num < 1 || ct_num > 25)
+    if (ct_idx < 0 || ct_idx > 24)
         return;
-    mod_cur_entry_[ct_num - 1] = -1;
-    mod_reach_end_[ct_num - 1] = false;
+    mod_cur_entry_[ct_idx] = -1;
+    mod_reach_end_[ct_idx] = false;
 }
 
-Long64_t PedDataFile::mod_get_cur_entry(int ct_num) {
+Long64_t PedDataFile::mod_get_cur_entry(int ct_idx) {
     if (t_ped_file_ == NULL)
         return -1;
     if (mode_ == 'w')
         return -1;
-    if (ct_num < 1 || ct_num > 25)
+    if (ct_idx < 0 || ct_idx > 24)
         return -1;
-    return mod_cur_entry_[ct_num - 1];
+    return mod_cur_entry_[ct_idx];
 }
 
-Long64_t PedDataFile::mod_get_tot_entries(int ct_num) {
+Long64_t PedDataFile::mod_get_tot_entries(int ct_idx) {
     if (t_ped_file_ == NULL)
         return -1;
     if (mode_ == 'w')
         return -1;
-    if (ct_num < 1 || ct_num > 25)
+    if (ct_idx < 0 || ct_idx > 24)
         return -1;
-    return t_ped_data_tree_[ct_num - 1]->GetEntries();
+    return t_ped_data_tree_[ct_idx]->GetEntries();
 }
 
-bool PedDataFile::mod_next(int ct_num) {
+bool PedDataFile::mod_next(int ct_idx) {
     if (t_ped_file_ == NULL)
         return false;
     if (mode_ == 'w')
         return false;
-    if (ct_num < 1 || ct_num > 25)
+    if (ct_idx < 0 || ct_idx > 24)
         return false;
-    int idx = ct_num - 1;
-    if (mod_reach_end_[idx])
+    if (mod_reach_end_[ct_idx])
         return false;
-    mod_cur_entry_[idx]++;
-    if (mod_cur_entry_[idx] < t_ped_data_tree_[idx]->GetEntries()) {
-        t_ped_data_tree_[idx]->GetEntry(mod_cur_entry_[idx]);
+    mod_cur_entry_[ct_idx]++;
+    if (mod_cur_entry_[ct_idx] < t_ped_data_tree_[ct_idx]->GetEntries()) {
+        t_ped_data_tree_[ct_idx]->GetEntry(mod_cur_entry_[ct_idx]);
         return true;
     } else {
-        mod_reach_end_[idx] = true;
+        mod_reach_end_[ct_idx] = true;
         return false;
     }
 }
