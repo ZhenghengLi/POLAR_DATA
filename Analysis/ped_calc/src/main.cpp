@@ -1,5 +1,6 @@
 #include <iostream>
 #include "OptionsManager.hpp"
+#include "Processor.hpp"
 
 using namespace std;
 
@@ -14,8 +15,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    options_mgr.print_options();
+    Processor pro(&options_mgr);
 
-
-    return 0;
+    return pro.start_process();
 }

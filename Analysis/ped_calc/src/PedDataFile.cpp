@@ -88,7 +88,7 @@ void PedDataFile::write_all_tree() {
         return;
     t_ped_file_->cd();
     for (int i = 0; i < 25; i++) {
-        t_ped_data_tree_[i]->Write();
+        t_ped_data_tree_[i]->Write("", TObject::kOverwrite);
     }
 }
 
@@ -97,8 +97,13 @@ void PedDataFile::write_meta(const char* key, const char* value) {
         return;
     if (mode_ == 'r')
         return;
-    TNamed* cur_meta = new TNamed(key, value);
-    cur_meta->Write();
+    TNamed* cur_meta = static_cast<TNamed*>(t_ped_file_->Get(key));
+    if (cur_meta == NULL) {
+        cur_meta = new TNamed(key, value);
+    } else {
+        cur_meta->SetTitle(value);
+    }
+    cur_meta->Write("", TObject::kOverwrite);
     delete cur_meta;
     cur_meta = NULL;
 }
@@ -117,24 +122,24 @@ void PedDataFile::write_fromfile(const char* filename) {
         fromfile_list += "; ";
         fromfile_list += sys.BaseName(filename);
         cur_meta->SetTitle(fromfile_list.c_str());
-        cur_meta->Write();
+        cur_meta->Write("", TObject::kOverwrite);
     }
 }
 
-void PedDataFile::write_gps_span(const char* gps_span) {
+void PedDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
     if (t_ped_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
     TNamed* cur_meta = static_cast<TNamed*>(t_ped_file_->Get("m_gps_span"));
     if (cur_meta == NULL) {
-        write_meta("m_gps_span", gps_span);
+        write_meta("m_gps_span", Form("%s => %s", begin_gps, end_gps));
     } else {
         string gps_span_list = cur_meta->GetTitle();
         gps_span_list += "; ";
-        gps_span_list += gps_span;
+        gps_span_list += Form("%s => %s", begin_gps, end_gps);
         cur_meta->SetTitle(gps_span_list.c_str());
-        cur_meta->Write();
+        cur_meta->Write("", TObject::kOverwrite);
     }
 }
 
@@ -149,7 +154,7 @@ void PedDataFile::write_lasttime() {
         write_meta("m_lasttime", cur_time->AsString("lc"));
     } else {
         cur_meta->SetTitle(cur_time->AsString("lc"));
-        cur_meta->Write();
+        cur_meta->Write("", TObject::kOverwrite);
     }
 }
 

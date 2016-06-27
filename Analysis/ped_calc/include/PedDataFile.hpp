@@ -43,9 +43,11 @@ public:
 public: // write
     void mod_fill(int ct_idx);
     void write_all_tree();
-    void write_meta(const char* key, const char* value);
+    void write_meta(const char* key,
+                    const char* value);
     void write_fromfile(const char* filename);
-    void write_gps_span(const char* gps_span);
+    void write_gps_span(const char* begin_gps,
+                        const char* end_gps);
     void write_lasttime();
 
 public: // read

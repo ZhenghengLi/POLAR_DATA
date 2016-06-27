@@ -7,14 +7,7 @@ PedMeanShow::PedMeanShow() {
 }
 
 PedMeanShow::~PedMeanShow() {
-    if (canvas_map_ != NULL) {
-        delete canvas_map_;
-        canvas_map_ = NULL;
-    }
-    if (canvas_mod_ != NULL) {
-        delete canvas_mod_;
-        canvas_mod_ = NULL;
-    }
+
 }
 
 void PedMeanShow::show_map(PedMeanCalc& ped_mean_calc) {

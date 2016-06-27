@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "OptionsManager.hpp"
+#include "SciIterator.hpp"
 #include "PedDataFile.hpp"
 #include "PedMeanCalc.hpp"
 #include "PedMeanShow.hpp"
@@ -14,6 +15,7 @@ class Processor {
 private:
     OptionsManager* cur_options_mgr_;
 
+    SciIterator sciIter_;
     PedDataFile ped_data_file_;
     PedMeanCalc ped_mean_calc_;
     PedMeanShow ped_mean_show_;

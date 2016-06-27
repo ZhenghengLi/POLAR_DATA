@@ -21,13 +21,23 @@ PedMeanCalc::~PedMeanCalc() {
 void PedMeanCalc::fill_ped_data(SciIterator& sciIter, PedDataFile& ped_data_file) {
     if (ped_data_file.get_mode() != 'w')
         return;
+    int pre_percent = 0;
+    int cur_percent = 0;
+    cout << "Filling pedestal data of all modules ..." << endl;
+    cout << "[ " << flush;
     sciIter.ped_modules_set_start();
     while (sciIter.ped_modules_next()) {
+        cur_percent = static_cast<int>(100 * sciIter.ped_modules_get_cur_entry() / sciIter.ped_modules_get_tot_entries());
+        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+            pre_percent = cur_percent;
+            cout << "#" << flush;
+        }
         int idx = sciIter.t_ped_modules.ct_num - 1;
         copy(sciIter.t_ped_modules.energy_adc, sciIter.t_ped_modules.energy_adc + 64,
              ped_data_file.t_ped_data[idx].ped_adc);
         ped_data_file.mod_fill(idx);
     }
+    cout << " DONE ]" << endl;
 }
 
 void PedMeanCalc::create_ped_hist() {
