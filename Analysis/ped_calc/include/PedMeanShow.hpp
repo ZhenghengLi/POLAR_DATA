@@ -4,7 +4,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
+#ifndef __CINT__
 #include "PedMeanCalc.hpp"
+#endif /* __CINT __ */
 #include "RootInc.hpp"
 
 using namespace std;
@@ -26,9 +28,11 @@ private:
 public:
     PedMeanShow();
     virtual ~PedMeanShow();
+#ifndef __CINT__
     void show_map(PedMeanCalc& ped_mean_calc);
     void show_mod(PedMeanCalc& ped_mean_calc,
                   Int_t ct_idx);
+#endif /* __CINT __ */
     
 };
 

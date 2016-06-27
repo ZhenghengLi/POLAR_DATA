@@ -1,9 +1,11 @@
 
-.PHONY : lib lib_clean pn_subtract pn_subtract_clean
+.PHONY : lib lib_clean \
+	ped_calc ped_calc_clean \
+	bin_clean
 
-all: lib pn_subtract
+all: lib ped_calc
 
-clean: lib_clean pn_subtract_clean bin_clean
+clean: lib_clean ped_calc_clean bin_clean
 
 lib:
 	cd lib && $(MAKE)
@@ -11,11 +13,11 @@ lib:
 lib_clean:
 	cd lib && $(MAKE) clean
 
-pn_subtract:
-	cd pn_subtract && $(MAKE)
+ped_calc:
+	cd ped_calc && $(MAKE)
 
-pn_subtract_clean:
-	cd pn_subtract && $(MAKE) clean
+ped_calc_clean:
+	cd ped_calc && $(MAKE) clean
 
 bin_clean:
 	@echo "Cleaning binary files ..."

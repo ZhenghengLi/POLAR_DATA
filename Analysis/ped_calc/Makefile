@@ -9,12 +9,10 @@ ROOT_LIBS := $(shell root-config --libs)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: ../bin/pn_subtract ../bin/pn_fit
+all: ../bin/ped_calc
 
-../bin/pn_subtract: obj/pn_subtract.o obj/PedTest.o obj/PedMeanCalc.o obj/PedDataFile.o $(MY_LIB)/obj/EventIterator.o $(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/SciIterator.o
-	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
-
-../bin/pn_fit: obj/pn_fit.o obj/PedTest.o $(MY_LIB)/obj/ModuleIterator.o $(MY_LIB)/obj/SciType.o obj/GuiTest.o obj/GuiTest_Dict.o
+../bin/ped_calc: obj/main.o obj/PedMeanCalc.o obj/PedDataFile.o obj/PedMeanShow.o obj/PedMeanShow_Dict.o \
+	$(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/SciIterator.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
