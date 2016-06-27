@@ -218,3 +218,10 @@ string PedDataFile::get_gps_span_str() {
         return "";
     return string(m_gps_span_->GetTitle());
 }
+
+char PedDataFile::get_mode() {
+    if (t_ped_file_ == NULL)
+        return '0';
+    else
+        return mode_;
+}

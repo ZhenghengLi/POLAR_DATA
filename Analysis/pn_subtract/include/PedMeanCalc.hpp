@@ -6,6 +6,7 @@
 #include <cstdio>
 #include "SciIterator.hpp"
 #include "PedDataFile.hpp"
+#include "CooConv.hpp"
 
 #define PED_BINS 128
 #define PED_MAX 1024
@@ -19,6 +20,8 @@ private:
     TH2F* ped_map_;
 
     bool is_all_created_;
+    bool is_all_filled_;
+    bool is_all_fitted_;
 
 public:
     Float_t mean[25][64];
@@ -41,7 +44,7 @@ public:
     void fit_ped_hist();
     void draw_ped_map();
     void draw_ped_hist(int ct_i, int ch_j);
-    void write_ped_vector(const char* filename,
+    bool write_ped_vector(const char* filename,
                           PedDataFile& ped_data_file);
 
 };

@@ -55,6 +55,7 @@ public: // read
     bool     mod_next(int ct_idx);
     string   get_fromfile_str();
     string   get_gps_span_str();
+    char     get_mode();
     
 };
 
