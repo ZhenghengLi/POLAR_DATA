@@ -40,19 +40,17 @@ bool PedDataFile::open(const char* filename, char m) {
                 is_first_created_[i] = true;
             }
         }
+        if (is_first_created_[i]) {
+            t_ped_data_tree_[i]->Branch("ped_adc", t_ped_data[i].ped_adc, "ped_adc[64]/F");
+        } else {
+            t_ped_data_tree_[i]->SetBranchAddress("ped_adc", t_ped_data[i].ped_adc);
+        }
         if (mode_ == 'r') {
             m_fromfile_ = static_cast<TNamed*>(t_ped_file_->Get("m_fromfile"));
             m_gps_span_ = static_cast<TNamed*>(t_ped_file_->Get("m_gps_span"));
             if (m_fromfile_ == NULL || m_gps_span_ == NULL)
                 return false;
-            t_ped_data_tree_[i]->SetBranchAddress("ped_adc", t_ped_data[i].ped_adc);
-            mod_set_start(i + 1);
-        } else {
-            if (is_first_created_[i]) {
-                t_ped_data_tree_[i]->Branch("ped_adc", t_ped_data[i].ped_adc, "ped_adc[64]/F");
-            } else {
-                t_ped_data_tree_[i]->SetBranchAddress("ped_adc", t_ped_data[i].ped_adc);
-            }
+            mod_set_start(i);
         }
     }
     
@@ -101,7 +99,10 @@ void PedDataFile::write_meta(const char* key, const char* value) {
     if (cur_meta == NULL) {
         cur_meta = new TNamed(key, value);
     } else {
-        cur_meta->SetTitle(value);
+        string tmp_title = cur_meta->GetTitle();
+        tmp_title += "; ";
+        tmp_title += value;
+        cur_meta->SetTitle(tmp_title.c_str());
     }
     cur_meta->Write("", TObject::kOverwrite);
     delete cur_meta;
