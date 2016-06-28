@@ -242,25 +242,30 @@ bool PedMeanCalc::write_ped_vector(const char* filename, PedDataFile& ped_data_f
         tmp_vec = NULL;
     }
     TNamed* tmp_meta;
-    tmp_meta = new TNamed("m_dat_type", "POLAR PEDESTAL VECTOR");
+    // m_dattype
+    tmp_meta = new TNamed("m_dattype", "POLAR PEDESTAL VECTOR");
     tmp_meta->Write();
     delete tmp_meta;
+    // m_version
     tmp_meta = new TNamed("m_version",  (SW_NAME + " " + SW_VERSION).c_str());
     tmp_meta->Write();
     delete tmp_meta;
+    // m_gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    tmp_meta = new TNamed("m_gentime", cur_time->AsString("lc"));
+    tmp_meta->Write();
+    delete cur_time;
+    cur_time = NULL;
+    delete tmp_meta;
+    // m_fromfile
     tmp_meta = new TNamed("m_fromfile", ped_data_file.get_fromfile_str().c_str());
     tmp_meta->Write();
     delete tmp_meta;
+    // m_gps_span
     tmp_meta = new TNamed("m_gps_span", ped_data_file.get_gps_span_str().c_str());
     tmp_meta->Write();
     delete tmp_meta;
-    TTimeStamp* cur_time = new TTimeStamp();
-    tmp_meta = new TNamed("m_gen_time", cur_time->AsString("lc"));
-    tmp_meta->Write();
-    delete tmp_meta;
     tmp_meta = NULL;
-    delete cur_time;
-    cur_time = NULL;
     ped_vec_file->Close();
     delete ped_vec_file;
     ped_vec_file = NULL;
