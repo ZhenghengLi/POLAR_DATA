@@ -5,12 +5,13 @@ ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 CPP_FILES := $(wildcard src/*.cpp)
 OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
+DEST_BIN := ../bin
 
 .PHONY : all clean
 
-all: ../bin/Time_Calculate
+all: $(DEST_BIN)/Time_Calculate
 
-../bin/Time_Calculate: $(OBJ_FILES)
+$(DEST_BIN)/Time_Calculate: $(OBJ_FILES)
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp

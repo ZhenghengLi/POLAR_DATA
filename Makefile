@@ -5,9 +5,11 @@
 	bin_clean
 
 all: sci sci_25 hk time orbit_split l1_convert tools analysis
+	@echo " == All make successfully. == "
 
 clean: sci_clean sci_25_clean hk_clean time_clean orbit_split_clean \
 	l1_convert_clean tools_clean analysis_clean bin_clean
+	@echo " == All cleaned. == "
 
 sci:
 	cd SCI_Decode && $(MAKE)
