@@ -32,6 +32,7 @@ int Processor::do_action_1_() {
     }
     if (!ped_data_file_.open(cur_options_mgr_->ped_data_filename.Data(), 'w')) {
         cerr << "root file open failed: " << cur_options_mgr_->ped_data_filename.Data() << endl;
+        return 1;
     }
     sciIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
@@ -49,6 +50,7 @@ int Processor::do_action_1_() {
 int Processor::do_action_2_() {
     if (!ped_data_file_.open(cur_options_mgr_->ped_data_filename.Data(), 'r')) {
         cerr << "root file open failed: " << cur_options_mgr_->ped_data_filename.Data() << endl;
+        return 1;
     }
     ped_mean_calc_.create_ped_hist();
     cout << "Filling pedestal histogram ..." << endl;
@@ -62,5 +64,21 @@ int Processor::do_action_2_() {
 }
 
 int Processor::do_action_3_() {
+    if (!ped_data_file_.open(cur_options_mgr_->ped_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->ped_data_filename.Data() << endl;
+        return 1;
+    }
+    ped_mean_calc_.create_ped_hist();
+    cout << "Filling pedestal histogram ..." << endl;
+    ped_mean_calc_.fill_ped_hist(ped_data_file_);
+    cout << "Fitting pedestal histogram ..." << endl;
+    ped_mean_calc_.fit_ped_hist();
+    cout << "Writting pedestal vector ..." << endl;
+    if (ped_mean_calc_.write_ped_vector(cur_options_mgr_->ped_vector_filename.Data(),
+                                         ped_data_file_)) {
+        cout << "Successfully writted pedestal vector." << endl;
+    } else {
+        cout << "ERROR: failed to write pedestal vector." << endl;
+    }
     return 0;
 }

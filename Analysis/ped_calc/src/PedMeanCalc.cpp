@@ -183,10 +183,10 @@ bool PedMeanCalc::write_ped_vector(const char* filename, PedDataFile& ped_data_f
     TVectorF* tmp_vec;
     for (int i = 0; i < 25; i++) {
         tmp_vec = new TVectorF(64, mean[i]);
-        tmp_vec->Write(Form("ped_mean_vector_ct_%d", i + 1));
+        tmp_vec->Write(Form("ped_mean_vec_ct_%d", i + 1));
         delete tmp_vec;
         tmp_vec = new TVectorF(64, sigma[i]);
-        tmp_vec->Write(Form("ped_sigma_vector_ct_%d", i + 1));
+        tmp_vec->Write(Form("ped_sigma_vec_ct_%d", i + 1));
         delete tmp_vec;
         tmp_vec = NULL;
     }
