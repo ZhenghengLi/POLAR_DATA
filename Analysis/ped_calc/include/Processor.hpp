@@ -25,6 +25,7 @@ private:
     int do_action_1_();
     int do_action_2_();
     int do_action_3_();
+    int do_action_4_();
     
 public:
     Processor(OptionsManager* my_options_mgr,

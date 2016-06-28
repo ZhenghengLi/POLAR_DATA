@@ -19,6 +19,8 @@ int Processor::start_process() {
         return do_action_2_();
     case 3:
         return do_action_3_();
+    case 4:
+        return do_action_4_();
     default:
         return 1;
     }
@@ -80,5 +82,16 @@ int Processor::do_action_3_() {
     } else {
         cout << "ERROR: failed to write pedestal vector." << endl;
     }
+    return 0;
+}
+
+int Processor::do_action_4_() {
+    if (!ped_mean_calc_.read_ped_vector(cur_options_mgr_->ped_vector_filename.Data())) {
+        cerr << "read pedestal vector file failed: " << cur_options_mgr_->ped_vector_filename.Data() << endl;
+        return 1;
+    }
+    cout << "Showing pedestal mean and sigma values ..." << endl;
+    ped_mean_show_.show_mean_sigma(ped_mean_calc_);
+    cur_rootapp_->Run();
     return 0;
 }

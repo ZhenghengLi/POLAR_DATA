@@ -18,6 +18,7 @@ public:
     TString decoded_data_filename;
     TString ped_data_filename;
     TString ped_vector_filename;
+    bool    ped_vector_read_flag;
     bool    show_flag;
     char    rw_mode;
     int     action;

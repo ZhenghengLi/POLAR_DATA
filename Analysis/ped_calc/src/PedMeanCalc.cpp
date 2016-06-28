@@ -12,6 +12,7 @@ PedMeanCalc::PedMeanCalc() {
     is_all_created_ = false;
     is_all_filled_  = false;
     is_all_fitted_  = false;
+    is_all_read_    = false;
 }
 
 PedMeanCalc::~PedMeanCalc() {
@@ -166,6 +167,56 @@ void PedMeanCalc::draw_ped_map() {
     ped_map_->Draw("COLZ");
 }
 
+void PedMeanCalc::draw_ped_mean() {
+    if (!is_all_read_)
+        return;
+    ped_mean_ = static_cast<TH2F*>(gROOT->FindObject("ped_mean"));
+    if (ped_mean_ == NULL) {
+        ped_mean_ = new TH2F("ped_mean", "Pedestal Mean of 1600 Channels", 40, 0, 40, 40, 0, 40);
+        ped_mean_->SetDirectory(NULL);
+        ped_mean_->GetXaxis()->SetNdivisions(40);
+        ped_mean_->GetYaxis()->SetNdivisions(40);
+        for (int i = 0; i < 40; i++) {
+            if (i % 8 == 0) {
+                ped_mean_->GetXaxis()->SetBinLabel(i + 1, Form("%d", i));
+                ped_mean_->GetYaxis()->SetBinLabel(i + 1, Form("%d", i));
+            }
+        }
+        for (int i = 0; i < 25; i++) {
+            for (int j = 0; j < 64; j++) {
+                ped_mean_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
+            }
+        }
+        
+    }
+    ped_mean_->Draw("COLZ");
+}
+
+void PedMeanCalc::draw_ped_sigma() {
+    if (!is_all_read_)
+        return;
+    ped_sigma_ = static_cast<TH2F*>(gROOT->FindObject("ped_sigma"));
+    if (ped_sigma_ == NULL) {
+        ped_sigma_ = new TH2F("ped_sigma", "Pedestal Sigma of 1600 Channels", 40, 0, 40, 40, 0, 40);
+        ped_sigma_->SetDirectory(NULL);
+        ped_sigma_->GetXaxis()->SetNdivisions(40);
+        ped_sigma_->GetYaxis()->SetNdivisions(40);
+        for (int i = 0; i < 40; i++) {
+            if (i % 8 == 0) {
+                ped_sigma_->GetXaxis()->SetBinLabel(i + 1, Form("%d", i));
+                ped_sigma_->GetYaxis()->SetBinLabel(i + 1, Form("%d", i));
+            }
+        }
+        for (int i = 0; i < 25; i++) {
+            for (int j = 0; j < 64; j++) {
+                ped_sigma_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, sigma[i][j]);
+            }
+        }
+        
+    }
+    ped_sigma_->Draw("COLZ");
+}
+
 void PedMeanCalc::draw_ped_hist(int ct_i, int ch_j) {
     if (!is_all_fitted_)
         return;
@@ -191,6 +242,12 @@ bool PedMeanCalc::write_ped_vector(const char* filename, PedDataFile& ped_data_f
         tmp_vec = NULL;
     }
     TNamed* tmp_meta;
+    tmp_meta = new TNamed("m_dat_type", "POLAR PEDESTAL VECTOR");
+    tmp_meta->Write();
+    delete tmp_meta;
+    tmp_meta = new TNamed("m_version",  (SW_NAME + " " + SW_VERSION).c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
     tmp_meta = new TNamed("m_fromfile", ped_data_file.get_fromfile_str().c_str());
     tmp_meta->Write();
     delete tmp_meta;
@@ -207,5 +264,32 @@ bool PedMeanCalc::write_ped_vector(const char* filename, PedDataFile& ped_data_f
     ped_vec_file->Close();
     delete ped_vec_file;
     ped_vec_file = NULL;
+    return true;
+}
+
+bool PedMeanCalc::read_ped_vector(const char* filename) {
+    TFile* ped_vec_file = new TFile(filename, "READ");
+    if (ped_vec_file->IsZombie())
+        return false;
+    TVectorF* mean_vec;
+    TVectorF* sigma_vec;
+    for (int i = 0; i < 25; i++) {
+        mean_vec  = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_mean_vec_ct_%d", i + 1)));
+        sigma_vec = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_sigma_vec_ct_%d", i + 1)));
+        if (mean_vec == NULL || sigma_vec == NULL)
+            return false;
+        for (int j = 0; j < 64; j++) {
+            mean[i][j]  = (*mean_vec)(j);
+            sigma[i][j] = (*sigma_vec)(j);
+        }
+        delete mean_vec;
+        mean_vec = NULL;
+        delete sigma_vec;
+        sigma_vec = NULL;
+    }
+    ped_vec_file->Close();
+    delete ped_vec_file;
+    ped_vec_file = NULL;
+    is_all_read_ = true;
     return true;
 }

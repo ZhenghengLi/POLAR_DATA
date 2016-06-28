@@ -76,6 +76,19 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 show_flag = true;
                 break;
             case 'o':
+                if (ped_vector_read_flag)
+                    return false;
+                if (idx < argc_par - 1) {
+                    ped_vector_filename = argv_par[++idx];
+                    if (ped_vector_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            case 'p':
+                ped_vector_read_flag = true;
                 if (idx < argc_par - 1) {
                     ped_vector_filename = argv_par[++idx];
                     if (ped_vector_filename[0] == '-') {
@@ -107,8 +120,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     } else if (rw_mode == 'r' && show_flag) {
         action = 2;
         return true;
-    } else if (rw_mode == 'r' && !ped_vector_filename.IsNull()) {
+    } else if (rw_mode == 'r' && !ped_vector_filename.IsNull() && !ped_vector_read_flag) {
         action = 3;
+        return true;
+    } else if (ped_vector_read_flag && !ped_vector_filename.IsNull()) {
+        action = 4;
         return true;
     } else {
         return false;
@@ -120,6 +136,7 @@ void OptionsManager::print_help() {
     cout << "  " << SW_NAME << " <decoded_data_file.root> -B week1:second1 -E week2:second2 -F <ped_data_file.root>" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -m" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -o <ped_vector_file.root>" << endl;
+    cout << "  " << SW_NAME << " -p <ped_vector_file.root>" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B week1:second1                 GPS string of beginning" << endl;
@@ -128,6 +145,7 @@ void OptionsManager::print_help() {
     cout << "  -f <ped_data.root>               root file to read that stores pedestal data of all modules" << endl;
     cout << "  -m                               show pedestal mean map of 1600 channels" << endl;
     cout << "  -o <ped_vector.root>             root file to write that stores vectors of pedestal mean and sigma" << endl;
+    cout << "  -p <ped_vector.root>             show the mean and sigma values of pedestal vector of each module" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -149,6 +167,7 @@ void OptionsManager::print_options() {
     cout << "decoded_data_filename: " << decoded_data_filename << endl;
     cout << "ped_data_filename: " << ped_data_filename << endl;
     cout << "ped_vector_filename: " << ped_vector_filename << endl;
+    cout << "ped_vector_read_flag: " << ped_vector_read_flag << endl;
     cout << "show_flag: " << show_flag << endl;
     cout << "rw_mode: " << rw_mode << endl;
     cout << "action: " << action << endl;
@@ -158,6 +177,7 @@ void OptionsManager::init() {
     decoded_data_filename.Clear();
     ped_data_filename.Clear();
     ped_vector_filename.Clear();
+    ped_vector_read_flag = false;
     show_flag = false;
     rw_mode = '0';
     action = 0;

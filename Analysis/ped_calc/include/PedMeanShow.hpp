@@ -25,6 +25,7 @@ public: // slots
 private:
     TCanvas* canvas_map_;
     TCanvas* canvas_mod_;
+    TCanvas* canvas_mean_sigma_;
 #ifndef __CINT__
     PedMeanCalc* cur_ped_mean_calc_;
 #endif /* __CINT__ */
@@ -35,6 +36,7 @@ public:
 #ifndef __CINT__
     void show_map(PedMeanCalc& ped_mean_calc);
     void show_mod(Int_t ct_idx);
+    void show_mean_sigma(PedMeanCalc& ped_mean_calc);
 #endif /* __CINT __ */
     
 };
