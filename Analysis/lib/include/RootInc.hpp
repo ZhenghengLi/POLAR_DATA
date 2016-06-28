@@ -15,7 +15,6 @@
 #include "TGraphErrors.h"
 #include "TGraph2D.h"
 #include "TString.h"
-#include "RQ_OBJECT.h"
 #include "TPad.h"
 #include "TMatrixF.h"
 #include "TVectorF.h"

@@ -1,17 +1,19 @@
 CC := g++
 MY_LIB := ../lib
+MY_LIB_INC := $(MY_LIB)/include
 CC_FLAGS := -Wall -O2 -I ./include -I $(MY_LIB)/include
 LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
+DEST_BIN := $(shell cd ../bin; pwd)
 
 .PHONY : all clean
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: ../bin/ped_calc
+all: $(DEST_BIN)/ped_calc
 
-../bin/ped_calc: obj/main.o obj/PedMeanCalc.o obj/PedDataFile.o obj/PedMeanShow.o obj/PedMeanShow_Dict.o \
+$(DEST_BIN)/ped_calc: obj/main.o obj/PedMeanCalc.o obj/PedDataFile.o obj/PedMeanShow.o obj/PedMeanShow_Dict.o \
 	obj/OptionsManager.o obj/Processor.o \
 	$(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/SciIterator.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
@@ -21,8 +23,10 @@ obj/%.o: src/%.cpp
 
 src/%_Dict.cpp: include/%.hpp
 	cd include && \
-		rootcint -f $(@:src/%_Dict.cpp=%_Dict.cpp) -c -I../$(MY_LIB)/include $(<:include/%.hpp=%.hpp) && \
+		rootcint -f $(@:src/%_Dict.cpp=%_Dict.cpp) -c -I$(MY_LIB_INC) $(<:include/%.hpp=%.hpp) && \
 		mv $(@:src/%_Dict.cpp=%_Dict.cpp) ../src/
+	cd include && \
+		if [ -f $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) ]; then cp $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) $(DEST_BIN)/; fi
 
 $(MY_LIB)/obj/%.o: $(MY_LIB)/src/%.cpp
 	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
