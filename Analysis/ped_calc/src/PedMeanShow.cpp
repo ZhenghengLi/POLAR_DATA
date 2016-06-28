@@ -18,8 +18,8 @@ void PedMeanShow::show_map(PedMeanCalc& ped_mean_calc) {
         canvas_map_ = new TCanvas("canvas_map", "Pedestal Map of 1600 Channels", 800, 800);
         canvas_map_->SetGrid();
         canvas_map_->Connect("Closed()", "PedMeanShow", this, "CloseWindow()");
-        canvas_map_->Connect("ProcessedEvent(Int_t,Int_t,Int_t,TObject*)", "PedMeanShow",
-                             this, "ProcessAction(Int_t,Int_t,Int_t,TObject*)");
+        canvas_map_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "PedMeanShow",
+                             this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
     }
     canvas_map_->cd();
     cur_ped_mean_calc_->draw_ped_map();
@@ -44,7 +44,10 @@ void PedMeanShow::show_mod(Int_t ct_idx) {
 }
 
 void PedMeanShow::CloseWindow() {
-    cur_ped_mean_calc_ = NULL;
+    if (cur_ped_mean_calc_ != NULL) {
+        cur_ped_mean_calc_->delete_ped_hist();
+        cur_ped_mean_calc_ = NULL;
+    }
     cout << "Quitting by user request." << endl;
     gApplication->Terminate(0);
 }

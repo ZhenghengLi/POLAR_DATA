@@ -15,7 +15,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    Processor pro(&options_mgr);
+    argc = 1;
+    TApplication* rootapp = new TApplication("POLAR", &argc, argv);
+
+    Processor pro(&options_mgr, rootapp);
 
     return pro.start_process();
 }

@@ -14,6 +14,7 @@ using namespace std;
 class Processor {
 private:
     OptionsManager* cur_options_mgr_;
+    TApplication*   cur_rootapp_;
 
     SciIterator sciIter_;
     PedDataFile ped_data_file_;
@@ -26,7 +27,8 @@ private:
     int do_action_3_();
     
 public:
-    Processor(OptionsManager* my_options_mgr);
+    Processor(OptionsManager* my_options_mgr,
+              TApplication* my_rootapp);
     ~Processor();
 
     int start_process();
