@@ -90,7 +90,7 @@ void PedDataFile::write_all_tree() {
     }
 }
 
-void PedDataFile::write_meta(const char* key, const char* value) {
+void PedDataFile::write_meta(const char* key, const char* value, bool append_flag) {
     if (t_ped_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -99,9 +99,14 @@ void PedDataFile::write_meta(const char* key, const char* value) {
     if (cur_meta == NULL) {
         cur_meta = new TNamed(key, value);
     } else {
-        string tmp_title = cur_meta->GetTitle();
-        tmp_title += "; ";
-        tmp_title += value;
+        string tmp_title;
+        if (append_flag) {
+            tmp_title = cur_meta->GetTitle();
+            tmp_title += "; ";
+            tmp_title += value;
+        } else {
+            tmp_title = value;
+        }
         cur_meta->SetTitle(tmp_title.c_str());
     }
     cur_meta->Write("", TObject::kOverwrite);
@@ -114,17 +119,7 @@ void PedDataFile::write_fromfile(const char* filename) {
         return;
     if (mode_ == 'r')
         return;
-    TSystem sys;
-    TNamed* cur_meta = static_cast<TNamed*>(t_ped_file_->Get("m_fromfile"));
-    if (cur_meta == NULL) {
-        write_meta("m_fromfile", sys.BaseName(filename));
-    } else {
-        string fromfile_list = cur_meta->GetTitle();
-        fromfile_list += "; ";
-        fromfile_list += sys.BaseName(filename);
-        cur_meta->SetTitle(fromfile_list.c_str());
-        cur_meta->Write("", TObject::kOverwrite);
-    }
+    write_meta("m_fromfile", TSystem().BaseName(filename));
 }
 
 void PedDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
@@ -132,16 +127,7 @@ void PedDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
         return;
     if (mode_ == 'r')
         return;
-    TNamed* cur_meta = static_cast<TNamed*>(t_ped_file_->Get("m_gps_span"));
-    if (cur_meta == NULL) {
-        write_meta("m_gps_span", Form("%s => %s", begin_gps, end_gps));
-    } else {
-        string gps_span_list = cur_meta->GetTitle();
-        gps_span_list += "; ";
-        gps_span_list += Form("%s => %s", begin_gps, end_gps);
-        cur_meta->SetTitle(gps_span_list.c_str());
-        cur_meta->Write("", TObject::kOverwrite);
-    }
+    write_meta("m_gps_span", Form("%s => %s", begin_gps, end_gps));
 }
 
 void PedDataFile::write_lasttime() {
@@ -150,13 +136,9 @@ void PedDataFile::write_lasttime() {
     if (mode_ == 'r')
         return;
     TTimeStamp * cur_time = new TTimeStamp();
-    TNamed* cur_meta = static_cast<TNamed*>(t_ped_file_->Get("m_lasttime"));
-    if (cur_meta == NULL) {
-        write_meta("m_lasttime", cur_time->AsString("lc"));
-    } else {
-        cur_meta->SetTitle(cur_time->AsString("lc"));
-        cur_meta->Write("", TObject::kOverwrite);
-    }
+    write_meta("m_lasttime", cur_time->AsString("lc"), false);
+    delete cur_time;
+    cur_time = NULL;
 }
 
 void PedDataFile::mod_set_start(int ct_idx) {

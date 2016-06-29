@@ -47,7 +47,8 @@ public: // write
     void mod_fill(int ct_idx);
     void write_all_tree();
     void write_meta(const char* key,
-                    const char* value);
+                    const char* value,
+                    bool append_flag = true);
     void write_fromfile(const char* filename);
     void write_gps_span(const char* begin_gps,
                         const char* end_gps);
