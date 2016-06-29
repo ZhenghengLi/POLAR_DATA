@@ -15,9 +15,12 @@ private:
     TVectorF ped_mean_vector_[25];
     TVectorF energy_adc_vector_;
 
-    TF1*  xtalk_line_[64][64];
-    TH2F* xtalk_hist_[64][64];
-    TH2F* xtalk_map_mod_;
+    TF1*   xtalk_line_[64][64];
+    TH2F*  xtalk_hist_[64][64];
+    TH2F*  xtalk_map_mod_;
+    TH2F*  xtalk_map_all_;
+    TLine* line_h_[4];
+    TLine* line_v_[4];
 
     int   current_ct_idx_;
 
@@ -45,7 +48,8 @@ public:
     void create_xtalk_hist();
     void delete_xtalk_hist();
     void reset_xtalk_hist();
-    void fill_xtalk_hist(int ct_idx, XtalkDataFile& xtalk_data_file);
+    void fill_xtalk_hist(int ct_idx,
+                         XtalkDataFile& xtalk_data_file);
     void fit_xtalk_hist();
     void draw_xtalk_map_mod_2d();
     void draw_xtalk_map_mod_3d();
