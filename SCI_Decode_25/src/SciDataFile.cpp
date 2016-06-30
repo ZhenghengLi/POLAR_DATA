@@ -367,14 +367,15 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
         if (event.mode < 3) {
             t_modules_par.energy_adc[i]                   = static_cast<Float_t>(event.energy_ch[i]);
         } else {
-            if (event.energy_ch[i] > 0)
+            if (event.energy_ch[i] < 4096) {
                 t_modules_par.energy_adc[i]               = (static_cast<Float_t>(event.energy_ch[i]) - 2048) * 2;
-            else
-                t_modules_par.energy_adc[i]               = 0;
+            } else {
+                t_modules_par.energy_adc[i]               = 8192;
+            }
         }
     }
     if (event.mode < 3) {
-        t_modules_par.common_noise                        = 0;
+        t_modules_par.common_noise                        = 8192;
     } else {
         t_modules_par.common_noise                        = static_cast<Float_t>(event.common_noise) - 2048;
     }

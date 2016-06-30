@@ -36,8 +36,61 @@ XtalkMatrixCalc::~XtalkMatrixCalc() {
     delete_xtalk_hist();
 }
 
-void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk_data_file) {
+void XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
+    copy(sciIter.t_modules.energy_adc, sciIter.t_modules.energy_adc + 64,
+         energy_adc_vector_.GetMatrixArray());
+    // subtract pedestal and common noise
+    int   idx = sciIter.t_modules.ct_num - 1;
+    float cur_common_sum   = 0;
+    int   cur_common_n     = 0;
+    float cur_common_noise = 0;
+    if (sciIter.t_modules.compress != 3) {
+        for (int j = 0; j < 64; j++) {
+            if (energy_adc_vector_(j) > 0) {
+                energy_adc_vector_(j) -= ped_mean_vector_[idx](j);
+            }
+            if (sciIter.t_modules.compress != 1) {
+                if (!sciIter.t_modules.trigger_bit[j]) {
+                    cur_common_sum += energy_adc_vector_(j);
+                    cur_common_n++;
+                }
+            }
+        }
+    }
+    if (sciIter.t_modules.compress == 0 || sciIter.t_modules.compress == 2) {
+        cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0);
+    } else if (sciIter.t_modules.compress == 3) {
+        cur_common_noise = sciIter.t_modules.common_noise;
+    } else {
+        cur_common_noise = 0;
+    }
+    for (int j = 0; j < 64; j++) {
+        energy_adc_vector_(j) -= cur_common_noise;
+    }
+}
 
+void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk_data_file) {
+    if (xtalk_data_file.get_mode() != 'w')
+        return;
+    int pre_percent = 0;
+    int cur_percent = 0;
+    cout << "Filling crosstalk data of all modules ... " << endl;
+    cout << "[ " << flush;
+    sciIter.phy_modules_set_start();
+    while (sciIter.phy_modules_next()) {
+        cur_percent = static_cast<int>(100 * sciIter.phy_modules_get_cur_entry() / sciIter.phy_modules_get_tot_entries());
+        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+            pre_percent = cur_percent;
+            cout << "#" << flush;
+        }
+        gen_energy_adc_vector_(sciIter);        
+//        int idx = sciIter.t_modules.ct_num - 1;
+        // select crosstalk data
+        for (int jx = 0; jx < 64; jx++) {
+            
+        }
+    }
+    cout << " DONE ]" << endl;
 }
 
 void XtalkMatrixCalc::create_xtalk_hist() {

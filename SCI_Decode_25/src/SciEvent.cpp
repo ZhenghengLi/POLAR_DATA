@@ -44,7 +44,7 @@ void SciEvent::set_energy_ch_(const char* packet_buffer, size_t packet_len) {
         }
     } else if (mode == 1) {
         for (int i = 0; i < 64; i++) {
-            energy_ch[i] = 0;
+            energy_ch[i] = 8192;
         }
         uint16_t tmp_ch;
         int cur_pos;
@@ -61,7 +61,7 @@ void SciEvent::set_energy_ch_(const char* packet_buffer, size_t packet_len) {
         }
     } else if (mode == 3) {
         for (int i = 0; i < 64; i++) {
-            energy_ch[i] = 0;
+            energy_ch[i] = 8192;
         }
         uint32_t position_channel;
         uint32_t position;

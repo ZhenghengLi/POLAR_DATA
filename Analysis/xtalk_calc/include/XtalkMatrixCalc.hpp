@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
+#include <algorithm>
 #include "RootInc.hpp"
 #include "SciIterator.hpp"
 #include "XtalkDataFile.hpp"
@@ -31,10 +32,13 @@ private:
 
     char name_[80];
     char title_[80];
-    
+
 public:
     TMatrixF xtalk_matrix[25];
     TMatrixF xtalk_matrix_inv[25];
+
+private:
+    void gen_energy_adc_vector_(SciIterator& sciIter);
 
 public:
     XtalkMatrixCalc();

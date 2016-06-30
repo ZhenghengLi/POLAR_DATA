@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
+#include <algorithm>
 #include "SciIterator.hpp"
 #include "PedDataFile.hpp"
 #include "CooConv.hpp"
