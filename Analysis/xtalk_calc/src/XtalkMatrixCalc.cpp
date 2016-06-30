@@ -17,10 +17,11 @@ XtalkMatrixCalc::XtalkMatrixCalc() {
         line_v_[i] = NULL;
     }
 
-    is_all_created_ = false;
-    is_all_filled_  = false;
-    is_all_fitted_  = false;
-    is_all_read_    = false;
+    is_all_created_   = false;
+    is_all_filled_    = false;
+    is_all_fitted_    = false;
+    is_all_read_      = false;
+    is_ped_mean_read_ = false;
 
     for (int i = 0; i < 25; i++) {
         ped_mean_vector_[i].ResizeTo(64);
@@ -46,14 +47,12 @@ void XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
     float cur_common_noise = 0;
     if (sciIter.t_modules.compress != 3) {
         for (int j = 0; j < 64; j++) {
-            if (energy_adc_vector_(j) > 0) {
+            if (energy_adc_vector_(j) < 4096) {
                 energy_adc_vector_(j) -= ped_mean_vector_[idx](j);
             }
-            if (sciIter.t_modules.compress != 1) {
-                if (!sciIter.t_modules.trigger_bit[j]) {
-                    cur_common_sum += energy_adc_vector_(j);
-                    cur_common_n++;
-                }
+            if (!sciIter.t_modules.trigger_bit[j]) {
+                cur_common_sum += energy_adc_vector_(j);
+                cur_common_n++;
             }
         }
     }
@@ -65,13 +64,18 @@ void XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
         cur_common_noise = 0;
     }
     for (int j = 0; j < 64; j++) {
-        energy_adc_vector_(j) -= cur_common_noise;
+        if (energy_adc_vector_(j) < 4096) {
+            energy_adc_vector_(j) -= cur_common_noise;
+        }
     }
 }
 
 void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk_data_file) {
     if (xtalk_data_file.get_mode() != 'w')
         return;
+    if (!is_ped_mean_read_) {
+        cerr << "WARNING: pedestal mean vectors are not read yet. " << endl;
+    }
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "Filling crosstalk data of all modules ... " << endl;
@@ -84,10 +88,31 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
             cout << "#" << flush;
         }
         gen_energy_adc_vector_(sciIter);        
-//        int idx = sciIter.t_modules.ct_num - 1;
+        int idx = sciIter.t_modules.ct_num - 1;
         // select crosstalk data
         for (int jx = 0; jx < 64; jx++) {
-            
+            if (!sciIter.t_modules.trigger_bit[jx])
+                continue;
+            for (int jy = 0; jy < 64; jy++) {
+                if ((jx + 1 != jy && jx + 1 <= 63 && sciIter.t_modules.trigger_bit[jx + 1]) ||
+                    (jx - 1 != jy && jx - 1 >= 0  && sciIter.t_modules.trigger_bit[jx - 1]) ||
+                    (jx + 7 != jy && jx + 7 <= 63 && sciIter.t_modules.trigger_bit[jx + 7]) ||
+                    (jx + 8 != jy && jx + 8 <= 63 && sciIter.t_modules.trigger_bit[jx + 8]) ||
+                    (jx + 9 != jy && jx + 9 <= 63 && sciIter.t_modules.trigger_bit[jx + 9]) ||
+                    (jx - 7 != jy && jx - 7 >= 0  && sciIter.t_modules.trigger_bit[jx - 7]) ||
+                    (jx - 8 != jy && jx - 8 >= 0  && sciIter.t_modules.trigger_bit[jx - 8]) ||
+                    (jx - 9 != jy && jx - 9 >= 0  && sciIter.t_modules.trigger_bit[jx - 9]))
+                    continue;
+                if ((jy + 1 != jx && jy + 1 <= 63 && sciIter.t_modules.trigger_bit[jy + 1]) ||
+                    (jy - 1 != jx && jy - 1 >= 0  && sciIter.t_modules.trigger_bit[jy - 1]) ||
+                    (jy + 7 != jx && jy + 7 <= 63 && sciIter.t_modules.trigger_bit[jy + 7]) ||
+                    (jy + 8 != jx && jy + 8 <= 63 && sciIter.t_modules.trigger_bit[jy + 8]) ||
+                    (jy + 9 != jx && jy + 9 <= 63 && sciIter.t_modules.trigger_bit[jy + 9]) ||
+                    (jy - 7 != jx && jy - 7 >= 0  && sciIter.t_modules.trigger_bit[jy - 7]) ||
+                    (jy - 8 != jx && jy - 8 >= 0  && sciIter.t_modules.trigger_bit[jy - 8]) ||
+                    (jy - 9 != jx && jy - 9 >= 0  && sciIter.t_modules.trigger_bit[jy - 9]))
+                    continue;
+            }
         }
     }
     cout << " DONE ]" << endl;

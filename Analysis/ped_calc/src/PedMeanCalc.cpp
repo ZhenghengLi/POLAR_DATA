@@ -48,12 +48,12 @@ void PedMeanCalc::create_ped_hist() {
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             // histogram
-            ped_hist_[i][j] = new TH1F(Form("ped_hist_%d_%d", i + 1, j + 1),
-                                       Form("Pedestal of CH %d_%d", i + 1, j + 1),
+            ped_hist_[i][j] = new TH1F(Form("ped_hist_%02d_%02d", i + 1, j + 1),
+                                       Form("Pedestal of CH %02d_%02d", i + 1, j + 1),
                                        PED_BINS, 0, PED_MAX);
             ped_hist_[i][j]->SetDirectory(NULL);
             // function
-            ped_gaus_[i][j] = new TF1(Form("ped_gaus_%d_%d", i + 1, j + 1), "gaus(0)", 0, PED_MAX);
+            ped_gaus_[i][j] = new TF1(Form("ped_gaus_%02d_%02d", i + 1, j + 1), "gaus(0)", 0, PED_MAX);
             ped_gaus_[i][j]->SetParameters(1, 400, 25);
             ped_gaus_[i][j]->SetParName(0, "Amplitude");
             ped_gaus_[i][j]->SetParName(1, "Mean");
@@ -153,8 +153,8 @@ void PedMeanCalc::draw_ped_map() {
         ped_map_->GetYaxis()->SetNdivisions(40);
         for (int i = 0; i < 40; i++) {
             if (i % 8 == 0) {
-                ped_map_->GetXaxis()->SetBinLabel(i + 1, Form("%d", i));
-                ped_map_->GetYaxis()->SetBinLabel(i + 1, Form("%d", i));
+                ped_map_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                ped_map_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
         for (int i = 0; i < 25; i++) {
@@ -178,8 +178,8 @@ void PedMeanCalc::draw_ped_mean() {
         ped_mean_->GetYaxis()->SetNdivisions(40);
         for (int i = 0; i < 40; i++) {
             if (i % 8 == 0) {
-                ped_mean_->GetXaxis()->SetBinLabel(i + 1, Form("%d", i));
-                ped_mean_->GetYaxis()->SetBinLabel(i + 1, Form("%d", i));
+                ped_mean_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                ped_mean_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
         for (int i = 0; i < 25; i++) {
@@ -203,8 +203,8 @@ void PedMeanCalc::draw_ped_sigma() {
         ped_sigma_->GetYaxis()->SetNdivisions(40);
         for (int i = 0; i < 40; i++) {
             if (i % 8 == 0) {
-                ped_sigma_->GetXaxis()->SetBinLabel(i + 1, Form("%d", i));
-                ped_sigma_->GetYaxis()->SetBinLabel(i + 1, Form("%d", i));
+                ped_sigma_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                ped_sigma_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
         for (int i = 0; i < 25; i++) {
@@ -234,10 +234,10 @@ bool PedMeanCalc::write_ped_vector(const char* filename, PedDataFile& ped_data_f
     TVectorF* tmp_vec;
     for (int i = 0; i < 25; i++) {
         tmp_vec = new TVectorF(64, mean[i]);
-        tmp_vec->Write(Form("ped_mean_vec_ct_%d", i + 1));
+        tmp_vec->Write(Form("ped_mean_vec_ct_%02d", i + 1));
         delete tmp_vec;
         tmp_vec = new TVectorF(64, sigma[i]);
-        tmp_vec->Write(Form("ped_sigma_vec_ct_%d", i + 1));
+        tmp_vec->Write(Form("ped_sigma_vec_ct_%02d", i + 1));
         delete tmp_vec;
         tmp_vec = NULL;
     }
@@ -279,8 +279,8 @@ bool PedMeanCalc::read_ped_vector(const char* filename) {
     TVectorF* mean_vec;
     TVectorF* sigma_vec;
     for (int i = 0; i < 25; i++) {
-        mean_vec  = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_mean_vec_ct_%d", i + 1)));
-        sigma_vec = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_sigma_vec_ct_%d", i + 1)));
+        mean_vec  = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_mean_vec_ct_%02d", i + 1)));
+        sigma_vec = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_sigma_vec_ct_%02d", i + 1)));
         if (mean_vec == NULL || sigma_vec == NULL)
             return false;
         for (int j = 0; j < 64; j++) {

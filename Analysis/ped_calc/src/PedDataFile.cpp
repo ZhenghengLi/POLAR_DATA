@@ -27,8 +27,8 @@ bool PedDataFile::open(const char* filename, char m) {
         return false;
 
     for (int i = 0; i < 25; i++) {
-        sprintf(name_, "t_ped_data_ct_%d", i + 1);
-        sprintf(title_, "pedestal data of ct %d", i + 1);
+        sprintf(name_, "t_ped_data_ct_%02d", i + 1);
+        sprintf(title_, "pedestal data of ct %02d", i + 1);
         t_ped_data_tree_[i] = static_cast<TTree*>(t_ped_file_->Get(name_));
         is_first_created_[i] = false;
         if (t_ped_data_tree_[i] == NULL) {

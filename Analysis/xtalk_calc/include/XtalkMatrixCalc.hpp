@@ -29,6 +29,7 @@ private:
     bool is_all_filled_;
     bool is_all_fitted_;
     bool is_all_read_;
+    bool is_ped_mean_read_;
 
     char name_[80];
     char title_[80];
