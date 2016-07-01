@@ -29,8 +29,8 @@ bool XtalkDataFile::open(const char* filename, char m) {
         return false;
     
     for (int i = 0; i < 25; i++) {
-        sprintf(name_, "t_xtalk_data_ct_%d", i + 1);
-        sprintf(title_, "crosstalk data of ct %d", i + 1);
+        sprintf(name_, "t_xtalk_data_ct_%02d", i + 1);
+        sprintf(title_, "crosstalk data of ct %02d", i + 1);
         t_xtalk_data_tree_[i] = static_cast<TTree*>(t_xtalk_file_->Get(name_));
         is_first_created_[i] = false;
         if (t_xtalk_data_tree_[i] == NULL) {
