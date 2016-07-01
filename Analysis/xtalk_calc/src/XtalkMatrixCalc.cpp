@@ -335,17 +335,87 @@ void XtalkMatrixCalc::draw_xtalk_map_sel_mod(int ct_idx) {
     xtalk_map_mod_->Draw("LEG02");
 }
 
-bool XtalkMatrixCalc::read_ped_mean_vector(const char* filename) {
-
-    return true;
-}
-
 bool XtalkMatrixCalc::write_xtalk_matrix(const char* filename,
                                          XtalkDataFile& xtalk_data_file) {
+    if (!is_all_fitted_)
+        return false;
+    TFile* xtalk_matrix_file = new TFile(filename, "RECREATE");
+    if (xtalk_matrix_file->IsZombie())
+        return false;
+    for (int i = 0; i < 25; i++) {
+        xtalk_matrix[i].Write(Form("xtalk_mat_ct_%02d", i + 1));
+        xtalk_matrix[i].Write(Form("xtalk_mat_inv_ct_%02d", i + 1));
+    }
+    TNamed* tmp_meta;
+    // m_dattype
+    tmp_meta = new TNamed("m_dattype", "POLAR CROSSTALK MATRIX");
+    tmp_meta->Write();
+    delete tmp_meta;
+    // m_version
+
+    // m_gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    tmp_meta = new TNamed("m_gentime", cur_time->AsString("lc"));
+    tmp_meta->Write();
+    delete cur_time;
+    cur_time = NULL;
+    delete tmp_meta;
+    // m_fromfile
+    tmp_meta = new TNamed("m_fromfile", xtalk_data_file.get_fromfile_str().c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
+    // m_gps_span
+    tmp_meta = new TNamed("m_gps_span", xtalk_data_file.get_gps_span_str().c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
+    tmp_meta = NULL;
+    xtalk_matrix_file->Close();
+    delete xtalk_matrix_file;
+    xtalk_matrix_file = NULL;
     return true;
 }
 
 bool XtalkMatrixCalc::read_xtalk_matrix(const char* filename) {
+    TFile* xtalk_matrix_file = new TFile(filename, "READ");
+    if (xtalk_matrix_file->IsZombie())
+        return false;
+    TMatrixF* xtalk_mat;
+    TMatrixF* xtalk_mat_inv;
+    for (int i = 0; i < 25; i++) {
+        xtalk_mat     = static_cast<TMatrixF*>(xtalk_matrix_file->Get(Form("xtalk_mat_ct_%02d", i + 1)));
+        xtalk_mat_inv = static_cast<TMatrixF*>(xtalk_matrix_file->Get(Form("xtalk_mat_inv_ct_%02d", i + 1)));
+        if (xtalk_mat == NULL || xtalk_mat_inv == NULL)
+            return false;
+        xtalk_matrix[i]     = (*xtalk_mat);
+        xtalk_matrix_inv[i] = (*xtalk_mat_inv);
+        delete xtalk_mat;
+        xtalk_mat = NULL;
+        delete xtalk_mat_inv;
+        xtalk_mat_inv = NULL;
+    }
+    xtalk_matrix_file->Close();
+    delete xtalk_matrix_file;
+    xtalk_matrix_file = NULL;
+    is_all_read_ = true;
+    return true;
+}
 
+bool XtalkMatrixCalc::read_ped_mean_vector(const char* filename) {
+    TFile* ped_vec_file = new TFile(filename, "READ");
+    if (ped_vec_file->IsZombie())
+        return false;
+    TVectorF* mean_vec;
+    for (int i = 0; i < 25; i++) {
+        mean_vec = static_cast<TVectorF*>(ped_vec_file->Get(Form("ped_mean_vec_ct_%02d", i + 1)));
+        if (mean_vec == NULL)
+            return false;
+        ped_mean_vector_[i] = (*mean_vec);
+        delete mean_vec;
+        mean_vec = NULL;
+    }
+    ped_vec_file->Close();
+    delete ped_vec_file;
+    ped_vec_file = NULL;
+    is_ped_mean_read_ = true;
     return true;
 }
