@@ -8,6 +8,7 @@
 #include "RootInc.hpp"
 #include "SciIterator.hpp"
 #include "XtalkDataFile.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

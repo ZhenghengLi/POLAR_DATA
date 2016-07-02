@@ -9,8 +9,10 @@ XtalkMatrixCalc::XtalkMatrixCalc() {
             xtalk_hist_[jx][jy] = NULL;
         }
     }
-    xtalk_map_mod_ = NULL;
-    xtalk_map_all_ = NULL;
+    xtalk_map_mod_    = NULL;
+    xtalk_map_mod_2d_ = NULL;
+    xtalk_map_mod_3d_ = NULL;
+    xtalk_map_all_    = NULL;
     current_ct_idx_ = 0;
     for (int i = 0; i < 4; i++) {
         line_h_[i] = NULL;
@@ -189,7 +191,7 @@ void XtalkMatrixCalc::fill_xtalk_hist(int ct_idx, XtalkDataFile& xtalk_data_file
         return;
     if (!is_all_created_)
         return;
-    if (!is_all_filled_)
+    if (is_all_filled_)
         return;
     current_ct_idx_ = ct_idx;
     xtalk_data_file.mod_set_start(current_ct_idx_);
@@ -225,6 +227,7 @@ void XtalkMatrixCalc::fit_xtalk_hist() {
     }
     xtalk_matrix_inv[current_ct_idx_] = xtalk_matrix[current_ct_idx_];
     xtalk_matrix_inv[current_ct_idx_].Invert();
+    is_all_fitted_ = true;
 }
 
 void XtalkMatrixCalc::draw_xtalk_map_cur_mod_2d() {
@@ -241,7 +244,7 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_2d() {
     }
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
-            xtalk_map_mod_2d_->SetBinContent(jx, jy, xtalk_matrix[current_ct_idx_](jx, jy));
+            xtalk_map_mod_2d_->SetBinContent(jy + 1, 64 - jx, xtalk_matrix[current_ct_idx_](jx, jy));
         }
     }
     xtalk_map_mod_2d_->Draw("COLZ");
@@ -260,7 +263,7 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_3d() {
     }
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
-            xtalk_map_mod_3d_->SetBinContent(jx, jy, xtalk_matrix[current_ct_idx_](jx, jy));
+            xtalk_map_mod_3d_->SetBinContent(jy + 1, 64 - jx, xtalk_matrix[current_ct_idx_](jx, jy));
         }
     }
     xtalk_map_mod_3d_->Draw("LEGO2");
@@ -271,8 +274,6 @@ void XtalkMatrixCalc::draw_xtalk_line(int jx, int jy) {
         return;
     if (xtalk_hist_[jx][jy]->GetEntries() < 5)
         return;
-    gStyle->SetOptStat(11);
-    gStyle->SetOptFit(111);
     xtalk_hist_[jx][jy]->Fit(xtalk_line_[jx][jy], "Q");
 }
 
@@ -329,7 +330,7 @@ void XtalkMatrixCalc::draw_xtalk_map_sel_mod(int ct_idx) {
     xtalk_map_mod_->SetTitle(Form("Crosstalk Matrix Map of CT_%02d", ct_idx + 1));
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
-            xtalk_map_mod_->SetBinContent(jx, jy, xtalk_matrix[ct_idx](jx, jy));
+            xtalk_map_mod_->SetBinContent(jy + 1, 64 - jx, xtalk_matrix[ct_idx](jx, jy));
         }
     }
     xtalk_map_mod_->Draw("LEG02");
@@ -344,7 +345,7 @@ bool XtalkMatrixCalc::write_xtalk_matrix(const char* filename,
         return false;
     for (int i = 0; i < 25; i++) {
         xtalk_matrix[i].Write(Form("xtalk_mat_ct_%02d", i + 1));
-        xtalk_matrix[i].Write(Form("xtalk_mat_inv_ct_%02d", i + 1));
+        xtalk_matrix_inv[i].Write(Form("xtalk_mat_inv_ct_%02d", i + 1));
     }
     TNamed* tmp_meta;
     // m_dattype
@@ -352,7 +353,9 @@ bool XtalkMatrixCalc::write_xtalk_matrix(const char* filename,
     tmp_meta->Write();
     delete tmp_meta;
     // m_version
-
+    tmp_meta = new TNamed("m_version", (SW_NAME + " " + SW_VERSION).c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
     // m_gentime
     TTimeStamp* cur_time = new TTimeStamp();
     tmp_meta = new TNamed("m_gentime", cur_time->AsString("lc"));
