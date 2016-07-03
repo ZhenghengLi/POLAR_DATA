@@ -71,8 +71,9 @@ public:
     void draw_xtalk_map_all();
     void draw_xtalk_map_sel_mod(int ct_idx);    
 
-
-
+    int get_current_ct_idx() {
+        return current_ct_idx_;
+    }
     
 };
 

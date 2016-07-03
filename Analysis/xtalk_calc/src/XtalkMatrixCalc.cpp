@@ -272,6 +272,8 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_3d() {
 void XtalkMatrixCalc::draw_xtalk_line(int jx, int jy) {
     if (!is_all_fitted_)
         return;
+    if (jx < 0 || jx > 63 || jy < 0 || jy > 63)
+        return;
     if (xtalk_hist_[jx][jy]->GetEntries() < 5)
         return;
     xtalk_hist_[jx][jy]->Fit(xtalk_line_[jx][jy], "Q");
@@ -318,6 +320,8 @@ void XtalkMatrixCalc::draw_xtalk_map_all() {
 
 void XtalkMatrixCalc::draw_xtalk_map_sel_mod(int ct_idx) {
     if (!is_all_read_)
+        return;
+    if (ct_idx < 0 || ct_idx > 24)
         return;
     xtalk_map_mod_ = static_cast<TH2F*>(gROOT->FindObject("xtalk_map_mod"));
     if (xtalk_map_mod_ == NULL) {

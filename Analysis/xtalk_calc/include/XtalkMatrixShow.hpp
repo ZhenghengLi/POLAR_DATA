@@ -28,7 +28,11 @@ public: // slots
                                 TObject* selected);
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-
+    TCanvas* canvas_mod_map_cur_;
+    TCanvas* canvas_jx_jy_line_;
+    TCanvas* canvas_mod_map_all_;
+    TCanvas* canvas_mod_map_sel_;
+    XtalkMatrixCalc* cur_xtalk_matrix_calc_;
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
@@ -36,7 +40,10 @@ public:
     virtual ~XtalkMatrixShow();
 
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-    
+    void show_mod_map_cur(XtalkMatrixCalc& xtalk_matrix_calc);
+    void show_jx_jy_line(int jx, int jy);
+    void show_mod_map_all(XtalkMatrixCalc& xtalk_matrix_calc);
+    void show_mod_map_sel(int ct_idx);
 #endif /* __ROOTCLING__ || __CINT __ */
     
     
