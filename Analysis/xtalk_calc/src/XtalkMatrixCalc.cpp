@@ -120,7 +120,7 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
                     jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
                     sciIter.t_modules.trigger_bit[jy])
                     continue;
-                if (energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.4)
+                if (energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
                     continue;
                 if (energy_adc_vector_(jy) < 4096) {
                     xtalk_data_file.t_xtalk_data[idx].jx = jx;
@@ -143,8 +143,10 @@ void XtalkMatrixCalc::create_xtalk_hist() {
         for (int jy = 0; jy < 64; jy++) {
              xtalk_hist_[jx][jy] = new TH2F(Form("xtalk_hist_%02d_%02d", jx + 1, jy + 1),
                                            Form("Crosstalk of %02d => %02d", jx + 1, jy + 1),
-                                           256, 0, 4096, 128, 0, 1024);
+                                           256, 0, 4096, 128, -128, 1024);
             xtalk_hist_[jx][jy]->SetDirectory(NULL);
+            xtalk_hist_[jx][jy]->SetMarkerColor(9);
+            xtalk_hist_[jx][jy]->SetMarkerStyle(31);
             xtalk_line_[jx][jy] = new TF1(Form("xtalk_line_%02d_%02d", jx + 1, jy + 1),
                                           "[0] * x", 0, 4096);
             xtalk_line_[jx][jy]->SetParameter(0, 0.1);
@@ -218,10 +220,11 @@ void XtalkMatrixCalc::fit_xtalk_hist() {
             if (xtalk_hist_[jx][jy]->GetEntries() < 5) {
                 cerr << "CT_" << current_ct_idx_ << " : " << jx + 1 << " => " << jy + 1
                      << "    " << "number of entries is too small" << endl;
-                xtalk_matrix[current_ct_idx_](jy, jx) = 0.0001;
+                xtalk_matrix[current_ct_idx_](jy, jx) = 0.0001 * gRandom->Rndm();
             } else {
                 xtalk_hist_[jx][jy]->Fit(xtalk_line_[jx][jy], "QN");
-                xtalk_matrix[current_ct_idx_](jy, jx) = xtalk_line_[jx][jy]->GetParameter(0);
+                xtalk_matrix[current_ct_idx_](jy, jx) = (xtalk_line_[jx][jy]->GetParameter(0) > 0 ?
+                                                         xtalk_line_[jx][jy]->GetParameter(0) : 0.0001 * gRandom->Rndm());
             }
         }
     }
@@ -241,6 +244,12 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_2d() {
         xtalk_map_mod_2d_->SetDirectory(NULL);
         xtalk_map_mod_2d_->GetXaxis()->SetNdivisions(64);
         xtalk_map_mod_2d_->GetYaxis()->SetNdivisions(64);
+        for (int i = 0; i < 64; i++) {
+            if (i % 8 == 0) {
+                xtalk_map_mod_2d_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                xtalk_map_mod_2d_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
     }
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
@@ -260,6 +269,12 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_3d() {
         xtalk_map_mod_3d_->SetDirectory(NULL);
         xtalk_map_mod_3d_->GetXaxis()->SetNdivisions(64);
         xtalk_map_mod_3d_->GetYaxis()->SetNdivisions(64);
+        for (int i = 0; i < 64; i++) {
+            if (i % 8 == 0) {
+                xtalk_map_mod_3d_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                xtalk_map_mod_3d_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
     }
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
