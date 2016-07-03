@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/xtalk_calc
 
-$(DEST_BIN)/xtalk_calc: obj/main.o obj/XtalkDataFile.o obj/XtalkMatrixCalc.o obj/XtalkMatrixShow.o obj/XtalkMatrixShow_Dict.o \
+$(DEST_BIN)/xtalk_calc: obj/main.o obj/OptionsManager.o obj/Processor.o obj/XtalkDataFile.o \
+	obj/XtalkMatrixCalc.o obj/XtalkMatrixShow.o obj/XtalkMatrixShow_Dict.o \
 	$(MY_LIB)/obj/SciIterator.o $(MY_LIB)/obj/SciType.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
