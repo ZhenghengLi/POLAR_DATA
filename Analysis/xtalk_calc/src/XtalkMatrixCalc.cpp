@@ -182,6 +182,8 @@ void XtalkMatrixCalc::reset_xtalk_hist() {
         return;
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
+            if (jx == jy || xtalk_hist_[jx][jy] == NULL)
+                continue;
             xtalk_hist_[jx][jy]->Reset();
             xtalk_line_[jx][jy]->SetParameter(0, 0.1);
         }
@@ -347,6 +349,12 @@ void XtalkMatrixCalc::draw_xtalk_map_sel_mod(int ct_idx) {
         xtalk_map_mod_->SetDirectory(NULL);
         xtalk_map_mod_->GetXaxis()->SetNdivisions(64);
         xtalk_map_mod_->GetYaxis()->SetNdivisions(64);
+        for (int i = 0; i < 64; i++) {
+            if (i % 8 == 0) {
+                xtalk_map_mod_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                xtalk_map_mod_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
     }
     xtalk_map_mod_->SetTitle(Form("Crosstalk Matrix Map of CT_%02d", ct_idx + 1));
     for (int jx = 0; jx < 64; jx++) {
@@ -354,7 +362,7 @@ void XtalkMatrixCalc::draw_xtalk_map_sel_mod(int ct_idx) {
             xtalk_map_mod_->SetBinContent(jy + 1, 64 - jx, xtalk_matrix[ct_idx](jx, jy));
         }
     }
-    xtalk_map_mod_->Draw("LEG02");
+    xtalk_map_mod_->Draw("LEGO2");
 }
 
 bool XtalkMatrixCalc::write_xtalk_matrix(const char* filename,

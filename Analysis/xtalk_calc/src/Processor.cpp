@@ -58,7 +58,7 @@ int Processor::do_action_2_() {
         return 1;
     }
     xtalk_matrix_calc_.create_xtalk_hist();
-    cout << "Filling crosstalk histogram ..." << endl;
+    cout << "Filling crosstalk histogram of CT_" << cur_options_mgr_->ct_num << " ..." << endl;
     xtalk_matrix_calc_.fill_xtalk_hist(cur_options_mgr_->ct_num - 1,
                                        xtalk_data_file_);
     cout << "Fitting crosstalk histogram ..." << endl;
@@ -70,17 +70,35 @@ int Processor::do_action_2_() {
 }
 
 int Processor::do_action_3_() {
-    cout << "action 3" << endl;
-    cout << "xtalk_d: " << cur_options_mgr_->xtalk_data_filename << endl;
-    cout << "rw_mode: " << cur_options_mgr_->rw_mode << endl;
-    cout << "xtalk_m: " << cur_options_mgr_->xtalk_matrix_filename << endl;
-    cout << "xtalk_r: " << cur_options_mgr_->xtalk_matrix_read_flag << endl;
+    if (!xtalk_data_file_.open(cur_options_mgr_->xtalk_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->xtalk_data_filename.Data() << endl;
+        return 1;
+    }
+    xtalk_matrix_calc_.create_xtalk_hist();
+    cout << "Start Calculating Crosstalk Matrix of All Modules: " << endl;
+    for (int i = 0; i < 25; i++) {
+        cout << "Calculating Crosstalk Matrix of CT_" << i + 1 << " ..." << endl;
+        xtalk_matrix_calc_.reset_xtalk_hist();
+        xtalk_matrix_calc_.fill_xtalk_hist(i, xtalk_data_file_);
+        xtalk_matrix_calc_.fit_xtalk_hist();
+    }
+    cout << "Writting crosstalk matrix ... " << endl;
+    if (xtalk_matrix_calc_.write_xtalk_matrix(cur_options_mgr_->xtalk_matrix_filename.Data(),
+                                              xtalk_data_file_)) {
+        cout << "Successfully writted crosstalk matrix." << endl;
+    } else {
+        cout << "ERROR: failed to write crosstalk matrix." << endl;
+    }
     return 0;
 }
 
 int Processor::do_action_4_() {
-    cout << "action 4" << endl;
-    cout << "xtalk_m: " << cur_options_mgr_->xtalk_matrix_filename << endl;
-    cout << "xtalk_r: " << cur_options_mgr_->xtalk_matrix_read_flag << endl;
+    if (!xtalk_matrix_calc_.read_xtalk_matrix(cur_options_mgr_->xtalk_matrix_filename.Data())) {
+        cerr << "read crosstalk matrix file failed: " << cur_options_mgr_->xtalk_matrix_filename.Data() << endl;
+        return 1;
+    }
+    cout << "Showing crosstalk matrix map of all modules ..." << endl;
+    xtalk_matrix_show_.show_mod_map_all(xtalk_matrix_calc_);
+    cur_rootapp_->Run();
     return 0;
 }

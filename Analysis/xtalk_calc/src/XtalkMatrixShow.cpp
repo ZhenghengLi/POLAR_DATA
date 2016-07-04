@@ -93,24 +93,21 @@ void XtalkMatrixShow::show_mod_map_all(XtalkMatrixCalc& xtalk_matrix_calc) {
     gStyle->SetOptStat(0);
     canvas_mod_map_all_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod_map_all"));
     if (canvas_mod_map_all_ == NULL) {
-        canvas_mod_map_all_ = new TCanvas("canvas_mod_map_all", "Crosstalk Matrix Map of All Modules", 1000, 1000);
-        canvas_mod_map_all_->SetGrid();
+        canvas_mod_map_all_ = new TCanvas("canvas_mod_map_all", "Crosstalk Matrix Map of All Modules", 800, 800);
         canvas_mod_map_all_->ToggleEventStatus();
         canvas_mod_map_all_->Connect("Closed()", "XtalkMatrixShow", this, "CloseWindow()");
         canvas_mod_map_all_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "XtalkMatrixShow",
                                      this, "ProcessAction2(Int_t, Int_t, Int_t, TObject*)");
-        canvas_mod_map_cur_->SetGrid();
     }
     canvas_mod_map_all_->cd();
     xtalk_matrix_calc.draw_xtalk_map_all();
-    canvas_mod_map_cur_->Update();
+    canvas_mod_map_all_->Update();
 }
 
 void XtalkMatrixShow::show_mod_map_sel(int ct_idx) {
     if (cur_xtalk_matrix_calc_ == NULL)
         return;
-    gStyle->SetOptStat(11);
-    gStyle->SetOptFit(111);
+    gStyle->SetOptStat(0);
     canvas_mod_map_sel_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod_map_sel"));
     if (canvas_mod_map_sel_ == NULL) {
         canvas_mod_map_sel_ = new TCanvas("canvas_mod_map_sel", "Crosstalk Matrix Map of One Module", 800, 800);
