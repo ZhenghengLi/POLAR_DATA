@@ -141,9 +141,11 @@ void XtalkMatrixCalc::create_xtalk_hist() {
     delete_xtalk_hist();
     for (int jx = 0; jx < 64; jx++) {
         for (int jy = 0; jy < 64; jy++) {
+            if (jx == jy)
+                continue;
              xtalk_hist_[jx][jy] = new TH2F(Form("xtalk_hist_%02d_%02d", jx + 1, jy + 1),
                                            Form("Crosstalk of %02d => %02d", jx + 1, jy + 1),
-                                           256, 0, 4096, 128, -128, 1024);
+                                           256, 0, 4096, 128, -128, 1536);
             xtalk_hist_[jx][jy]->SetDirectory(NULL);
             xtalk_hist_[jx][jy]->SetMarkerColor(9);
             xtalk_hist_[jx][jy]->SetMarkerStyle(31);
@@ -287,7 +289,7 @@ void XtalkMatrixCalc::draw_xtalk_map_cur_mod_3d() {
 void XtalkMatrixCalc::draw_xtalk_line(int jx, int jy) {
     if (!is_all_fitted_)
         return;
-    if (jx < 0 || jx > 63 || jy < 0 || jy > 63)
+    if (jx < 0 || jx > 63 || jy < 0 || jy > 63 || jx == jy)
         return;
     if (xtalk_hist_[jx][jy]->GetEntries() < 5)
         return;

@@ -69,6 +69,8 @@ void XtalkMatrixShow::show_mod_map_cur(XtalkMatrixCalc& xtalk_matrix_calc) {
 void XtalkMatrixShow::show_jx_jy_line(int jx, int jy) {
     if (cur_xtalk_matrix_calc_ == NULL)
         return;
+    if (jx == jy)
+        return;
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);
     canvas_jx_jy_line_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_jx_jy_line"));
