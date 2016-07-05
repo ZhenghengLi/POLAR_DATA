@@ -120,13 +120,19 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
                     jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
                     sciIter.t_modules.trigger_bit[jy])
                     continue;
-                if (energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
+                if (energy_adc_vector_(jy) < 4096 && energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
                     continue;
                 if (energy_adc_vector_(jy) < 4096) {
                     xtalk_data_file.t_xtalk_data[idx].jx = jx;
                     xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
                     xtalk_data_file.t_xtalk_data[idx].jy = jy;
                     xtalk_data_file.t_xtalk_data[idx].y  = energy_adc_vector_(jy);
+                    xtalk_data_file.mod_fill(idx);
+                } else {
+                    xtalk_data_file.t_xtalk_data[idx].jx = jx;
+                    xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
+                    xtalk_data_file.t_xtalk_data[idx].jy = jy;
+                    xtalk_data_file.t_xtalk_data[idx].y = gRandom->Uniform(-1,1);
                     xtalk_data_file.mod_fill(idx);
                 }
             }
