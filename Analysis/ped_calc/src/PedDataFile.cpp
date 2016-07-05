@@ -1,7 +1,13 @@
 #include "PedDataFile.hpp"
 
 PedDataFile::PedDataFile() {
-
+    t_ped_file_ = NULL;
+    for (int i = 0; i < 25; i++) {
+        t_ped_data_tree_[i] = NULL;
+    }
+    m_fromfile_ = NULL;
+    m_gps_span_ = NULL;
+    mode_ = '0';
 }
 
 PedDataFile::~PedDataFile() {

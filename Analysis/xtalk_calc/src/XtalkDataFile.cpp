@@ -3,7 +3,13 @@
 using namespace std;
 
 XtalkDataFile::XtalkDataFile() {
-
+    t_xtalk_file_ = NULL;
+    for (int i = 0; i < 25; i++) {
+        t_xtalk_data_tree_[i] = NULL;
+    }
+    m_fromfile_ = NULL;
+    m_gps_span_ = NULL;
+    mode_ = '0';
 }
 
 XtalkDataFile::~XtalkDataFile() {
