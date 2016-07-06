@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
+#include "RootInc.hpp"
 #include "SciIterator.hpp"
 #include "PedDataFile.hpp"
 #include "CooConv.hpp"
