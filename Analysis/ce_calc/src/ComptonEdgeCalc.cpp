@@ -32,11 +32,24 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
         }
     }
     energy_adc_vector_.ResizeTo(64);
+
+    source_type_ = "na22";
     
 }
 
 ComptonEdgeCalc::~ComptonEdgeCalc() {
 
+}
+
+void ComptonEdgeCalc::set_source_type(string type_str) {
+    if (type_str == "na22" || type_str == "Na22") {
+        source_type_ = "Na22";
+    } else if (type_str == "cs137" || type_str == "Cs137") {
+        source_type_ = "Cs137";
+    } else {
+        cerr << "WARNING: only two source types are supported, they are Na22 and Cs137." << endl;
+        cerr << "WARNING: the source type is set to the default one, Na22." << endl;
+    }
 }
 
 void ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {

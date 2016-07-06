@@ -10,6 +10,7 @@
 #include "EventIterator.hpp"
 #include "SpecDataFile.hpp"
 #include "CooConv.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 
@@ -30,6 +31,8 @@ private:
     bool is_ped_mean_read_;
     bool is_xtalk_matrix_read_;
 
+    string source_type_; // "Na22" | "Cs137"
+
 public:
     // fitting parameters here
 
@@ -40,6 +43,7 @@ public:
     ComptonEdgeCalc();
     ~ComptonEdgeCalc();
 
+    void set_source_type(string type_str);
     // write
     void fill_spec_data(EventIterator& eventIter,
                         SpecDataFile& spec_data_file);
