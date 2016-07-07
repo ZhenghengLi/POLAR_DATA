@@ -33,7 +33,7 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
     }
     energy_adc_vector_.ResizeTo(64);
 
-    source_type_ = "na22";
+    source_type_ = "Na22";
     
 }
 
