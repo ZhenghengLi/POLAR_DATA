@@ -99,6 +99,49 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
     if (!is_xtalk_matrix_read_) {
         cerr << "WARNING: crosstalk matrixes are not read yet. " << endl;
     }
-    
+    int pre_percent = 0;
+    int cur_percent = 0;
+    cout << "Selecting and Filling Source Events Data ... " << endl;
+    cout << "[ " << flush;
+    eventIter.phy_trigger_set_start();
+    while (eventIter.phy_trigger_next_event()) {
+        cur_percent = static_cast<int>(100 * eventIter.phy_trigger_get_cur_entry() / eventIter.phy_trigger_get_tot_entries());
+        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+            pre_percent = cur_percent;
+            cout << "#" << flush;
+        }
+        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
+            continue;
+        }
+        spec_data_file.clear_cur_entry();
+        spec_data_file.t_source_event.type = eventIter.t_trigger.type;
+        spec_data_file.t_source_event.trigger_n = eventIter.t_trigger.trigger_n;
+        copy(eventIter.t_trigger.trig_accepted, eventIter.t_trigger.trig_accepted + 25,
+             spec_data_file.t_source_event.trig_accepted);
+        while (eventIter.phy_modules_next_packet()) {
+            int idx = eventIter.t_modules.ct_num - 1;
+            gen_energy_adc_vector_(eventIter);
+            copy(energy_adc_vector_.GetMatrixArray(), energy_adc_vector_.GetMatrixArray() + 64,
+                 &spec_data_file.t_source_event.energy_adc[idx * 64]);
+            copy(eventIter.t_modules.trigger_bit, eventIter.t_modules.trigger_bit + 64,
+                 &spec_data_file.t_source_event.trigger_bit[idx * 64]);
+            spec_data_file.t_source_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
+        }
+        if (source_type_ == "Na22" && check_na22_event_(spec_data_file.t_source_event)) {
+            spec_data_file.event_fill();
+        } else if (source_type_ == "Cs137" && check_cs137_event_(spec_data_file.t_source_event)) {
+            spec_data_file.event_fill();
+        }
+    }
+    cout << " DONE ]" << endl;
+}
 
+bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source_event) {
+
+    return true;
+}
+
+bool ComptonEdgeCalc::check_cs137_event_(const SpecDataFile::SourceEvent_T source_event) {
+
+    return true;
 }

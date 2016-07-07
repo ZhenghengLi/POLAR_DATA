@@ -38,6 +38,10 @@ public:
 
 private:
     void gen_energy_adc_vector_(EventIterator& eventIter);
+    bool check_na22_event_(const SpecDataFile::SourceEvent_T
+                           source_event);
+    bool check_cs137_event_(const SpecDataFile::SourceEvent_T
+                            source_event);
     
 public:
     ComptonEdgeCalc();
