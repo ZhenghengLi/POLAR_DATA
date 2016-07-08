@@ -137,7 +137,44 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
 }
 
 bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source_event) {
+    Bar first_bar;
+    Pos first_pos;
+    Bar second_bar;
+    Pos second_pos;
+    priority_queue<Bar> bar_queue;
+    for (int i = 0; i < 25; i++) {
+        if (source_event.trig_accepted[i]) {
+            for (int j = 0; j < 64; j++) {
+                if (source_event.trigger_bit[i * 64 + j]) {
+                    bar_queue.push(Bar(source_event.energy_adc[i * 64 + j], i, j));
+                }
+            }
+        }
+    }
+    if (bar_queue.empty()) {
+        return false;
+    }
+    first_bar = bar_queue.top();
+    bar_queue.pop();
+    first_pos.randomize(first_bar.i, first_bar.j);
+    bool found_not_adjacent = false;
+    while (!bar_queue.empty()) {
+        second_bar = bar_queue.top();
+        bar_queue.pop();
+        second_pos.randomize(second_bar.i, second_bar.j);
+        if (!first_pos.is_adjacent_to(second_pos)) {
+            found_not_adjacent = true;
+            break;
+        }
+    }
+    if (!found_not_adjacent) {
+        return false;
+    }
 
+    // now first_pos and second_pos are ready,
+    // following code should check if is Na22 event according to these two positions
+    
+    
     return true;
 }
 
