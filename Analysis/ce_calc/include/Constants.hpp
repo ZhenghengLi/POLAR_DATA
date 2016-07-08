@@ -26,5 +26,8 @@ const double SourcePos[4][2] = {
     { 3 * ModD + 7 * BarD + 1 * BarW + CarG - SrcL, 1 * ModD + 0 * BarD + 0 * BarW - CarG - SrcP }
 };
 
+const double AngleMin = (135.0 / 180.0 * 3.1415926);
+
+const double DistanceMax = (3.0 * BarD);
 
 #endif

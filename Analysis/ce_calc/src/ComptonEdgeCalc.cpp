@@ -173,12 +173,57 @@ bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source
 
     // now first_pos and second_pos are ready,
     // following code should check if is Na22 event according to these two positions
-    
-    
-    return true;
+
+    // calculate angle and distance to the 4 Na22 sources
+    double src_angle[4];
+    double src_distance[4];
+    for (int i = 0; i < 4; i++) {
+        src_angle[i] = angle_of_3_points_(SourcePos[i][0],  SourcePos[i][1],
+                                          first_pos.abs_x,  first_pos.abs_y,
+                                          second_pos.abs_x, second_pos.abs_y);
+        src_distance[i] = distance_of_3_points_(SourcePos[i][0],  SourcePos[i][1],
+                                                first_pos.abs_x,  first_pos.abs_y,
+                                                second_pos.abs_x, second_pos.abs_y);
+    }
+    // find the largest angle
+    double largest_angle = 0;
+    int    largest_index = 0;
+    for (int i = 0; i < 4; i++) {
+        if (src_angle[i] > largest_angle) {
+            largest_angle = src_angle[i];
+            largest_index = i;
+        }
+    }
+    if (largest_angle < AngleMin) {
+        return false;
+    }
+    if (src_distance[largest_index] > DistanceMax) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 bool ComptonEdgeCalc::check_cs137_event_(const SpecDataFile::SourceEvent_T source_event) {
 
     return true;
+}
+
+double ComptonEdgeCalc::angle_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2) {
+    double vec1[2] = {x1 - x0, y1 - y0};
+    double vec2[2] = {x2 - x0, y2 - y0};
+    double norm_vec1 = TMath::Sqrt(vec1[0] * vec1[0] + vec1[1] * vec1[1]);
+    double norm_vec2 = TMath::Sqrt(vec2[0] * vec2[0] + vec2[1] * vec2[1]);
+    double product12 = vec1[0] * vec2[0] + vec1[1] * vec2[1];
+    return TMath::ACos(product12 / (norm_vec1 * norm_vec2));
+}
+
+double ComptonEdgeCalc::distance_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2) {
+    double vec01[2] = {x1 - x0, y1 - y0};
+    double vec12[2] = {x2 - x1, y2 - y1};
+    double norm_vec01 = TMath::Sqrt(vec01[0] * vec01[0] + vec01[1] * vec01[1]);
+    double norm_vec12 = TMath::Sqrt(vec12[0] * vec12[0] + vec12[1] * vec12[1]);
+    double product_01_12 = vec01[0] * vec12[0] + vec01[1] * vec12[1];
+    double angle_01_12 = TMath::ACos(product_01_12 / (norm_vec01 * norm_vec12));
+    return (norm_vec01 * TMath::Sin(angle_01_12));
 }

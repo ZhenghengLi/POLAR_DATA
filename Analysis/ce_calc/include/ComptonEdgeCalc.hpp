@@ -96,6 +96,8 @@ private:
     void gen_energy_adc_vector_(EventIterator& eventIter);
     bool check_na22_event_(const SpecDataFile::SourceEvent_T source_event);
     bool check_cs137_event_(const SpecDataFile::SourceEvent_T source_event);
+    double angle_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2);
+    double distance_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2);
     
 public:
     ComptonEdgeCalc();
