@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/ce_calc
 
-$(DEST_BIN)/ce_calc: obj/main.o obj/SpecDataFile.o obj/ComptonEdgeCalc.o \
+$(DEST_BIN)/ce_calc: obj/main.o obj/SpecDataFile.o obj/ComptonEdgeCalc.o obj/OptionsManager.o \
+	obj/Processor.o obj/SpectrumShow.o obj/SpectrumShow_Dict.o \
 	$(MY_LIB)/obj/EventIterator.o $(MY_LIB)/obj/SciType.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
