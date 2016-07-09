@@ -17,6 +17,7 @@ public:
     TString end_gps;
     TString ped_vector_filename;
     TString xtalk_matrix_filename;
+    TString source_type;
     TString decoded_data_filename;
     TString spec_data_filename;
     TString adc_per_kev_filename;

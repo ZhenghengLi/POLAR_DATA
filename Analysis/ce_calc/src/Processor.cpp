@@ -34,6 +34,7 @@ int Processor::do_action_1_() {
     cout << "rw_mode => " << cur_options_mgr_->rw_mode << endl;
     cout << "ped_vector_filename => " << cur_options_mgr_->ped_vector_filename.Data() << endl;
     cout << "xtalk_matrix_filename => " << cur_options_mgr_->xtalk_matrix_filename.Data() << endl;
+    cout << "source_type => " << cur_options_mgr_->source_type.Data() << endl;
     cout << "spec_data_filename => " << cur_options_mgr_->spec_data_filename.Data() << endl;
     return 0;
 }
