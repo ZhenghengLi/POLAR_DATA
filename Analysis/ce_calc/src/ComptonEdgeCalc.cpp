@@ -10,6 +10,10 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
         }
     }
     spec_count_map_ = NULL;
+    for (int i = 0; i < 4; i++) {
+        line_h_[i] = NULL;
+        line_v_[i] = NULL;
+    }
     
     is_all_created_ = false;
     is_all_filled_  = false;
@@ -373,8 +377,20 @@ void ComptonEdgeCalc::draw_spec_count_map() {
             spec_count_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, spec_hist_[i][j]->GetEntries());
         }
     }
-    cout << "drawing ... " << endl; // debug
     spec_count_map_->Draw("COLZ");
+    for (int i = 0; i < 4; i++) {
+        if (line_h_[i] != NULL)
+            delete line_h_[i];
+        line_h_[i] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
+        line_h_[i]->SetLineColor(kWhite);
+        line_h_[i]->Draw("SAME");
+        if (line_v_[i] != NULL)
+            delete line_v_[i];
+        line_v_[i] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
+        line_v_[i]->SetLineColor(kWhite);
+        line_v_[i]->Draw("SAME");
+    }
+
 }
 
 void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {

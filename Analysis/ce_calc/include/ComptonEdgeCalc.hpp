@@ -12,7 +12,7 @@
 #include "CooConv.hpp"
 #include "Constants.hpp"
 
-#define SPEC_BINS 256
+#define SPEC_BINS 128
 
 using namespace std;
 
@@ -81,6 +81,8 @@ private:
     TF1*  spec_func_[25][64];
     TH1F* spec_hist_[25][64];
     TH2F* spec_count_map_;
+    TLine* line_h_[4];
+    TLine* line_v_[4];
 
     bool is_all_created_;
     bool is_all_filled_;
