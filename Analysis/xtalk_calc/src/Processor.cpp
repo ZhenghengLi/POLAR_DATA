@@ -49,6 +49,7 @@ int Processor::do_action_1_() {
                                     sciIter_.get_phy_last_gps().c_str());
     xtalk_data_file_.write_lasttime();
     xtalk_data_file_.close();
+    sciIter_.close();
     return 0;
 }
 
