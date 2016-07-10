@@ -172,8 +172,8 @@ void OptionsManager::print_help() {
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
     cout << " [-t <Na22|Cs137>] -F <spec_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
-    cout << "  " << SW_NAME << " -f <spec_data_file.root> -m" << endl;
-    cout << "  " << SW_NAME << " -f <spec_data_file.root> -o <adc_per_kev_file.root>" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -m" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -o <adc_per_kev_file.root>" << endl;
     cout << "  " << SW_NAME << " -c <adc_per_kev_file.root>" << endl;
     cout << endl;
     cout << "Options:" << endl;

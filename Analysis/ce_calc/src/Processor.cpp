@@ -60,6 +60,7 @@ int Processor::do_action_1_() {
 }
 
 int Processor::do_action_2_() {
+    compton_edge_calc_.set_source_type(cur_options_mgr_->source_type.Data());
     if (!spec_data_file_.open(cur_options_mgr_->spec_data_filename.Data(), 'r')) {
         cerr << "root file open failed: " << cur_options_mgr_->spec_data_filename.Data() << endl;
         return 1;
