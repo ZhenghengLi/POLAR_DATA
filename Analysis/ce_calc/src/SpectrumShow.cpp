@@ -52,7 +52,7 @@ void SpectrumShow::show_mod(Int_t ct_idx) {
     gStyle->SetOptFit(111);
     canvas_mod_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_mod"));
     if (canvas_mod_ == NULL) {
-        canvas_mod_ = new TCanvas("canvas_mod", "Spectrum of one mod", 800, 800);
+        canvas_mod_ = new TCanvas("canvas_mod", "Spectrum of one mod", 800, 600);
         canvas_mod_->Divide(8, 8);
     }
     canvas_mod_->SetTitle(Form("Spectrum of CT %02d", ct_idx + 1));

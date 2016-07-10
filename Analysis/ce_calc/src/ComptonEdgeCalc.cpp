@@ -210,7 +210,8 @@ bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source
 }
 
 bool ComptonEdgeCalc::check_cs137_event_(const SpecDataFile::SourceEvent_T source_event) {
-
+    if (check_na22_event_(source_event))
+        return false;
     return true;
 }
 
@@ -335,6 +336,10 @@ void ComptonEdgeCalc::fill_spec_hist(SpecDataFile& spec_data_file) {
         if (bar_queue.empty())
             continue;
         first_bar = bar_queue.top();
+        if (source_type_ != "Na22") {
+            spec_hist_[first_bar.i][first_bar.j]->Fill(first_bar.adc);
+            continue;
+        }
         bar_queue.pop();
         if (bar_queue.empty())
             continue;
