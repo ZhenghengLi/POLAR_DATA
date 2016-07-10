@@ -12,6 +12,8 @@
 #include "CooConv.hpp"
 #include "Constants.hpp"
 
+#define SPEC_BINS 256
+
 using namespace std;
 
 class ComptonEdgeCalc {
@@ -78,6 +80,7 @@ private:
 
     TF1*  spec_func_[25][64];
     TH1F* spec_hist_[25][64];
+    TH2F* spec_count_map_;
 
     bool is_all_created_;
     bool is_all_filled_;
@@ -112,6 +115,13 @@ public:
     // read
     bool read_ped_mean_vector(const char* filename);
     bool read_xtalk_matrix_inv(const char* filename);
+
+    void create_spec_hist();
+    void delete_spec_hist();
+    void fill_spec_hist(SpecDataFile& spec_data_file);
+    void fit_spec_hist();
+    void draw_spec_count_map();
+    void draw_spec_hist(int ct_i, int ch_j);
 };
 
 #endif

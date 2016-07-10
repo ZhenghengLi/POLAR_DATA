@@ -9,6 +9,7 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
             spec_hist_[i][j] = NULL;
         }
     }
+    spec_count_map_ = NULL;
     
     is_all_created_ = false;
     is_all_filled_  = false;
@@ -38,7 +39,7 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
 }
 
 ComptonEdgeCalc::~ComptonEdgeCalc() {
-
+    delete_spec_hist();
 }
 
 void ComptonEdgeCalc::set_source_type(string type_str) {
@@ -266,4 +267,122 @@ bool ComptonEdgeCalc::read_xtalk_matrix_inv(const char* filename) {
     xtalk_matrix_file = NULL;
     is_xtalk_matrix_read_ = true;
     return true;
+}
+
+void ComptonEdgeCalc::create_spec_hist() {
+    if (is_all_created_)
+        return;
+    delete_spec_hist();
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            spec_hist_[i][j] = new TH1F(Form("spec_hist_%02d_%02d", i + 1, j + 1),
+                                        Form("Spectrum of CH %02d_%02d", i + 1, j + 1),
+                                        SPEC_BINS, 0, 4096);
+            spec_hist_[i][j]->SetDirectory(NULL);
+        }
+    }
+    is_all_created_ = true;
+    is_all_filled_  = false;
+    is_all_fitted_  = false;
+}
+
+void ComptonEdgeCalc::delete_spec_hist() {
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            if (spec_hist_[i][j] != NULL) {
+                delete spec_hist_[i][j];
+                spec_hist_[i][j] = NULL;
+            }
+            if (spec_func_[i][j] != NULL) {
+                delete spec_func_[i][j];
+                spec_func_[i][j] = NULL;
+            }
+        }
+    }
+    is_all_created_ = false;
+    is_all_filled_  = false;
+    is_all_fitted_  = false;
+}
+
+void ComptonEdgeCalc::fill_spec_hist(SpecDataFile& spec_data_file) {
+    if (spec_data_file.get_mode() != 'r')
+        return;
+    if (!is_all_created_)
+        return;
+    if (is_all_filled_)
+        return;
+    Bar first_bar;
+    Bar second_bar;
+    priority_queue<Bar> bar_queue;
+    spec_data_file.event_set_start();
+    while (spec_data_file.event_next()) {
+        while (!bar_queue.empty()) {
+            bar_queue.pop();
+        }
+        for (int i = 0; i < 25; i++) {
+            if (!spec_data_file.t_source_event.trig_accepted[i])
+                continue;
+            for (int j = 0; j < 64; j++) {
+                if (!spec_data_file.t_source_event.trigger_bit[i * 64 + j])
+                    continue;
+                bar_queue.push(Bar(spec_data_file.t_source_event.energy_adc[i * 64 + j], i, j));
+            }
+        }
+        if (bar_queue.empty())
+            continue;
+        first_bar = bar_queue.top();
+        bar_queue.pop();
+        if (bar_queue.empty())
+            continue;
+        second_bar = bar_queue.top();
+        spec_hist_[first_bar.i][first_bar.j]->Fill(first_bar.adc);
+        spec_hist_[second_bar.i][second_bar.j]->Fill(second_bar.adc);
+    }
+    is_all_filled_ = true;
+}
+
+void ComptonEdgeCalc::fit_spec_hist() {
+    if (!is_all_filled_)
+        return;
+    if (is_all_fitted_)
+        return;
+    // do fitting here
+    
+    is_all_fitted_ = true;
+    
+}
+
+void ComptonEdgeCalc::draw_spec_count_map() {
+    if (!is_all_fitted_)
+        return;
+    spec_count_map_ = static_cast<TH2F*>(gROOT->FindObject("spec_count_map"));
+    if (spec_count_map_ == NULL) {
+        spec_count_map_ = new TH2F("spec_count_map", "Source Event Count Map", 40, 0, 40, 40, 0, 40);
+        spec_count_map_->SetDirectory(NULL);
+        spec_count_map_->GetXaxis()->SetNdivisions(40);
+        spec_count_map_->GetYaxis()->SetNdivisions(40);
+        for (int i = 0; i < 40; i++) {
+            if (i % 8 == 0) {
+                spec_count_map_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                spec_count_map_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            spec_count_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, spec_hist_[i][j]->GetEntries());
+        }
+    }
+    cout << "drawing ... " << endl; // debug
+    spec_count_map_->Draw("COLZ");
+}
+
+void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
+    if (!is_all_fitted_)
+        return;
+    if (ct_i < 0 || ct_i > 24)
+        return;
+    if (ch_j < 0 || ch_j > 63)
+        return;
+    spec_hist_[ct_i][ch_j]->Draw();
 }

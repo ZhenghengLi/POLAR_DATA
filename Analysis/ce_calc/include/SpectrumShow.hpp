@@ -18,10 +18,16 @@ class SpectrumShow {
 
 public: // slots
     virtual void CloseWindow();
+    virtual void ProcessAction(Int_t event,
+                               Int_t px,
+                               Int_t py,
+                               TObject* selected);
 
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-
+    TCanvas* canvas_map_;
+    TCanvas* canvas_mod_;
+    ComptonEdgeCalc* cur_compton_edge_calc_;
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
@@ -29,7 +35,8 @@ public:
     virtual ~SpectrumShow();
 
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-
+    void show_map(ComptonEdgeCalc& compton_edge_calc);
+    void show_mod(Int_t ct_idx);
 #endif /* __ROOTCLING__ || __CINT __ */
     
 };
