@@ -104,9 +104,14 @@ public:
     ~ComptonEdgeCalc();
 
     void set_source_type(string type_str);
+    
     // write
     void fill_spec_data(EventIterator& eventIter,
                         SpecDataFile& spec_data_file);
+
+    // read
+    bool read_ped_mean_vector(const char* filename);
+    bool read_xtalk_matrix_inv(const char* filename);
 };
 
 #endif
