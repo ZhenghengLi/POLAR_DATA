@@ -43,7 +43,7 @@ public:
     TMatrixF xtalk_matrix_inv[25];
 
 private:
-    void gen_energy_adc_vector_(SciIterator& sciIter);
+    bool gen_energy_adc_vector_(SciIterator& sciIter);
 
 public:
     XtalkMatrixCalc();

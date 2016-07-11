@@ -57,7 +57,12 @@ void ComptonEdgeCalc::set_source_type(string type_str) {
     }
 }
 
-void ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
+bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
+    for (int j = 0; j < 64; j++) {
+        if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] == 4095) {
+            return false;
+        }
+    }
     copy(eventIter.t_modules.energy_adc, eventIter.t_modules.energy_adc + 64,
          energy_adc_vector_.GetMatrixArray());
     // subtract pedestal and common noise
@@ -92,6 +97,7 @@ void ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
     }
     // crosstalk correction
     energy_adc_vector_ = xtalk_matrix_inv_[idx] * energy_adc_vector_;
+    return true;
 }
 
 void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
@@ -104,6 +110,7 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
     if (!is_xtalk_matrix_read_) {
         cerr << "WARNING: crosstalk matrixes are not read yet. " << endl;
     }
+    bool overflow_flag;
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "Selecting and Filling Source Events Data ... " << endl;
@@ -118,6 +125,7 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
         if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
             continue;
         }
+        overflow_flag = false;
         spec_data_file.clear_cur_entry();
         spec_data_file.t_source_event.type = eventIter.t_trigger.type;
         spec_data_file.t_source_event.trigger_n = eventIter.t_trigger.trigger_n;
@@ -125,12 +133,18 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
              spec_data_file.t_source_event.trig_accepted);
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
-            gen_energy_adc_vector_(eventIter);
+            if (!gen_energy_adc_vector_(eventIter)) {
+                overflow_flag = true;
+                break;
+            }
             copy(energy_adc_vector_.GetMatrixArray(), energy_adc_vector_.GetMatrixArray() + 64,
                  &spec_data_file.t_source_event.energy_adc[idx * 64]);
             copy(eventIter.t_modules.trigger_bit, eventIter.t_modules.trigger_bit + 64,
                  &spec_data_file.t_source_event.trigger_bit[idx * 64]);
             spec_data_file.t_source_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
+        }
+        if (overflow_flag) {
+            continue;
         }
         if (source_type_ == "Na22" && check_na22_event_(spec_data_file.t_source_event)) {
             spec_data_file.event_fill();

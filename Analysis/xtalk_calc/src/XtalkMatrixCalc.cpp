@@ -39,7 +39,12 @@ XtalkMatrixCalc::~XtalkMatrixCalc() {
     delete_xtalk_hist();
 }
 
-void XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
+bool XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
+    for (int j = 0; j < 64; j++) {
+        if (sciIter.t_modules.trigger_bit[j] && sciIter.t_modules.energy_adc[j] == 4095) {
+            return false;
+        }
+    }
     copy(sciIter.t_modules.energy_adc, sciIter.t_modules.energy_adc + 64,
          energy_adc_vector_.GetMatrixArray());
     // subtract pedestal and common noise
@@ -70,6 +75,7 @@ void XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
             energy_adc_vector_(j) -= cur_common_noise;
         }
     }
+    return true;
 }
 
 void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk_data_file) {
@@ -91,7 +97,8 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
         }
         if (sciIter.t_modules.compress == 1)
             continue;
-        gen_energy_adc_vector_(sciIter);        
+        if (!gen_energy_adc_vector_(sciIter))
+            continue;
         int idx = sciIter.t_modules.ct_num - 1;
         // select crosstalk data
         for (int jx = 0; jx < 64; jx++) {
@@ -228,7 +235,7 @@ void XtalkMatrixCalc::fit_xtalk_hist() {
                 continue;
             }
             if (xtalk_hist_[jx][jy]->GetEntries() < 5) {
-                cerr << "CT_" << current_ct_idx_ << " : " << jx + 1 << " => " << jy + 1
+                cerr << "CT_" << current_ct_idx_ + 1 << " : " << jx + 1 << " => " << jy + 1
                      << "    " << "number of entries is too small" << endl;
                 xtalk_matrix[current_ct_idx_](jy, jx) = 0.0001 * gRandom->Rndm();
             } else {
