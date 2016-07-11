@@ -22,6 +22,7 @@ public:
     TString spec_data_filename;
     TString adc_per_kev_filename;
     bool    adc_per_kev_read_flag;
+    bool    fit_flag;
     bool    show_flag;
     char    rw_mode;
     int     action;

@@ -102,6 +102,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 's':
+                fit_flag = true;
+                break;
             case 'm':
                 show_flag = true;
                 break;
@@ -154,7 +157,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     } else if (rw_mode == 'r' && show_flag) {
         action = 2;
         return true;
-    } else if (rw_mode == 'r' && !adc_per_kev_filename.IsNull() && !adc_per_kev_read_flag) {
+    } else if (rw_mode == 'r' && fit_flag && !adc_per_kev_filename.IsNull() && !adc_per_kev_read_flag) {
         action = 3;
         return true;
     } else if (adc_per_kev_read_flag && !adc_per_kev_filename.IsNull()) {
@@ -172,8 +175,8 @@ void OptionsManager::print_help() {
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
     cout << " [-t <Na22|Cs137>] -F <spec_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
-    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -m" << endl;
-    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -o <adc_per_kev_file.root>" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> [-s] -m" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -s -o <adc_per_kev_file.root>" << endl;
     cout << "  " << SW_NAME << " -c <adc_per_kev_file.root>" << endl;
     cout << endl;
     cout << "Options:" << endl;
@@ -184,6 +187,7 @@ void OptionsManager::print_help() {
     cout << "  -t <source_type>                 only two source types are supported: Na22 and Cs137" << endl;
     cout << "  -F <spec_data.root>              root file to write that stores source event data" << endl;
     cout << "  -f <spec_data.root>              root file to read that stores source event data" << endl;
+    cout << "  -s                               flag to fit or not fit the spectrum" << endl;
     cout << "  -m                               show count rate and compton edge of 1600 channels" << endl;
     cout << "  -o <adc_per_kev.root>            root file to write that stores ADC/KeV vector of all modules" << endl;
     cout << "  -x <adc_per_kev.root>            show the ADC/KeV vector of all modules" << endl;
@@ -213,6 +217,7 @@ void OptionsManager::init() {
     spec_data_filename.Clear();
     adc_per_kev_filename.Clear();
     adc_per_kev_read_flag = false;
+    fit_flag  = false;
     show_flag = false;
     rw_mode = '0';
     action = 0;

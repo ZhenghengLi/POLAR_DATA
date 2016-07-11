@@ -362,7 +362,7 @@ void ComptonEdgeCalc::fit_spec_hist() {
 }
 
 void ComptonEdgeCalc::draw_spec_count_map() {
-    if (!is_all_fitted_)
+    if (!is_all_filled_)
         return;
     spec_count_map_ = static_cast<TH2F*>(gROOT->FindObject("spec_count_map"));
     if (spec_count_map_ == NULL) {
@@ -399,11 +399,16 @@ void ComptonEdgeCalc::draw_spec_count_map() {
 }
 
 void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
-    if (!is_all_fitted_)
+    if (!is_all_filled_)
         return;
     if (ct_i < 0 || ct_i > 24)
         return;
     if (ch_j < 0 || ch_j > 63)
         return;
-    spec_hist_[ct_i][ch_j]->Draw();
+    if (is_all_fitted_) {
+        // do fitting plot here
+        spec_hist_[ct_i][ch_j]->Draw();
+    } else {
+        spec_hist_[ct_i][ch_j]->Draw();
+    }
 }

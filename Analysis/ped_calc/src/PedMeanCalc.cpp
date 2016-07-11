@@ -157,12 +157,11 @@ void PedMeanCalc::draw_ped_map() {
                 ped_map_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
-        for (int i = 0; i < 25; i++) {
-            for (int j = 0; j < 64; j++) {
-                ped_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
-            }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ped_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
         }
-        
     }
     ped_map_->Draw("COLZ");
 }
@@ -182,12 +181,11 @@ void PedMeanCalc::draw_ped_mean() {
                 ped_mean_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
-        for (int i = 0; i < 25; i++) {
-            for (int j = 0; j < 64; j++) {
-                ped_mean_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
-            }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ped_mean_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, mean[i][j]);
         }
-        
     }
     ped_mean_->Draw("COLZ");
 }
@@ -207,12 +205,11 @@ void PedMeanCalc::draw_ped_sigma() {
                 ped_sigma_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
             }
         }
-        for (int i = 0; i < 25; i++) {
-            for (int j = 0; j < 64; j++) {
-                ped_sigma_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, sigma[i][j]);
-            }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ped_sigma_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, sigma[i][j]);
         }
-        
     }
     ped_sigma_->Draw("COLZ");
 }

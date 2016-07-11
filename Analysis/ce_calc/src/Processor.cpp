@@ -68,8 +68,10 @@ int Processor::do_action_2_() {
     compton_edge_calc_.create_spec_hist();
     cout << "Filling spectrum histogram ..." << endl;
     compton_edge_calc_.fill_spec_hist(spec_data_file_);
-    cout << "Fitting spectrum histogram ..." << endl;
-    compton_edge_calc_.fit_spec_hist();
+    if (cur_options_mgr_->fit_flag) {
+        cout << "Fitting spectrum histogram ..." << endl;
+        compton_edge_calc_.fit_spec_hist();
+    }
     cout << "Showing source event count map .." << endl;
     spectrum_show_.show_map(compton_edge_calc_);
     cur_rootapp_->Run();
@@ -78,6 +80,7 @@ int Processor::do_action_2_() {
 
 int Processor::do_action_3_() {
     cout << "action 3: " << endl;
+    cout << "fit_flag => " << cur_options_mgr_->fit_flag << endl;
     cout << "spec_data_filename => " << cur_options_mgr_->spec_data_filename.Data() << endl;
     cout << "rw_mode => " <<  cur_options_mgr_->rw_mode << endl;
     cout << "adc_per_kev_filename => " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
