@@ -190,7 +190,7 @@ void OptionsManager::print_help() {
     cout << "  -s                               flag to fit or not fit the spectrum" << endl;
     cout << "  -m                               show count rate and compton edge of 1600 channels" << endl;
     cout << "  -o <adc_per_kev.root>            root file to write that stores ADC/KeV vector of all modules" << endl;
-    cout << "  -x <adc_per_kev.root>            show the ADC/KeV vector of all modules" << endl;
+    cout << "  -c <adc_per_kev.root>            show the ADC/KeV vector of all modules" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;

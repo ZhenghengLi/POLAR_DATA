@@ -72,25 +72,38 @@ int Processor::do_action_2_() {
         cout << "Fitting spectrum histogram ..." << endl;
         compton_edge_calc_.fit_spec_hist();
     }
-    cout << "Showing source event count map .." << endl;
+    cout << "Showing source event count map ..." << endl;
     spectrum_show_.show_map(compton_edge_calc_);
     cur_rootapp_->Run();
     return 0;
 }
 
 int Processor::do_action_3_() {
-    cout << "action 3: " << endl;
-    cout << "fit_flag => " << cur_options_mgr_->fit_flag << endl;
-    cout << "spec_data_filename => " << cur_options_mgr_->spec_data_filename.Data() << endl;
-    cout << "rw_mode => " <<  cur_options_mgr_->rw_mode << endl;
-    cout << "adc_per_kev_filename => " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
-    cout << "adc_per_kev_read_flag => " << cur_options_mgr_->adc_per_kev_read_flag << endl;
+    if (!spec_data_file_.open(cur_options_mgr_->spec_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->spec_data_filename.Data() << endl;
+        return 1;
+    }
+    compton_edge_calc_.create_spec_hist();
+    cout << "Filling spectrum histogram ..." << endl;
+    compton_edge_calc_.fill_spec_hist(spec_data_file_);
+    cout << "Fitting spectrum histogram ..." << endl;
+    compton_edge_calc_.fit_spec_hist();
+    cout << "Writting ADC/Kev vector ..." << endl;
+    if (compton_edge_calc_.write_adc_per_kev_vector(cur_options_mgr_->adc_per_kev_filename.Data(), spec_data_file_)) {
+        cout << "Successfully writted ADC/KeV vector." << endl;
+    } else {
+        cout << "ERROR: failed to write ADC/KeV vector." << endl;
+    }
     return 0;
 }
 
 int Processor::do_action_4_() {
-    cout << "action 4: " << endl;
-    cout << "adc_per_kev_filename => " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
-    cout << "adc_per_kev_read_flag => " << cur_options_mgr_->adc_per_kev_read_flag << endl;
+    if (!compton_edge_calc_.read_adc_per_kev_vector(cur_options_mgr_->adc_per_kev_filename.Data())) {
+        cerr << "read ADC/KeV vector file failed: " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
+        return 1;
+    }
+    cout << "Showing ADC/KeV and Sigma of CE ADC ... " << endl;
+    spectrum_show_.show_adc_per_kev(compton_edge_calc_);
+    cur_rootapp_->Run();
     return 0;
 }

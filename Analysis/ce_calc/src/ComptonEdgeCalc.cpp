@@ -10,7 +10,7 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
         }
     }
     spec_count_map_ = NULL;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
         line_h_[i] = NULL;
         line_v_[i] = NULL;
     }
@@ -54,6 +54,7 @@ void ComptonEdgeCalc::set_source_type(string type_str) {
     } else {
         cerr << "WARNING: only two source types are supported, they are Na22 and Cs137." << endl;
         cerr << "WARNING: the source type is set to the default one, Na22." << endl;
+        source_type_ = "Na22";
     }
 }
 
@@ -378,75 +379,90 @@ void ComptonEdgeCalc::fit_spec_hist() {
             // fit 1 => 1700 500
             spec_func_[i][j]->SetParameters(5, 50, 1700, 500);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 2 => 1900 500
             spec_func_[i][j]->SetParameters(5, 50, 1900, 500);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 3 => 2100 500
             spec_func_[i][j]->SetParameters(5, 50, 2100, 500);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 4 => 2300 500
             spec_func_[i][j]->SetParameters(5, 50, 2300, 500);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 5 => 1700 600
             spec_func_[i][j]->SetParameters(5, 50, 1700, 600);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 6 => 1900 600
             spec_func_[i][j]->SetParameters(5, 50, 1900, 600);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 7 => 2100 600
             spec_func_[i][j]->SetParameters(5, 50, 2100, 600);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 8 => 2300 600
             spec_func_[i][j]->SetParameters(5, 50, 2300, 600);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 9 => 1700 700
             spec_func_[i][j]->SetParameters(5, 50, 1700, 700);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 10 => 1900 700
             spec_func_[i][j]->SetParameters(5, 50, 1900, 700);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 11 => 2100 700
             spec_func_[i][j]->SetParameters(5, 50, 2100, 700);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
             // fit 12 => 2300 700
             spec_func_[i][j]->SetParameters(5, 50, 2300, 700);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
-            spec_func_[i][j]->GetParameters(erfc_p);
-            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+            spec_func_[i][j]->GetParameters(erfc_p[i][j]);
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000)
                 continue;
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000) {
+                if (source_type_ == "Na22") {
+                    adc_per_kev[i][j] = erfc_p[i][j][2] / CE_Na22;
+                } else if (source_type_ == "Cs137") {
+                    adc_per_kev[i][j] = erfc_p[i][j][2] / CE_Cs137;
+                }
+                ce_adc_sigma[i][j] = erfc_p[i][j][3];
+            } else {
+                adc_per_kev[i][j] = 0;
+                ce_adc_sigma[i][j] = 0;
+            }
         }
     }
     is_all_fitted_ = true;
@@ -490,6 +506,78 @@ void ComptonEdgeCalc::draw_spec_count_map() {
 
 }
 
+void ComptonEdgeCalc::draw_adc_per_kev() {
+    if (!is_all_read_)
+        return;
+    adc_per_kev_map_ = static_cast<TH2F*>(gROOT->FindObject("adc_per_kev_map"));
+    if (adc_per_kev_map_ == NULL) {
+        adc_per_kev_map_ = new TH2F("adc_per_kev_map", "ADC/KeV of 1600 Channels", 40, 0, 40, 40, 0, 40);
+        adc_per_kev_map_->SetDirectory(NULL);
+        adc_per_kev_map_->GetXaxis()->SetNdivisions(40);
+        adc_per_kev_map_->GetYaxis()->SetNdivisions(40);
+        for (int i = 0; i < 40; i++) {
+            if (i % 8 == 0) {
+                adc_per_kev_map_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                adc_per_kev_map_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            adc_per_kev_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, adc_per_kev[i][j]);
+        }
+    }
+    adc_per_kev_map_->Draw("COLZ");
+    for (int i = 0; i < 4; i++) {
+        if (line_h_[i] != NULL)
+            delete line_h_[i];
+        line_h_[i] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
+        line_h_[i]->SetLineColor(kWhite);
+        line_h_[i]->Draw("SAME");
+        if (line_v_[i] != NULL)
+            delete line_v_[i];
+        line_v_[i] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
+        line_v_[i]->SetLineColor(kWhite);
+        line_v_[i]->Draw("SAME");
+    }
+}
+
+void ComptonEdgeCalc::draw_ce_adc_sigma() {
+    if (!is_all_read_)
+        return;
+    ce_adc_sigma_map_ = static_cast<TH2F*>(gROOT->FindObject("ce_adc_sigma_map"));
+    if (ce_adc_sigma_map_ == NULL) {
+        ce_adc_sigma_map_ = new TH2F("ce_adc_sigma_map", "Sigma of CE ADC of 1600 Channels", 40, 0, 40, 40, 0, 40);
+        ce_adc_sigma_map_->SetDirectory(NULL);
+        ce_adc_sigma_map_->GetXaxis()->SetNdivisions(40);
+        ce_adc_sigma_map_->GetYaxis()->SetNdivisions(40);
+        for (int i = 0; i < 40; i++) {
+            if (i % 8 == 0) {
+                ce_adc_sigma_map_->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+                ce_adc_sigma_map_->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            }
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ce_adc_sigma_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, ce_adc_sigma[i][j]);
+        }
+    }
+    ce_adc_sigma_map_->Draw("COLZ");
+    for (int i = 0; i < 4; i++) {
+        if (line_h_[i + 4] != NULL)
+            delete line_h_[i + 4];
+        line_h_[i + 4] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
+        line_h_[i + 4]->SetLineColor(kWhite);
+        line_h_[i + 4]->Draw("SAME");
+        if (line_v_[i + 4] != NULL)
+            delete line_v_[i + 4];
+        line_v_[i + 4] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
+        line_v_[i + 4]->SetLineColor(kWhite);
+        line_v_[i + 4]->Draw("SAME");
+    }
+}
+
 void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
     if (!is_all_filled_)
         return;
@@ -502,4 +590,78 @@ void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
     } else {
         spec_hist_[ct_i][ch_j]->Draw();
     }
+}
+
+bool ComptonEdgeCalc::write_adc_per_kev_vector(const char* filename, SpecDataFile& spec_data_file) {
+    if (!is_all_fitted_)
+        return false;
+    TFile* adc_per_kev_file = new TFile(filename, "RECREATE");
+    if (adc_per_kev_file->IsZombie())
+        return false;
+    TVectorF* tmp_vec;
+    for (int i = 0; i < 25; i++) {
+        tmp_vec = new TVectorF(64, adc_per_kev[i]);
+        tmp_vec->Write(Form("adc_per_kev_vec_ct_%02d", i + 1));
+        delete tmp_vec;
+        tmp_vec = new TVectorF(64, ce_adc_sigma[i]);
+        tmp_vec->Write(Form("ce_adc_sgm_vec_ct_%02d", i + 1));
+        delete tmp_vec;
+        tmp_vec = NULL;
+    }
+    TNamed* tmp_meta;
+    // m_dattype
+    tmp_meta = new TNamed("m_dattype", "POLAR ADC/KeV VECTOR");
+    tmp_meta->Write();
+    delete tmp_meta;
+    // m_version
+    tmp_meta = new TNamed("m_version",  (SW_NAME + " " + SW_VERSION).c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
+    // m_gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    tmp_meta = new TNamed("m_gentime", cur_time->AsString("lc"));
+    tmp_meta->Write();
+    delete cur_time;
+    cur_time = NULL;
+    delete tmp_meta;
+    // m_fromfile
+    tmp_meta = new TNamed("m_fromfile", spec_data_file.get_fromfile_str().c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
+    // m_gps_span
+    tmp_meta = new TNamed("m_gps_span", spec_data_file.get_gps_span_str().c_str());
+    tmp_meta->Write();
+    delete tmp_meta;
+    tmp_meta = NULL;
+    adc_per_kev_file->Close();
+    delete adc_per_kev_file;
+    adc_per_kev_file = NULL;
+    return true;
+}
+
+bool ComptonEdgeCalc::read_adc_per_kev_vector(const char* filename) {
+    TFile* adc_per_kev_file = new TFile(filename, "READ");
+    if (adc_per_kev_file->IsZombie())
+        return false;
+    TVectorF* adc_per_kev_vec;
+    TVectorF* ce_adc_sigma_vec;
+    for (int i = 0; i < 25; i++) {
+        adc_per_kev_vec  = static_cast<TVectorF*>(adc_per_kev_file->Get(Form("adc_per_kev_vec_ct_%02d", i + 1)));
+        ce_adc_sigma_vec = static_cast<TVectorF*>(adc_per_kev_file->Get(Form("ce_adc_sgm_vec_ct_%02d", i + 1)));
+        if (adc_per_kev_vec == NULL || ce_adc_sigma_vec == NULL)
+            return false;
+        for (int j = 0; j < 64; j++) {
+            adc_per_kev[i][j]  = (*adc_per_kev_vec)(j);
+            ce_adc_sigma[i][j] = (*ce_adc_sigma_vec)(j);
+        }
+        delete adc_per_kev_vec;
+        adc_per_kev_vec = NULL;
+        delete ce_adc_sigma_vec;
+        ce_adc_sigma_vec = NULL;
+    }
+    adc_per_kev_file->Close();
+    delete adc_per_kev_file;
+    adc_per_kev_file = NULL;
+    is_all_read_ = true;
+    return true;
 }

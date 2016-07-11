@@ -63,3 +63,20 @@ void SpectrumShow::show_mod(Int_t ct_idx) {
     }
     canvas_mod_->Update();
 }
+
+void SpectrumShow::show_adc_per_kev(ComptonEdgeCalc& compton_edge_calc) {
+    gStyle->SetOptStat(0);
+    canvas_adc_per_kev_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_adc_per_kev"));
+    if (canvas_adc_per_kev_ == NULL) {
+        canvas_adc_per_kev_ = new TCanvas("canvas_adc_per_kev", "ADC/KeV and Sigma of CE ADC of 1600 Channels", 1200, 600);
+        canvas_adc_per_kev_->Connect("Closed()", "SpectrumShow", this, "CloseWindow()");
+        canvas_adc_per_kev_->ToggleEventStatus();
+        canvas_adc_per_kev_->Divide(2, 1);
+        canvas_adc_per_kev_->GetPad(1)->SetGrid();
+        canvas_adc_per_kev_->GetPad(2)->SetGrid();
+    }
+    canvas_adc_per_kev_->cd(1);
+    compton_edge_calc.draw_adc_per_kev();
+    canvas_adc_per_kev_->cd(2);
+    compton_edge_calc.draw_ce_adc_sigma();
+}

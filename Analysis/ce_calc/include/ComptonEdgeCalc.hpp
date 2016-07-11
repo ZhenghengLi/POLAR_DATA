@@ -83,8 +83,10 @@ private:
     TF1*  spec_func_[25][64];
     TH1F* spec_hist_[25][64];
     TH2F* spec_count_map_;
-    TLine* line_h_[4];
-    TLine* line_v_[4];
+    TH2F* adc_per_kev_map_;
+    TH2F* ce_adc_sigma_map_;
+    TLine* line_h_[8];
+    TLine* line_v_[8];
 
     bool is_all_created_;
     bool is_all_filled_;
@@ -97,8 +99,9 @@ private:
     string source_type_; // "Na22" | "Cs137"
 
 public:
-    // fitting parameters here
-    Double_t erfc_p[4];
+    Double_t erfc_p[25][64][4];
+    Float_t  adc_per_kev[25][64];
+    Float_t  ce_adc_sigma[25][64];
 
 private:
     bool gen_energy_adc_vector_(EventIterator& eventIter);
@@ -116,6 +119,8 @@ public:
     // write
     void fill_spec_data(EventIterator& eventIter,
                         SpecDataFile& spec_data_file);
+    bool write_adc_per_kev_vector(const char* filename,
+                                  SpecDataFile& spec_data_file);
 
     // read
     bool read_ped_mean_vector(const char* filename);
@@ -126,7 +131,10 @@ public:
     void fill_spec_hist(SpecDataFile& spec_data_file);
     void fit_spec_hist();
     void draw_spec_count_map();
+    void draw_adc_per_kev();
+    void draw_ce_adc_sigma();
     void draw_spec_hist(int ct_i, int ch_j);
+    bool read_adc_per_kev_vector(const char* filename);
 };
 
 #endif

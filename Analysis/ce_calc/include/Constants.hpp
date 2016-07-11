@@ -30,4 +30,7 @@ const double AngleMin = (150.0 / 180.0 * 3.1415926);
 
 const double DistanceMax = (2.0 * BarD);
 
+const float CE_Na22  = 340.667;
+const float CE_Cs137 = 477.650;
+
 #endif
