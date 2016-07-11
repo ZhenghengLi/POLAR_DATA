@@ -298,6 +298,10 @@ void ComptonEdgeCalc::create_spec_hist() {
                                         Form("Spectrum of CH %02d_%02d", i + 1, j + 1),
                                         SPEC_BINS, 0, 4096);
             spec_hist_[i][j]->SetDirectory(NULL);
+            spec_func_[i][j] = new TF1(Form("spec_func_%02d_%02d", i + 1, j + 1),
+                                       "[0]+[1]*TMath::Erfc((x-[2])/[3])", FUNC_MIN, FUNC_MAX);
+            spec_func_[i][j]->SetParName(2, "CE");
+            spec_func_[i][j]->SetParName(3, "Sigma");
         }
     }
     is_all_created_ = true;
@@ -369,8 +373,82 @@ void ComptonEdgeCalc::fit_spec_hist() {
         return;
     if (is_all_fitted_)
         return;
-    // do fitting here
-    
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            // fit 1 => 1700 500
+            spec_func_[i][j]->SetParameters(5, 50, 1700, 500);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 2 => 1900 500
+            spec_func_[i][j]->SetParameters(5, 50, 1900, 500);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 3 => 2100 500
+            spec_func_[i][j]->SetParameters(5, 50, 2100, 500);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 4 => 2300 500
+            spec_func_[i][j]->SetParameters(5, 50, 2300, 500);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 5 => 1700 600
+            spec_func_[i][j]->SetParameters(5, 50, 1700, 600);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 6 => 1900 600
+            spec_func_[i][j]->SetParameters(5, 50, 1900, 600);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 7 => 2100 600
+            spec_func_[i][j]->SetParameters(5, 50, 2100, 600);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 8 => 2300 600
+            spec_func_[i][j]->SetParameters(5, 50, 2300, 600);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 9 => 1700 700
+            spec_func_[i][j]->SetParameters(5, 50, 1700, 700);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 10 => 1900 700
+            spec_func_[i][j]->SetParameters(5, 50, 1900, 700);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 11 => 2100 700
+            spec_func_[i][j]->SetParameters(5, 50, 2100, 700);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+            // fit 12 => 2300 700
+            spec_func_[i][j]->SetParameters(5, 50, 2300, 700);
+            spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
+            spec_func_[i][j]->GetParameters(erfc_p);
+            if (erfc_p[2] > 200 && erfc_p[2] < 4095 && erfc_p[3] > 100 && erfc_p[3] < 2000)
+                continue;
+        }
+    }
     is_all_fitted_ = true;
     
 }
@@ -420,8 +498,7 @@ void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
     if (ch_j < 0 || ch_j > 63)
         return;
     if (is_all_fitted_) {
-        // do fitting plot here
-        spec_hist_[ct_i][ch_j]->Draw();
+        spec_hist_[ct_i][ch_j]->Fit(spec_func_[ct_i][ch_j], "RQ");
     } else {
         spec_hist_[ct_i][ch_j]->Draw();
     }

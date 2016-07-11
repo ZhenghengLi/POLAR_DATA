@@ -13,6 +13,8 @@
 #include "Constants.hpp"
 
 #define SPEC_BINS 64
+#define FUNC_MIN  512
+#define FUNC_MAX  (4096 - 256)
 
 using namespace std;
 
@@ -96,6 +98,7 @@ private:
 
 public:
     // fitting parameters here
+    Double_t erfc_p[4];
 
 private:
     bool gen_energy_adc_vector_(EventIterator& eventIter);
