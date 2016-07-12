@@ -102,7 +102,7 @@ bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
 }
 
 void ComptonEdgeCalc::fill_source_data(EventIterator& eventIter,
-                                     SourceDataFile& source_data_file) {
+                                       SourceDataFile& source_data_file) {
     if (source_data_file.get_mode() != 'w')
         return;
     if (!is_ped_mean_read_) {
