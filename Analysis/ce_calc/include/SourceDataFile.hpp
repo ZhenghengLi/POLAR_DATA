@@ -1,5 +1,5 @@
-#ifndef SourceDataFile_H
-#define SourceDataFile_H
+#ifndef SOURCEDATAFILE_H
+#define SOURCEDATAFILE_H
 
 #include <iostream>
 #include <cstdlib>
