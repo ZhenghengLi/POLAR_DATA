@@ -114,7 +114,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " <decoded_data_file.root> [-B week1:second1] [-E week2:second2]" << endl;
+    cout << " <decoded_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
@@ -134,7 +134,7 @@ void OptionsManager::print_help() {
 
 void OptionsManager::print_version() {
     cout << endl;
-    cout << "    " << SW_NAME << " - POLAR Data Analysis Tools - xtalk_calc" << endl;
+    cout << "    " << SW_NAME << " - POLAR Data Analysis Tools" << endl;
     cout << "    " << SW_VERSION << " (" << RELEASE_DATE << ", compiled " << __DATE__ << " " << __TIME__ << ")" << endl;
     cout << endl;
     cout << " Copyright (C) 2015-2016 Zhengheng Li <lizhengheng@ihep.ac.cn>" << endl;
