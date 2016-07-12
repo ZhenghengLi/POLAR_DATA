@@ -102,8 +102,8 @@ bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
 }
 
 void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
-                                     SpecDataFile& spec_data_file) {
-    if (spec_data_file.get_mode() != 'w')
+                                     SourceDataFile& source_data_file) {
+    if (source_data_file.get_mode() != 'w')
         return;
     if (!is_ped_mean_read_) {
         cerr << "WARNING: pedestal mean vectors are not read yet. " << endl;
@@ -127,11 +127,11 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
             continue;
         }
         overflow_flag = false;
-        spec_data_file.clear_cur_entry();
-        spec_data_file.t_source_event.type = eventIter.t_trigger.type;
-        spec_data_file.t_source_event.trigger_n = eventIter.t_trigger.trigger_n;
+        source_data_file.clear_cur_entry();
+        source_data_file.t_source_event.type = eventIter.t_trigger.type;
+        source_data_file.t_source_event.trigger_n = eventIter.t_trigger.trigger_n;
         copy(eventIter.t_trigger.trig_accepted, eventIter.t_trigger.trig_accepted + 25,
-             spec_data_file.t_source_event.trig_accepted);
+             source_data_file.t_source_event.trig_accepted);
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
             if (!gen_energy_adc_vector_(eventIter)) {
@@ -139,24 +139,24 @@ void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
                 break;
             }
             copy(energy_adc_vector_.GetMatrixArray(), energy_adc_vector_.GetMatrixArray() + 64,
-                 &spec_data_file.t_source_event.energy_adc[idx * 64]);
+                 &source_data_file.t_source_event.energy_adc[idx * 64]);
             copy(eventIter.t_modules.trigger_bit, eventIter.t_modules.trigger_bit + 64,
-                 &spec_data_file.t_source_event.trigger_bit[idx * 64]);
-            spec_data_file.t_source_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
+                 &source_data_file.t_source_event.trigger_bit[idx * 64]);
+            source_data_file.t_source_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
         }
         if (overflow_flag) {
             continue;
         }
-        if (source_type_ == "Na22" && check_na22_event_(spec_data_file.t_source_event)) {
-            spec_data_file.event_fill();
-        } else if (source_type_ == "Cs137" && check_cs137_event_(spec_data_file.t_source_event)) {
-            spec_data_file.event_fill();
+        if (source_type_ == "Na22" && check_na22_event_(source_data_file.t_source_event)) {
+            source_data_file.event_fill();
+        } else if (source_type_ == "Cs137" && check_cs137_event_(source_data_file.t_source_event)) {
+            source_data_file.event_fill();
         }
     }
     cout << " DONE ]" << endl;
 }
 
-bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source_event) {
+bool ComptonEdgeCalc::check_na22_event_(const SourceDataFile::SourceEvent_T source_event) {
     Bar first_bar;
     Pos first_pos;
     Bar second_bar;
@@ -224,7 +224,7 @@ bool ComptonEdgeCalc::check_na22_event_(const SpecDataFile::SourceEvent_T source
     }
 }
 
-bool ComptonEdgeCalc::check_cs137_event_(const SpecDataFile::SourceEvent_T source_event) {
+bool ComptonEdgeCalc::check_cs137_event_(const SourceDataFile::SourceEvent_T source_event) {
     if (check_na22_event_(source_event))
         return false;
     return true;
@@ -328,8 +328,8 @@ void ComptonEdgeCalc::delete_spec_hist() {
     is_all_fitted_  = false;
 }
 
-void ComptonEdgeCalc::fill_spec_hist(SpecDataFile& spec_data_file) {
-    if (spec_data_file.get_mode() != 'r')
+void ComptonEdgeCalc::fill_spec_hist(SourceDataFile& source_data_file) {
+    if (source_data_file.get_mode() != 'r')
         return;
     if (!is_all_created_)
         return;
@@ -338,18 +338,18 @@ void ComptonEdgeCalc::fill_spec_hist(SpecDataFile& spec_data_file) {
     Bar first_bar;
     Bar second_bar;
     priority_queue<Bar> bar_queue;
-    spec_data_file.event_set_start();
-    while (spec_data_file.event_next()) {
+    source_data_file.event_set_start();
+    while (source_data_file.event_next()) {
         while (!bar_queue.empty()) {
             bar_queue.pop();
         }
         for (int i = 0; i < 25; i++) {
-            if (!spec_data_file.t_source_event.trig_accepted[i])
+            if (!source_data_file.t_source_event.trig_accepted[i])
                 continue;
             for (int j = 0; j < 64; j++) {
-                if (!spec_data_file.t_source_event.trigger_bit[i * 64 + j])
+                if (!source_data_file.t_source_event.trigger_bit[i * 64 + j])
                     continue;
-                bar_queue.push(Bar(spec_data_file.t_source_event.energy_adc[i * 64 + j], i, j));
+                bar_queue.push(Bar(source_data_file.t_source_event.energy_adc[i * 64 + j], i, j));
             }
         }
         if (bar_queue.empty())
@@ -592,7 +592,7 @@ void ComptonEdgeCalc::draw_spec_hist(int ct_i, int ch_j) {
     }
 }
 
-bool ComptonEdgeCalc::write_adc_per_kev_vector(const char* filename, SpecDataFile& spec_data_file) {
+bool ComptonEdgeCalc::write_adc_per_kev_vector(const char* filename, SourceDataFile& source_data_file) {
     if (!is_all_fitted_)
         return false;
     TFile* adc_per_kev_file = new TFile(filename, "RECREATE");
@@ -625,11 +625,11 @@ bool ComptonEdgeCalc::write_adc_per_kev_vector(const char* filename, SpecDataFil
     cur_time = NULL;
     delete tmp_meta;
     // m_fromfile
-    tmp_meta = new TNamed("m_fromfile", spec_data_file.get_fromfile_str().c_str());
+    tmp_meta = new TNamed("m_fromfile", source_data_file.get_fromfile_str().c_str());
     tmp_meta->Write();
     delete tmp_meta;
     // m_gps_span
-    tmp_meta = new TNamed("m_gps_span", spec_data_file.get_gps_span_str().c_str());
+    tmp_meta = new TNamed("m_gps_span", source_data_file.get_gps_span_str().c_str());
     tmp_meta->Write();
     delete tmp_meta;
     tmp_meta = NULL;

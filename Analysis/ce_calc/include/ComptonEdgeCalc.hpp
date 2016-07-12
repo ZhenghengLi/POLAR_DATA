@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
-#include "SpecDataFile.hpp"
+#include "SourceDataFile.hpp"
 #include "CooConv.hpp"
 #include "Constants.hpp"
 
@@ -105,8 +105,8 @@ public:
 
 private:
     bool gen_energy_adc_vector_(EventIterator& eventIter);
-    bool check_na22_event_(const SpecDataFile::SourceEvent_T source_event);
-    bool check_cs137_event_(const SpecDataFile::SourceEvent_T source_event);
+    bool check_na22_event_(const SourceDataFile::SourceEvent_T source_event);
+    bool check_cs137_event_(const SourceDataFile::SourceEvent_T source_event);
     double angle_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2);
     double distance_of_3_points_(double x0, double y0, double x1, double y1, double x2, double y2);
     
@@ -118,9 +118,9 @@ public:
     
     // write
     void fill_spec_data(EventIterator& eventIter,
-                        SpecDataFile& spec_data_file);
+                        SourceDataFile& source_data_file);
     bool write_adc_per_kev_vector(const char* filename,
-                                  SpecDataFile& spec_data_file);
+                                  SourceDataFile& source_data_file);
 
     // read
     bool read_ped_mean_vector(const char* filename);
@@ -128,7 +128,7 @@ public:
 
     void create_spec_hist();
     void delete_spec_hist();
-    void fill_spec_hist(SpecDataFile& spec_data_file);
+    void fill_spec_hist(SourceDataFile& source_data_file);
     void fit_spec_hist();
     void draw_spec_count_map();
     void draw_adc_per_kev();

@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include "OptionsManager.hpp"
 #include "EventIterator.hpp"
-#include "SpecDataFile.hpp"
+#include "SourceDataFile.hpp"
 #include "ComptonEdgeCalc.hpp"
 #include "SpectrumShow.hpp"
 
@@ -17,7 +17,7 @@ private:
     TApplication*   cur_rootapp_;
 
     EventIterator   eventIter_;
-    SpecDataFile    spec_data_file_;
+    SourceDataFile  source_data_file_;
     ComptonEdgeCalc compton_edge_calc_;
     SpectrumShow    spectrum_show_;
 

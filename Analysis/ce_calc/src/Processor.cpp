@@ -43,31 +43,31 @@ int Processor::do_action_1_() {
         cerr << "root file open failed: " << cur_options_mgr_->decoded_data_filename.Data() << endl;
         return 1;
     }
-    if (!spec_data_file_.open(cur_options_mgr_->spec_data_filename.Data(), 'w')) {
-        cerr << "root file open failed: " << cur_options_mgr_->spec_data_filename.Data() << endl;
+    if (!source_data_file_.open(cur_options_mgr_->source_data_filename.Data(), 'w')) {
+        cerr << "root file open failed: " << cur_options_mgr_->source_data_filename.Data() << endl;
     }
     eventIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
-    compton_edge_calc_.fill_spec_data(eventIter_, spec_data_file_);
-    spec_data_file_.write_all_tree();
-    spec_data_file_.write_fromfile(eventIter_.get_filename().c_str());
-    spec_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
+    compton_edge_calc_.fill_spec_data(eventIter_, source_data_file_);
+    source_data_file_.write_all_tree();
+    source_data_file_.write_fromfile(eventIter_.get_filename().c_str());
+    source_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
                                    eventIter_.get_phy_last_gps().c_str());
-    spec_data_file_.write_lasttime();
-    spec_data_file_.close();
+    source_data_file_.write_lasttime();
+    source_data_file_.close();
     eventIter_.close();
     return 0;
 }
 
 int Processor::do_action_2_() {
     compton_edge_calc_.set_source_type(cur_options_mgr_->source_type.Data());
-    if (!spec_data_file_.open(cur_options_mgr_->spec_data_filename.Data(), 'r')) {
-        cerr << "root file open failed: " << cur_options_mgr_->spec_data_filename.Data() << endl;
+    if (!source_data_file_.open(cur_options_mgr_->source_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->source_data_filename.Data() << endl;
         return 1;
     }
     compton_edge_calc_.create_spec_hist();
     cout << "Filling spectrum histogram ..." << endl;
-    compton_edge_calc_.fill_spec_hist(spec_data_file_);
+    compton_edge_calc_.fill_spec_hist(source_data_file_);
     if (cur_options_mgr_->fit_flag) {
         cout << "Fitting spectrum histogram ..." << endl;
         compton_edge_calc_.fit_spec_hist();
@@ -79,17 +79,17 @@ int Processor::do_action_2_() {
 }
 
 int Processor::do_action_3_() {
-    if (!spec_data_file_.open(cur_options_mgr_->spec_data_filename.Data(), 'r')) {
-        cerr << "root file open failed: " << cur_options_mgr_->spec_data_filename.Data() << endl;
+    if (!source_data_file_.open(cur_options_mgr_->source_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->source_data_filename.Data() << endl;
         return 1;
     }
     compton_edge_calc_.create_spec_hist();
     cout << "Filling spectrum histogram ..." << endl;
-    compton_edge_calc_.fill_spec_hist(spec_data_file_);
+    compton_edge_calc_.fill_spec_hist(source_data_file_);
     cout << "Fitting spectrum histogram ..." << endl;
     compton_edge_calc_.fit_spec_hist();
     cout << "Writting ADC/Kev vector ..." << endl;
-    if (compton_edge_calc_.write_adc_per_kev_vector(cur_options_mgr_->adc_per_kev_filename.Data(), spec_data_file_)) {
+    if (compton_edge_calc_.write_adc_per_kev_vector(cur_options_mgr_->adc_per_kev_filename.Data(), source_data_file_)) {
         cout << "Successfully writted ADC/KeV vector." << endl;
     } else {
         cout << "ERROR: failed to write ADC/KeV vector." << endl;

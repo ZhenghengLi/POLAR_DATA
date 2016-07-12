@@ -19,7 +19,7 @@ public:
     TString xtalk_matrix_filename;
     TString source_type;
     TString decoded_data_filename;
-    TString spec_data_filename;
+    TString source_data_filename;
     TString adc_per_kev_filename;
     bool    adc_per_kev_read_flag;
     bool    fit_flag;

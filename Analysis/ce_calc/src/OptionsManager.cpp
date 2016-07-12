@@ -81,8 +81,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 rw_mode = 'w';
                 if (idx < argc_par - 1) {
-                    spec_data_filename = argv_par[++idx];
-                    if (spec_data_filename[0] == '-') {
+                    source_data_filename = argv_par[++idx];
+                    if (source_data_filename[0] == '-') {
                         return false;
                     }
                 } else {
@@ -94,8 +94,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 rw_mode = 'r';
                 if (idx < argc_par - 1) {
-                    spec_data_filename = argv_par[++idx];
-                    if (spec_data_filename[0] == '-') {
+                    source_data_filename = argv_par[++idx];
+                    if (source_data_filename[0] == '-') {
                         return false;
                     }
                 } else {
@@ -214,7 +214,7 @@ void OptionsManager::init() {
     ped_vector_filename.Clear();
     xtalk_matrix_filename.Clear();
     decoded_data_filename.Clear();
-    spec_data_filename.Clear();
+    source_data_filename.Clear();
     adc_per_kev_filename.Clear();
     adc_per_kev_read_flag = false;
     fit_flag  = false;

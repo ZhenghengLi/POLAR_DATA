@@ -1,5 +1,5 @@
-#ifndef SPECDATAFILE_H
-#define SPECDATAFILE_H
+#ifndef SourceDataFile_H
+#define SourceDataFile_H
 
 #include <iostream>
 #include <cstdlib>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class SpecDataFile {
+class SourceDataFile {
 public:
     struct SourceEvent_T {
         Int_t    type;
@@ -39,8 +39,8 @@ private:
     bool     event_reach_end_;
     
 public:
-    SpecDataFile();
-    ~SpecDataFile();
+    SourceDataFile();
+    ~SourceDataFile();
 
     bool open(const char* filename, char m);
     void close();

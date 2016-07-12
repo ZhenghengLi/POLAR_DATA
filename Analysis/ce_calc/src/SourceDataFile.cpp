@@ -1,8 +1,8 @@
-#include "SpecDataFile.hpp"
+#include "SourceDataFile.hpp"
 
 using namespace std;
 
-SpecDataFile::SpecDataFile() {
+SourceDataFile::SourceDataFile() {
     t_spec_file_ = NULL;
     t_source_event_tree_ = NULL;
     m_fromfile_ = NULL;
@@ -11,11 +11,11 @@ SpecDataFile::SpecDataFile() {
     
 }
 
-SpecDataFile::~SpecDataFile() {
+SourceDataFile::~SourceDataFile() {
     close();
 }
 
-bool SpecDataFile::open(const char* filename, char m) {
+bool SourceDataFile::open(const char* filename, char m) {
     if (t_spec_file_ != NULL)
         return false;
 
@@ -70,7 +70,7 @@ bool SpecDataFile::open(const char* filename, char m) {
     return true;
 }
 
-void SpecDataFile::close() {
+void SourceDataFile::close() {
     if (t_spec_file_ == NULL)
         return;
     delete t_source_event_tree_;
@@ -80,7 +80,7 @@ void SpecDataFile::close() {
     t_spec_file_ = NULL;
 }
 
-void SpecDataFile::clear_cur_entry() {
+void SourceDataFile::clear_cur_entry() {
     t_source_event.type = 0;
     for (int i = 0; i < 25; i++) {
         t_source_event.trig_accepted[i] = false;
@@ -93,7 +93,7 @@ void SpecDataFile::clear_cur_entry() {
     }
 }
 
-void SpecDataFile::event_fill() {
+void SourceDataFile::event_fill() {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -101,7 +101,7 @@ void SpecDataFile::event_fill() {
     t_source_event_tree_->Fill();
 }
 
-void SpecDataFile::write_all_tree() {
+void SourceDataFile::write_all_tree() {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -110,7 +110,7 @@ void SpecDataFile::write_all_tree() {
     t_source_event_tree_->Write("", TObject::kOverwrite);
 }
 
-void SpecDataFile::write_meta(const char* key, const char* value, bool append_flag) {
+void SourceDataFile::write_meta(const char* key, const char* value, bool append_flag) {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -134,7 +134,7 @@ void SpecDataFile::write_meta(const char* key, const char* value, bool append_fl
     cur_meta = NULL;
 }
 
-void SpecDataFile::write_fromfile(const char* filename) {
+void SourceDataFile::write_fromfile(const char* filename) {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -142,7 +142,7 @@ void SpecDataFile::write_fromfile(const char* filename) {
     write_meta("m_fromfile", TSystem().BaseName(filename));
 }
 
-void SpecDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
+void SourceDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -150,7 +150,7 @@ void SpecDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
     write_meta("m_gps_span", Form("%s => %s", begin_gps, end_gps));
 }
 
-void SpecDataFile::write_lasttime() {
+void SourceDataFile::write_lasttime() {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'r')
@@ -161,7 +161,7 @@ void SpecDataFile::write_lasttime() {
     cur_time = NULL;
 }
 
-void SpecDataFile::event_set_start() {
+void SourceDataFile::event_set_start() {
     if (t_spec_file_ == NULL)
         return;
     if (mode_ == 'w')
@@ -170,7 +170,7 @@ void SpecDataFile::event_set_start() {
     event_reach_end_ = false;
 }
 
-Long64_t SpecDataFile::event_get_cur_entry() {
+Long64_t SourceDataFile::event_get_cur_entry() {
     if (t_spec_file_ == NULL)
         return -1;
     if (mode_ == 'w')
@@ -178,7 +178,7 @@ Long64_t SpecDataFile::event_get_cur_entry() {
     return event_cur_entry_;
 }
 
-Long64_t SpecDataFile::event_get_tot_entries() {
+Long64_t SourceDataFile::event_get_tot_entries() {
     if (t_spec_file_ == NULL)
         return -1;
     if (mode_ == 'w')
@@ -186,7 +186,7 @@ Long64_t SpecDataFile::event_get_tot_entries() {
     return t_source_event_tree_->GetEntries();
 }
 
-bool SpecDataFile::event_next() {
+bool SourceDataFile::event_next() {
     if (t_spec_file_ == NULL)
         return false;
     if (mode_ == 'w')
@@ -203,7 +203,7 @@ bool SpecDataFile::event_next() {
     }
 }
 
-string SpecDataFile::get_fromfile_str() {
+string SourceDataFile::get_fromfile_str() {
     if (t_spec_file_ == NULL)
         return "";
     if (mode_ == 'w')
@@ -211,7 +211,7 @@ string SpecDataFile::get_fromfile_str() {
     return string(m_fromfile_->GetTitle());
 }
 
-string SpecDataFile::get_gps_span_str() {
+string SourceDataFile::get_gps_span_str() {
     if (t_spec_file_ == NULL)
         return "";
     if (mode_ == 'w')
@@ -219,7 +219,7 @@ string SpecDataFile::get_gps_span_str() {
     return string(m_gps_span_->GetTitle());
 }
 
-char SpecDataFile::get_mode() {
+char SourceDataFile::get_mode() {
     if (t_spec_file_ == NULL)
         return '0';
     else
