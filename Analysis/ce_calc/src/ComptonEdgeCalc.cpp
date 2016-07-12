@@ -101,7 +101,7 @@ bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
     return true;
 }
 
-void ComptonEdgeCalc::fill_spec_data(EventIterator& eventIter,
+void ComptonEdgeCalc::fill_source_data(EventIterator& eventIter,
                                      SourceDataFile& source_data_file) {
     if (source_data_file.get_mode() != 'w')
         return;

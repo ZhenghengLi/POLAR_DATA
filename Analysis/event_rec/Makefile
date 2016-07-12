@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/event_rec
 
-$(DEST_BIN)/event_rec: obj/main.o obj/RecEventDataFile.o
+$(DEST_BIN)/event_rec: obj/main.o obj/RecEventDataFile.o obj/Processor.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp

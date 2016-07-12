@@ -117,8 +117,8 @@ public:
     void set_source_type(string type_str);
     
     // write
-    void fill_spec_data(EventIterator& eventIter,
-                        SourceDataFile& source_data_file);
+    void fill_source_data(EventIterator& eventIter,
+                          SourceDataFile& source_data_file);
     bool write_adc_per_kev_vector(const char* filename,
                                   SourceDataFile& source_data_file);
 

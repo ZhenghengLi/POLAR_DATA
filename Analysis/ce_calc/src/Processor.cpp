@@ -48,7 +48,7 @@ int Processor::do_action_1_() {
     }
     eventIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
-    compton_edge_calc_.fill_spec_data(eventIter_, source_data_file_);
+    compton_edge_calc_.fill_source_data(eventIter_, source_data_file_);
     source_data_file_.write_all_tree();
     source_data_file_.write_fromfile(eventIter_.get_filename().c_str());
     source_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
