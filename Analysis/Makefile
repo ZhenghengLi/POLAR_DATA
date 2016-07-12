@@ -2,14 +2,15 @@
 .PHONY : lib lib_clean \
 	ped_calc ped_calc_clean \
 	xtalk_calc xtalk_calc_clean \
+	ce_calc ce_calc_clean \
 	event_rec event_rec_clean \
-	ce_calc ce_calc_clean
+	angle_calc angle_calc_clean \
 	bin_clean
 
-all: lib ped_calc xtalk_calc ce_calc event_rec
+all: lib ped_calc xtalk_calc ce_calc event_rec angle_calc
 
 clean: lib_clean ped_calc_clean xtalk_calc_clean ce_calc_clean \
-	event_rec_clean bin_clean
+	event_rec_clean angle_calc_clean bin_clean
 
 lib:
 	cd lib && $(MAKE)
@@ -40,6 +41,12 @@ event_rec:
 
 event_rec_clean:
 	cd event_rec && $(MAKE) clean
+
+angle_calc:
+	cd angle_calc && $(MAKE)
+
+angle_calc_clean:
+	cd angle_calc && $(MAKE) clean
 
 bin_clean:
 	@echo "Cleaning binary files ..."

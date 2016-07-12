@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/event_rec
+all: $(DEST_BIN)/angle_calc
 
-$(DEST_BIN)/event_rec: obj/main.o obj/RecEventDataFile.o obj/AngleDataFile.o obj/EventFilter.o
+$(DEST_BIN)/angle_calc: obj/main.o obj/RecEventDataFile.o obj/AngleDataFile.o obj/EventFilter.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
