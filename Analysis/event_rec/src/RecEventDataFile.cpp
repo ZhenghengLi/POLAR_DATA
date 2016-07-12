@@ -50,14 +50,14 @@ bool RecEventDataFile::open(const char* filename, char m) {
         t_rec_event_tree_->Branch("trigger_bit",     t_rec_event.trigger_bit,    "trigger_bit[1600]/O"   );
         t_rec_event_tree_->Branch("trigger_n",      &t_rec_event.trigger_n,      "trigger_n/I"           );
         t_rec_event_tree_->Branch("multiplicity",    t_rec_event.multiplicity,   "multiplicity[25]/I"    );
-        t_rec_event_tree_->Branch("energy_adc",      t_rec_event.energy_adc,     "energy_adc[1600]/F"    );
+        t_rec_event_tree_->Branch("energy_dep",      t_rec_event.energy_dep,     "energy_dep[1600]/F"    );
     } else {
         t_rec_event_tree_->SetBranchAddress("type",           &t_rec_event.type           );
         t_rec_event_tree_->SetBranchAddress("trig_accepted",   t_rec_event.trig_accepted  );
         t_rec_event_tree_->SetBranchAddress("trigger_bit",     t_rec_event.trigger_bit    );
         t_rec_event_tree_->SetBranchAddress("trigger_n",      &t_rec_event.trigger_n      );
         t_rec_event_tree_->SetBranchAddress("multiplicity",    t_rec_event.multiplicity   );
-        t_rec_event_tree_->SetBranchAddress("energy_adc",      t_rec_event.energy_adc     );
+        t_rec_event_tree_->SetBranchAddress("energy_dep",      t_rec_event.energy_dep     );
     }
     if (mode_ == 'r') {
         m_fromfile_ = static_cast<TNamed*>(t_rec_event_file_->Get("m_fromfile"));
@@ -89,7 +89,7 @@ void RecEventDataFile::clear_cur_entry() {
     t_rec_event.trigger_n = 0;
     for (int i = 0; i < 1600; i++) {
         t_rec_event.trigger_bit[i] = false;
-        t_rec_event.energy_adc[i] = 0;
+        t_rec_event.energy_dep[i] = 0;
     }
 }
 

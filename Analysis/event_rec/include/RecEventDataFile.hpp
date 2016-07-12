@@ -16,7 +16,7 @@ public:
         Bool_t   trigger_bit[1600];
         Int_t    trigger_n;
         Int_t    multiplicity[25];
-        Float_t  energy_adc[1600];
+        Float_t  energy_dep[1600];
     };
 
 public:

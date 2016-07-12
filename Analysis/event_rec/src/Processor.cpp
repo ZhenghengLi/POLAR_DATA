@@ -21,3 +21,27 @@ int Processor::start_process() {
     cout << "rec_event_data_filename => " << cur_options_mgr_->rec_event_data_filename.Data() << endl;
     return 0;
 }
+
+bool Processor::read_ped_mean_vector_(const char* filename) {
+
+    return true;
+}
+
+bool Processor::read_xtalk_matrix_inv_(const char* filename) {
+
+    return true;
+}
+
+bool Processor::read_adc_per_kev_vector_(const char* filename) {
+
+    return true;
+}
+
+bool Processor::gen_energy_vector_(EventIterator& eventIter) {
+
+    return true;
+}
+
+void Processor::reconstruct_all_events_(EventIterator& eventIter, RecEventDataFile& rec_event_data_file) {
+
+}
