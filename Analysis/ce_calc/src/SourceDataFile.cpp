@@ -3,7 +3,7 @@
 using namespace std;
 
 SourceDataFile::SourceDataFile() {
-    t_spec_file_ = NULL;
+    t_source_event_file_ = NULL;
     t_source_event_tree_ = NULL;
     m_fromfile_ = NULL;
     m_gps_span_ = NULL;
@@ -16,7 +16,7 @@ SourceDataFile::~SourceDataFile() {
 }
 
 bool SourceDataFile::open(const char* filename, char m) {
-    if (t_spec_file_ != NULL)
+    if (t_source_event_file_ != NULL)
         return false;
 
     if (m == 'w' || m == 'W')
@@ -27,20 +27,20 @@ bool SourceDataFile::open(const char* filename, char m) {
         return false;
 
     if (mode_ == 'r')
-        t_spec_file_ = new TFile(filename, "READ");
+        t_source_event_file_ = new TFile(filename, "READ");
     else
-        t_spec_file_ = new TFile(filename, "UPDATE");
-    if (t_spec_file_->IsZombie())
+        t_source_event_file_ = new TFile(filename, "UPDATE");
+    if (t_source_event_file_->IsZombie())
         return false;
 
-    t_source_event_tree_ = static_cast<TTree*>(t_spec_file_->Get("t_source_event"));
+    t_source_event_tree_ = static_cast<TTree*>(t_source_event_file_->Get("t_source_event"));
     is_first_created_ = false;
     if (t_source_event_tree_ == NULL) {
         if (mode_ == 'r') {
             return false;
         } else {
             t_source_event_tree_ = new TTree("t_source_event", "source event data");
-            t_source_event_tree_->SetDirectory(t_spec_file_);
+            t_source_event_tree_->SetDirectory(t_source_event_file_);
             is_first_created_ = true;
         }
     }
@@ -60,8 +60,8 @@ bool SourceDataFile::open(const char* filename, char m) {
         t_source_event_tree_->SetBranchAddress("energy_adc",      t_source_event.energy_adc     );
     }
     if (mode_ == 'r') {
-        m_fromfile_ = static_cast<TNamed*>(t_spec_file_->Get("m_fromfile"));
-        m_gps_span_ = static_cast<TNamed*>(t_spec_file_->Get("m_gps_span"));
+        m_fromfile_ = static_cast<TNamed*>(t_source_event_file_->Get("m_fromfile"));
+        m_gps_span_ = static_cast<TNamed*>(t_source_event_file_->Get("m_gps_span"));
         if (m_fromfile_ == NULL || m_gps_span_ == NULL)
             return false;
         event_set_start();
@@ -71,13 +71,13 @@ bool SourceDataFile::open(const char* filename, char m) {
 }
 
 void SourceDataFile::close() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     delete t_source_event_tree_;
     t_source_event_tree_ = NULL;
-    t_spec_file_->Close();
-    delete t_spec_file_;
-    t_spec_file_ = NULL;
+    t_source_event_file_->Close();
+    delete t_source_event_file_;
+    t_source_event_file_ = NULL;
 }
 
 void SourceDataFile::clear_cur_entry() {
@@ -94,7 +94,7 @@ void SourceDataFile::clear_cur_entry() {
 }
 
 void SourceDataFile::event_fill() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
@@ -102,20 +102,20 @@ void SourceDataFile::event_fill() {
 }
 
 void SourceDataFile::write_all_tree() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
-    t_spec_file_->cd();
+    t_source_event_file_->cd();
     t_source_event_tree_->Write("", TObject::kOverwrite);
 }
 
 void SourceDataFile::write_meta(const char* key, const char* value, bool append_flag) {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
-    TNamed* cur_meta = static_cast<TNamed*>(t_spec_file_->Get(key));
+    TNamed* cur_meta = static_cast<TNamed*>(t_source_event_file_->Get(key));
     if (cur_meta == NULL) {
         cur_meta = new TNamed(key, value);
     } else {
@@ -135,7 +135,7 @@ void SourceDataFile::write_meta(const char* key, const char* value, bool append_
 }
 
 void SourceDataFile::write_fromfile(const char* filename) {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
@@ -143,7 +143,7 @@ void SourceDataFile::write_fromfile(const char* filename) {
 }
 
 void SourceDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
@@ -151,7 +151,7 @@ void SourceDataFile::write_gps_span(const char* begin_gps, const char* end_gps) 
 }
 
 void SourceDataFile::write_lasttime() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
@@ -162,7 +162,7 @@ void SourceDataFile::write_lasttime() {
 }
 
 void SourceDataFile::event_set_start() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return;
     if (mode_ == 'w')
         return;
@@ -171,7 +171,7 @@ void SourceDataFile::event_set_start() {
 }
 
 Long64_t SourceDataFile::event_get_cur_entry() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return -1;
     if (mode_ == 'w')
         return -1;
@@ -179,7 +179,7 @@ Long64_t SourceDataFile::event_get_cur_entry() {
 }
 
 Long64_t SourceDataFile::event_get_tot_entries() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return -1;
     if (mode_ == 'w')
         return -1;
@@ -187,7 +187,7 @@ Long64_t SourceDataFile::event_get_tot_entries() {
 }
 
 bool SourceDataFile::event_next() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return false;
     if (mode_ == 'w')
         return false;
@@ -204,7 +204,7 @@ bool SourceDataFile::event_next() {
 }
 
 string SourceDataFile::get_fromfile_str() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return "";
     if (mode_ == 'w')
         return "";
@@ -212,7 +212,7 @@ string SourceDataFile::get_fromfile_str() {
 }
 
 string SourceDataFile::get_gps_span_str() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return "";
     if (mode_ == 'w')
         return "";
@@ -220,7 +220,7 @@ string SourceDataFile::get_gps_span_str() {
 }
 
 char SourceDataFile::get_mode() {
-    if (t_spec_file_ == NULL)
+    if (t_source_event_file_ == NULL)
         return '0';
     else
         return mode_;

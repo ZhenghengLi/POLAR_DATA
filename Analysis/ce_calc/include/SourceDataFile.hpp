@@ -23,7 +23,7 @@ public:
     SourceEvent_T t_source_event;
 
 private:
-    TFile*  t_spec_file_;
+    TFile*  t_source_event_file_;
     TTree*  t_source_event_tree_;
     TNamed* m_fromfile_;
     TNamed* m_gps_span_;
