@@ -19,13 +19,37 @@ Processor::~Processor() {
 }
 
 int Processor::start_process() {
-    cout << "ped_vector_filename => " << cur_options_mgr_->ped_vector_filename.Data() << endl;
-    cout << "xtalk_matrix_filename => " << cur_options_mgr_->xtalk_matrix_filename.Data() << endl;
-    cout << "adc_per_kev_filename => " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
-    cout << "decoded_data_filename => " << cur_options_mgr_->decoded_data_filename.Data() << endl;
-    cout << "begin_gps => " << cur_options_mgr_->begin_gps.Data() << endl;
-    cout << "end_gps => " << cur_options_mgr_->end_gps.Data() << endl;
-    cout << "rec_event_data_filename => " << cur_options_mgr_->rec_event_data_filename.Data() << endl;
+    if (!read_ped_mean_vector_(cur_options_mgr_->ped_vector_filename.Data())) {
+        cerr << "read pedestal vector file failed: " << cur_options_mgr_->ped_vector_filename.Data() << endl;
+        return 1;
+    }
+    if (!read_xtalk_matrix_inv_(cur_options_mgr_->xtalk_matrix_filename.Data())) {
+        cerr << "read crosstalk matrix file failed: " << cur_options_mgr_->xtalk_matrix_filename.Data() << endl;
+        return 1;
+    }
+    if (!read_adc_per_kev_vector_(cur_options_mgr_->adc_per_kev_filename.Data())) {
+        cerr << "read ADC/KeV vector file failed: " << cur_options_mgr_->adc_per_kev_filename.Data() << endl;
+        return 1;
+    }
+    if (!eventIter_.open(cur_options_mgr_->decoded_data_filename.Data(),
+                         cur_options_mgr_->begin_gps.Data(), cur_options_mgr_->end_gps.Data())) {
+        cerr << "root file open failed: " << cur_options_mgr_->decoded_data_filename.Data() << endl;
+        return 1;
+    }
+    if (!rec_event_data_file_.open(cur_options_mgr_->rec_event_data_filename.Data(), 'w')) {
+        cerr << "root file open failed: " << cur_options_mgr_->rec_event_data_filename.Data() << endl;
+        return 1;
+    }
+    eventIter_.print_file_info();
+    cout << "----------------------------------------------------------" << endl;
+    reconstruct_all_events_(eventIter_, rec_event_data_file_);
+    rec_event_data_file_.write_all_tree();
+    rec_event_data_file_.write_fromfile(eventIter_.get_filename().c_str());
+    rec_event_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
+                                        eventIter_.get_phy_last_gps().c_str());
+    rec_event_data_file_.write_lasttime();
+    rec_event_data_file_.close();
+    eventIter_.close();
     return 0;
 }
 
@@ -86,7 +110,7 @@ bool Processor::read_adc_per_kev_vector_(const char* filename) {
     return true;
 }
 
-bool Processor::gen_energy_vector_(EventIterator& eventIter) {
+bool Processor::gen_energy_dep_vector_(EventIterator& eventIter) {
     for (int j = 0; j < 64; j++) {
         if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] == 4095) {
             return false;
@@ -138,5 +162,45 @@ bool Processor::gen_energy_vector_(EventIterator& eventIter) {
 }
 
 void Processor::reconstruct_all_events_(EventIterator& eventIter, RecEventDataFile& rec_event_data_file) {
-
+    if (rec_event_data_file.get_mode() != 'w')
+        return;
+    bool overflow_flag;
+    int pre_percent = 0;
+    int cur_percent = 0;
+    cout << "Reconstructing Event Data ... " << endl;
+    cout << "[ " << flush;
+    eventIter.phy_trigger_set_start();
+    while (eventIter.phy_trigger_next_event()) {
+        cur_percent = static_cast<int>(100 * eventIter.phy_trigger_get_cur_entry() / eventIter.phy_trigger_get_tot_entries());
+        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+            pre_percent = cur_percent;
+            cout << "#" << flush;
+        }
+        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
+            continue;
+        }
+        overflow_flag = false;
+        rec_event_data_file.clear_cur_entry();
+        rec_event_data_file.t_rec_event.type = eventIter.t_trigger.type;
+        rec_event_data_file.t_rec_event.trigger_n = eventIter.t_trigger.trigger_n;
+        copy(eventIter.t_trigger.trig_accepted, eventIter.t_trigger.trig_accepted + 25,
+             rec_event_data_file.t_rec_event.trig_accepted);
+        while (eventIter.phy_modules_next_packet()) {
+            int idx = eventIter.t_modules.ct_num - 1;
+            if (!gen_energy_dep_vector_(eventIter)) {
+                overflow_flag = true;
+                break;
+            }
+            copy(energy_dep_vector_.GetMatrixArray(), energy_dep_vector_.GetMatrixArray() + 64,
+                 &rec_event_data_file.t_rec_event.energy_dep[idx * 64]);
+            copy(eventIter.t_modules.trigger_bit, eventIter.t_modules.trigger_bit + 64,
+                 &rec_event_data_file.t_rec_event.trigger_bit[idx * 64]);
+            rec_event_data_file.t_rec_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
+        }
+        if (overflow_flag) {
+            continue;
+        }
+        rec_event_data_file.event_fill();
+    }
+    cout << " DONE ]" << endl;
 }
