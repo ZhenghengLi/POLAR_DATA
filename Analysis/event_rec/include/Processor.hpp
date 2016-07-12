@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <algorithm>
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
 #include "RecEventDataFile.hpp"
@@ -22,7 +23,7 @@ private:
     TVectorF ped_mean_vector_[25];
     TMatrixF xtalk_matrix_inv_[25];
     TVectorF adc_per_kev_vector_[25];
-    TVectorF energy_vector_;
+    TVectorF energy_dep_vector_;
 
 private:
     bool read_ped_mean_vector_(const char* filename);
