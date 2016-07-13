@@ -68,5 +68,43 @@ bool EventFilter::check_na22_event_() {
     if (!is_first_two_ready) {
         return false;
     }
+    // calculate angle and distance to the 4 Na22 sources
+    double src_angle[4];
+    double src_distance[4];
+    for (int i = 0; i < 4; i++) {
+        src_angle[i] = angle_of_3_points_(SourcePos[i][0],  SourcePos[i][1],
+                                          first_pos.abs_x,  first_pos.abs_y,
+                                          second_pos.abs_x, second_pos.abs_y);
+        src_distance[i] = distance_of_3_points_(SourcePos[i][0],  SourcePos[i][1],
+                                                first_pos.abs_x,  first_pos.abs_y,
+                                                second_pos.abs_x, second_pos.abs_y);
+    }
+    // find the largest angle
+    double largest_angle = 0;
+    int    largest_index = 0;
+    for (int i = 0; i < 4; i++) {
+        if (src_angle[i] > largest_angle) {
+            largest_angle = src_angle[i];
+            largest_index = i;
+        }
+    }
+    if (largest_angle < AngleMin) {
+        return false;
+    }
+    if (src_distance[largest_index] > DistanceMax) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+bool EventFilter::check(const RecEventDataFile::RecEvent_T& rec_event) {
+    if (!is_first_two_ready)
+        return false;
+    if (second_bar.dep < low_energy_thr_)
+        return false;
+    if (check_na22_event_())
+        return false;
+    
     return true;
 }
