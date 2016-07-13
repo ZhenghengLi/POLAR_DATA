@@ -8,6 +8,7 @@
 #include "EventIterator.hpp"
 #include "RecEventDataFile.hpp"
 #include "OptionsManager.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

@@ -57,6 +57,8 @@ int Processor::do_action_1_() {
     }
     cout << " DONE ]" << endl;
     angle_data_file_.write_all_tree();
+    angle_data_file_.write_meta("m_dattype", "POLAR SCATTERING ANGLE DATA", false);
+    angle_data_file_.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str(), false);
     angle_data_file_.write_fromfile(rec_event_data_file_.get_fromfile_str().c_str());
     angle_data_file_.write_gps_span(rec_event_data_file_.get_gps_span_str().c_str());
     angle_data_file_.write_lasttime();

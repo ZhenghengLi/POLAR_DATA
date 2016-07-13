@@ -8,6 +8,7 @@
 #include "PedDataFile.hpp"
 #include "PedMeanCalc.hpp"
 #include "PedMeanShow.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

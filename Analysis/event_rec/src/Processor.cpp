@@ -44,6 +44,8 @@ int Processor::start_process() {
     cout << "----------------------------------------------------------" << endl;
     reconstruct_all_events_(eventIter_, rec_event_data_file_);
     rec_event_data_file_.write_all_tree();
+    rec_event_data_file_.write_meta("m_dattype", "POLAR RECONSTRUCTED EVENT DATA", false);
+    rec_event_data_file_.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str(), false);
     rec_event_data_file_.write_fromfile(eventIter_.get_filename().c_str());
     rec_event_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
                                         eventIter_.get_phy_last_gps().c_str());

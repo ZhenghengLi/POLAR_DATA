@@ -8,6 +8,7 @@
 #include "XtalkDataFile.hpp"
 #include "XtalkMatrixCalc.hpp"
 #include "XtalkMatrixShow.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

@@ -44,6 +44,8 @@ int Processor::do_action_1_() {
     cout << "----------------------------------------------------------" << endl;
     xtalk_matrix_calc_.fill_xtalk_data(sciIter_, xtalk_data_file_);
     xtalk_data_file_.write_all_tree();
+    xtalk_data_file_.write_meta("m_dattype", "POLAR CROSSTALK DATA", false);
+    xtalk_data_file_.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str(), false);
     xtalk_data_file_.write_fromfile(sciIter_.get_filename().c_str());
     xtalk_data_file_.write_gps_span(sciIter_.get_phy_first_gps().c_str(),
                                     sciIter_.get_phy_last_gps().c_str());

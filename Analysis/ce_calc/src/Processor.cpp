@@ -50,6 +50,8 @@ int Processor::do_action_1_() {
     cout << "----------------------------------------------------------" << endl;
     compton_edge_calc_.fill_source_data(eventIter_, source_data_file_);
     source_data_file_.write_all_tree();
+    source_data_file_.write_meta("m_dattype", "POLAR SOURCE EVENT DATA", false);
+    source_data_file_.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str(), false);
     source_data_file_.write_fromfile(eventIter_.get_filename().c_str());
     source_data_file_.write_gps_span(eventIter_.get_phy_first_gps().c_str(),
                                    eventIter_.get_phy_last_gps().c_str());

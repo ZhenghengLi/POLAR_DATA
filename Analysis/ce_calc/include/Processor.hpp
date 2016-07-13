@@ -8,6 +8,7 @@
 #include "SourceDataFile.hpp"
 #include "ComptonEdgeCalc.hpp"
 #include "SpectrumShow.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 

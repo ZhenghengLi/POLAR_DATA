@@ -40,6 +40,8 @@ int Processor::do_action_1_() {
     cout << "----------------------------------------------------------" << endl;
     ped_mean_calc_.fill_ped_data(sciIter_, ped_data_file_);
     ped_data_file_.write_all_tree();
+    ped_data_file_.write_meta("m_dattype", "POLAR PEDESTAL DATA", false);
+    ped_data_file_.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str(), false);
     ped_data_file_.write_fromfile(sciIter_.get_filename().c_str());
     ped_data_file_.write_gps_span(sciIter_.get_ped_first_gps().c_str(),
                                   sciIter_.get_ped_last_gps().c_str());
