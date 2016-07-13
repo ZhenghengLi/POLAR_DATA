@@ -14,7 +14,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 all: $(DEST_BIN)/angle_calc
 
 $(DEST_BIN)/angle_calc: obj/main.o obj/RecEventDataFile.o obj/AngleDataFile.o \
-	obj/EventFilter.o obj/CurveShow.o obj/CurveShow_Dict.o
+	obj/EventFilter.o obj/CurveShow.o obj/CurveShow_Dict.o obj/OptionsManager.o \
+	obj/Processor.o
 	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
