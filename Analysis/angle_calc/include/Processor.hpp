@@ -9,6 +9,7 @@
 #include "AngleDataFile.hpp"
 #include "EventFilter.hpp"
 #include "CurveShow.hpp"
+#include "CooConv.hpp"
 
 
 using namespace std;

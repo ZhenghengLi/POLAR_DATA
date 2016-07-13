@@ -67,8 +67,54 @@ int Processor::do_action_1_() {
 }
 
 int Processor::do_action_2_() {
-    cout << cur_options_mgr_->angle_data_filename.Data() << endl;
-    cout << "rw_mode => " << cur_options_mgr_->rw_mode << endl;
-    cout << "show_flag => " << cur_options_mgr_->show_flag << endl;
+    if (!angle_data_file_.open(cur_options_mgr_->angle_data_filename.Data(), 'r')) {
+        cerr << "root file open failed: " << cur_options_mgr_->angle_data_filename.Data() << endl;
+        return 1;
+    }
+    int hit_map[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            hit_map[i][j] = 0;
+        }
+    }
+    TH1F* curve_hist = new TH1F("curve_hist", "Modulation Curve", 60, 0, 360);
+    curve_hist->SetDirectory(NULL);
+    curve_hist->SetMinimum(0);
+    TH2F* hit_map_hist = new TH2F("hit_map_hist", "Hit Map", 40, 0, 40, 40, 0, 40);
+    hit_map_hist->SetDirectory(NULL);
+    hit_map_hist->GetXaxis()->SetNdivisions(40);
+    hit_map_hist->GetYaxis()->SetNdivisions(40);
+    for (int i = 0; i < 40; i++) {
+        if (i % 8 == 0) {
+            hit_map_hist->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            hit_map_hist->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+        }
+    }
+    int pre_percent = 0;
+    int cur_percent = 0;
+    cout << "Filling Angle Data ..." << endl;
+    cout << "[ " << flush;
+    angle_data_file_.angle_set_start();
+    while (angle_data_file_.angle_next()) {
+        cur_percent = static_cast<int>(100 * angle_data_file_.angle_get_cur_entry() / angle_data_file_.angle_get_tot_entries());
+        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+            pre_percent = cur_percent;
+            cout << "#" << flush;
+        }
+        hit_map[angle_data_file_.t_angle.first_ij[0]][angle_data_file_.t_angle.first_ij[1]]++;
+        hit_map[angle_data_file_.t_angle.second_ij[0]][angle_data_file_.t_angle.second_ij[1]]++;
+        curve_hist->Fill(angle_data_file_.t_angle.rand_angle);
+    }
+    cout << " DONE ]" << endl;
+    angle_data_file_.close();
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            hit_map_hist->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, hit_map[i][j]);
+        }
+    }
+    curve_show_.set_curve_hist(curve_hist);
+    curve_show_.set_hit_map_hist(hit_map_hist);
+    curve_show_.show_curve();
+    cur_rootapp_->Run();
     return 0;
 }
