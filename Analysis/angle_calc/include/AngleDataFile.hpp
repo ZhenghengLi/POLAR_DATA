@@ -11,9 +11,9 @@ using namespace std;
 class AngleDataFile {
 public:
     struct Angle_T {
-        Int_t     ct_i;
-        Int_t     ch_j;
-        Float16_t rand_agl;
+        Int_t     first_ij[2];
+        Int_t     second_ij[2];
+        Float16_t rand_angle;
     };
     
 public:
@@ -49,8 +49,7 @@ public: // write
                     const char* value,
                     bool append_flag = true);
     void write_fromfile(const char* filename);
-    void write_gps_span(const char* begin_gps,
-                        const char* end_gps);
+    void write_gps_span(const char* gps_span);
     void write_lasttime();
 
 public: // read

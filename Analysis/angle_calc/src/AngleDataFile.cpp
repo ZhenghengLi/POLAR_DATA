@@ -44,13 +44,13 @@ bool AngleDataFile::open(const char* filename, char m) {
         }
     }
     if (is_first_created_) {
-        t_angle_tree_->Branch("ct_i",       &t_angle.ct_i,       "ct_i/I"        );
-        t_angle_tree_->Branch("ch_j",       &t_angle.ch_j,       "ch_j/I"        );
-        t_angle_tree_->Branch("rand_agl",   &t_angle.rand_agl,   "rand_agl/F"    );
+        t_angle_tree_->Branch("first_ij",       t_angle.first_ij,       "first_ij[2]/I"     );
+        t_angle_tree_->Branch("second_ij",      t_angle.second_ij,      "second_ij[2]/I"    );
+        t_angle_tree_->Branch("rand_angle",    &t_angle.rand_angle,     "rand_angle/F"      );
     } else {
-        t_angle_tree_->SetBranchAddress("ct_i",       &t_angle.ct_i              );
-        t_angle_tree_->SetBranchAddress("ch_j",       &t_angle.ch_j              );
-        t_angle_tree_->SetBranchAddress("rand_agl",   &t_angle.rand_agl          );
+        t_angle_tree_->SetBranchAddress("first_ij",       t_angle.first_ij         );
+        t_angle_tree_->SetBranchAddress("second_ij",      t_angle.second_ij        );
+        t_angle_tree_->SetBranchAddress("rand_angle",    &t_angle.rand_angle       );
     }
     if (mode_ == 'r') {
         m_fromfile_ = static_cast<TNamed*>(t_angle_file_->Get("m_fromfile"));
@@ -122,12 +122,12 @@ void AngleDataFile::write_fromfile(const char* filename) {
     write_meta("m_fromfile", TSystem().BaseName(filename));
 }
 
-void AngleDataFile::write_gps_span(const char* begin_gps, const char* end_gps) {
+void AngleDataFile::write_gps_span(const char* gps_span) {
     if (t_angle_file_ == NULL)
         return;
     if (mode_ == 'r')
         return;
-    write_meta("m_gps_span", Form("%s => %s", begin_gps, end_gps));
+    write_meta("m_gps_span", gps_span);
 }
 
 void AngleDataFile::write_lasttime() {

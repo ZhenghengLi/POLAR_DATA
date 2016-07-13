@@ -108,3 +108,7 @@ bool EventFilter::check(const RecEventDataFile::RecEvent_T& rec_event) {
     
     return true;
 }
+
+void EventFilter::set_low_energy_thr(float energy) {
+    low_energy_thr_ = energy;
+}
