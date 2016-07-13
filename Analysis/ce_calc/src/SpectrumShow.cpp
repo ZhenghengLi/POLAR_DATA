@@ -11,8 +11,9 @@ SpectrumShow::~SpectrumShow() {
 }
 
 void SpectrumShow::CloseWindow() {
-    if (true) {
-
+    if (cur_compton_edge_calc_ != NULL) {
+        cur_compton_edge_calc_->delete_spec_hist();
+        cur_compton_edge_calc_ = NULL;
     }
     cout << "Quitting by user request." << endl;
     gApplication->Terminate(0);
