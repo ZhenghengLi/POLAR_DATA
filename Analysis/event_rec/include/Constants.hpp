@@ -7,8 +7,8 @@ using namespace std;
 
 const string SW_NAME = "event_rec";
 
-const string SW_VERSION = "v0.0.1";
+const string SW_VERSION = "v1.0.0";
 
-const string RELEASE_DATE = "2016 Jul 2";
+const string RELEASE_DATE = "2016 Jul 13";
 
 #endif
