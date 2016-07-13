@@ -11,7 +11,10 @@ CurveShow::~CurveShow() {
 }
 
 void CurveShow::CloseWindow() {
-    cout << "Quitting by user request." << endl;
+    if (cur_curve_hist_ != NULL) {
+        delete cur_curve_hist_;
+        cur_curve_hist_ = NULL;
+    }
     cout << "Quitting by user request." << endl;
     gApplication->Terminate(0);
 }
