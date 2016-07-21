@@ -22,17 +22,22 @@ const int TriggerIndex[64] = {23, 15, 31,  7, 22, 14, 30,  6,
                               62, 38, 54, 46, 63, 39, 55, 47
 };
 
-const int CircleTime = 8388608;
-
+//#define ESRF
+#ifdef ESRF
+const int CircleTime = 2097152;
 const int PedSecond = 1;
-
+const int PedCircle = 6104;
+const int LSB_Value = 2048;
+const int TriggerShiftRight = 11;
+const uint32_t EventTimeMask = 0x1FFFFF;
+#else
+const int CircleTime = 8388608;
+const int PedSecond = 1;
 const int PedCircle = 24414;
-
 const int LSB_Value = 512;
-
 const int TriggerShiftRight = 9;
-
 const uint32_t EventTimeMask = 0x7FFFFF;
+#endif
 
 const string SW_NAME = "SCI_Decode";
 
