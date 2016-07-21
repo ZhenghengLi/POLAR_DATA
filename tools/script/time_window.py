@@ -15,26 +15,40 @@ end_time_mat   = Matrix(25, 64)
 max_count_mat  = Matrix(25, 64)
 max_time_mat   = Matrix(25, 64)
 
+max_index_mat  = [x[:] for x in [[0] * 64] * 25]
+
 t_file_in = File(sys.argv[1], 'read')
 t_rate = [None] * 25
 for idx in xrange(25):
     t_rate[idx] = t_file_in.get('t_rate_ct_%02d' % (idx + 1))
+    t_rate[idx].create_buffer()
 
 # ===============================
 
 max_time_mat.Zero()
 for idx in xrange(25):
     print 'Processing CT_' + str(idx + 1) + ' ...'
-    for entry in t_rate[idx]:
+    for it, entry in enumerate(t_rate[idx]):
         for j in xrange(64):
             if entry.cnts_ps[j] > max_count_mat[idx][j]:
                 max_count_mat[idx][j] = entry.cnts_ps[j]
                 max_time_mat[idx][j]  = entry.time_sec
+                max_index_mat[idx][j] = it
 
 for idx in xrange(25):
     for j in xrange(64):
-        begin_time_mat[idx][j] = max_time_mat[idx][j] - 2
-        end_time_mat[idx][j]   = max_time_mat[idx][j] + 1
+        begin_time_mat[idx][j] = max_time_mat[idx][j]
+        end_time_mat[idx][j]   = max_time_mat[idx][j]
+        for t in xrange(1, 15):
+            if max_index_mat[idx][j] - t < 0: break
+            t_rate[idx].get_entry(max_index_mat[idx][j] - t)
+            begin_time_mat[idx][j] = t_rate[idx].time_sec
+            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.5: break
+        for t in xrange(1, 15):
+            if max_index_mat[idx][j] + t > t_rate[idx].get_entries() - 1: break
+            t_rate[idx].get_entry(max_index_mat[idx][j] + t)
+            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.5: break
+            end_time_mat[idx][j] = t_rate[idx].time_sec
 
 # ===============================
 

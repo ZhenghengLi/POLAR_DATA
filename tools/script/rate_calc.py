@@ -44,7 +44,7 @@ for i,entry in enumerate(t_modules):
     for j in xrange(64):
         if entry.trigger_bit[j]:
             counts[idx][j] += 1
-    if entry.time_second - pre_time[idx] > 1:
+    if entry.time_second - pre_time[idx] > 0.1:
         t_rate[idx].time_sec = entry.time_second
         for j in xrange(64):
             t_rate[idx].cnts_ps[j] = float(counts[idx][j]) / (entry.time_second - pre_time[idx])
