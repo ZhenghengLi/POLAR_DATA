@@ -25,7 +25,7 @@ for idx in xrange(25):
 
 # ===============================
 
-max_time_mat.Zero()
+max_count_mat.Zero()
 for idx in xrange(25):
     print 'Processing CT_' + str(idx + 1) + ' ...'
     for it, entry in enumerate(t_rate[idx]):
