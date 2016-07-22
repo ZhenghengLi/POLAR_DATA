@@ -43,11 +43,11 @@ for idx in xrange(25):
             if max_index_mat[idx][j] - t < 0: break
             t_rate[idx].get_entry(max_index_mat[idx][j] - t)
             begin_time_mat[idx][j] = t_rate[idx].time_sec
-            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.5: break
+            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.4: break
         for t in xrange(1, 15):
             if max_index_mat[idx][j] + t > t_rate[idx].get_entries() - 1: break
             t_rate[idx].get_entry(max_index_mat[idx][j] + t)
-            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.5: break
+            if t_rate[idx].cnts_ps[j] < max_count_mat[idx][j] * 0.4: break
             end_time_mat[idx][j] = t_rate[idx].time_sec
 
 # ===============================
