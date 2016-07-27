@@ -133,7 +133,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <decoded_data_file.root> -B week1:second1 -E week2:second2 -F <ped_data_file.root>" << endl;
+    cout << "  " << SW_NAME << " <decoded_data_file.root> -F <ped_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -m" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -o <ped_vector_file.root>" << endl;
     cout << "  " << SW_NAME << " -p <ped_vector_file.root>" << endl;
