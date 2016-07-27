@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
 import sys
+from os.path import basename
 from rootpy.io import File
 from rootpy.tree import Tree
 
 if len(sys.argv) < 3:
-    print 'Usage: ' + sys.argv[0] + ' <decoded_data.root> <rate_file.root>'
+    print 'Usage: ' + basename(sys.argv[0]) + ' <decoded_data.root> <rate_file.root>'
     exit(1)
 
 t_file_out = File(sys.argv[2], 'recreate')

@@ -36,6 +36,8 @@ void PedMeanCalc::fill_ped_data(SciIterator& sciIter, PedDataFile& ped_data_file
         int idx = sciIter.t_ped_modules.ct_num - 1;
         copy(sciIter.t_ped_modules.energy_adc, sciIter.t_ped_modules.energy_adc + 64,
              ped_data_file.t_ped_data[idx].ped_adc);
+        copy(sciIter.t_ped_modules.trigger_bit, sciIter.t_ped_modules.trigger_bit + 64,
+             ped_data_file.t_ped_data[idx].trigger_bit);
         ped_data_file.mod_fill(idx);
     }
     cout << " DONE ]" << endl;

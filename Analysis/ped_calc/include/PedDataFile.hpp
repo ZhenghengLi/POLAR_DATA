@@ -11,6 +11,7 @@ using namespace std;
 class PedDataFile {
 public:
     struct PedData_T {
+        Bool_t  trigger_bit[64];
         Float_t ped_adc[64];
     };
 

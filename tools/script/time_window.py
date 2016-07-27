@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 import sys
+from os.path import basename
 from rootpy.io import File
 from rootpy.tree import Tree
 from rootpy.matrix import Matrix
 
 if len(sys.argv) < 3:
-    print 'Usage: ' + sys.argv[0] + ' <rate_file.root> <time_win.root>'
+    print 'Usage: ' + basename(sys.argv[0]) + ' <rate_file.root> <time_win.root>'
     exit(1)
 
 t_file_out = File(sys.argv[2], 'recreate')

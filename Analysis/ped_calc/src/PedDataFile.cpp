@@ -47,9 +47,11 @@ bool PedDataFile::open(const char* filename, char m) {
             }
         }
         if (is_first_created_[i]) {
-            t_ped_data_tree_[i]->Branch("ped_adc", t_ped_data[i].ped_adc, "ped_adc[64]/F");
+            t_ped_data_tree_[i]->Branch("trigger_bit",  t_ped_data[i].trigger_bit,  "trigger_bit[64]/O"  );
+            t_ped_data_tree_[i]->Branch("ped_adc",      t_ped_data[i].ped_adc,      "ped_adc[64]/F"      );
         } else {
-            t_ped_data_tree_[i]->SetBranchAddress("ped_adc", t_ped_data[i].ped_adc);
+            t_ped_data_tree_[i]->SetBranchAddress("trigger_bit",   t_ped_data[i].trigger_bit    );
+            t_ped_data_tree_[i]->SetBranchAddress("ped_adc",       t_ped_data[i].ped_adc        );
         }
         if (mode_ == 'r') {
             m_fromfile_ = static_cast<TNamed*>(t_ped_file_->Get("m_fromfile"));
