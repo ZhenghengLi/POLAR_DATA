@@ -101,6 +101,7 @@ void OptionsManager::print_help() {
     cout << "Options:" << endl;
     cout << "  -F <angle_data.root>             root file to write that stores scattering angle data" << endl;
     cout << "  -f <angle_data.root>             root file to read that stores scattering angle data" << endl;
+    cout << "  -h <log_erg_thr>                 set the low energy threshold " << endl;
     cout << "  -m                               show hit map and modulation curve" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
