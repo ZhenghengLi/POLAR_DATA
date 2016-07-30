@@ -1,11 +1,9 @@
 *.o
 *.log
 *.root
+*.pyc
 **/bin/**
 !**/bin/.*
-**/output/**
-!**/output/.*
-listfile/**
 *_Dict.*
 *_Dict_rdict.pcm
 **/test/**

@@ -7,16 +7,16 @@ all: sci_l1convert hk_l1convert
 clean: sci_l1convert_clean hk_l1convert_clean bin_clean
 
 sci_l1convert:
-	cd sci_l1convert && $(MAKE)
+	cd SCI_L1Convert && $(MAKE)
 
 sci_l1convert_clean:
-	cd sci_l1convert && $(MAKE) clean
+	cd SCI_L1Convert && $(MAKE) clean
 
 hk_l1convert:
-	cd hk_l1convert && $(MAKE)
+	cd HK_L1Convert && $(MAKE)
 
 hk_l1convert_clean:
-	cd hk_l1convert && $(MAKE) clean
+	cd HK_L1Convert && $(MAKE) clean
 
 bin_clean:
 	@echo "Cleaning binary files ..."

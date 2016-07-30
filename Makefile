@@ -1,57 +1,18 @@
 
-.PHONY : all sci sci_clean sci_25 sci_25_clean hk hk_clean \
-	time time_clean tools tools_clean analysis analysis_clean \
-	orbit_split orbit_split_clean l1_convert l1_convert_clean \
-	bin_clean
+.PHONY : all preprocessing preprocessing_clean analysis analysis_clean \
+	tools tools_clean
 
-all: sci sci_25 hk time orbit_split l1_convert tools analysis
+all: preprocessing analysis tools
 	@echo " == All make successfully. == "
 
-clean: sci_clean sci_25_clean hk_clean time_clean orbit_split_clean \
-	l1_convert_clean tools_clean analysis_clean bin_clean
+clean: preprocessing_clean analysis_clean tools_clean
 	@echo " == All cleaned. == "
 
-sci:
-	cd SCI_Decode && $(MAKE)
+preprocessing:
+	cd Preprocessing && $(MAKE)
 
-sci_clean:
-	cd SCI_Decode && $(MAKE) clean
-
-sci_25:
-	cd SCI_Decode_25 && $(MAKE)
-
-sci_25_clean:
-	cd SCI_Decode_25 && $(MAKE) clean
-
-hk:
-	cd HK_Decode && $(MAKE)
-
-hk_clean:
-	cd HK_Decode && $(MAKE) clean
-
-time:
-	cd Time_Calculate && $(MAKE)
-
-time_clean:
-	cd Time_Calculate && $(MAKE) clean
-
-orbit_split:
-	cd Orbit_Split && $(MAKE)
-
-orbit_split_clean:
-	cd Orbit_Split && $(MAKE) clean
-
-l1_convert:
-	cd L1_Convert && $(MAKE)
-
-l1_convert_clean:
-	cd L1_Convert && $(MAKE) clean
-
-tools:
-	cd tools && $(MAKE)
-
-tools_clean:
-	cd tools && $(MAKE) clean
+preprocessing_clean:
+	cd Preprocessing && $(MAKE) clean
 
 analysis:
 	cd Analysis && $(MAKE)
@@ -59,6 +20,8 @@ analysis:
 analysis_clean:
 	cd Analysis && $(MAKE) clean
 
-bin_clean:
-	@echo "Cleaning binary files ..."
-	@rm -f bin/*
+tools:
+	cd Tools && $(MAKE)
+
+tools_clean:
+	cd Tools && $(MAKE) clean

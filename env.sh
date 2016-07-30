@@ -3,7 +3,7 @@
 tmp_dir=$(dirname ${BASH_SOURCE[0]})
 my_dir=$(cd $tmp_dir > /dev/null ; pwd)
 
-my_path=$my_dir/bin:$my_dir/Analysis/bin:$my_dir/Orbit_Split/bin:$my_dir/L1_Convert/bin:$my_dir/tools/bin:$my_dir/tools/script
+my_path=$my_dir/Analysis/bin:$my_dir/Analysis/script:$my_dir/Preprocessing/bin:$my_dir/Preprocessing/script:$my_dir/Tools/bin:$my_dir/Tools/script
 my_lib=$my_dir/Analysis/bin
 
 if [[ $PATH =~ $my_path ]]; then

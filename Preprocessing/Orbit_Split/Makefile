@@ -6,16 +6,16 @@ all: sci_split hk_split
 clean: sci_split_clean hk_split_clean bin_clean
 
 sci_split:
-	cd sci_split && $(MAKE)
+	cd SCI_Split && $(MAKE)
 
 sci_split_clean:
-	cd sci_split && $(MAKE) clean
+	cd SCI_Split && $(MAKE) clean
 
 hk_split:
-	cd hk_split && $(MAKE)
+	cd HK_Split && $(MAKE)
 
 hk_split_clean:
-	cd hk_split && $(MAKE) clean
+	cd HK_Split && $(MAKE) clean
 
 bin_clean:
 	@echo "Cleaning binary files ..."
