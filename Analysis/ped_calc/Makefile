@@ -16,20 +16,20 @@ all: $(DEST_BIN)/ped_calc
 $(DEST_BIN)/ped_calc: obj/main.o obj/PedMeanCalc.o obj/PedDataFile.o obj/PedMeanShow.o obj/PedMeanShow_Dict.o \
 	obj/OptionsManager.o obj/Processor.o \
 	$(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/SciIterator.o
-	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
+	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS) $(BOOST_LIB)
 
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
 
 src/%_Dict.cpp: include/%.hpp
 	cd include && \
-		rootcint -f $(@:src/%_Dict.cpp=%_Dict.cpp) -c -I$(MY_LIB_INC) $(<:include/%.hpp=%.hpp) && \
+		rootcint -f $(@:src/%_Dict.cpp=%_Dict.cpp) -c $(<:include/%.hpp=%.hpp) && \
 		mv $(@:src/%_Dict.cpp=%_Dict.cpp) ../src/
 	cd include && \
 		if [ -f $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) ]; then cp $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) $(DEST_BIN)/; fi
 
 $(MY_LIB)/obj/%.o: $(MY_LIB)/src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
 
 clean:
 	@echo "Cleaning objects ..."

@@ -10,7 +10,7 @@ OBJ_FILES := $(addprefix obj/,$(notdir $(CPP_FILES:.cpp=.o)))
 all: $(OBJ_FILES)
 
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
 
 clean:
 	@echo "Cleaning objects ..."

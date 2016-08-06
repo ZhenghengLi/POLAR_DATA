@@ -12,10 +12,10 @@ DEST_BIN := ../../bin
 all: $(DEST_BIN)/SCI_Split
 
 $(DEST_BIN)/SCI_Split: $(OBJ_FILES)
-	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS)
+	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS) $(BOOST_LIB)
 
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
 
 clean:
 	@echo "Cleaning objects ..."
