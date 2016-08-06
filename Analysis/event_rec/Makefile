@@ -15,10 +15,10 @@ all: $(DEST_BIN)/event_rec
 
 $(DEST_BIN)/event_rec: obj/main.o obj/RecEventDataFile.o obj/Processor.o obj/OptionsManager.o \
 	$(MY_LIB)/obj/EventIterator.o $(MY_LIB)/obj/SciType.o
-	$(CC) $(LINK_FLAGS) -o $@ $^ $(ROOT_LIBS) $(BOOST_LIB)
+	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(BOOST_INC) $(ROOT_FLAGS) -c -o $@ $<
 
 src/%_Dict.cpp: include/%.hpp
 	cd include && \
@@ -28,7 +28,7 @@ src/%_Dict.cpp: include/%.hpp
 		if [ -f $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) ]; then cp $(@:src/%_Dict.cpp=%_Dict_rdict.pcm) $(DEST_BIN)/; fi
 
 $(MY_LIB)/obj/%.o: $(MY_LIB)/src/%.cpp
-	$(CC) $(CC_FLAGS) $(ROOT_FLAGS) $(BOOST_INC) -c -o $@ $<
+	$(CC) $(CC_FLAGS) $(BOOST_INC) $(ROOT_FLAGS) -c -o $@ $<
 
 clean:
 	@echo "Cleaning objects ..."
