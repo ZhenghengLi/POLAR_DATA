@@ -32,7 +32,7 @@ def calc_utc_time_sec(utc_time_str):
 def calc_ship_time_sec(ship_time_str):
     # 0000D01:19:04.000.0
     timevar = [int(x) for x in re.split('[D:\.]', ship_time_str)]
-    return timevar[0] * 24 * 3600 + timevar[1] * 3600 + timevar[2] * 60 + timevar[3] + 0
+    return timevar[0] * 24 * 3600 + timevar[1] * 3600 + timevar[2] * 60 + timevar[3] + timevar[4] * 1E-3 + timevar[5] * 1E-4
 
 print calc_ship_time_sec("0000D01:19:04.000.0")
 

@@ -13,7 +13,7 @@ if [[ $PATH =~ $my_path ]]; then
 else
     export PATH=$my_path:$PATH
     export LD_LIBRARY_PATH=$my_lib:$LD_LIBRARY_PATH
-    if [[ -v boost_prefix ]]; then
+    if [ $boost_prefix ]; then
         export BOOST_INC=-I$boost_prefix/include
         export BOOST_LIB=-L$boost_prefix/lib
         export LD_LIBRARY_PATH=$boost_prefix/lib:$LD_LIBRARY_PATH
