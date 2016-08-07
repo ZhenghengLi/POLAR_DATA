@@ -34,20 +34,35 @@ def calc_ship_time_sec(ship_time_str):
     timevar = [int(x) for x in re.split('[D:\.]', ship_time_str)]
     return timevar[0] * 24 * 3600 + timevar[1] * 3600 + timevar[2] * 60 + timevar[3] + timevar[4] * 1E-3 + timevar[5] * 1E-4
 
-print calc_ship_time_sec("0000D01:19:04.000.0")
-
-utc_time_str = "2016-07-31T13:10:36+0000"
-print calc_utc_time_sec(utc_time_str)
-print gen_utc_time_str("2016-03", "0023D12:34:56")
+# ===========
 
 t_file_out = File(args.outfile, "recreate")
 t_tree_ppd = Tree("t_ppd", "platform parameters data")
 t_tree_ppd.create_branches({
-    "tstr" : "C[30]"
+    "pitch_angle"          : "D"     ,
+    "yaw_angle"            : "D"     ,
+    "roll_angle"           : "D"     ,
+    "pitch_angle_v"        : "D"     ,
+    "yaw_angle_v"          : "D"     ,
+    "roll_angle_v"         : "D"     ,
+    "orbit_agl_v"          : "D"     ,
+    "longitude"            : "D"     ,
+    "latitude"             : "D"     ,
+    "geocentric_d"         : "D"     ,
+    "ship_time_sec"        : "D"     ,
+    "utc_time_sec"         : "D"     ,
+    "utc_time_str"         : "C[32]" ,
+    "flag_of_pos"          : "I"     ,
+    "wgs84_x"              : "D"     ,
+    "wgs84_y"              : "D"     ,
+    "wgs84_z"              : "D"     ,
+    "wgs84_x_v"            : "D"     ,
+    "wgs84_y_v"            : "D"     ,
+    "wgs84_z_v"            : "D"     ,
     })
 
-t_tree_ppd.tstr = "abcde"
-t_tree_ppd.fill()
+
+
 t_file_out.cd()
 t_tree_ppd.write()
 t_file_out.close()
