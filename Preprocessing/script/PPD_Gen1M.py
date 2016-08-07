@@ -111,7 +111,7 @@ with open(args.filename, 'rb') as csvfile:
 
 dattype        = ROOT.TNamed("dattype", "PLATFORM PARAMETERS DATA")
 version        = ROOT.TNamed("version", "PPD_Gen1M.py v1.0.0")
-gentime        = ROOT.TNamed("gentime", datetime.now().isoformat().replace('T', ' ') + "+0800")
+gentime        = ROOT.TNamed("gentime", datetime.now().isoformat() + "+0800")
 ship_time_span = ROOT.TNamed("ship_time_span", str(first_ship_time_sec) + " => " + str(last_ship_time_sec))
 utc_time_span  = ROOT.TNamed("utc_time_span",  str(first_utc_time_sec) + " => " + str(last_utc_time_sec))
 
