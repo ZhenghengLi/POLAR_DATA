@@ -60,7 +60,7 @@ void ComptonEdgeCalc::set_source_type(string type_str) {
 
 bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
     for (int j = 0; j < 64; j++) {
-        if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] == 4095) {
+        if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] >= 4095) {
             return false;
         }
     }

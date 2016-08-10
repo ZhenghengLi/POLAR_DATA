@@ -41,7 +41,7 @@ XtalkMatrixCalc::~XtalkMatrixCalc() {
 
 bool XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
     for (int j = 0; j < 64; j++) {
-        if (sciIter.t_modules.trigger_bit[j] && sciIter.t_modules.energy_adc[j] == 4095) {
+        if (sciIter.t_modules.trigger_bit[j] && sciIter.t_modules.energy_adc[j] >= 4095) {
             return false;
         }
     }

@@ -114,7 +114,7 @@ bool Processor::read_adc_per_kev_vector_(const char* filename) {
 
 bool Processor::gen_energy_dep_vector_(EventIterator& eventIter) {
     for (int j = 0; j < 64; j++) {
-        if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] == 4095) {
+        if (eventIter.t_modules.trigger_bit[j] && eventIter.t_modules.energy_adc[j] >= 4095) {
             return false;
         }
     }
