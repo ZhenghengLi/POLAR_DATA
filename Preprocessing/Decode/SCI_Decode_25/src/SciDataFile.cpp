@@ -368,7 +368,7 @@ void SciDataFile::copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& even
             t_modules_par.energy_adc[i]                   = static_cast<Float_t>(event.energy_ch[i]);
         } else {
             if (event.energy_ch[i] < 4096) {
-                t_modules_par.energy_adc[i]               = (static_cast<Float_t>(event.energy_ch[i]) - 2048) * 2;
+                t_modules_par.energy_adc[i]               = (static_cast<Float_t>(event.energy_ch[i]) - 2048) * 2 + 1;
             } else {
                 t_modules_par.energy_adc[i]               = 8192;
             }
