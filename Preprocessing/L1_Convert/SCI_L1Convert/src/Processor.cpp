@@ -26,6 +26,7 @@ void Processor::convert_data(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
         scifile_l1.t_pol_event.abs_gps_week             = scifile_1r.t_triggerl1.abs_gps_week;
         scifile_l1.t_pol_event.abs_gps_second           = scifile_1r.t_triggerl1.abs_gps_second;
         scifile_l1.t_pol_event.abs_gps_valid            = scifile_1r.t_triggerl1.abs_gps_valid;
+        scifile_l1.t_pol_event.abs_ship_second          = scifile_1r.t_triggerl1.abs_ship_second;
         scifile_l1.t_pol_event.type                     = scifile_1r.t_triggerl1.type;
         scifile_l1.t_pol_event.pkt_count                = scifile_1r.t_triggerl1.pkt_count;
         scifile_l1.t_pol_event.lost_count               = scifile_1r.t_triggerl1.lost_count;

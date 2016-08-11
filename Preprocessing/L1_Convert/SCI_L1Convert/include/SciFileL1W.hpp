@@ -14,6 +14,7 @@ public:
         Int_t     abs_gps_week;
         Double_t  abs_gps_second;
         Bool_t    abs_gps_valid;
+        Double_t  abs_ship_second;
         Int_t     type;
         Bool_t    trig_accepted[25];
         Bool_t    time_aligned[25];

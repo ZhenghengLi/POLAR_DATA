@@ -42,6 +42,7 @@ bool SciFile1RR::open(const char* filename) {
     t_triggerl1_tree_->SetBranchAddress("abs_gps_week",      &t_triggerl1.abs_gps_week       );
     t_triggerl1_tree_->SetBranchAddress("abs_gps_second",    &t_triggerl1.abs_gps_second     );
     t_triggerl1_tree_->SetBranchAddress("abs_gps_valid",     &t_triggerl1.abs_gps_valid      );
+    t_triggerl1_tree_->SetBranchAddress("abs_ship_second",   &t_triggerl1.abs_ship_second    );
     t_triggerl1_tree_->SetBranchAddress("type",              &t_triggerl1.type               );
     t_triggerl1_tree_->SetBranchAddress("trig_accepted",      t_triggerl1.trig_accepted      );
     t_triggerl1_tree_->SetBranchAddress("pkt_start",         &t_triggerl1.pkt_start          );

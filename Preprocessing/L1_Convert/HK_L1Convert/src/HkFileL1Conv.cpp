@@ -30,6 +30,7 @@ bool HkFileL1Conv::open_r(const char* filename) {
     t_hk_obox_tree_->SetBranchAddress("gps_pps_count",        &t_pol_hk.gps_pps_count    );
     t_hk_obox_tree_->SetBranchAddress("abs_gps_week",         &t_pol_hk.abs_gps_week     );
     t_hk_obox_tree_->SetBranchAddress("abs_gps_second",       &t_pol_hk.abs_gps_second   );
+    t_hk_obox_tree_->SetBranchAddress("abs_ship_second",      &t_pol_hk.abs_ship_second  );
     t_hk_obox_tree_->SetBranchAddress("packet_num",           &t_pol_hk.packet_num       );
     t_hk_obox_tree_->SetBranchAddress("obox_mode",            &t_pol_hk.obox_mode        );
     t_hk_obox_tree_->SetBranchAddress("ct_temp",              &t_pol_hk.ct_temp          );
@@ -58,6 +59,7 @@ bool HkFileL1Conv::open_w(const char* filename) {
     t_pol_hk_tree_->Branch("abs_gps_week",       &t_pol_hk.abs_gps_week,       "abs_gps_week/I"      );
     t_pol_hk_tree_->Branch("abs_gps_second",     &t_pol_hk.abs_gps_second,     "abs_gps_second/D"    );
     t_pol_hk_tree_->Branch("abs_gps_valid",      &t_pol_hk.abs_gps_valid,      "abs_gps_valid/O"     );
+    t_pol_hk_tree_->Branch("abs_ship_second",    &t_pol_hk.abs_ship_second,    "abs_ship_second/D"   );
     t_pol_hk_tree_->Branch("packet_num",         &t_pol_hk.packet_num,         "packet_num/s"        );
     t_pol_hk_tree_->Branch("obox_mode",          &t_pol_hk.obox_mode,          "obox_mode/b"         );
     t_pol_hk_tree_->Branch("ct_temp",            &t_pol_hk.ct_temp,            "ct_temp/F"           );
