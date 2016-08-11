@@ -152,6 +152,7 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
             scitran.t_trigger.abs_gps_week = -1;
             scitran.t_trigger.abs_gps_second = -1;
             scitran.t_trigger.abs_gps_valid = false;
+            scitran.t_trigger.abs_ship_second = -1;
             scitran.trigger_fill();
             continue;
         }
@@ -238,6 +239,13 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
         }
         // finish calculating absolute time
 
+        if (scitran.t_trigger.abs_gps_week > 0) {
+            scitran.t_trigger.abs_ship_second = scitran.phy_cur_ship_second + 
+                (scitran.t_trigger.abs_gps_week - scitran.phy_cur_gps.week) * 604800 + 
+                scitran.t_trigger.abs_gps_second - scitran.phy_cur_gps.second;
+        } else {
+            scitran.t_trigger.abs_ship_second = -1;
+        }
         if (scitran.t_trigger.abs_gps_week > 0 && scitran.t_trigger.abs_gps_week < 1024) {
             if (scitran.t_trigger.abs_gps_week > 629) {
                 scitran.t_trigger.abs_gps_week += 1024;
@@ -294,6 +302,7 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
             scitran.t_ped_trigger.abs_gps_week = -1;
             scitran.t_ped_trigger.abs_gps_second = -1;
             scitran.t_ped_trigger.abs_gps_valid = false;
+            scitran.t_ped_trigger.abs_ship_second = -1;
             scitran.ped_trigger_fill();
             continue;
         }
@@ -379,7 +388,13 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
             }
         }
         // finish calculating absolute time
-
+        if (scitran.t_ped_trigger.abs_gps_week > 0) {
+            scitran.t_ped_trigger.abs_ship_second = scitran.ped_cur_ship_second + 
+                (scitran.t_ped_trigger.abs_gps_week - scitran.ped_cur_gps.week) * 604800 + 
+                scitran.t_ped_trigger.abs_gps_second - scitran.ped_cur_gps.second;
+        } else {
+            scitran.t_ped_trigger.abs_ship_second = -1; 
+        }   
         if (scitran.t_ped_trigger.abs_gps_week > 0 && scitran.t_ped_trigger.abs_gps_week < 1024) {
             if (scitran.t_ped_trigger.abs_gps_week > 629) {
                 scitran.t_ped_trigger.abs_gps_week += 1024;

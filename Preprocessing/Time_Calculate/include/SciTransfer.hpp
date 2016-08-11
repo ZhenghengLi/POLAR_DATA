@@ -119,6 +119,7 @@ public:
         Int_t           abs_gps_week;             // week of absolute gps time of this event.
         Double_t        abs_gps_second;           // second of absolute gps time of this event.
         Bool_t          abs_gps_valid;            // if the absolute gps time is valid.
+        Double_t        abs_ship_second;          // second of absolute ship time of this event.
     };
 
 public:
@@ -129,8 +130,10 @@ public:
 
     GPSTime   phy_cur_gps;
     uint32_t  phy_cur_timestamp;
+    double    phy_cur_ship_second;
     GPSTime   ped_cur_gps;
     uint32_t  ped_cur_timestamp;
+    double    ped_cur_ship_second;
 
     GPSTime   phy_first_gps;
     uint32_t  phy_first_timestamp;
@@ -172,6 +175,9 @@ private:
     TTree*   t_trigger_tree_out_;
     TTree*   t_ped_modules_tree_out_;
     TTree*   t_ped_trigger_tree_out_;
+
+private:
+    double calc_ship_second(const uint64_t raw_ship_time);
 
 public:
     SciTransfer();

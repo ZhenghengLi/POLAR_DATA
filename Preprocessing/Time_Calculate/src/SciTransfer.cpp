@@ -269,6 +269,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_trigger_tree_out_->Branch("abs_gps_week",      &t_trigger.abs_gps_week,      "abs_gps_week/I"        );
     t_trigger_tree_out_->Branch("abs_gps_second",    &t_trigger.abs_gps_second,    "abs_gps_second/D"      );
     t_trigger_tree_out_->Branch("abs_gps_valid",     &t_trigger.abs_gps_valid,     "abs_gps_valid/O"       );
+    t_trigger_tree_out_->Branch("abs_ship_second",   &t_trigger.abs_ship_second,   "abs_ship_second/D"     );
 
     // t_ped_modules
     t_ped_modules_tree_out_ = new TTree("t_ped_modules", "pedestal modules packets");
@@ -336,6 +337,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_ped_trigger_tree_out_->Branch("abs_gps_week",      &t_ped_trigger.abs_gps_week,      "abs_gps_week/I"        );
     t_ped_trigger_tree_out_->Branch("abs_gps_second",    &t_ped_trigger.abs_gps_second,    "abs_gps_second/D"      );
     t_ped_trigger_tree_out_->Branch("abs_gps_valid",     &t_ped_trigger.abs_gps_valid,     "abs_gps_valid/O"       );
+    t_ped_trigger_tree_out_->Branch("abs_ship_second",   &t_ped_trigger.abs_ship_second,   "abs_ship_second/D"     );
     
     return true;
 }
@@ -385,6 +387,12 @@ void SciTransfer::read_set_start() {
     t_ped_trigger_reach_end_ = false;
 }
 
+double SciTransfer::calc_ship_second(const uint64_t raw_ship_time) {
+    double second = static_cast<double>(raw_ship_time >> 16);
+    double millisecond = static_cast<double>(raw_ship_time & 0xFFFF) / 2000;
+    return second + millisecond;
+}
+
 bool SciTransfer::modules_next() {
     if (t_file_in_ == NULL)
         return false;
@@ -410,6 +418,7 @@ bool SciTransfer::trigger_next() {
         t_trigger_tree_in_->GetEntry(t_trigger_cur_index_);
         phy_cur_gps.update6(t_trigger.frm_gps_time);
         phy_cur_timestamp = t_trigger.time_stamp;
+        phy_cur_ship_second = calc_ship_second(t_trigger.frm_ship_time);
         return true;
     } else {
         t_trigger_reach_end_ = true;
@@ -442,6 +451,7 @@ bool SciTransfer::ped_trigger_next() {
         t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_cur_index_);
         ped_cur_gps.update6(t_ped_trigger.frm_gps_time);
         ped_cur_timestamp = t_ped_trigger.time_stamp;
+        ped_cur_ship_second = calc_ship_second(t_ped_trigger.frm_ship_time);
         return true;
     } else {
         t_ped_trigger_reach_end_ = true;
