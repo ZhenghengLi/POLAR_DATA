@@ -54,6 +54,11 @@ void HkType::bind_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox) {
     t_hk_obox_tree->SetBranchAddress("gps_pps_count",        &t_hk_obox.gps_pps_count        );
     t_hk_obox_tree->SetBranchAddress("gps_sync_gen_count",   &t_hk_obox.gps_sync_gen_count   );
     t_hk_obox_tree->SetBranchAddress("gps_sync_send_count",  &t_hk_obox.gps_sync_send_count  );
+    t_hk_obox_tree->SetBranchAddress("ibox_gps",             &t_hk_obox.ibox_gps             );  
+    t_hk_obox_tree->SetBranchAddress("abs_gps_week",         &t_hk_obox.abs_gps_week         );  
+    t_hk_obox_tree->SetBranchAddress("abs_gps_second",       &t_hk_obox.abs_gps_second       );  
+    t_hk_obox_tree->SetBranchAddress("ship_time",            &t_hk_obox.ship_time            );  
+    t_hk_obox_tree->SetBranchAddress("abs_ship_second",      &t_hk_obox.abs_ship_second      );  
 }
 
 void HkType::bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
@@ -70,5 +75,8 @@ void HkType::bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
     t_hk_ibox_tree->SetBranchAddress("head",                 &t_hk_ibox.head                 );
     t_hk_ibox_tree->SetBranchAddress("tail",                 &t_hk_ibox.tail                 );
     t_hk_ibox_tree->SetBranchAddress("ibox_gps",             &t_hk_ibox.ibox_gps             );
+    t_hk_ibox_tree->SetBranchAddress("abs_gps_week",         &t_hk_ibox.abs_gps_week         );
+    t_hk_ibox_tree->SetBranchAddress("abs_gps_second",       &t_hk_ibox.abs_gps_second       );
+    t_hk_ibox_tree->SetBranchAddress("abs_ship_second",      &t_hk_ibox.abs_ship_second      );
 }
 

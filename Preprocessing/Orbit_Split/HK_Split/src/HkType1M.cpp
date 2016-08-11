@@ -57,6 +57,8 @@ void HkType1M::bind_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox) {
     t_hk_obox_tree->SetBranchAddress("ibox_gps",             &t_hk_obox.ibox_gps             );
     t_hk_obox_tree->SetBranchAddress("abs_gps_week",         &t_hk_obox.abs_gps_week         );
     t_hk_obox_tree->SetBranchAddress("abs_gps_second",       &t_hk_obox.abs_gps_second       );
+    t_hk_obox_tree->SetBranchAddress("ship_time",            &t_hk_obox.ship_time            );
+    t_hk_obox_tree->SetBranchAddress("abs_ship_second",      &t_hk_obox.abs_ship_second      );
 }
 
 void HkType1M::bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
@@ -75,6 +77,7 @@ void HkType1M::bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
     t_hk_ibox_tree->SetBranchAddress("ibox_gps",             &t_hk_ibox.ibox_gps             );
     t_hk_ibox_tree->SetBranchAddress("abs_gps_week",         &t_hk_ibox.abs_gps_week         );
     t_hk_ibox_tree->SetBranchAddress("abs_gps_second",       &t_hk_ibox.abs_gps_second       );
+    t_hk_ibox_tree->SetBranchAddress("abs_ship_second",      &t_hk_ibox.abs_ship_second      );
 }
 
 void HkType1M::build_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox) {
@@ -134,6 +137,8 @@ void HkType1M::build_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox) {
     t_hk_obox_tree->Branch("ibox_gps",             &t_hk_obox.ibox_gps,             "ibox_gps/l"            );
     t_hk_obox_tree->Branch("abs_gps_week",         &t_hk_obox.abs_gps_week,         "abs_gps_week/I"        );
     t_hk_obox_tree->Branch("abs_gps_second",       &t_hk_obox.abs_gps_second,       "abs_gps_second/D"      );
+    t_hk_obox_tree->Branch("ship_time",            &t_hk_obox.ship_time,            "ship_time/l"           );
+    t_hk_obox_tree->Branch("abs_ship_second",      &t_hk_obox.abs_ship_second,      "abs_ship_second/D"     );
 }
 
 void HkType1M::build_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
@@ -152,4 +157,5 @@ void HkType1M::build_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox) {
     t_hk_ibox_tree->Branch("ibox_gps",             &t_hk_ibox.ibox_gps,             "ibox_gps/l"            );
     t_hk_ibox_tree->Branch("abs_gps_week",         &t_hk_ibox.abs_gps_week,         "abs_gps_week/I"        );
     t_hk_ibox_tree->Branch("abs_gps_second",       &t_hk_ibox.abs_gps_second,       "abs_gps_second/D"      );
+    t_hk_ibox_tree->Branch("abs_ship_second",      &t_hk_ibox.abs_ship_second,      "abs_ship_second/D"     );
 }

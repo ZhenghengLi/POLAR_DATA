@@ -29,6 +29,7 @@ void SciType1P::bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) {
     t_trigger_tree->SetBranchAddress("abs_gps_week",      &t_trigger.abs_gps_week                );
     t_trigger_tree->SetBranchAddress("abs_gps_second",    &t_trigger.abs_gps_second              );
     t_trigger_tree->SetBranchAddress("abs_gps_valid",     &t_trigger.abs_gps_valid               );
+    t_trigger_tree->SetBranchAddress("abs_ship_second",   &t_trigger.abs_ship_second             );
 }
 
 void SciType1P::bind_modules_tree(TTree* t_modules_tree, Modules_T& t_modules) {
@@ -90,6 +91,7 @@ void SciType1P::build_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) 
     t_trigger_tree->Branch("abs_gps_week",      &t_trigger.abs_gps_week,      "abs_gps_week/I"        );
     t_trigger_tree->Branch("abs_gps_second",    &t_trigger.abs_gps_second,    "abs_gps_second/D"      );
     t_trigger_tree->Branch("abs_gps_valid",     &t_trigger.abs_gps_valid,     "abs_gps_valid/O"       );
+    t_trigger_tree->Branch("abs_ship_second",   &t_trigger.abs_ship_second,   "abs_ship_second/D"     );
 }
 
 void SciType1P::build_modules_tree(TTree* t_modules_tree, Modules_T& t_modules) {

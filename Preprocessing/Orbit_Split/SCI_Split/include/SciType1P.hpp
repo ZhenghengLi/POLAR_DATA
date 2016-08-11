@@ -113,6 +113,7 @@ public:
         Int_t           abs_gps_week;             // week of absolute gps time of this event.
         Double_t        abs_gps_second;           // second of absolute gps time of this event.
         Bool_t          abs_gps_valid;            // if the absolute gps time is valid.
+        Double_t        abs_ship_second;          // second of absolute ship time of this event.
     };
 
 public:

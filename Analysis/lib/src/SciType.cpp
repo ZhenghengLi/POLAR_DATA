@@ -41,6 +41,7 @@ void SciType::bind_trigger_tree(TTree* t_trigger_tree, Trigger_T& t_trigger) {
         t_trigger_tree->SetBranchAddress("abs_gps_week",      &t_trigger.abs_gps_week            );
         t_trigger_tree->SetBranchAddress("abs_gps_second",    &t_trigger.abs_gps_second          );
         t_trigger_tree->SetBranchAddress("abs_gps_valid",     &t_trigger.abs_gps_valid           );
+        t_trigger_tree->SetBranchAddress("abs_ship_second",   &t_trigger.abs_ship_second         );
     }
 }
 
