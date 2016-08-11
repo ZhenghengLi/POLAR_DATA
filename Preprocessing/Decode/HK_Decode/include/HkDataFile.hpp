@@ -73,6 +73,8 @@ public:
         ULong64_t      ibox_gps;                      // raw data of IBOX GPS time
         Int_t          abs_gps_week;                  // week of ibox_gps time of this packet.
         Double_t       abs_gps_second;                // second of ibox_gps time of this packet.
+        ULong64_t      ship_time;                     // raw data of Ship time
+        Double_t       abs_ship_second;               // second of ship time of this packet.
     };
 
     struct Hk_Ibox_T {
@@ -91,6 +93,7 @@ public:
         ULong64_t      ibox_gps;                      // raw data of IBOX GPS time
         Int_t          abs_gps_week;                  // week of ibox_gps time of this packet.
         Double_t       abs_gps_second;                // second of ibox_gps time of this packet.
+        Double_t       abs_ship_second;               // second of ship time of this packet.
     };
     
 public:
@@ -131,6 +134,7 @@ private:
 
     int    week_of_gps6_(const uint64_t raw_gps);
     double second_of_gps6_(const uint64_t raw_gps);
+    double calc_ship_second(const uint64_t raw_ship_time);
     
 public:
     HkDataFile();

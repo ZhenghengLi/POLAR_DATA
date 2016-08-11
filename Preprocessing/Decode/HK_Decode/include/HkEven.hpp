@@ -48,6 +48,7 @@ public:
     uint64_t  gps_sync_gen_count;
     uint64_t  gps_sync_send_count;
     uint64_t  ibox_gps;
+    uint64_t  ship_time;
 
 public:
     int32_t is_bad;
@@ -89,6 +90,7 @@ private:
     void set_gps_sync_gen_count_();
     void set_gps_sync_send_count_();
     void set_ibox_gps_();
+    void set_ship_time_();
     
 public:
     void update(int32_t cur_is_bad);

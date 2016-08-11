@@ -196,6 +196,10 @@ void HkEven::set_ibox_gps_() {
     ibox_gps = decode_byte<uint64_t>(frame_data_, 250, 255);
 }
 
+void HkEven::set_ship_time_() {
+    ship_time = decode_byte<uint64_t>(frame_data_, 12, 17);
+}
+
 void HkEven::update(int32_t cur_is_bad) {
     is_bad = cur_is_bad;
     set_frm_index_();
@@ -234,5 +238,6 @@ void HkEven::update(int32_t cur_is_bad) {
     set_gps_sync_gen_count_();
     set_gps_sync_send_count_();
     set_ibox_gps_();
+    set_ship_time_();
 }
 

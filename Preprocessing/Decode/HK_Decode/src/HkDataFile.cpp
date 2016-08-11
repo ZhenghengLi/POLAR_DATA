@@ -77,6 +77,8 @@ bool HkDataFile::open(const char* filename) {
     t_hk_obox_tree_->Branch("ibox_gps",             &t_hk_obox.ibox_gps,             "ibox_gps/l"            );
     t_hk_obox_tree_->Branch("abs_gps_week",         &t_hk_obox.abs_gps_week,         "abs_gps_week/I"        );
     t_hk_obox_tree_->Branch("abs_gps_second",       &t_hk_obox.abs_gps_second,       "abs_gps_second/D"      );
+    t_hk_obox_tree_->Branch("ship_time",            &t_hk_obox.ship_time,            "ship_time/l"           );
+    t_hk_obox_tree_->Branch("abs_ship_second",      &t_hk_obox.abs_ship_second,      "abs_ship_second/D"     );
 
     t_hk_ibox_tree_ = new TTree("t_hk_ibox", "ibox housekeeping info");
     t_hk_ibox_tree_->SetDirectory(t_out_file_);
@@ -95,6 +97,7 @@ bool HkDataFile::open(const char* filename) {
     t_hk_ibox_tree_->Branch("ibox_gps",             &t_hk_ibox.ibox_gps,             "ibox_gps/l"            );
     t_hk_ibox_tree_->Branch("abs_gps_week",         &t_hk_ibox.abs_gps_week,         "abs_gps_week/I"        );
     t_hk_ibox_tree_->Branch("abs_gps_second",       &t_hk_ibox.abs_gps_second,       "abs_gps_second/D"      );
+    t_hk_ibox_tree_->Branch("abs_ship_second",      &t_hk_ibox.abs_ship_second,      "abs_ship_second/D"     );
 
     hk_obox_first_gps_found_    = false;
     hk_obox_first_gps_index_    = -1;
@@ -145,6 +148,7 @@ void HkDataFile::write_ibox_info(const HkFrame& frame) {
         }
     }
     t_hk_ibox.abs_gps_second = second_of_gps6_(t_hk_ibox.ibox_gps);
+    t_hk_ibox.abs_ship_second = calc_ship_second(t_hk_ibox.ship_time);
     t_hk_ibox_tree_->Fill();
     if (t_hk_ibox.is_bad == 0) {
         hk_ibox_total_gps_count_++;
@@ -169,8 +173,10 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
     convert_obox_();
     if (t_hk_obox.odd_is_bad == 0) {
         t_hk_obox.ibox_gps   = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+        t_hk_obox.ship_time  = static_cast<ULong64_t>(odd_pkt.ship_time);
     } else if (t_hk_obox.even_is_bad == 0) {
         t_hk_obox.ibox_gps   = static_cast<ULong64_t>(even_pkt.ibox_gps);
+        t_hk_obox.ship_time  = static_cast<ULong64_t>(even_pkt.ship_time);
     } else {
         t_hk_obox.ibox_gps   = 0;
     }
@@ -183,6 +189,7 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
         }
     }
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_ship_second = calc_ship_second(t_hk_obox.ship_time);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.odd_is_bad == 0 || t_hk_obox.even_is_bad == 0) {
         hk_obox_total_gps_count_++;
@@ -208,6 +215,7 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     copy_odd_packet_(odd_pkt);
     convert_obox_();
     t_hk_obox.ibox_gps       = static_cast<ULong64_t>(odd_pkt.ibox_gps);
+    t_hk_obox.ship_time      = static_cast<ULong64_t>(odd_pkt.ship_time);
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
     if (t_hk_obox.abs_gps_week < 1024) {
         if (t_hk_obox.abs_gps_week > 629) {
@@ -217,6 +225,7 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
         }   
     }   
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_ship_second = calc_ship_second(t_hk_obox.ship_time);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.odd_is_bad == 0) {
         hk_obox_total_gps_count_++;
@@ -242,6 +251,7 @@ void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     copy_even_packet_(even_pkt);
     convert_obox_();
     t_hk_obox.ibox_gps       = static_cast<ULong64_t>(even_pkt.ibox_gps);
+    t_hk_obox.ship_time      = static_cast<ULong64_t>(even_pkt.ship_time);
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
     if (t_hk_obox.abs_gps_week < 1024) {
         if (t_hk_obox.abs_gps_week > 629) {
@@ -251,6 +261,7 @@ void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
         }   
     }   
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
+    t_hk_obox.abs_ship_second = calc_ship_second(t_hk_obox.ship_time);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.even_is_bad == 0) {
         hk_obox_total_gps_count_++;
@@ -482,6 +493,12 @@ int HkDataFile::week_of_gps6_(const uint64_t raw_gps) {
 
 double HkDataFile::second_of_gps6_(const uint64_t raw_gps) {
     return static_cast<double>((raw_gps >> 12) & 0xFFFFF) + static_cast<double>(raw_gps & 0xFFF) * 0.5 * 1.0E-3;
+}
+
+double HkDataFile::calc_ship_second(const uint64_t raw_ship_time) {
+    double second = static_cast<double>(raw_ship_time >> 16);
+    double millisecond = static_cast<double>(raw_ship_time & 0xFFFF) / 2000;
+    return second + millisecond;
 }
 
 void HkDataFile::gen_gps_result_str() {
