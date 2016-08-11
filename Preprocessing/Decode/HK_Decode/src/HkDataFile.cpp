@@ -137,6 +137,13 @@ void HkDataFile::write_ibox_info(const HkFrame& frame) {
     copy_ibox_info_(frame);
     t_hk_ibox.ibox_gps       = static_cast<ULong64_t>(frame.ibox_gps);
     t_hk_ibox.abs_gps_week   = week_of_gps6_(t_hk_ibox.ibox_gps);
+    if (t_hk_ibox.abs_gps_week < 1024) {
+        if (t_hk_ibox.abs_gps_week > 629) {
+            t_hk_ibox.abs_gps_week += 1024;
+        } else {
+            t_hk_ibox.abs_gps_week += 2048;
+        }
+    }
     t_hk_ibox.abs_gps_second = second_of_gps6_(t_hk_ibox.ibox_gps);
     t_hk_ibox_tree_->Fill();
     if (t_hk_ibox.is_bad == 0) {
@@ -168,6 +175,13 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
         t_hk_obox.ibox_gps   = 0;
     }
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    if (t_hk_obox.abs_gps_week < 1024) {
+        if (t_hk_obox.abs_gps_week > 629) {
+            t_hk_obox.abs_gps_week += 1024;
+        } else {
+            t_hk_obox.abs_gps_week += 2048;
+        }
+    }
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.odd_is_bad == 0 || t_hk_obox.even_is_bad == 0) {
@@ -195,6 +209,13 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     convert_obox_();
     t_hk_obox.ibox_gps       = static_cast<ULong64_t>(odd_pkt.ibox_gps);
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    if (t_hk_obox.abs_gps_week < 1024) {
+        if (t_hk_obox.abs_gps_week > 629) {
+            t_hk_obox.abs_gps_week += 1024;
+        } else {
+            t_hk_obox.abs_gps_week += 2048;
+        }   
+    }   
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.odd_is_bad == 0) {
@@ -222,6 +243,13 @@ void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     convert_obox_();
     t_hk_obox.ibox_gps       = static_cast<ULong64_t>(even_pkt.ibox_gps);
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
+    if (t_hk_obox.abs_gps_week < 1024) {
+        if (t_hk_obox.abs_gps_week > 629) {
+            t_hk_obox.abs_gps_week += 1024;
+        } else {
+            t_hk_obox.abs_gps_week += 2048;
+        }   
+    }   
     t_hk_obox.abs_gps_second = second_of_gps6_(t_hk_obox.ibox_gps);
     t_hk_obox_tree_->Fill();
     if (t_hk_obox.even_is_bad == 0) {
