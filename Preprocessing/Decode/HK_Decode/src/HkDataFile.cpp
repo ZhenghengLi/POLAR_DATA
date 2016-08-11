@@ -179,6 +179,7 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
         t_hk_obox.ship_time  = static_cast<ULong64_t>(even_pkt.ship_time);
     } else {
         t_hk_obox.ibox_gps   = 0;
+        t_hk_obox.ship_time  = 0;
     }
     t_hk_obox.abs_gps_week   = week_of_gps6_(t_hk_obox.ibox_gps);
     if (t_hk_obox.abs_gps_week < 1024) {
