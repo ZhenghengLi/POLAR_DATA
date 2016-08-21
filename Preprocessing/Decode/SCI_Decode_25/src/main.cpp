@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
         } else {
             options_mgr.print_help();
         }
-        exit(0);
+        exit(1);
     }
     
     FileList filelist;

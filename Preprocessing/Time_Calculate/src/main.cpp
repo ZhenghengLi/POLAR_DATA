@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
         } else {
             options_mgr.print_help();
         }
-        return 0;
+        return 1;
     }
 
     SciTransfer scitran;
