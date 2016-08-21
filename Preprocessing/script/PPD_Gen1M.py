@@ -1,41 +1,16 @@
 #!/usr/bin/env python
 
 import argparse
-import re
-from time import strptime, strftime, mktime
-from datetime import datetime
 import csv
 from rootpy import ROOT
 from rootpy.io import File
 from rootpy.tree import Tree
+from conv_fun import *
 
 parser = argparse.ArgumentParser(description='Convert platform parameters data from CSV file to ROOT file')
 parser.add_argument("filename", help = "CSV file of platform parameters data")
 parser.add_argument("-o", dest = "outfile", help = "ROOT file to store platform parameters data", default = "TG2_PPD_file.root")
 args = parser.parse_args()
-
-# ============
-
-def gen_utc_time_str(utc_ym, utc_dtime):
-    # utc_ym    => 0-0
-    # utc_dtime => 0000D00:00:00
-    ym   = [int(x) for x in utc_ym.split('-')]
-    dhms = [int(x) for x in re.split('[D:]', utc_dtime)]
-    return "%04d-%02d-%02dT%02d:%02d:%02d+0000" % (ym[0], ym[1], dhms[0], dhms[1], dhms[2], dhms[3])
-
-def calc_utc_time_sec(utc_time_str):
-    td_vals = [int(x) for x in re.split('[-T:\+]', utc_time_str)]
-    if td_vals[0] < 1 or td_vals[1] < 1 or td_vals[2] < 1: return -1
-    t_fmt_str = "%Y-%m-%dT%H:%M:%S+0000"
-    utc_gps_zero = "1980-01-06T00:00:00+0000"
-    return mktime(strptime(utc_time_str, t_fmt_str)) - mktime(strptime(utc_gps_zero, t_fmt_str))
-
-def calc_ship_time_sec(ship_time_str):
-    # 0000D01:19:04.000.0
-    timevar = [int(x) for x in re.split('[D:\.]', ship_time_str)]
-    return timevar[0] * 24 * 3600 + timevar[1] * 3600 + timevar[2] * 60 + timevar[3] + timevar[4] * 1E-3 + timevar[5] * 1E-4
-
-# ===========
 
 t_file_out = File(args.outfile, "recreate")
 t_tree_ppd = Tree("t_ppd", "platform parameters data")
