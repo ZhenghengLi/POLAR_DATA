@@ -36,7 +36,7 @@ void Processor::convert_data(SciFile1RR& scifile_1r, SciFileL1W& scifile_l1) {
             scifile_l1.t_pol_event.time_aligned[i]      = false;
             scifile_l1.t_pol_event.multiplicity[i]      = 0;
             scifile_l1.t_pol_event.compress[i]          = -1;
-            scifile_l1.t_pol_event.common_noise[i]      = 0;
+            scifile_l1.t_pol_event.common_noise[i]      = 8192;
         }
         for (int k = 0; k < 1600; k++) {
             scifile_l1.t_pol_event.trigger_bit[k]       = false;

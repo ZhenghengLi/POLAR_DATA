@@ -35,7 +35,7 @@ bool SciFileL1W::open(const char* filename) {
     t_pol_event_tree_->Branch("multiplicity",       t_pol_event.multiplicity,      "multiplicity[25]/I"       );
     t_pol_event_tree_->Branch("energy_adc",         t_pol_event.energy_adc,        "energy_adc[1600]/F"       );
     t_pol_event_tree_->Branch("compress",           t_pol_event.compress,          "compress[25]/I"           );
-    t_pol_event_tree_->Branch("common_noise",       t_pol_event.common_noise,      "common_noise[25]/I"       );
+    t_pol_event_tree_->Branch("common_noise",       t_pol_event.common_noise,      "common_noise[25]/F"       );
 
     pol_event_cur_index_ = -1;
     
