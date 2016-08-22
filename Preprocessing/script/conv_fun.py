@@ -24,12 +24,12 @@ def calc_ship_time_sec(ship_time_str):
     timevar = [int(x) for x in re.split('[D:\.]', ship_time_str)]
     return timevar[0] * 24 * 3600 + timevar[1] * 3600 + timevar[2] * 60 + timevar[3] + timevar[4] * 1E-3 + timevar[5] * 1E-4
 
-def xyz_to_lati_longi(x, y, z): 
+def xyz_to_latlon(x, y, z):
     r = np.sqrt(x**2 + y**2 + z**2)
     return [90 - np.arccos(z / r) / np.pi * 180, np.arctan2(y, x) / np.pi * 180]
 
-def lati_longi_to_xyz(lati, longi):
-    theta = (90 - lati) / 180 * np.pi
-    pha = (longi if longi >= 0 else longi + 360) / 180 * np.pi
+def latlon_to_xyz(lat, lon):
+    theta = (90 - lat) / 180 * np.pi
+    pha = (lon if lon >= 0 else lon + 360) / 180 * np.pi
     return [np.sin(theta) * np.cos(pha), np.sin(theta) * np.sin(pha), np.cos(theta)]
 
