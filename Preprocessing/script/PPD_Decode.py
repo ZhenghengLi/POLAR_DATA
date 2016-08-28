@@ -2,6 +2,7 @@
 
 import argparse
 import os
+from ppd_data import ppd_data
 
 parser = argparse.ArgumentParser(description='Decode platform parameters data from 1553B')
 parser.add_argument("filename", help = "CSV file of platform parameters data")
@@ -16,6 +17,8 @@ cnt_header_err = 0
 cnt_ppd_pkt    = 0
 cnt_ppd_err    = 0
 
+ppd_data_obj = ppd_data()
+
 block_size = 76
 for i in xrange(file_size / block_size):
     block = file_1553b.read(block_size)
@@ -29,6 +32,8 @@ for i in xrange(file_size / block_size):
     if int(block[4:6].encode('hex'), 16) != 0x3d80:
         cnt_ppd_err += 1
         continue
+    ppd_data_obj.decode(block)
+    print str(ppd_data_obj.ship_time_sec) + ', ' + ppd_data_obj.utc_time_str
 
 file_1553b.close()
 
