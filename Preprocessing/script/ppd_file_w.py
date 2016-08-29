@@ -4,7 +4,7 @@ from rootpy import ROOT
 from rootpy.io import File
 from rootpy.tree import Tree
 
-class ppd_file:
+class ppd_file_w:
     def __int__(self):
         self.__t_file_out = None
         self.__t_tree_ppd = None
