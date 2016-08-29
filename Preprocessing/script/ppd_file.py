@@ -47,39 +47,39 @@ class ppd_file:
             "earth_dec"            : "D"     
             })
 
-    def fill_data(self, ppd_data_obj):
-        self.__t_tree_ppd.pitch_angle     = ppd_data_obj.pitch_angle
-        self.__t_tree_ppd.yaw_angle       = ppd_data_obj.yaw_angle
-        self.__t_tree_ppd.roll_angle      = ppd_data_obj.roll_angle
-        self.__t_tree_ppd.pitch_angle_v   = ppd_data_obj.pitch_angle_v
-        self.__t_tree_ppd.yaw_angle_v     = ppd_data_obj.yaw_angle_v
-        self.__t_tree_ppd.roll_angle_v    = ppd_data_obj.roll_angle_v
-        self.__t_tree_ppd.orbit_agl_v     = ppd_data_obj.orbit_agl_v
-        self.__t_tree_ppd.longitude       = ppd_data_obj.longitude
-        self.__t_tree_ppd.latitude        = ppd_data_obj.latitude
-        self.__t_tree_ppd.geocentric_d    = ppd_data_obj.geocentric_d
-        self.__t_tree_ppd.ship_time_sec   = ppd_data_obj.ship_time_sec
-        self.__t_tree_ppd.utc_time_sec    = ppd_data_obj.utc_time_sec
-        self.__t_tree_ppd.utc_time_str    = ppd_data_obj.utc_time_str
-        self.__t_tree_ppd.flag_of_pos     = ppd_data_obj.flag_of_pos
-        self.__t_tree_ppd.wgs84_x         = ppd_data_obj.wgs84_x
-        self.__t_tree_ppd.wgs84_y         = ppd_data_obj.wgs84_y
-        self.__t_tree_ppd.wgs84_z         = ppd_data_obj.wgs84_z
-        self.__t_tree_ppd.wgs84_x_v       = ppd_data_obj.wgs84_x_v
-        self.__t_tree_ppd.wgs84_y_v       = ppd_data_obj.wgs84_y_v
-        self.__t_tree_ppd.wgs84_z_v       = ppd_data_obj.wgs84_z_v
-        self.__t_tree_ppd.det_z_lat       = ppd_data_obj.det_z_lat
-        self.__t_tree_ppd.det_z_lon       = ppd_data_obj.det_z_lon
-        self.__t_tree_ppd.det_z_ra        = ppd_data_obj.det_z_ra
-        self.__t_tree_ppd.det_z_dec       = ppd_data_obj.det_z_dec
-        self.__t_tree_ppd.det_x_lat       = ppd_data_obj.det_x_lat
-        self.__t_tree_ppd.det_x_lon       = ppd_data_obj.det_x_lon
-        self.__t_tree_ppd.det_x_ra        = ppd_data_obj.det_x_ra
-        self.__t_tree_ppd.det_x_dec       = ppd_data_obj.det_x_dec
-        self.__t_tree_ppd.earth_lat       = ppd_data_obj.earth_lat
-        self.__t_tree_ppd.earth_lon       = ppd_data_obj.earth_lon
-        self.__t_tree_ppd.earth_ra        = ppd_data_obj.earth_ra
-        self.__t_tree_ppd.earth_dec       = ppd_data_obj.earth_dec
+    def fill_data(self, ppd_obj):
+        self.__t_tree_ppd.pitch_angle     = ppd_obj.pitch_angle
+        self.__t_tree_ppd.yaw_angle       = ppd_obj.yaw_angle
+        self.__t_tree_ppd.roll_angle      = ppd_obj.roll_angle
+        self.__t_tree_ppd.pitch_angle_v   = ppd_obj.pitch_angle_v
+        self.__t_tree_ppd.yaw_angle_v     = ppd_obj.yaw_angle_v
+        self.__t_tree_ppd.roll_angle_v    = ppd_obj.roll_angle_v
+        self.__t_tree_ppd.orbit_agl_v     = ppd_obj.orbit_agl_v
+        self.__t_tree_ppd.longitude       = ppd_obj.longitude
+        self.__t_tree_ppd.latitude        = ppd_obj.latitude
+        self.__t_tree_ppd.geocentric_d    = ppd_obj.geocentric_d
+        self.__t_tree_ppd.ship_time_sec   = ppd_obj.ship_time_sec
+        self.__t_tree_ppd.utc_time_sec    = ppd_obj.utc_time_sec
+        self.__t_tree_ppd.utc_time_str    = ppd_obj.utc_time_str
+        self.__t_tree_ppd.flag_of_pos     = ppd_obj.flag_of_pos
+        self.__t_tree_ppd.wgs84_x         = ppd_obj.wgs84_x
+        self.__t_tree_ppd.wgs84_y         = ppd_obj.wgs84_y
+        self.__t_tree_ppd.wgs84_z         = ppd_obj.wgs84_z
+        self.__t_tree_ppd.wgs84_x_v       = ppd_obj.wgs84_x_v
+        self.__t_tree_ppd.wgs84_y_v       = ppd_obj.wgs84_y_v
+        self.__t_tree_ppd.wgs84_z_v       = ppd_obj.wgs84_z_v
+        self.__t_tree_ppd.det_z_lat       = ppd_obj.det_z_lat
+        self.__t_tree_ppd.det_z_lon       = ppd_obj.det_z_lon
+        self.__t_tree_ppd.det_z_ra        = ppd_obj.det_z_ra
+        self.__t_tree_ppd.det_z_dec       = ppd_obj.det_z_dec
+        self.__t_tree_ppd.det_x_lat       = ppd_obj.det_x_lat
+        self.__t_tree_ppd.det_x_lon       = ppd_obj.det_x_lon
+        self.__t_tree_ppd.det_x_ra        = ppd_obj.det_x_ra
+        self.__t_tree_ppd.det_x_dec       = ppd_obj.det_x_dec
+        self.__t_tree_ppd.earth_lat       = ppd_obj.earth_lat
+        self.__t_tree_ppd.earth_lon       = ppd_obj.earth_lon
+        self.__t_tree_ppd.earth_ra        = ppd_obj.earth_ra
+        self.__t_tree_ppd.earth_dec       = ppd_obj.earth_dec
         self.__t_tree_ppd.fill()
 
     def write_tree(self):
