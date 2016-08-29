@@ -41,6 +41,8 @@ def _orbit_to_wgs84_mat(wgs84_xyz, wgs84_xyz_v):
 
 def _wgs84_to_j2000(wgs84_xyz, utc):
     lat, lon = _xyz_to_latlon(*wgs84_xyz)
+    lat = lat / 180 * np.pi
+    lon = lon / 180 * np.pi
     location = ep.Observer()
     location.lat  = lat
     location.lon  = lon
@@ -73,10 +75,16 @@ class ppd_data:
         self.wgs84_x_v      = 0.0
         self.wgs84_y_v      = 0.0
         self.wgs84_z_v      = 0.0
+        self.det_z_lat      = 0.0
+        self.det_z_lon      = 0.0
         self.det_z_ra       = 0.0
         self.det_z_dec      = 0.0
+        self.det_x_lat      = 0.0
+        self.det_x_lon      = 0.0
         self.det_x_ra       = 0.0
         self.det_x_dec      = 0.0
+        self.earth_lat      = 0.0
+        self.earth_lon      = 0.0
         self.earth_ra       = 0.0
         self.earth_dec      = 0.0
         self.__utc_year     = 0
@@ -161,7 +169,10 @@ class ppd_data:
         otw_mat = _orbit_to_wgs84_mat(wgs84_xyz, wgs84_xyz_v)
         wgs84_det_z = np.dot(otw_mat, np.dot(gto_mat, _det_z_gnc))
         wgs84_det_x = np.dot(otw_mat, np.dot(gto_mat, _det_x_gnc))
+        self.earth_lat, self.earth_lon = _xyz_to_latlon(*wgs84_earth)
         self.earth_ra, self.earth_dec = _wgs84_to_j2000(wgs84_earth, utc)
+        self.det_z_lat, self.det_z_lon = _xyz_to_latlon(*wgs84_det_z)
         self.det_z_ra, self.det_z_dec = _wgs84_to_j2000(wgs84_det_z, utc)
+        self.det_x_lat, self.det_x_lon = _xyz_to_latlon(*wgs84_det_x)
         self.det_x_ra, self.det_x_dec = _wgs84_to_j2000(wgs84_det_x, utc)
         

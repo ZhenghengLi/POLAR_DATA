@@ -2,7 +2,9 @@
 
 import argparse
 import os
+from datetime import datetime
 from ppd_data import ppd_data
+from ppd_file import ppd_file
 
 parser = argparse.ArgumentParser(description='Decode platform parameters data from 1553B')
 parser.add_argument("filename", help = "CSV file of platform parameters data")
@@ -18,6 +20,8 @@ cnt_ppd_pkt    = 0
 cnt_ppd_err    = 0
 
 ppd_data_obj = ppd_data()
+ppd_file_obj = ppd_file()
+ppd_file_obj.open(args.outfile)
 
 block_size = 76
 for i in xrange(file_size / block_size):
@@ -34,9 +38,18 @@ for i in xrange(file_size / block_size):
         continue
     ppd_data_obj.decode(block)
     ppd_data_obj.calc_j2000()
-    print str(ppd_data_obj.det_z_ra) + ', ' + str(ppd_data_obj.det_z_dec)
+    ppd_file_obj.fill_data(ppd_data_obj)
 
 file_1553b.close()
+
+ppd_file_obj.write_tree()
+ppd_file_obj.write_meta("dattype", "PLATFORM PARAMETERS DATA")
+ppd_file_obj.write_meta("version", "PPD_Decode.py v1.0.0")
+ppd_file_obj.write_meta("gentime", datetime.now().isoformat() + "+0800")
+ppd_file_obj.write_meta("ship_time_span", "0")
+ppd_file_obj.write_meta("utc_time_span", "1")
+
+ppd_file_obj.close()
 
 print '{0:<20}{1:<20d}'.format('cnt_total_pkt:',  cnt_total_pkt)
 print '{0:<20}{1:<20d}'.format('cnt_header_err:', cnt_header_err)
