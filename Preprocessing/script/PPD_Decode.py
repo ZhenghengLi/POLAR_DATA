@@ -33,7 +33,8 @@ for i in xrange(file_size / block_size):
         cnt_ppd_err += 1
         continue
     ppd_data_obj.decode(block)
-    print str(ppd_data_obj.ship_time_sec) + ', ' + ppd_data_obj.utc_time_str
+    ppd_data_obj.calc_j2000()
+    print str(ppd_data_obj.det_z_ra) + ', ' + str(ppd_data_obj.det_z_dec)
 
 file_1553b.close()
 

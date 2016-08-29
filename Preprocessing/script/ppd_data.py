@@ -1,6 +1,55 @@
 #!/usr/bin/env python
 
 from time import strptime, strftime, mktime
+import numpy as np
+import ephem as ep
+
+_det_angle_gnc = 11.0 / 180.0 * np.pi
+_det_z_gnc = [0, -np.sin(_det_angle_gnc), -np.cos(_det_angle_gnc)]
+_det_x_gnc = [0, -np.cos(_det_angle_gnc),  np.sin(_det_angle_gnc)]
+
+def _gnc_to_orbit_mat(pitch_yaw_roll):
+    alpha = pitch_yaw_roll[1] / 180.0 * np.pi
+    beta  = pitch_yaw_roll[2] / 180.0 * np.pi
+    gamma = pitch_yaw_roll[0] / 180.0 * np.pi
+    s1, s2, s3 = np.sin(alpha), np.sin(beta), np.sin(gamma)
+    c1, c2, c3 = np.cos(alpha), np.cos(beta), np.cos(gamma)
+    return [[c1 * c3 - s1 * s2 * s3, -c2 * s1, c1 * s3 + c3 * s1 * s2],
+            [c3 * s1 + c1 * s2 * s3,  c1 * c2, s1 * s3 - c1 * c3 * s2],
+            [-c2 * s3              ,  s2     , c2 * c3               ]]
+
+def _xyz_to_latlon(x, y, z):
+    r = np.sqrt(x**2 + y**2 + z**2)
+    return [90 - np.arccos(z / r) / np.pi * 180, np.arctan2(y, x) / np.pi * 180]
+
+def _latlon_to_xyz(lat, lon):
+    theta = (90 - lat) / 180 * np.pi
+    pha = (lon if lon >= 0 else lon + 360) / 180 * np.pi
+    return [np.sin(theta) * np.cos(pha), np.sin(theta) * np.sin(pha), np.cos(theta)]
+
+def _normalize(xyz):
+    return np.array(xyz) / np.sqrt(sum([x ** 2 for x in xyz]))
+
+def _orbit_to_wgs84_mat(wgs84_xyz, wgs84_xyz_v):
+    ko = _normalize(np.array([-x for x in wgs84_xyz]))
+    jo = _normalize(np.cross(ko, wgs84_xyz_v))
+    io = _normalize(np.cross(jo, ko))
+    iw, jw, kw = [1, 0, 0], [0, 1, 0], [0, 0, 1]
+    return [[np.dot(iw, io), np.dot(iw, jo), np.dot(iw, ko)],
+            [np.dot(jw, io), np.dot(jw, jo), np.dot(jw, ko)],
+            [np.dot(kw, io), np.dot(kw, jo), np.dot(kw, ko)]]
+
+def _wgs84_to_j2000(wgs84_xyz, utc):
+    lat, lon = _xyz_to_latlon(*wgs84_xyz)
+    location = ep.Observer()
+    location.lat  = lat
+    location.lon  = lon
+    location.date = utc
+    ra_now  = location.sidereal_time()
+    dec_now = lat
+    pos_now   = ep.Equatorial(ra_now, dec_now, epoch = utc)
+    pos_j2000 = ep.Equatorial(pos_now, epoch = ep.J2000)
+    return [float(pos_j2000.ra) / np.pi * 12, float(pos_j2000.dec) / np.pi * 180]
 
 class ppd_data:
     def __init__(self):
@@ -36,7 +85,6 @@ class ppd_data:
         self.__utc_hour     = 0
         self.__utc_minute   = 0   
         self.__utc_second   = 0
-
 
     def __lbtoi(self, block, begin, end):
         start_pos = 8
@@ -103,4 +151,17 @@ class ppd_data:
         self.wgs84_z_v      = (tmp_value if tmp_value < 0x80000000 else tmp_value - 2 * 0x80000000) * 0.01
 
     def calc_j2000(self):
-        print "test"
+        utc = "%04d/%02d/%02d %02d:%02d:%02d" % (self.__utc_year, self.__utc_month, self.__utc_day,
+                                                 self.__utc_hour, self.__utc_minute, self.__utc_second)
+        pitch_yaw_roll = [self.pitch_angle, self.yaw_angle, self.roll_angle]
+        wgs84_xyz   = [self.wgs84_x, self.wgs84_y, self.wgs84_z]
+        wgs84_xyz_v = [self.wgs84_x_v, self.wgs84_y_v, self.wgs84_z_v]
+        wgs84_earth = -1 * np.array(wgs84_xyz)
+        gto_mat = _gnc_to_orbit_mat(pitch_yaw_roll)
+        otw_mat = _orbit_to_wgs84_mat(wgs84_xyz, wgs84_xyz_v)
+        wgs84_det_z = np.dot(otw_mat, np.dot(gto_mat, _det_z_gnc))
+        wgs84_det_x = np.dot(otw_mat, np.dot(gto_mat, _det_x_gnc))
+        self.earth_ra, self.earth_dec = _wgs84_to_j2000(wgs84_earth, utc)
+        self.det_z_ra, self.det_z_dec = _wgs84_to_j2000(wgs84_det_z, utc)
+        self.det_x_ra, self.det_x_dec = _wgs84_to_j2000(wgs84_det_x, utc)
+        
