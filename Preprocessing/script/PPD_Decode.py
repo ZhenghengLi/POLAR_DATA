@@ -68,7 +68,7 @@ ppd_file_w_obj.write_tree()
 ppd_file_w_obj.write_meta("dattype", "PLATFORM PARAMETERS DATA")
 ppd_file_w_obj.write_meta("version", "PPD_Decode.py v1.0.0")
 ppd_file_w_obj.write_meta("gentime", datetime.now().isoformat() + "+0800")
-ship_time_span_str = "%f[%d] => %f[%d]; %d/%d" % (first_ship_time_sec, first_valid_index, last_ship_time_sec, last_valid_index,
+ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)
 ppd_file_w_obj.write_meta("ship_time_span", ship_time_span_str)
 utc_time_span_str = "%d:%d[%d] => %d:%d[%d]; %d/%d" % (int(first_utc_time_sec / 604800), int(first_utc_time_sec % 604800), first_valid_index,
