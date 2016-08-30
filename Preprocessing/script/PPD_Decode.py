@@ -8,7 +8,7 @@ from ppd_file_w import ppd_file_w
 
 parser = argparse.ArgumentParser(description='Decode platform parameters data from 1553B')
 parser.add_argument("filename", help = "CSV file of platform parameters data")
-parser.add_argument("-o", dest = "outfile", help = "ROOT file to store platform parameters data", default = "TG2_ppd_file_w.root")
+parser.add_argument("-o", dest = "outfile", help = "ROOT file to store platform parameters data", default = "TG2_PPD_file_w.root")
 args = parser.parse_args()
 
 file_1553b = open(args.filename, 'rb')
@@ -21,7 +21,7 @@ cnt_ppd_err    = 0
 
 ppd_data_obj = ppd_data()
 ppd_file_w_obj = ppd_file_w()
-ppd_file_w_obj.open(args.outfile)
+ppd_file_w_obj.open_file(args.outfile)
 
 block_size = 76
 for i in xrange(file_size / block_size):
@@ -49,7 +49,7 @@ ppd_file_w_obj.write_meta("gentime", datetime.now().isoformat() + "+0800")
 ppd_file_w_obj.write_meta("ship_time_span", "0")
 ppd_file_w_obj.write_meta("utc_time_span", "1")
 
-ppd_file_w_obj.close()
+ppd_file_w_obj.close_file()
 
 print '{0:<20}{1:<20d}'.format('cnt_total_pkt:',  cnt_total_pkt)
 print '{0:<20}{1:<20d}'.format('cnt_header_err:', cnt_header_err)

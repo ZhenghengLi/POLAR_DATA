@@ -9,7 +9,7 @@ class ppd_file_w:
         self.__t_file_out = None
         self.__t_tree_ppd = None
 
-    def open(self, filename):
+    def open_file(self, filename):
         self.__t_file_out = File(filename, "recreate")
         self.__t_tree_ppd = Tree("t_ppd", "platform parameters data")
         self.__t_tree_ppd.create_branches({
@@ -90,7 +90,7 @@ class ppd_file_w:
         self.__t_file_out.cd()
         ROOT.TNamed(key, value).Write()
 
-    def close(self):
+    def close_file(self):
         self.__t_file_out.close()
         self.__t_file_out = None
         self.__t_tree_ppd = None
