@@ -8,7 +8,7 @@ from ppd_file_w import ppd_file_w
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Decode platform parameters data from 1553B')
-parser.add_argument("filename", help = "CSV file of platform parameters data")
+parser.add_argument("filename", help = "0B level 1553B raw data file")
 parser.add_argument("-o", dest = "outfile", help = "ROOT file to store platform parameters data", default = "TG2_PPD_file.root")
 args = parser.parse_args()
 
