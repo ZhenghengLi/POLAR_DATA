@@ -6,7 +6,7 @@ from rootpy import ROOT
 from rootpy.io import File
 from rootpy.tree import Tree
 
-__MIN_DIFF = 5
+_MIN_DIFF = 5
 
 class ppd_file_r:
     def __init__(self):
