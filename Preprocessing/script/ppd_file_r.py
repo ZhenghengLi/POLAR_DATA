@@ -84,22 +84,23 @@ class ppd_file_r:
             self.end_entry = self.__find_entry(self.end_utc_time_sec)
         else:
             self.end_entry = self.t_tree_ppd.get_entries()
+        return True
 
     def print_file_info(self):
         self.t_tree_ppd.get_entry(self.begin_entry)
         actual_begin_utc_time_sec = self.t_tree_ppd.utc_time_sec
-        self.t_tree_ppd.get_entry(self.end_entry)
+        self.t_tree_ppd.get_entry(self.end_entry - 1)
         actual_end_utc_time_sec   = self.t_tree_ppd.utc_time_sec
         utc_time_span_str = '%d:%d[%d] => %d:%d[%d]' % (int(actual_begin_utc_time_sec / 604800),
                                                         int(actual_begin_utc_time_sec % 604800),
-                                                        begin_entry,
+                                                        self.begin_entry,
                                                         int(actual_end_utc_time_sec / 604800),
                                                         int(actual_end_utc_time_sec % 604800),
-                                                        end_entry)
+                                                        self.end_entry - 1)
         print self.t_file_name
-        print ' - ppd UTC span: { ' + utc_time_span_str + ' }'
+        print ' - UTC time span: { ' + utc_time_span_str + ' }'
 
-    def close_file():
+    def close_file(self):
         self.t_file_in.close()
         self.t_file_in = None
         self.t_tree_ppd  = None
