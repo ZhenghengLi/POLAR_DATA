@@ -3,6 +3,8 @@
 import argparse
 from ppd_file_r import ppd_file_r
 from ppd_file_w import ppd_file_w
+from datetime import datetime
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Split platfrom parameters data by UTC time')
 parser.add_argument('filelist', metavar = 'filename', nargs = '+', help = 'list of filenames to open')
@@ -55,11 +57,55 @@ else:
             exit(1)
 
 # write data
+ppd_file_w_obj = ppd_file_w()
+ppd_file_w_obj.open_file(args.outfile)
 
-
-# write meta info
-
+time_is_first        = True
+first_ship_time_sec  = 0
+last_ship_time_sec   = 0
+first_utc_time_sec   = 0
+last_utc_time_sec    = 0
+cur_tree_index        = -1
+first_valid_index    = 0
+last_valid_index     = 0
+total_valid_cnt      = 0
 
 for i in xrange(number_of_files):
+    print "-----------------------------------------------------------------------------"
+    print "Processing file: " + args.filelist[i] + " ... "
+    for j in tqdm(xrange(ppd_file_r_objs[i].begin_entry, ppd_file_r_objs[i].end_entry)):
+        ppd_file_r_objs[i].t_tree_ppd.get_entry(j)
+        ppd_file_w_obj.fill_data(ppd_file_r_objs[i].t_tree_ppd)
+        cur_tree_index += 1
+        if ppd_file_r_objs[i].t_tree_ppd.flag_of_pos != 0x55: continue
+        total_valid_cnt += 1
+        if time_is_first:
+            time_is_first = False
+            first_ship_time_sec = ppd_file_r_objs[i].t_tree_ppd.ship_time_sec
+            first_utc_time_sec  = ppd_file_r_objs[i].t_tree_ppd.utc_time_sec
+            first_valid_index   = cur_tree_index
+        last_ship_time_sec = ppd_file_r_objs[i].t_tree_ppd.ship_time_sec
+        last_utc_time_sec  = ppd_file_r_objs[i].t_tree_ppd.utc_time_sec
+        last_valid_index   = cur_tree_index
     ppd_file_r_objs[i].close_file()
 
+ppd_file_w_obj.write_tree()
+
+# write meta info
+ppd_file_w_obj.write_meta("dattype", "PLATFORM PARAMETERS DATA AFTER SPLITTED")
+ppd_file_w_obj.write_meta("version", "PPD_Split.py v1.0.0")
+ppd_file_w_obj.write_meta("gentime", datetime.now().isoformat() + "+0800")
+ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
+                                                  total_valid_cnt, cur_tree_index + 1)
+ppd_file_w_obj.write_meta("ship_time_span", ship_time_span_str)
+utc_time_span_str = "%d:%d[%d] => %d:%d[%d]; %d/%d" % (int(first_utc_time_sec / 604800), int(first_utc_time_sec % 604800), first_valid_index,
+                                                       int(last_utc_time_sec / 604800),  int(last_utc_time_sec % 604800),  last_valid_index,
+                                                       total_valid_cnt, cur_tree_index + 1)
+ppd_file_w_obj.write_meta("utc_time_span", utc_time_span_str)
+
+ppd_file_w_obj.close_file()
+
+print '====================================================================='
+print 'ship time span: { ' + ship_time_span_str + ' }'
+print 'UTC time span: { ' + utc_time_span_str + ' }'
+print '====================================================================='

@@ -60,7 +60,7 @@ class ppd_file_w:
         self.__t_tree_ppd.geocentric_d    = ppd_obj.geocentric_d
         self.__t_tree_ppd.ship_time_sec   = ppd_obj.ship_time_sec
         self.__t_tree_ppd.utc_time_sec    = ppd_obj.utc_time_sec
-        self.__t_tree_ppd.utc_time_str    = ppd_obj.utc_time_str
+        self.__t_tree_ppd.utc_time_str    = str(ppd_obj.utc_time_str)
         self.__t_tree_ppd.flag_of_pos     = ppd_obj.flag_of_pos
         self.__t_tree_ppd.wgs84_x         = ppd_obj.wgs84_x
         self.__t_tree_ppd.wgs84_y         = ppd_obj.wgs84_y

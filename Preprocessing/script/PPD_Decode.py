@@ -57,7 +57,7 @@ for i in tqdm(xrange(file_size / block_size)):
         time_is_first = False
         first_ship_time_sec = ppd_data_obj.ship_time_sec
         first_utc_time_sec  = ppd_data_obj.utc_time_sec
-        first_valid_index = cur_tree_index
+        first_valid_index   = cur_tree_index
     last_ship_time_sec = ppd_data_obj.ship_time_sec
     last_utc_time_sec  = ppd_data_obj.utc_time_sec
     last_valid_index   = cur_tree_index
@@ -78,9 +78,12 @@ ppd_file_w_obj.write_meta("utc_time_span", utc_time_span_str)
 
 ppd_file_w_obj.close_file()
 
-print ' '
+print '====================================================================='
 print '{0:<20}{1:<20d}'.format('cnt_total_pkt:',  cnt_total_pkt)
 print '{0:<20}{1:<20d}'.format('cnt_header_err:', cnt_header_err)
 print '{0:<20}{1:<20d}'.format('cnt_ppd_pkt:',    cnt_ppd_pkt)
 print '{0:<20}{1:<20d}'.format('cnt_ppd_err:',    cnt_ppd_err)
-print ' '
+print '---------------------------------------------------------------------'
+print 'ship time span: { ' + ship_time_span_str + ' }'
+print 'UTC time span: { ' + utc_time_span_str + ' }'
+print '====================================================================='
