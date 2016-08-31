@@ -41,14 +41,12 @@ def _orbit_to_wgs84_mat(wgs84_xyz, wgs84_xyz_v):
 
 def _wgs84_to_j2000(wgs84_xyz, utc):
     lat, lon = _xyz_to_latlon(*wgs84_xyz)
-    lat = lat / 180 * np.pi
-    lon = lon / 180 * np.pi
     location = ep.Observer()
-    location.lat  = lat
-    location.lon  = lon
+    location.lat  = lat / 180 * np.pi
+    location.lon  = lon / 180 * np.pi
     location.date = utc
     ra_now  = location.sidereal_time()
-    dec_now = lat
+    dec_now = lat / 180 * np.pi
     pos_now   = ep.Equatorial(ra_now, dec_now, epoch = utc)
     pos_j2000 = ep.Equatorial(pos_now, epoch = ep.J2000)
     return [float(pos_j2000.ra) / np.pi * 12, float(pos_j2000.dec) / np.pi * 180]
