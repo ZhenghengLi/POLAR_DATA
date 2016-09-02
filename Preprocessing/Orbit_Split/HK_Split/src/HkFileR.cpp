@@ -63,10 +63,10 @@ bool HkFileR::open(const char* filename, const char* gps_begin, const char* gps_
         cerr << "File: " << filename << " may be empty." << endl;
         return false;
     }
-    m_oboxgps_ = static_cast<TNamed*>(t_file_in_->Get("m_oboxgps"));
+    m_oboxgps_ = static_cast<TNamed*>(t_file_in_->Get("m_obox_gps"));
     if (m_oboxgps_ == NULL)
         return false;
-    m_iboxgps_ = static_cast<TNamed*>(t_file_in_->Get("m_iboxgps"));
+    m_iboxgps_ = static_cast<TNamed*>(t_file_in_->Get("m_ibox_gps"));
     if (m_iboxgps_ == NULL)
         return false;
 

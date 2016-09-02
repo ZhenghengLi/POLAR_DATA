@@ -264,10 +264,12 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
                 phy_first_valid_index_  = scitran.get_trigger_cur_index();
                 phy_first_valid_week_   = scitran.t_trigger.abs_gps_week;
                 phy_first_valid_second_ = scitran.t_trigger.abs_gps_second;
+                phy_first_ship_second_  = scitran.t_trigger.abs_ship_second;
             }
             phy_last_valid_index_  = scitran.get_trigger_cur_index();
             phy_last_valid_week_   = scitran.t_trigger.abs_gps_week;
             phy_last_valid_second_ = scitran.t_trigger.abs_gps_second;
+            phy_last_ship_second_  = scitran.t_trigger.abs_ship_second;
         }
     }
     cout << " DONE ] " << endl;
@@ -282,6 +284,14 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
             static_cast<long int>(phy_total_valid_count_),
             static_cast<long int>(scitran.get_trigger_tot_entries()));
     phy_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_ship_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_ship_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(scitran.get_trigger_tot_entries()));
+    phy_ship_result_str_.assign(str_buffer);
 }
 
 void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter) {
@@ -413,10 +423,12 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
                 ped_first_valid_index_  = scitran.get_ped_trigger_cur_index();
                 ped_first_valid_week_   = scitran.t_ped_trigger.abs_gps_week;
                 ped_first_valid_second_ = scitran.t_ped_trigger.abs_gps_second;
+                ped_first_ship_second_  = scitran.t_ped_trigger.abs_ship_second;
             }
             ped_last_valid_index_  = scitran.get_ped_trigger_cur_index();
             ped_last_valid_week_   = scitran.t_ped_trigger.abs_gps_week;
             ped_last_valid_second_ = scitran.t_ped_trigger.abs_gps_second;
+            ped_last_ship_second_  = scitran.t_ped_trigger.abs_ship_second;
         }
     }
     cout << " DONE ] " << endl;
@@ -431,6 +443,14 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
             static_cast<long int>(ped_total_valid_count_),
             static_cast<long int>(scitran.get_ped_trigger_tot_entries()));
     ped_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_ship_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_ship_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(scitran.get_ped_trigger_tot_entries()));
+    ped_ship_result_str_.assign(str_buffer);
 }
 
 void Processor::write_meta_info(SciTransfer& scitran) {
@@ -472,7 +492,9 @@ void Processor::write_meta_info(SciTransfer& scitran) {
 
     // gps_info
     scitran.write_meta("m_phy_gps", phy_gps_result_str_.c_str());
+    scitran.write_meta("m_phyship", phy_ship_result_str_.c_str());
     scitran.write_meta("m_ped_gps", ped_gps_result_str_.c_str());
+    scitran.write_meta("m_pedship", ped_ship_result_str_.c_str());
 }
 
 void Processor::print_error_count(const SciTransfer& scitran) {
@@ -487,6 +509,8 @@ void Processor::print_error_count(const SciTransfer& scitran) {
          << right << endl;
     cout << "--------------------------------------------------------------------------------" << endl;
     cout << "phy_gps: { " << phy_gps_result_str_ << " }" << endl;
+    cout << "phyship: { " << phy_ship_result_str_ << " }" << endl;
     cout << "ped_gps: { " << ped_gps_result_str_ << " }" << endl;
+    cout << "pedship: { " << ped_ship_result_str_ << " }" << endl;
     cout << "================================================================================" << endl;
 }

@@ -46,20 +46,26 @@ private:
     Long64_t phy_first_valid_index_;
     Long64_t phy_first_valid_week_;
     Long64_t phy_first_valid_second_;
+    Long64_t phy_first_ship_second_;
     Long64_t phy_last_valid_index_;
     Long64_t phy_last_valid_week_;
     Long64_t phy_last_valid_second_;
+    Long64_t phy_last_ship_second_;
     Long64_t phy_total_valid_count_;
     string   phy_gps_result_str_;
+    string   phy_ship_result_str_;
     bool     ped_first_valid_found_;
     Long64_t ped_first_valid_index_;
     Long64_t ped_first_valid_week_;
     Long64_t ped_first_valid_second_;
+    Long64_t ped_first_ship_second_;
     Long64_t ped_last_valid_index_;
     Long64_t ped_last_valid_week_;
     Long64_t ped_last_valid_second_;
+    Long64_t ped_last_ship_second_;
     Long64_t ped_total_valid_count_;
     string   ped_gps_result_str_;
+    string   ped_ship_result_str_;
     
 public:
     Modules_T t_modules;

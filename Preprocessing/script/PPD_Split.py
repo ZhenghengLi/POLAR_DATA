@@ -74,6 +74,7 @@ total_valid_cnt      = 0
 for i in xrange(number_of_files):
     print "-----------------------------------------------------------------------------"
     print "Processing file: " + args.filelist[i] + " ... "
+    print "Copying ppd data from " + basename(args.filelist[i]) + " ..."
     for j in tqdm(xrange(ppd_file_r_objs[i].begin_entry, ppd_file_r_objs[i].end_entry)):
         ppd_file_r_objs[i].t_tree_ppd.get_entry(j)
         ppd_file_w_obj.fill_data(ppd_file_r_objs[i].t_tree_ppd)

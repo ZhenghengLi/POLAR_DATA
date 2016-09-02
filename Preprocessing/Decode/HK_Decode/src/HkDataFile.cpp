@@ -153,14 +153,16 @@ void HkDataFile::write_ibox_info(const HkFrame& frame) {
     if (t_hk_ibox.is_bad == 0) {
         hk_ibox_total_gps_count_++;
         if (!hk_ibox_first_gps_found_) {
-            hk_ibox_first_gps_found_  = true;
-            hk_ibox_first_gps_index_  = t_hk_ibox_tree_->GetEntries() - 1;
-            hk_ibox_first_gps_week_   = t_hk_ibox.abs_gps_week;
-            hk_ibox_first_gps_second_ = t_hk_ibox.abs_gps_second;
+            hk_ibox_first_gps_found_   = true;
+            hk_ibox_first_gps_index_   = t_hk_ibox_tree_->GetEntries() - 1;
+            hk_ibox_first_gps_week_    = t_hk_ibox.abs_gps_week;
+            hk_ibox_first_gps_second_  = t_hk_ibox.abs_gps_second;
+            hk_ibox_first_ship_second_ = t_hk_ibox.abs_ship_second;
         }
-        hk_ibox_last_gps_index_       = t_hk_ibox_tree_->GetEntries() - 1;
-        hk_ibox_last_gps_week_        = t_hk_ibox.abs_gps_week;
-        hk_ibox_last_gps_second_      = t_hk_ibox.abs_gps_second;
+        hk_ibox_last_gps_index_        = t_hk_ibox_tree_->GetEntries() - 1;
+        hk_ibox_last_gps_week_         = t_hk_ibox.abs_gps_week;
+        hk_ibox_last_gps_second_       = t_hk_ibox.abs_gps_second;
+        hk_ibox_last_ship_second_      = t_hk_ibox.abs_ship_second;
     }
 }
 
@@ -195,14 +197,16 @@ void HkDataFile::write_two_packet(const HkOdd& odd_pkt, const HkEven even_pkt, i
     if (t_hk_obox.odd_is_bad == 0 || t_hk_obox.even_is_bad == 0) {
         hk_obox_total_gps_count_++;
         if (!hk_obox_first_gps_found_) {
-            hk_obox_first_gps_found_  = true;
-            hk_obox_first_gps_index_  = t_hk_obox_tree_->GetEntries() - 1;
-            hk_obox_first_gps_week_   = t_hk_obox.abs_gps_week;
-            hk_obox_first_gps_second_ = t_hk_obox.abs_gps_second;
+            hk_obox_first_gps_found_   = true;
+            hk_obox_first_gps_index_   = t_hk_obox_tree_->GetEntries() - 1;
+            hk_obox_first_gps_week_    = t_hk_obox.abs_gps_week;
+            hk_obox_first_gps_second_  = t_hk_obox.abs_gps_second;
+            hk_obox_first_ship_second_ = t_hk_obox.abs_ship_second;
         }
-        hk_obox_last_gps_index_       = t_hk_obox_tree_->GetEntries() - 1;
-        hk_obox_last_gps_week_        = t_hk_obox.abs_gps_week;
-        hk_obox_last_gps_second_      = t_hk_obox.abs_gps_second;
+        hk_obox_last_gps_index_        = t_hk_obox_tree_->GetEntries() - 1;
+        hk_obox_last_gps_week_         = t_hk_obox.abs_gps_week;
+        hk_obox_last_gps_second_       = t_hk_obox.abs_gps_second;
+        hk_obox_last_ship_second_      = t_hk_obox.abs_ship_second;
     }
 }
 
@@ -231,14 +235,16 @@ void HkDataFile::write_odd_packet_alone(const HkOdd& odd_pkt) {
     if (t_hk_obox.odd_is_bad == 0) {
         hk_obox_total_gps_count_++;
         if (!hk_obox_first_gps_found_) {
-            hk_obox_first_gps_found_  = true;
-            hk_obox_first_gps_index_  = t_hk_obox_tree_->GetEntries() - 1;
-            hk_obox_first_gps_week_   = t_hk_obox.abs_gps_week;
-            hk_obox_first_gps_second_ = t_hk_obox.abs_gps_second;
+            hk_obox_first_gps_found_   = true;
+            hk_obox_first_gps_index_   = t_hk_obox_tree_->GetEntries() - 1;
+            hk_obox_first_gps_week_    = t_hk_obox.abs_gps_week;
+            hk_obox_first_gps_second_  = t_hk_obox.abs_gps_second;
+            hk_obox_first_ship_second_ = t_hk_obox.abs_ship_second;
         }
-        hk_obox_last_gps_index_       = t_hk_obox_tree_->GetEntries() - 1;
-        hk_obox_last_gps_week_        = t_hk_obox.abs_gps_week;
-        hk_obox_last_gps_second_      = t_hk_obox.abs_gps_second;
+        hk_obox_last_gps_index_        = t_hk_obox_tree_->GetEntries() - 1;
+        hk_obox_last_gps_week_         = t_hk_obox.abs_gps_week;
+        hk_obox_last_gps_second_       = t_hk_obox.abs_gps_second;
+        hk_obox_last_ship_second_      = t_hk_obox.abs_ship_second;
     }
 }
 
@@ -267,14 +273,16 @@ void HkDataFile::write_even_packet_alone(const HkEven& even_pkt) {
     if (t_hk_obox.even_is_bad == 0) {
         hk_obox_total_gps_count_++;
         if (!hk_obox_first_gps_found_) {
-            hk_obox_first_gps_found_  = true;
-            hk_obox_first_gps_index_  = t_hk_obox_tree_->GetEntries() - 1;
-            hk_obox_first_gps_week_   = t_hk_obox.abs_gps_week;
-            hk_obox_first_gps_second_ = t_hk_obox.abs_gps_second;
+            hk_obox_first_gps_found_   = true;
+            hk_obox_first_gps_index_   = t_hk_obox_tree_->GetEntries() - 1;
+            hk_obox_first_gps_week_    = t_hk_obox.abs_gps_week;
+            hk_obox_first_gps_second_  = t_hk_obox.abs_gps_second;
+            hk_obox_first_ship_second_ = t_hk_obox.abs_ship_second;
         }
-        hk_obox_last_gps_index_       = t_hk_obox_tree_->GetEntries() - 1;
-        hk_obox_last_gps_week_        = t_hk_obox.abs_gps_week;
-        hk_obox_last_gps_second_      = t_hk_obox.abs_gps_second;
+        hk_obox_last_gps_index_        = t_hk_obox_tree_->GetEntries() - 1;
+        hk_obox_last_gps_week_         = t_hk_obox.abs_gps_week;
+        hk_obox_last_gps_second_       = t_hk_obox.abs_gps_second;
+        hk_obox_last_ship_second_      = t_hk_obox.abs_ship_second;
     }
 }
 
@@ -515,6 +523,14 @@ void HkDataFile::gen_gps_result_str() {
             static_cast<long int>(hk_obox_total_gps_count_),
             static_cast<long int>(t_hk_obox_tree_->GetEntries()));
     hk_obox_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(hk_obox_first_ship_second_),
+            static_cast<long int>(hk_obox_first_gps_index_),
+            static_cast<int>(hk_obox_last_gps_second_),
+            static_cast<long int>(hk_obox_last_gps_index_),
+            static_cast<long int>(hk_obox_total_gps_count_),
+            static_cast<long int>(t_hk_obox_tree_->GetEntries()));
+    hk_obox_ship_result_str_.assign(str_buffer);
     // hk_ibox
     sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
             static_cast<int>(hk_ibox_first_gps_week_),
@@ -526,15 +542,28 @@ void HkDataFile::gen_gps_result_str() {
             static_cast<long int>(hk_ibox_total_gps_count_),
             static_cast<long int>(t_hk_ibox_tree_->GetEntries()));
     hk_ibox_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(hk_ibox_first_ship_second_),
+            static_cast<long int>(hk_ibox_first_gps_index_),
+            static_cast<int>(hk_ibox_last_ship_second_),
+            static_cast<long int>(hk_ibox_last_gps_index_),
+            static_cast<long int>(hk_ibox_total_gps_count_),
+            static_cast<long int>(t_hk_ibox_tree_->GetEntries()));
+    hk_ibox_ship_result_str_.assign(str_buffer);
+    
 }
 
 void HkDataFile::write_gps_span() {
-    write_meta("m_oboxgps", hk_obox_gps_result_str_.c_str());
-    write_meta("m_iboxgps", hk_ibox_gps_result_str_.c_str());
+    write_meta("m_obox_gps", hk_obox_gps_result_str_.c_str());
+    write_meta("m_oboxship", hk_obox_ship_result_str_.c_str());
+    write_meta("m_ibox_gps", hk_ibox_gps_result_str_.c_str());
+    write_meta("m_iboxship", hk_ibox_ship_result_str_.c_str());
 }
 
 void HkDataFile::print_gps_span() {
-    cout << "hk_obox_gps: { " << hk_obox_gps_result_str_ << " }" << endl;
-    cout << "hk_ibox_gps: { " << hk_ibox_gps_result_str_ << " }" << endl;
+    cout << "hk_obox_gps: { " << hk_obox_gps_result_str_  << " }" << endl;
+    cout << "hk_oboxship: { " << hk_obox_ship_result_str_ << " }" << endl;
+    cout << "hk_ibox_gps: { " << hk_ibox_gps_result_str_  << " }" << endl;
+    cout << "hk_iboxship: { " << hk_ibox_ship_result_str_ << " }" << endl;
     cout << "=============================================================================================" << endl;
 }

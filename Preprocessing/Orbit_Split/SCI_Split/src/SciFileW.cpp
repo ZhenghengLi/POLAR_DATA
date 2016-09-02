@@ -180,10 +180,12 @@ void SciFileW::write_phy_trigger() {
                 phy_first_valid_index_  = phy_trigger_cur_index_;
                 phy_first_valid_week_   = t_trigger.abs_gps_week;
                 phy_first_valid_second_ = t_trigger.abs_gps_second;
+                phy_first_ship_second_  = t_trigger.abs_ship_second;
             }
             phy_last_valid_index_       = phy_trigger_cur_index_;
             phy_last_valid_week_        = t_trigger.abs_gps_week;
             phy_last_valid_second_      = t_trigger.abs_gps_second;
+            phy_last_ship_second_       = t_trigger.abs_ship_second;
         }
     }
     cout << " DONE ] " << endl;
@@ -226,10 +228,12 @@ void SciFileW::write_ped_trigger() {
                 ped_first_valid_index_  = ped_trigger_cur_index_;
                 ped_first_valid_week_   = t_ped_trigger.abs_gps_week;
                 ped_first_valid_second_ = t_ped_trigger.abs_gps_second;
+                ped_first_ship_second_  = t_ped_trigger.abs_ship_second;
             }
             ped_last_valid_index_       = ped_trigger_cur_index_;
             ped_last_valid_week_        = t_ped_trigger.abs_gps_week;
             ped_last_valid_second_      = t_ped_trigger.abs_gps_second;
+            ped_last_ship_second_       = t_ped_trigger.abs_ship_second;
         }
     }
     cout << " DONE ] " << endl;
@@ -321,6 +325,14 @@ void SciFileW::gen_gps_result_str() {
             static_cast<long int>(phy_total_valid_count_),
             static_cast<long int>(t_trigger_tree_->GetEntries()));
     phy_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_ship_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_ship_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(t_trigger_tree_->GetEntries()));
+    phy_ship_result_str_.assign(str_buffer);
     // ped
     sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
             static_cast<int>(ped_first_valid_week_),
@@ -332,16 +344,28 @@ void SciFileW::gen_gps_result_str() {
             static_cast<long int>(ped_total_valid_count_),
             static_cast<long int>(t_ped_trigger_tree_->GetEntries()));
     ped_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_ship_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_ship_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(t_ped_trigger_tree_->GetEntries()));
+    ped_ship_result_str_.assign(str_buffer);
 }
 
 void SciFileW::write_gps_span() {
     write_meta("m_phy_gps", phy_gps_result_str_.c_str());
+    write_meta("m_phyship", phy_ship_result_str_.c_str());
     write_meta("m_ped_gps", ped_gps_result_str_.c_str());
+    write_meta("m_pedship", ped_ship_result_str_.c_str());
 }
 
 void SciFileW::print_gps_span() {
     cout << "================================================================================" << endl;
-    cout << "phy_gps: { " << phy_gps_result_str_ << " }" << endl;
-    cout << "ped_gps: { " << ped_gps_result_str_ << " }" << endl;
+    cout << "phy_gps: { " << phy_gps_result_str_  << " }" << endl;
+    cout << "phyship: { " << phy_ship_result_str_ << " }" << endl;
+    cout << "ped_gps: { " << ped_gps_result_str_  << " }" << endl;
+    cout << "pedship: { " << ped_ship_result_str_ << " }" << endl;
     cout << "================================================================================" << endl;
 }

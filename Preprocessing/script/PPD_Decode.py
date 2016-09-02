@@ -36,6 +36,7 @@ last_valid_index     = 0
 total_valid_cnt      = 0
 
 block_size = 76
+print "Decoding file: " + basename(args.filename) + " ..."
 for i in tqdm(xrange(file_size / block_size)):
     block = file_1553b.read(block_size)
     cnt_total_pkt += 1

@@ -110,20 +110,26 @@ private:
     Long64_t hk_obox_first_gps_index_;
     Long64_t hk_obox_first_gps_week_;
     Long64_t hk_obox_first_gps_second_;
+    Long64_t hk_obox_first_ship_second_;
     Long64_t hk_obox_last_gps_index_;
     Long64_t hk_obox_last_gps_week_;
     Long64_t hk_obox_last_gps_second_;
+    Long64_t hk_obox_last_ship_second_;
     Long64_t hk_obox_total_gps_count_;
     string   hk_obox_gps_result_str_;
+    string   hk_obox_ship_result_str_;
     bool     hk_ibox_first_gps_found_;
     Long64_t hk_ibox_first_gps_index_;
     Long64_t hk_ibox_first_gps_week_;
     Long64_t hk_ibox_first_gps_second_;
+    Long64_t hk_ibox_first_ship_second_;
     Long64_t hk_ibox_last_gps_index_;
     Long64_t hk_ibox_last_gps_week_;
     Long64_t hk_ibox_last_gps_second_;
+    Long64_t hk_ibox_last_ship_second_;
     Long64_t hk_ibox_total_gps_count_;
     string   hk_ibox_gps_result_str_;
+    string   hk_ibox_ship_result_str_;
     
 private:
     void copy_odd_packet_(const HkOdd& odd_pkt);
