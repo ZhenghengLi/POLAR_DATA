@@ -56,7 +56,7 @@ class ppd_file_r:
         self.t_file_in = File(filename, 'read')
         self.t_tree_ppd = self.t_file_in.get('t_ppd')
         self.t_tree_ppd.create_buffer()
-        self.utc_time_span = self.t_file_in.get('m_utc_time').GetTitle()
+        self.utc_time_span = self.t_file_in.get('m_utc_span').GetTitle()
         m = re.compile(r'(\d+):(\d+)\[\d+\] => (\d+):(\d+)\[\d+\]; \d+/\d+').match(self.utc_time_span)
         self.first_utc_time_sec = float(m.group(1)) * 604800 + float(m.group(2))
         self.last_utc_time_sec  = float(m.group(3)) * 604800 + float(m.group(4))

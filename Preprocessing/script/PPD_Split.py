@@ -100,11 +100,11 @@ ppd_file_w_obj.write_meta("m_gentime", datetime.now().isoformat() + "+0800")
 ppd_file_w_obj.write_meta("m_rawfile", "; ".join([basename(x) for x in args.filelist]))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)
-ppd_file_w_obj.write_meta("m_shiptime", ship_time_span_str)
+ppd_file_w_obj.write_meta("m_shipspan", ship_time_span_str)
 utc_time_span_str = "%d:%d[%d] => %d:%d[%d]; %d/%d" % (int(first_utc_time_sec / 604800), int(first_utc_time_sec % 604800), first_valid_index,
                                                        int(last_utc_time_sec / 604800),  int(last_utc_time_sec % 604800),  last_valid_index,
                                                        total_valid_cnt, cur_tree_index + 1)
-ppd_file_w_obj.write_meta("m_utc_time", utc_time_span_str)
+ppd_file_w_obj.write_meta("m_utc_span", utc_time_span_str)
 
 ppd_file_w_obj.close_file()
 
