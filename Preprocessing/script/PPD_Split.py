@@ -97,7 +97,7 @@ ppd_file_w_obj.write_tree()
 ppd_file_w_obj.write_meta("m_dattype", "PLATFORM PARAMETERS DATA AFTER SPLITTED")
 ppd_file_w_obj.write_meta("m_version", "PPD_Split.py v1.0.0")
 ppd_file_w_obj.write_meta("m_gentime", datetime.now().isoformat() + "+0800")
-ppd_file_w_obj.write_meta("m_rawfile", "; ".join([basename(x) for x in args.filelist]))
+ppd_file_w_obj.write_meta("m_dcdfile", "; ".join([basename(x) for x in args.filelist]))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)
 ppd_file_w_obj.write_meta("m_shipspan", ship_time_span_str)
