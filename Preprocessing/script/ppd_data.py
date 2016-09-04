@@ -161,6 +161,14 @@ class ppd_data:
         self.wgs84_z_v      = (tmp_value if tmp_value < 0x80000000 else tmp_value - 2 * 0x80000000) * 0.01
 
     def calc_j2000(self):
+        if self.flag_of_pos != 0x55:
+            self.earth_lat, self.earth_lon    = [-1, -1]
+            self.earth_ra, self.earth_dec     = [-1, -1]
+            self.det_z_lat, self.det_z_lon    = [-1, -1]
+            self.det_z_ra, self.det_z_dec     = [-1, -1]
+            self.det_x_lat, self.det_x_lon    = [-1, -1]
+            self.det_x_ra, self.det_x_dec     = [-1, -1]
+            return
         utc = "%04d/%02d/%02d %02d:%02d:%02d" % (self.__utc_year, self.__utc_month, self.__utc_day,
                                                  self.__utc_hour, self.__utc_minute, self.__utc_second)
         pitch_yaw_roll = [self.pitch_angle, self.yaw_angle, self.roll_angle]
