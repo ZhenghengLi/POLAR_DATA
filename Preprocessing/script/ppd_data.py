@@ -101,7 +101,11 @@ class ppd_data:
         return int(block[start_pos + begin : start_pos + end + 1].encode('hex'), 16)
 
     def __calc_utc_time_sec(self):
-        if self.__utc_year < 1 or self.__utc_month < 1 or self.__utc_day < 1: return -1
+        if self.__utc_year < 1 or self.__utc_year > 2030 or\
+           self.__utc_month < 1 or self.__utc_month > 12 or\
+           self.__utc_day < 1 or self.__utc_day > 31 or\
+           self.__utc_hour > 23 or self.__utc_minute > 59 or self.__utc_second > 59:
+            return -1
         t_fmt_str = "%Y-%m-%dT%H:%M:%S+0000"
         utc_gps_zero = "1980-01-06T00:00:00+0000"
         return mktime(strptime(self.utc_time_str, t_fmt_str)) - mktime(strptime(utc_gps_zero, t_fmt_str))

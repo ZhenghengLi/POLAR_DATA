@@ -28,17 +28,20 @@ class ppd_file_r:
             center_entry = int((head_entry + tail_entry) / 2)
             found_valid_center = False
             self.t_tree_ppd.get_entry(center_entry)
-            if self.t_tree_ppd.flag_of_pos == 0x55: found_valid_center = True
+            if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0:
+                found_valid_center = True
             tmp_center_entry = center_entry
             while not found_valid_center and tail_entry - tmp_center_entry > 1:
                 tmp_center_entry += 1
                 self.t_tree_ppd.get_entry(tmp_center_entry)
-                if self.t_tree_ppd.flag_of_pos == 0x55: found_valid_center = True
+                if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0:
+                    found_valid_center = True
             if not found_valid_center: tmp_center_entry = center_entry
             while not found_valid_center and tmp_center_entry - head_entry > 1:
                 tmp_center_entry -= 1
                 self.t_tree_ppd.get_entry(tmp_center_entry)
-                if self.t_tree_ppd.flag_of_pos == 0x55: found_valid_center = True
+                if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0:
+                    found_valid_center = True
             if not found_valid_center: break
             if utc_time_sec == self.t_tree_ppd.utc_time_sec:
                 return tmp_center_entry

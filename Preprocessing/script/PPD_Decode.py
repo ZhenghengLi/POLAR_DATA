@@ -53,7 +53,7 @@ for i in tqdm(xrange(file_size / block_size)):
     ppd_data_obj.calc_j2000()
     ppd_file_w_obj.fill_data(ppd_data_obj)
     cur_tree_index += 1
-    if ppd_data_obj.flag_of_pos != 0x55: continue
+    if ppd_data_obj.flag_of_pos != 0x55 or ppd_data_obj.utc_time_sec < 0: continue
     total_valid_cnt += 1
     if time_is_first:
         time_is_first = False
