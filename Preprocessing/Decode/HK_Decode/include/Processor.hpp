@@ -13,6 +13,7 @@
 #include "Constants.hpp"
 #include "HkDataFile.hpp"
 #include "FileList.hpp"
+#include "RootInc.hpp"
 
 using namespace std;
 

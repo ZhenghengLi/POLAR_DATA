@@ -4,6 +4,7 @@ import argparse
 import os
 from os.path import basename
 from datetime import datetime
+from dateutil.tz import tzlocal
 from ppd_data import ppd_data
 from ppd_file_w import ppd_file_w
 from tqdm import tqdm
@@ -11,6 +12,7 @@ from tqdm import tqdm
 parser = argparse.ArgumentParser(description='Decode platform parameters data from 1553B')
 parser.add_argument("filename", help = "0B level 1553B raw data file")
 parser.add_argument("-o", dest = "outfile", help = "ROOT file to store platform parameters data", default = "TG2_PPD_file.root")
+parser.add_argument("-g", dest = "logfile", help = "text file to store error log from raw data", default = "NULL")
 args = parser.parse_args()
 
 file_1553b = open(args.filename, 'rb')
@@ -25,12 +27,22 @@ ppd_data_obj = ppd_data()
 ppd_file_w_obj = ppd_file_w()
 ppd_file_w_obj.open_file(args.outfile)
 
+log_file = None
+log_flag = False
+if args.logfile != "NULL":
+    log_flag = True
+    log_file = open(args.logfile, 'w')
+    log_file.write("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" + "\n")
+    log_file.write("LOG START TIME: " + datetime.now(tzlocal()).isoformat() + "\n")
+    log_file.write("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" + "\n")
+    log_file.write("\n")
+
 time_is_first        = True
 first_ship_time_sec  = 0
 last_ship_time_sec   = 0
 first_utc_time_sec   = 0
 last_utc_time_sec    = 0
-cur_tree_index        = -1
+cur_tree_index       = -1
 first_valid_index    = 0
 last_valid_index     = 0
 total_valid_cnt      = 0
@@ -42,12 +54,21 @@ for i in tqdm(xrange(file_size / block_size)):
     cnt_total_pkt += 1
     if int(block[0:2].encode('hex'), 16) != 0x0180:
         cnt_header_err += 1
+        if cnt_header_err / (cnt_total_pkt + 9) > 0.5:
+            print 'may be there is half 1553b frame at the start.'
+            exit(1)
+        if log_flag:
+            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "header error ====")
+            log_file.write("[ " + block.encode('hex') + " ]")
         continue
     if int(block[2:4].encode('hex'), 16) != 0x3d80:
         continue
     cnt_ppd_pkt += 1
     if int(block[4:6].encode('hex'), 16) != 0x3d80:
         cnt_ppd_err += 1
+        if log_flag:
+            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "ppd error ====")
+            log_file.write("[ " + block.encode('hex') + " ]")
         continue
     ppd_data_obj.decode(block)
     ppd_data_obj.calc_j2000()
@@ -65,11 +86,13 @@ for i in tqdm(xrange(file_size / block_size)):
     last_valid_index   = cur_tree_index
 
 file_1553b.close()
+if log_flag:
+    log_file.close()
 
 ppd_file_w_obj.write_tree()
 ppd_file_w_obj.write_meta("m_dattype", "PLATFORM PARAMETERS DATA")
 ppd_file_w_obj.write_meta("m_version", "PPD_Decode.py v1.0.0")
-ppd_file_w_obj.write_meta("m_gentime", datetime.now().isoformat() + "+0800")
+ppd_file_w_obj.write_meta("m_gentime", datetime.now(tzlocal()).isoformat())
 ppd_file_w_obj.write_meta("m_rawfile", basename(args.filename))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)

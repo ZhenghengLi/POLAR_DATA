@@ -5,6 +5,7 @@ from os.path import basename
 from ppd_file_r import ppd_file_r
 from ppd_file_w import ppd_file_w
 from datetime import datetime
+from dateutil.tz import tzlocal
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Split platfrom parameters data by UTC time')
@@ -96,7 +97,7 @@ ppd_file_w_obj.write_tree()
 # write meta info
 ppd_file_w_obj.write_meta("m_dattype", "PLATFORM PARAMETERS DATA AFTER SPLITTED")
 ppd_file_w_obj.write_meta("m_version", "PPD_Split.py v1.0.0")
-ppd_file_w_obj.write_meta("m_gentime", datetime.now().isoformat() + "+0800")
+ppd_file_w_obj.write_meta("m_gentime", datetime.now(tzlocal()).isoformat() + "+0800")
 ppd_file_w_obj.write_meta("m_dcdfile", "; ".join([basename(x) for x in args.filelist]))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)

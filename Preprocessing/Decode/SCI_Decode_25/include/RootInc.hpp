@@ -14,5 +14,6 @@
 #include "TNamed.h"
 #include "TTimeStamp.h"
 #include "TSystem.h"
+#include "TString.h"
 
 #endif

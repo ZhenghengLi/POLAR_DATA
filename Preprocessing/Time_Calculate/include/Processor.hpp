@@ -12,6 +12,7 @@
 #include "GPSTime.hpp"
 #include "HkGPSIterator.hpp"
 #include "SciTransfer.hpp"
+#include "RootInc.hpp"
 
 #define MAX_DIFF 5
 #define MAX_OFFSET 300

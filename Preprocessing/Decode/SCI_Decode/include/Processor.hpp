@@ -17,6 +17,7 @@
 #include "EventMerger.hpp"
 #include "SciDataFile.hpp"
 #include "FileList.hpp"
+#include "RootInc.hpp"
 
 #define SAA_LEN 5
 #define SAA_MAX 10

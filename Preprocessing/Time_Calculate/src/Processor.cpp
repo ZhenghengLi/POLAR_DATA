@@ -36,7 +36,18 @@ void Processor::initialize() {
 
 bool Processor::logfile_open(const char* filename) {
     os_logfile_.open(filename);
-    return os_logfile_.is_open();
+    if (os_logfile_.is_open()) {
+        TTimeStamp * cur_time = new TTimeStamp();
+        os_logfile_ << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+        os_logfile_ << TString("LOG START TIME: ") + cur_time->AsString("lc") << endl;
+        os_logfile_ << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+        os_logfile_ << endl;
+        delete cur_time;
+        cur_time = NULL;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void Processor::logfile_close() {
