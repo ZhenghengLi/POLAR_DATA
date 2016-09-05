@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+SW_NAME      = 'PPD_Decode.py'
+SW_VERSION   = 'v1.0.0'
+RELEASE_DATE = '2016 Sep  5'
+
 import argparse
 import os
 from os.path import basename
@@ -33,6 +37,7 @@ if args.logfile != "NULL":
     log_flag = True
     log_file = open(args.logfile, 'w')
     log_file.write("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" + "\n")
+    log_file.write(SW_NAME + " " + SW_VERSION + "\n")
     log_file.write("LOG START TIME: " + datetime.now(tzlocal()).isoformat() + "\n")
     log_file.write("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" + "\n")
     log_file.write("\n")
@@ -91,7 +96,7 @@ if log_flag:
 
 ppd_file_w_obj.write_tree()
 ppd_file_w_obj.write_meta("m_dattype", "PLATFORM PARAMETERS DATA")
-ppd_file_w_obj.write_meta("m_version", "PPD_Decode.py v1.0.0")
+ppd_file_w_obj.write_meta("m_version", SW_NAME + " " + SW_VERSION)
 ppd_file_w_obj.write_meta("m_gentime", datetime.now(tzlocal()).isoformat())
 ppd_file_w_obj.write_meta("m_rawfile", basename(args.filename))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,

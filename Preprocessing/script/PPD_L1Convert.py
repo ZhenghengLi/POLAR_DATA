@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 
+SW_NAME      = 'PPD_L1Convert.py'
+SW_VERSION   = 'v1.0.0'
+RELEASE_DATE = '2016 Sep  5'
+
 import argparse
 from os.path import basename
 from rootpy import ROOT
 from rootpy.io import File
 from rootpy.tree import Tree
 from datetime import datetime
+from dateutil.tz import tzlocal
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Convert platform parameters data to Level 1')
@@ -60,8 +65,8 @@ t_file_in.close()
 t_file_out.cd()
 t_tree_ppd_out.write()
 ROOT.TNamed('m_dattype',  'PLATFORM PARAMETERS DATA of LEVEL 1').Write()
-ROOT.TNamed('m_version',  'PPD_L1Convert v1.0.0').Write()
-ROOT.TNamed('m_gentime',  datetime.now().isoformat() + "+0800").Write()
+ROOT.TNamed('m_version',  SW_NAME + " " + SW_VERSION).Write()
+ROOT.TNamed('m_gentime',  datetime.now(tzlocal()).isoformat()).Write()
 ROOT.TNamed('m_dcdfile',  basename(args.filename)).Write()
 ROOT.TNamed('m_shipspan', m_shipspan.GetTitle()).Write()
 ROOT.TNamed('m_utc_span', m_utc_span.GetTitle()).Write()

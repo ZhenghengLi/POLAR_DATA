@@ -48,6 +48,7 @@ bool Processor::logfile_open(const char* filename) {
     if (os_logfile_.is_open()) {
         TTimeStamp * cur_time = new TTimeStamp();
         os_logfile_ << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+        os_logfile_ << (SW_NAME + " " + SW_VERSION).c_str() << endl;
         os_logfile_ << TString("LOG START TIME: ") + cur_time->AsString("lc") << endl;
         os_logfile_ << "*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
         os_logfile_ << endl;

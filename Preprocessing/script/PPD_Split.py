@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+SW_NAME      = 'PPD_Split.py'
+SW_VERSION   = 'v1.0.0'
+RELEASE_DATE = '2016 Sep  5'
+
 import argparse
 from os.path import basename
 from ppd_file_r import ppd_file_r
@@ -96,8 +100,8 @@ ppd_file_w_obj.write_tree()
 
 # write meta info
 ppd_file_w_obj.write_meta("m_dattype", "PLATFORM PARAMETERS DATA AFTER SPLITTED")
-ppd_file_w_obj.write_meta("m_version", "PPD_Split.py v1.0.0")
-ppd_file_w_obj.write_meta("m_gentime", datetime.now(tzlocal()).isoformat() + "+0800")
+ppd_file_w_obj.write_meta("m_version", SW_NAME + " " + SW_VERSION)
+ppd_file_w_obj.write_meta("m_gentime", datetime.now(tzlocal()).isoformat())
 ppd_file_w_obj.write_meta("m_dcdfile", "; ".join([basename(x) for x in args.filelist]))
 ship_time_span_str = "%d[%d] => %d[%d]; %d/%d" % (int(first_ship_time_sec), first_valid_index, int(last_ship_time_sec), last_valid_index,
                                                   total_valid_cnt, cur_tree_index + 1)
