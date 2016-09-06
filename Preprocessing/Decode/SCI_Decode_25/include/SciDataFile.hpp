@@ -145,10 +145,40 @@ private:
     Long64_t  cur_event_num_[25];
     Long64_t  cur_ped_trigg_num_;
     Long64_t  cur_ped_event_num_[25];
+
+    bool     phy_first_valid_found_;
+    Long64_t phy_first_valid_index_;
+    Long64_t phy_first_valid_week_;
+    Long64_t phy_first_valid_second_;
+    Long64_t phy_first_ship_second_;
+    Long64_t phy_last_valid_index_;
+    Long64_t phy_last_valid_week_;
+    Long64_t phy_last_valid_second_;
+    Long64_t phy_last_ship_second_;
+    Long64_t phy_total_valid_count_;
+    string   phy_gps_result_str_;
+    string   phy_ship_result_str_;
+    bool     ped_first_valid_found_;
+    Long64_t ped_first_valid_index_;
+    Long64_t ped_first_valid_week_;
+    Long64_t ped_first_valid_second_;
+    Long64_t ped_first_ship_second_;
+    Long64_t ped_last_valid_index_;
+    Long64_t ped_last_valid_week_;
+    Long64_t ped_last_valid_second_;
+    Long64_t ped_last_ship_second_;
+    Long64_t ped_total_valid_count_;
+    string   ped_gps_result_str_;
+    string   ped_ship_result_str_;
+    
 private:
     void copy_event_pkt_(Modules_T& t_modules_par, const SciEvent& event);
     void copy_trigger_pkt_(Trigger_T& t_trigger_par, const SciTrigger& trigger);
     template <class T> bool bit_extract_(T data, size_t n);
+
+    int    week_of_gps6_(const uint64_t raw_gps);
+    double second_of_gps6_(const uint64_t raw_gps);
+    double calc_ship_second(const uint64_t raw_ship_time);
 
 public:
     SciDataFile();
@@ -164,6 +194,9 @@ public:
     void write_ped_trigger_alone(const SciTrigger& ped_trigger);
     void write_ped_event_align(const SciTrigger& ped_trigger, const vector<SciEvent>& ped_events_vec);
     void write_meta(const char* key, const char* value);
+    void gen_gps_result_str();
+    void write_gps_span();
+    void print_gps_span();
 
 };
 

@@ -38,59 +38,61 @@ void Counter::print(ostream& os) {
     os << left;
     os << setfill(' ');
     os << setw(28) << "total frame count: " <<setw(20) << frame
-         << setw(28) << "total packet count: " << setw(10) << packet << endl;
+       << setw(28) << "total packet count: " << setw(10) << packet << endl;
     os << setw(28) << "frame invalid count: " << setw(20) << frm_invalid
-         << setw(28) << "- trigger packet count: " << setw(10) << trigger << endl;
+       << setw(28) << "- trigger packet count: " << setw(10) << trigger << endl;
     sprintf(str_buffer1, "%4.2f%%", frame > 0 ? static_cast<double>(frm_invalid) / frame * 100 : 0.0);
     os << setw(28) << "frame invalid percent: " << setw(20) << str_buffer1
-         << setw(28) << "- event packet count: " << setw(10) << event << endl;
+       << setw(28) << "- event packet count: " << setw(10) << event << endl;
     os << setw(28) << "frame crc error count: " << setw(20) << frm_crc_error
-         << setw(28) << "packet invalid count: " << setw(10) << pkt_invalid << endl;
+       << setw(28) << "packet invalid count: " << setw(10) << pkt_invalid << endl;
     sprintf(str_buffer1, "%4.2f%%", frame > 0 ? static_cast<double>(frm_crc_error) / frame * 100 : 0.0);
     sprintf(str_buffer2, "%4.2f%%", packet > 0 ? static_cast<double>(pkt_invalid) / packet * 100 : 0.0);
     os << setw(28) << "frame crc error percent: " << setw(20) << str_buffer1
-         << setw(28) << "packet invalid percent: " << setw(10) << str_buffer2 << endl;
+       << setw(28) << "packet invalid percent: " << setw(10) << str_buffer2 << endl;
     os << setw(28) << "frame interruption count: " << setw(20) << frm_con_error
-         << setw(28) << "packet crc error count: " << setw(10) << pkt_crc_error << endl;
+       << setw(28) << "packet crc error count: " << setw(10) << pkt_crc_error << endl;
     sprintf(str_buffer2, "%4.2f%%", packet > 0 ? static_cast<double>(pkt_crc_error) / packet * 100 : 0.0);
     os << setw(28) << "frame start error count: " << setw(20) << frm_start_error
-         << setw(28) << "packet crc error percent: " << setw(10) << str_buffer2 << endl;
+       << setw(28) << "packet crc error percent: " << setw(10) << str_buffer2 << endl;
     os << setw(28) << "total timestamp 0 count: " << setw(20) << timestamp_zero_sum
-         << setw(28) << "packet too short count: " << setw(20) << pkt_too_short << endl;
+       << setw(28) << "packet too short count: " << setw(20) << pkt_too_short << endl;
     os << right;
     os << "-----------------------------------------------------------------------------------------------------------" << endl;
     int64_t trigg_sum = 0;
     int64_t event_sum = 0;
     int64_t noped_event_sum = 0;
-    os << setw(4) << "ct"
-         << setw(5) << "mod"
-         << setw(3) << " >"
-         << setw(11) << "ped_trig"
-         << setw(11) << "ped_event"
-         << setw(11) << "ped_lost"
-         << setw(9) << "percent"
-         << setw(5) << "   |"
-         << setw(13) << "noped_trig"
-         << setw(13) << "noped_event"
-         << setw(13) << "noped_lost"
-         << setw(9) << "percent"
-         << endl;
+    os << setw(3) << "ct"
+       << setw(4) << "mod"
+       << setw(2) << " >"
+       << setw(10) << "ped_trig"
+       << setw(11) << "ped_event"
+       << setw(10) << "ped_lost"
+       << setw(9) << "percent"
+       << setw(3) << "|"
+       << setw(12) << "noped_trig"
+       << setw(13) << "noped_event"
+       << setw(12) << "noped_lost"
+       << setw(9) << "percent"
+       << setw(8) << "rate"
+       << endl;
     for (int i = 0; i < 25; i++) {
-        os << setw(4) << i + 1
-             << setw(5) << ModuleIndex[i]
-             << setw(3) << " >"
-             << setw(11) << ped_trig[i]
-             << setw(11) << ped_event[i]
-             << setw(11) << ped_trig[i] - ped_event[i];
+        os << setw(3) << i + 1
+           << setw(4) << ModuleIndex[i]
+           << setw(2) << " >"
+           << setw(10) << ped_trig[i]
+           << setw(11) << ped_event[i]
+           << setw(9) << ped_trig[i] - ped_event[i];
         sprintf(str_buffer1, "%4.2f%%", ped_trig[i] > 0 ? static_cast<double>(ped_trig[i] - ped_event[i]) / ped_trig[i] * 100 : 0.0);
-        os << setw(9) << str_buffer1
-             << setw(5) << "   |"
-             << setw(13) << noped_trig[i]
-             << setw(13) << noped_event[i]
-             << setw(13) << noped_trig[i] - noped_event[i];
-        sprintf(str_buffer1, "%4.2f%%", noped_trig[i] ? static_cast<double>(noped_trig[i] - noped_event[i]) / noped_trig[i] * 100 : 0.0);
-        os << setw(9) << str_buffer1
-             << endl;
+        os << setw(10) << str_buffer1
+           << setw(3) << "|"
+           << setw(12) << noped_trig[i]
+           << setw(13) << noped_event[i]
+           << setw(12) << noped_trig[i] - noped_event[i];
+        sprintf(str_buffer1, "%4.2f%%", noped_trig[i] > 0 ? static_cast<double>(noped_trig[i] - noped_event[i]) / noped_trig[i] * 100 : 0.0);
+        os << setw(9) << str_buffer1;
+        os << setw(8) << (sec_ped_trigger > 0 ? noped_trig[i] / sec_ped_trigger : 0);
+        os << endl;
         trigg_sum += (ped_trig[i] + noped_trig[i]);
         event_sum += (ped_event[i] + noped_event[i]);
         noped_event_sum += noped_event[i];

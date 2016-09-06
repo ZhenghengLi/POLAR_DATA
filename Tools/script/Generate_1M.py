@@ -89,6 +89,7 @@ for x in raw_filelist:
     if ref_psd.match(x):
         psd_filelist.append(x)
         continue
+print " - raw data files that need to process: "
 print " - SCI file list:"
 for x in sci_filelist:
     print ' > ' + x
@@ -98,5 +99,22 @@ for x in aux_filelist:
 print " - PSD file list:"
 for x in psd_filelist:
     print ' > ' + x
+
+print delimeter
+
+start_flag = raw_input(' - start generating? (Y/n) ').lower()
+if start_flag == 'n':
+    print ' - Abort.'
+    exit(1)
+
+# make dir in internal/
+# delete dir in log/ if exists
+# delete dir in screen/ if exists
+
+print ' - generating 1M level SCI data ... '
+
+print ' - generating 1M level AUX data ... '
+
+print ' - generating 1M level PPD data ... '
 
 

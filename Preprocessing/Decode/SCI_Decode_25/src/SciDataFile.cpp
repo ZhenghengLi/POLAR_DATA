@@ -8,6 +8,24 @@ SciDataFile::SciDataFile() {
     t_trigger_tree_      = NULL;
     t_ped_modules_tree_  = NULL;
     t_ped_trigger_tree_  = NULL;
+
+    phy_first_valid_found_     = false;
+    phy_first_valid_index_     = -1;
+    phy_first_valid_week_      = -1;
+    phy_first_valid_second_    = -1;
+    phy_last_valid_index_      = -1;
+    phy_last_valid_week_       = -1;
+    phy_last_valid_second_     = -1;
+    phy_total_valid_count_     = 0;
+    ped_first_valid_found_     = false;
+    ped_first_valid_index_     = -1;
+    ped_first_valid_week_      = -1;
+    ped_first_valid_second_    = -1;
+    ped_last_valid_index_      = -1;
+    ped_last_valid_week_       = -1;
+    ped_last_valid_second_     = -1;
+    ped_total_valid_count_     = 0;
+    
 }
 
 SciDataFile::~SciDataFile() {
@@ -224,6 +242,19 @@ void SciDataFile::write_trigger_alone(const SciTrigger& trigger) {
         t_trigger_tree_->Fill();
         t_trigger_cur_entry_++;
         cur_trigg_num_++;
+        // record time span
+        phy_total_valid_count_++;
+        if (!phy_first_valid_found_) {
+            phy_first_valid_found_  = true;
+            phy_first_valid_index_  = t_trigger_cur_entry_ - 1;
+            phy_first_valid_week_   = week_of_gps6_(t_trigger.frm_gps_time);
+            phy_first_valid_second_ = second_of_gps6_(t_trigger.frm_gps_time);
+            phy_first_ship_second_  = calc_ship_second(t_trigger.frm_ship_time);
+        }
+        phy_last_valid_index_  = t_trigger_cur_entry_ - 1;
+        phy_last_valid_week_   = week_of_gps6_(t_trigger.frm_gps_time);
+        phy_last_valid_second_ = second_of_gps6_(t_trigger.frm_gps_time);
+        phy_last_ship_second_  = calc_ship_second(t_trigger.frm_ship_time);
     }
 }
 
@@ -253,6 +284,19 @@ void SciDataFile::write_event_align(const SciTrigger& trigger, const vector<SciE
     t_trigger_tree_->Fill();
     t_trigger_cur_entry_++;
     cur_trigg_num_++;
+    // record time span
+    phy_total_valid_count_++;
+    if (!phy_first_valid_found_) {
+        phy_first_valid_found_  = true;
+        phy_first_valid_index_  = t_trigger_cur_entry_ - 1;
+        phy_first_valid_week_   = week_of_gps6_(t_trigger.frm_gps_time);
+        phy_first_valid_second_ = second_of_gps6_(t_trigger.frm_gps_time);
+        phy_first_ship_second_  = calc_ship_second(t_trigger.frm_ship_time);
+    }
+    phy_last_valid_index_  = t_trigger_cur_entry_ - 1;
+    phy_last_valid_week_   = week_of_gps6_(t_trigger.frm_gps_time);
+    phy_last_valid_second_ = second_of_gps6_(t_trigger.frm_gps_time);
+    phy_last_ship_second_  = calc_ship_second(t_trigger.frm_ship_time);
 }
 
 void SciDataFile::write_ped_modules_alone(const SciEvent& ped_event) {
@@ -291,6 +335,19 @@ void SciDataFile::write_ped_trigger_alone(const SciTrigger& ped_trigger) {
         t_ped_trigger_tree_->Fill();
         t_ped_trigger_cur_entry_++;
         cur_ped_trigg_num_++;
+        // record time span
+        ped_total_valid_count_++;
+        if (!ped_first_valid_found_) {
+            ped_first_valid_found_  = true;
+            ped_first_valid_index_  = t_ped_trigger_cur_entry_ - 1;
+            ped_first_valid_week_   = week_of_gps6_(t_ped_trigger.frm_gps_time);
+            ped_first_valid_second_ = second_of_gps6_(t_ped_trigger.frm_gps_time);
+            ped_first_ship_second_  = calc_ship_second(t_ped_trigger.frm_ship_time);
+        }
+        ped_last_valid_index_  = t_ped_trigger_cur_entry_ - 1;
+        ped_last_valid_week_   = week_of_gps6_(t_ped_trigger.frm_gps_time);
+        ped_last_valid_second_ = second_of_gps6_(t_ped_trigger.frm_gps_time);
+        ped_last_ship_second_  = calc_ship_second(t_ped_trigger.frm_ship_time);
     }
 }
 
@@ -320,6 +377,19 @@ void SciDataFile::write_ped_event_align(const SciTrigger& ped_trigger, const vec
     t_ped_trigger_tree_->Fill();
     t_ped_trigger_cur_entry_++;
     cur_ped_trigg_num_++;
+    // record time span
+    ped_total_valid_count_++;
+    if (!ped_first_valid_found_) {
+        ped_first_valid_found_  = true;
+        ped_first_valid_index_  = t_ped_trigger_cur_entry_ - 1;
+        ped_first_valid_week_   = week_of_gps6_(t_ped_trigger.frm_gps_time);
+        ped_first_valid_second_ = second_of_gps6_(t_ped_trigger.frm_gps_time);
+        ped_first_ship_second_  = calc_ship_second(t_ped_trigger.frm_ship_time);
+    }
+    ped_last_valid_index_  = t_ped_trigger_cur_entry_ - 1;
+    ped_last_valid_week_   = week_of_gps6_(t_ped_trigger.frm_gps_time);
+    ped_last_valid_second_ = second_of_gps6_(t_ped_trigger.frm_gps_time);
+    ped_last_ship_second_  = calc_ship_second(t_ped_trigger.frm_ship_time);
 }
 
 void SciDataFile::write_meta(const char* key, const char* value) {
@@ -438,4 +508,75 @@ bool SciDataFile::bit_extract_(T data, size_t n) {
         return false;
     data &= (1 << n);
     return static_cast<bool>(data >> n);
+}
+
+int SciDataFile::week_of_gps6_(const uint64_t raw_gps) {
+    return static_cast<int>((raw_gps >> 32) & 0xFFFF);
+}
+
+double SciDataFile::second_of_gps6_(const uint64_t raw_gps) {
+    return static_cast<double>((raw_gps >> 12) & 0xFFFFF) + static_cast<double>(raw_gps & 0xFFF) * 0.5 * 1.0E-3;
+}
+
+double SciDataFile::calc_ship_second(const uint64_t raw_ship_time) {
+    double second = static_cast<double>(raw_ship_time >> 16);
+    double millisecond = static_cast<double>(raw_ship_time & 0xFFFF) / 2000;
+    return second + millisecond;
+}
+
+void SciDataFile::gen_gps_result_str() {
+    char str_buffer[200];
+    // phy
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_valid_week_),
+            static_cast<int>(phy_first_valid_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_valid_week_),
+            static_cast<int>(phy_last_valid_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(t_trigger_cur_entry_));
+    phy_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(phy_first_ship_second_),
+            static_cast<long int>(phy_first_valid_index_),
+            static_cast<int>(phy_last_ship_second_),
+            static_cast<long int>(phy_last_valid_index_),
+            static_cast<long int>(phy_total_valid_count_),
+            static_cast<long int>(t_trigger_cur_entry_));
+    phy_ship_result_str_.assign(str_buffer);
+    // ped
+    sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_valid_week_),
+            static_cast<int>(ped_first_valid_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_valid_week_),
+            static_cast<int>(ped_last_valid_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(t_ped_trigger_cur_entry_));
+    ped_gps_result_str_.assign(str_buffer);
+    sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
+            static_cast<int>(ped_first_ship_second_),
+            static_cast<long int>(ped_first_valid_index_),
+            static_cast<int>(ped_last_ship_second_),
+            static_cast<long int>(ped_last_valid_index_),
+            static_cast<long int>(ped_total_valid_count_),
+            static_cast<long int>(t_ped_trigger_cur_entry_));
+    ped_ship_result_str_.assign(str_buffer);
+}
+
+void SciDataFile::write_gps_span() {
+    write_meta("m_phy_gps_frm", phy_gps_result_str_.c_str());
+    write_meta("m_phyship_frm", phy_ship_result_str_.c_str());
+    write_meta("m_ped_gps_frm", ped_gps_result_str_.c_str());
+    write_meta("m_pedship_frm", ped_ship_result_str_.c_str());
+}
+
+void SciDataFile::print_gps_span() {
+    cout << "phy_gps_frm: { " << phy_gps_result_str_ << " }" << endl;
+    cout << "phyship_frm: { " << phy_ship_result_str_ << " }" << endl;
+    cout << "ped_gps_frm: { " << ped_gps_result_str_ << " }" << endl;
+    cout << "pedship_frm: { " << ped_ship_result_str_ << " }" << endl;
+    cout << "===========================================================================================================" << endl;
 }

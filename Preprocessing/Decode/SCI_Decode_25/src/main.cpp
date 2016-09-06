@@ -96,6 +96,7 @@ int main(int argc, char** argv) {
     
     pro.do_the_last_work(root_datafile);
     root_datafile.write_after_decoding();
+    root_datafile.gen_gps_result_str();
     pro.write_meta_info(filelist, root_datafile);
     root_datafile.close();
     if (log_flag) {
@@ -103,6 +104,7 @@ int main(int argc, char** argv) {
     }
 
     pro.cnt.print();
+    root_datafile.print_gps_span();
 
     return 0;
 }

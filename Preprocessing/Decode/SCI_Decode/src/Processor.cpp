@@ -645,4 +645,5 @@ void Processor::write_meta_info(FileList& filelist, SciDataFile& datafile) {
             cnt.get_lost_percent(),
             cnt.get_aligned_percent());
     datafile.write_meta("m_dcdinfo", str_buffer);
+    datafile.write_gps_span();
 }
