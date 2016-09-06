@@ -171,7 +171,7 @@ for x in sci_filelist:
     command = 'SCI_Decode ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
     with open(cur_cmd_file, 'w') as f: f.write(command)
     print subpro_begin
-    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    ret_val = subprocess.call('set -o pipefail; sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True, executable='/bin/bash')
     print subpro_end
     if ret_val < 1:
         print ' > done.'
@@ -194,7 +194,7 @@ for x in aux_filelist:
     command = 'HK_Decode ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
     with open(cur_cmd_file, 'w') as f: f.write(command)
     print subpro_begin
-    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    ret_val = subprocess.call('set -o pipefail; sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True, executable='/bin/bash')
     print subpro_end
     if ret_val < 1:
         print ' > done.'
@@ -217,7 +217,7 @@ for x in psd_filelist:
     command = 'PPD_Decode.py ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
     with open(cur_cmd_file, 'w') as f: f.write(command)
     print subpro_begin
-    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    ret_val = subprocess.call('set -o pipefail; sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True, executable='/bin/bash')
     print subpro_end
     if ret_val < 1:
         print ' > done.'
