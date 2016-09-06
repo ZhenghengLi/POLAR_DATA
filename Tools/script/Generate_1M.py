@@ -2,15 +2,20 @@
 
 import argparse
 import os
+import shutil
 import re
 import subprocess
+
+delimeter = " " + "-" * 80
+subpro_begin = "*-*-*-*-*-*-* subprocess begin *-*-*-*-*-*-*"
+subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
 
 parser = argparse.ArgumentParser(description='Generate 1M level data from a raw data folder for PSDC')
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
 parser.add_argument("-t", dest = "type", default = "normal")
 args = parser.parse_args()
 
-path_prefix = args.pathprefix
+path_prefix = os.path.abspath(args.pathprefix)
 if not os.path.isdir(path_prefix):
     print '"' + path_prefix + '"' + ' does not exist.'
     exit(1)
@@ -22,11 +27,20 @@ product_dir = os.path.join(path_prefix, "data_in_orbit_product", args.type, "int
 if not os.path.isdir(product_dir):
     print '"' + product_dir + '"' + ' does not exist.'
     exit(1)
+logfile_dir = os.path.join(path_prefix, "data_in_orbit_product", args.type, "log", "decoded")
+if not os.path.isdir(logfile_dir):
+    print '"' + logfile_dir + '"' + ' does not exist.'
+    exit(1)
+scrfile_dir = os.path.join(path_prefix, "data_in_orbit_product", args.type, "screen", "decoded")
+if not os.path.isdir(scrfile_dir):
+    print '"' + scrfile_dir + '"' + ' does not exist.'
+    exit(1)
 
-delimeter = " " + "-" * 80
 print " - path_prefix: " + path_prefix
 print " - rawdata_dir: " + rawdata_dir
 print " - product_dir: " + product_dir
+print " - logfile_dir: " + logfile_dir
+print " - scrfile_dir: " + scrfile_dir
 print delimeter
 
 rawdata_dates = [x for x in os.listdir(rawdata_dir) if os.path.isdir(os.path.join(rawdata_dir, x))]
@@ -46,18 +60,22 @@ if cur_date not in new_dates:
     print " - " + cur_date + " is not in the new datasets"
     exit(1)
 
-cur_rawpath = os.path.join(rawdata_dir, cur_date)
+cur_raw_path = os.path.join(rawdata_dir, cur_date)
 print delimeter
-subprocess.call('tree ' + cur_rawpath, shell = True)
+print subpro_begin
+subprocess.call('tree ' + cur_raw_path, shell = True)
+print subpro_end
 print delimeter
 
 check_md5 = raw_input(' - check md5? (Y/n) ').lower()
 if check_md5 == 'y' or check_md5 == '':
     md5file = 'MD5SUMS_' + cur_date + '.txt'
-    if not os.path.isfile(os.path.join(cur_rawpath, md5file)):
+    if not os.path.isfile(os.path.join(cur_raw_path, md5file)):
         print '"' + md5file + '"' + ' does not exist.'
         exit(1)
-    ret = subprocess.call('cd ' + cur_rawpath + ' && ' + 'md5sum -c ' + md5file, shell = True)
+    print subpro_begin
+    ret = subprocess.call('cd ' + cur_raw_path + ' && ' + 'md5sum -c ' + md5file, shell = True)
+    print subpro_end
     if not ret:
         print ' - all md5 is ok'
     else:
@@ -75,7 +93,8 @@ ref_0bfile = re.compile('T2_POL_.*_0B\.dat')
 ref_sci = re.compile('T2_POL_POLAR_SCI_.*_0B\.dat')
 ref_aux = re.compile('T2_POL_POLAR_AUX_.*_0B\.dat')
 ref_psd = re.compile('T2_POL_PSD_ENG_.*_0B\.dat')
-raw_filelist = [x for x in os.listdir(os.path.join(cur_rawpath, '0B')) if ref_0bfile.match(x)]
+cur_raw_path_0B = os.path.join(cur_raw_path, '0B')
+raw_filelist = [x for x in os.listdir(cur_raw_path_0B) if ref_0bfile.match(x)]
 sci_filelist = []
 aux_filelist = []
 psd_filelist = []
@@ -107,14 +126,109 @@ if start_flag == 'n':
     print ' - Abort.'
     exit(1)
 
-# make dir in internal/
-# delete dir in log/ if exists
-# delete dir in screen/ if exists
+# internal
+cur_decoded_path_int = os.path.join(product_dir, cur_date)
+print ' - create directory: ' + cur_decoded_path_int
+os.mkdir(cur_decoded_path_int)
+cur_1M_path_int = os.path.join(cur_decoded_path_int, '1M')
+print ' - create directory: ' + cur_1M_path_int
+os.mkdir(cur_1M_path_int)
+
+# log
+cur_decoded_path_log = os.path.join(logfile_dir, cur_date)
+print ' - create directory: ' + cur_decoded_path_log
+if os.path.isdir(cur_decoded_path_log):
+    shutil.rmtree(cur_decoded_path_log)
+os.mkdir(cur_decoded_path_log)
+cur_1M_path_log = os.path.join(cur_decoded_path_log, '1M')
+print ' - create directory: ' + cur_1M_path_log
+os.mkdir(cur_1M_path_log)
+
+# screen
+cur_decoded_path_scr = os.path.join(scrfile_dir, cur_date)
+print ' - create directory: ' + cur_decoded_path_scr
+if os.path.isdir(cur_decoded_path_scr):
+    shutil.rmtree(cur_decoded_path_scr)
+os.mkdir(cur_decoded_path_scr)
+cur_1M_path_scr = os.path.join(cur_decoded_path_scr, '1M')
+print ' - create directory: ' + cur_1M_path_scr
+os.mkdir(cur_1M_path_scr)
+
+failed_files = []
 
 print ' - generating 1M level SCI data ... '
+for x in sci_filelist:
+    print ' > processing: ' + x
+    cur_1M_rootfn = x.replace('0B.dat', '1M.root')
+    cur_1M_logfn  = x.replace('0B.dat', '1M.log')
+    cur_1M_cmdfn  = x.replace('0B.dat', '1M.cmd')
+    cur_1M_outfn  = x.replace('0B.dat', '1M.out')
+    cur_raw_file  = os.path.join(cur_raw_path_0B, x)
+    cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
+    cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
+    cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
+    command = 'SCI_Decode ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
+    with open(cur_cmd_file, 'w') as f: f.write(command)
+    print subpro_begin
+    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    print subpro_end
+    if ret_val < 1:
+        print ' > done.'
+    else:
+        failed_files.append(cur_raw_file)
+        print ' > ERROR occurred.'
 
 print ' - generating 1M level AUX data ... '
+for x in aux_filelist:
+    print ' > processing: ' + x 
+    cur_1M_rootfn = x.replace('0B.dat', '1M.root')
+    cur_1M_logfn  = x.replace('0B.dat', '1M.log')
+    cur_1M_cmdfn  = x.replace('0B.dat', '1M.cmd')
+    cur_1M_outfn  = x.replace('0B.dat', '1M.out')
+    cur_raw_file  = os.path.join(cur_raw_path_0B, x)
+    cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
+    cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
+    cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
+    command = 'HK_Decode ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
+    with open(cur_cmd_file, 'w') as f: f.write(command)
+    print subpro_begin
+    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    print subpro_end
+    if ret_val < 1:
+        print ' > done.'
+    else:
+        failed_files.append(cur_raw_file)
+        print ' > ERROR occurred.'
 
 print ' - generating 1M level PPD data ... '
+for x in psd_filelist:
+    print ' > processing: ' + x 
+    cur_1M_rootfn = x.replace('0B.dat', '1M.root')
+    cur_1M_logfn  = x.replace('0B.dat', '1M.log')
+    cur_1M_cmdfn  = x.replace('0B.dat', '1M.cmd')
+    cur_1M_outfn  = x.replace('0B.dat', '1M.out')
+    cur_raw_file  = os.path.join(cur_raw_path_0B, x)
+    cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
+    cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
+    cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
+    command = 'PPD_Decode.py ' + cur_raw_file + ' -o ' + cur_root_file + ' -g ' + cur_log_file
+    with open(cur_cmd_file, 'w') as f: f.write(command)
+    print subpro_begin
+    ret_val = subprocess.call('sh ' + cur_cmd_file + ' | tee ' + cur_out_file, shell = True)
+    print subpro_end
+    if ret_val < 1:
+        print ' > done.'
+    else:
+        failed_files.append(cur_raw_file)
+        print ' > ERROR occurred.'
 
+if len(failed_files) > 0:
+    print ' - The following raw data files are failed to process:'
+    for x in failed_files:
+        print x
+else:
+    print ' - All raw data files are processed successfully.'
 
