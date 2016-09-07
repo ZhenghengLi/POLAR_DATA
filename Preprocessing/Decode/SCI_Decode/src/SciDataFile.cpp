@@ -525,6 +525,34 @@ double SciDataFile::calc_ship_second(const uint64_t raw_ship_time) {
 }
 
 void SciDataFile::gen_gps_result_str() {
+    if (phy_first_valid_week_ < 1024) {
+        if (phy_first_valid_week_ > 629) {
+            phy_first_valid_week_ += 1024;
+        } else {
+            phy_first_valid_week_ += 2048;
+        }
+    }
+    if (phy_last_valid_week_ < 1024) {
+        if (phy_last_valid_week_ > 629) {
+            phy_last_valid_week_ += 1024;
+        } else {
+            phy_last_valid_week_ += 2048;
+        }
+    }
+    if (ped_first_valid_week_ < 1024) {
+        if (ped_first_valid_week_ > 629) {
+            ped_first_valid_week_ += 1024;
+        } else {
+            ped_first_valid_week_ += 2048;
+        }
+    }
+    if (ped_last_valid_week_ < 1024) {
+        if (ped_last_valid_week_ > 629) {
+            ped_last_valid_week_ += 1024;
+        } else {
+            ped_last_valid_week_ += 2048;
+        }
+    }
     char str_buffer[200];
     // phy
     sprintf(str_buffer, "%d:%d[%ld] => %d:%d[%ld]; %ld/%ld",
