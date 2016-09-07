@@ -92,14 +92,18 @@ class ppd_file_r:
     def print_file_info(self):
         self.t_tree_ppd.get_entry(self.begin_entry)
         actual_begin_utc_time_sec = self.t_tree_ppd.utc_time_sec
-        self.t_tree_ppd.get_entry(self.end_entry - 1)
+        actual_end_entry = 0
+        for idx in xrange(self.end_entry - 1, self.begin_entry - 1, -1):
+            actual_end_entry = idx
+            self.t_tree_ppd.get_entry(idx)
+            if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0: break
         actual_end_utc_time_sec   = self.t_tree_ppd.utc_time_sec
         utc_time_span_str = '%d:%d[%d] => %d:%d[%d]' % (int(actual_begin_utc_time_sec / 604800),
                                                         int(actual_begin_utc_time_sec % 604800),
                                                         self.begin_entry,
                                                         int(actual_end_utc_time_sec / 604800),
                                                         int(actual_end_utc_time_sec % 604800),
-                                                        self.end_entry - 1)
+                                                        actual_end_entry)
         print self.t_file_name
         print ' - UTC time span: { ' + utc_time_span_str + ' }'
 
