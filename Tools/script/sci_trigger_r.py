@@ -20,6 +20,9 @@ class sci_trigger_r:
         self.last_gps_time_sec    = 0.0
         self.begin_gps_time_sec   = 0.0
         self.end_gps_time_sec     = 0.0
+        self.start_week           = 0
+        self.start_second         = 0.0
+        self.gps_time_length      = 0.0
 
     def __find_entry(self, gps_time_sec):
         head_entry = 0 
@@ -88,10 +91,29 @@ class sci_trigger_r:
             self.end_entry = self.__find_entry(self.end_gps_time_sec)
         else:
             self.end_entry = self.t_trigger.get_entries()
+        for idx in xrange(self.begin_entry, self.end_entry):
+            self.t_trigger.get_entry(idx)
+            if self.t_trigger.abs_gps_valid:
+                self.start_week   = self.t_trigger.abs_gps_week
+                self.start_second = self.t_trigger.abs_gps_second
+                break
+        stop_week   = 0
+        stop_second = 0.0
+        for idx in xrange(self.end_entry - 1, self.begin_entry - 1, -1):
+            self.t_trigger.get_entry(idx)
+            if self.t_trigger.abs_gps_valid:
+                stop_week   = self.t_trigger.abs_gps_week
+                stop_second = self.t_trigger.abs_gps_second
+                break
+        self.gps_time_length = (stop_week - self.start_week) * 604800 + (stop_second - self.start_second)
         return True
 
     def print_file_info(self):
-        self.t_trigger.get_entry(self.begin_entry)
+        actual_start_entry = 0
+        for idx in xrange(self.begin_entry, self.end_entry):
+            actual_start_entry = idx
+            self.t_trigger.get_entry(idx)
+            if self.t_trigger.abs_gps_valid: break
         actual_begin_gps_week   = self.t_trigger.abs_gps_week
         actual_begin_gps_second = self.t_trigger.abs_gps_second
         actual_end_entry = 0
@@ -103,7 +125,7 @@ class sci_trigger_r:
         actual_end_gps_second   = self.t_trigger.abs_gps_second
         gps_time_span_str = '%d:%d[%d] => %d:%d[%d]' % (int(actual_begin_gps_week),
                                                         int(actual_begin_gps_second),
-                                                        self.begin_entry,
+                                                        actual_start_entry,
                                                         int(actual_end_gps_week),
                                                         int(actual_end_gps_second),
                                                         actual_end_entry)
