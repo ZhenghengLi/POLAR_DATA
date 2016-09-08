@@ -641,3 +641,6 @@ bool SciIterator::ped_modules_next() {
     }
 }
 
+bool SciIterator::file_is_1P() {
+    return cur_is_1P_;
+}

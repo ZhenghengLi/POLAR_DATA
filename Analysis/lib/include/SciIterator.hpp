@@ -114,6 +114,8 @@ public:
     Long64_t ped_modules_get_cur_entry();
     bool     ped_modules_next();
 
+    bool     file_is_1P();
+
 };
 
 #endif

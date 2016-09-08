@@ -247,6 +247,65 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
         phy_modules_last_entry_  = t_modules_tree_->GetEntries();
         ped_trigger_last_entry_  = t_ped_trigger_tree_->GetEntries();
         ped_modules_last_entry_  = t_ped_modules_tree_->GetEntries();
+
+        // find start and stop trigger packet
+        // phy_begin_trigger
+        bool found_valid = false;
+        for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
+            t_trigger_tree_->GetEntry(i);
+            if (t_trigger.is_bad == 0) {
+                found_valid = true;
+                phy_begin_trigger = t_trigger;
+                break;
+            }
+        }
+        if (!found_valid) {
+            cout << "Cannot find phy_begin_trigger." << endl;
+            return false;
+        }
+        // phy_end_trigger
+        found_valid = false;
+        for (Long64_t i = phy_trigger_last_entry_ - 1; i >= 0; i--) {
+            t_trigger_tree_->GetEntry(i);
+            if (t_trigger.is_bad == 0) {
+                found_valid = true;
+                phy_end_trigger = t_trigger;
+                break;
+            }
+        }
+        if (!found_valid) {
+            cout << "Cannot find phy_end_trigger." << endl;
+            return false;
+        }
+        // ped_begin_trigger
+        found_valid = false;
+        for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
+            t_ped_trigger_tree_->GetEntry(i);
+            if (t_ped_trigger.is_bad == 0) {
+                found_valid = true;
+                ped_begin_trigger = t_ped_trigger;
+                break;
+            }
+        }
+        if (!found_valid) {
+            cout << "Cannot find ped_begin_trigger." << endl;
+            return false;
+        }
+        // ped_end_trigger
+        found_valid = false;
+        for (Long64_t i = ped_trigger_last_entry_; i >= 0; i--) {
+            t_ped_trigger_tree_->GetEntry(i);
+            if (t_ped_trigger.is_bad == 0) {
+                found_valid = true;
+                ped_end_trigger = t_ped_trigger;
+                break;
+            }
+        }
+        if (!found_valid) {
+            cout << "Cannot find ped_end_trigger." << endl;
+            return false;
+        }
+        
         return true;
     }
 
@@ -336,6 +395,65 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
             ped_modules_last_entry_ = t_ped_trigger.pkt_start;
         }
     }
+
+    // find start and stop trigger packet
+    // phy_begin_trigger
+    bool found_valid = false;
+    for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
+        t_trigger_tree_->GetEntry(i);
+        if (t_trigger.abs_gps_valid) {
+            found_valid = true;
+            phy_begin_trigger = t_trigger;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find phy_begin_trigger." << endl;
+        return false;
+    }
+    // phy_end_trigger
+    found_valid = false;
+    for (Long64_t i = phy_trigger_last_entry_ - 1; i >= 0; i--) {
+        t_trigger_tree_->GetEntry(i);
+        if (t_trigger.abs_gps_valid) {
+            found_valid = true;
+            phy_end_trigger = t_trigger;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find phy_end_trigger." << endl;
+        return false;
+    }
+    // ped_begin_trigger
+    found_valid = false;
+    for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
+        t_ped_trigger_tree_->GetEntry(i);
+        if (t_ped_trigger.abs_gps_valid) {
+            found_valid = true;
+            ped_begin_trigger = t_ped_trigger;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find ped_begin_trigger." << endl;
+        return false;
+    }
+    // ped_end_trigger
+    found_valid = false;
+    for (Long64_t i = ped_trigger_last_entry_; i >= 0; i--) {
+        t_ped_trigger_tree_->GetEntry(i);
+        if (t_ped_trigger.abs_gps_valid) {
+            found_valid = true;
+            ped_end_trigger = t_ped_trigger;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find ped_end_trigger." << endl;
+        return false;
+    }
+    
     return true;
 }
 
@@ -633,4 +751,8 @@ bool EventIterator::ped_modules_next_packet() {
         ped_modules_event_reach_end_ = true;
         return false;
     }
+}
+
+bool EventIterator::file_is_1P() {
+    return cur_is_1P_;
 }

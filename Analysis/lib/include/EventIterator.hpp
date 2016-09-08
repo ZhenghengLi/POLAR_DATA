@@ -64,6 +64,11 @@ public:
     Trigger_T t_ped_trigger;
     Modules_T t_ped_modules;
 
+    Trigger_T phy_begin_trigger;
+    Trigger_T phy_end_trigger;
+    Trigger_T ped_begin_trigger;
+    Trigger_T ped_end_trigger;
+
 private:
     Long64_t phy_trigger_cur_entry_;
     bool     phy_trigger_reach_end_;
@@ -111,6 +116,7 @@ public:
     void     ped_modules_set_start();
     bool     ped_modules_next_packet();
 
+    bool     file_is_1P();
 };
 
 #endif
