@@ -72,7 +72,7 @@ for i in xrange(25):
     if modules_hist[i].GetMaximum() > y_max:
         y_max = modules_hist[i].GetMaximum()
 for i in xrange(25):
-    modules_hist[i].SetMaximum(y_max * 1.2)
+    modules_hist[i].SetMaximum(y_max * 1.1)
 
 canvas_trigger = Canvas(1000, 800, name = "canvas_trigger", title = "rate of event trigger")
 canvas_trigger.ToggleEventStatus()
