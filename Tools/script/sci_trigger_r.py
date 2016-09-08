@@ -27,8 +27,30 @@ class sci_trigger_r:
         self.gps_time_length      = 0.0
 
     def __find_entry(self, gps_time_sec):
-        head_entry = 0 
-        tail_entry = self.t_trigger.get_entries() - 1 
+        head_entry = -1
+        head_entry_found = False
+        while head_entry < self.t_trigger.get_entries():
+            head_entry += 1
+            self.t_trigger.get_entry(head_entry)
+            if self.t_trigger.abs_gps_valid:
+                head_entry_found = True
+                break
+        if not head_entry_found:
+            return -1
+        if gps_time_sec < self.t_trigger.abs_gps_week * 604800 + self.t_trigger.abs_gps_second:
+            return -1
+        tail_entry = self.t_trigger.get_entries()
+        tail_entry_found = False
+        while tail_entry >= 0:
+            tail_entry -= 1
+            self.t_trigger.get_entry(tail_entry)
+            if self.t_trigger.abs_gps_valid:
+                tail_entry_found = True
+                break
+        if not tail_entry_found:
+            return -1
+        if gps_time_sec > self.t_trigger.abs_gps_week * 604800 + self.t_trigger.abs_gps_second:
+            return -1
         while tail_entry - head_entry > 1:
             center_entry = int((head_entry + tail_entry) / 2)
             found_valid_center = False
@@ -54,7 +76,7 @@ class sci_trigger_r:
                 head_entry = tmp_center_entry
             else:
                 tail_entry = tmp_center_entry
-        return head_entry
+        return tail_entry
 
     def open_file(self, filename, begin, end):
         self.t_file_name = basename(filename)
@@ -87,10 +109,16 @@ class sci_trigger_r:
             return False
         if self.begin_gps_time_sec > 0:
             self.begin_entry = self.__find_entry(self.begin_gps_time_sec)
+            if self.begin_entry < 0:
+                print "WARNING: cannot find begin entry."
+                return False
         else:
             self.begin_entry = 0
         if self.end_gps_time_sec > 0:
             self.end_entry = self.__find_entry(self.end_gps_time_sec)
+            if self.end_entry < 0:
+                print "WARNING: cannot find end entry."
+                return False
         else:
             self.end_entry = self.t_trigger.get_entries()
         for idx in xrange(self.begin_entry, self.end_entry):

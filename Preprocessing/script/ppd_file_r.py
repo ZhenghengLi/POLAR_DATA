@@ -22,8 +22,30 @@ class ppd_file_r:
         self.end_utc_time_sec      = 0.0
 
     def __find_entry(self, utc_time_sec):
-        head_entry = 0
-        tail_entry = self.t_tree_ppd.get_entries() - 1
+        head_entry = -1
+        head_entry_found = False
+        while head_entry < self.t_tree_ppd.get_entries():
+            head_entry += 1
+            self.t_tree_ppd.get_entry(head_entry)
+            if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0:
+                head_entry_found = True
+                break
+        if not head_entry_found:
+            return -1
+        if utc_time_sec < self.t_tree_ppd.utc_time_sec:
+            return -1
+        tail_entry = self.t_tree_ppd.get_entries()
+        tail_entry_found = False
+        while tail_entry >= 0:
+            tail_entry -= 1
+            self.t_tree_ppd.get_entry(tail_entry)
+            if self.t_tree_ppd.flag_of_pos == 0x55 and self.t_tree_ppd.utc_time_sec > 0:
+                tail_entry_found = True
+                break
+        if not tail_entry_found:
+            return -1
+        if utc_time_sec > self.t_tree_ppd.utc_time_sec:
+            return -1
         while tail_entry - head_entry > 1:
             center_entry = int((head_entry + tail_entry) / 2)
             found_valid_center = False
@@ -49,7 +71,7 @@ class ppd_file_r:
                 head_entry = tmp_center_entry
             else:
                 tail_entry = tmp_center_entry
-        return head_entry
+        return tail_entry
 
     def open_file(self, filename, begin, end):   # cut data by utc time, utc_week:utc_second
         self.t_file_name = basename(filename)
@@ -81,10 +103,16 @@ class ppd_file_r:
             return False
         if self.begin_utc_time_sec > 0:
             self.begin_entry = self.__find_entry(self.begin_utc_time_sec)
+            if self.begin_entry < 0:
+                print "WARNING: cannot find begin entry."
+                return False
         else:
             self.begin_entry = 0
         if self.end_utc_time_sec > 0:
             self.end_entry = self.__find_entry(self.end_utc_time_sec)
+            if self.end_entry < 0:
+                print "WARNING: cannot find end entry."
+                return False
         else:
             self.end_entry = self.t_tree_ppd.get_entries()
         return True
