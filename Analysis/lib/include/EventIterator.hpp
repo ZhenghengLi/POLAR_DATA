@@ -56,6 +56,7 @@ private:
 
 private:
     double value_of_gps_str_(const string gps_str);
+    Long64_t find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_value);
     
 public:
     Trigger_T t_trigger;
