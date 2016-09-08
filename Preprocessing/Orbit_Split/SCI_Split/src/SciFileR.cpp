@@ -17,6 +17,81 @@ SciFileR::~SciFileR() {
     close();
 }
 
+Long64_t SciFileR::find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_value) {
+    Long64_t head_entry          = -1;
+    bool     head_entry_found    = false;
+    while (head_entry < t_tree->GetEntries()) {
+        head_entry += 1;
+        t_tree->GetEntry(head_entry);
+        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            head_entry_found = true;
+            break;
+        }
+    }
+    if (!head_entry_found) {
+        return -1;
+    }
+    if (gps_value < t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t tail_entry          = t_tree->GetEntries();
+    bool     tail_entry_found    = false;
+    while (tail_entry >= 0) {
+        tail_entry -= 1;
+        t_tree->GetEntry(tail_entry);
+        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            tail_entry_found = true;
+            break;
+        }
+    }
+    if (!tail_entry_found) {
+        return -1;
+    }
+    if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t center_entry        = 0;
+    Long64_t tmp_center_entry    = 0;
+    bool     found_valid_center  = false;
+    while (tail_entry - head_entry > 1) {
+        center_entry = (head_entry + tail_entry) / 2;
+        found_valid_center = false;
+        t_tree->GetEntry(center_entry);
+        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            found_valid_center = true;
+        }
+        tmp_center_entry = center_entry;
+        while (!found_valid_center && tail_entry - tmp_center_entry > 1) {
+            tmp_center_entry += 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            tmp_center_entry = center_entry;
+        }
+        while (!found_valid_center && tmp_center_entry - head_entry > 1) {
+            tmp_center_entry -= 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            break;
+        }
+        if (gps_value == t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            return tmp_center_entry;
+        } else if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            head_entry = tmp_center_entry;
+        } else {
+            tail_entry = tmp_center_entry;
+        }
+    }
+    return tail_entry;
+}
+
 bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps_end) {
     if (t_file_in_ != NULL)
         return false;
@@ -150,9 +225,6 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
     bind_modules_tree(t_ped_modules_tree_, t_ped_modules);
     
     // find the first and last entry
-    char str_buffer[200];
-    bool found_last;
-    TEventList* cur_elist;
     if (gps_str_begin_ == "begin") {
         phy_trigger_first_entry_ = 0;
         phy_modules_first_entry_ = 0;
@@ -164,29 +236,20 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
             ped_trigger_last_entry_ = t_ped_trigger_tree_->GetEntries();
             ped_modules_last_entry_ = t_ped_modules_tree_->GetEntries();
         } else {
-            sprintf(str_buffer,
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
-                    "abs_gps_week >= 0 && abs_gps_second >= 0 && abs_gps_valid &&"
-                    "pkt_start >= 0",
-                    static_cast<long int>(gps_value_end_));
             // phy 
-            t_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            phy_trigger_last_entry_ = find_entry_(t_trigger_tree_, t_trigger, gps_value_end_);
+            if (phy_trigger_last_entry_ < 0) {
                 cerr << "Cannot find the last valid entry of t_trigger." << endl;
                 return false;
             }
-            phy_trigger_last_entry_ = cur_elist->GetEntry(0);
             t_trigger_tree_->GetEntry(phy_trigger_last_entry_);
             phy_modules_last_entry_ = t_trigger.pkt_start;
             // ped
-            t_ped_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            ped_trigger_last_entry_ = find_entry_(t_ped_trigger_tree_, t_ped_trigger, gps_value_end_);
+            if (ped_trigger_last_entry_ < 0) {
                 cerr << "Cannot find the last valid entry of t_ped_trigger." << endl;
                 return false;
             }
-            ped_trigger_last_entry_ = cur_elist->GetEntry(0);
             t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
             ped_modules_last_entry_ = t_ped_trigger.pkt_start;
         }
@@ -196,97 +259,55 @@ bool SciFileR::open(const char* filename, const char* gps_begin, const char* gps
             phy_modules_last_entry_ = t_modules_tree_->GetEntries();
             ped_trigger_last_entry_ = t_ped_trigger_tree_->GetEntries();
             ped_modules_last_entry_ = t_ped_modules_tree_->GetEntries();
-            sprintf(str_buffer,
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
-                    "abs_gps_week >= 0 && abs_gps_second >= 0 && abs_gps_valid &&"
-                    "pkt_start >= 0",
-                    static_cast<long int>(gps_value_begin_));
             // phy 
-            t_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            phy_trigger_first_entry_ = find_entry_(t_trigger_tree_, t_trigger, gps_value_begin_);
+            if (phy_trigger_first_entry_ < 0) {
                 cerr << "Cannot find the first valid entry of t_trigger." << endl;
                 return false;
             }
-            phy_trigger_first_entry_ = cur_elist->GetEntry(0);
             t_trigger_tree_->GetEntry(phy_trigger_first_entry_);
             phy_modules_first_entry_ = t_trigger.pkt_start;
             // ped
-            t_ped_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            ped_trigger_first_entry_ = find_entry_(t_ped_trigger_tree_, t_ped_trigger, gps_value_begin_);
+            if (ped_trigger_first_entry_ < 0) {
                 cerr << "Cannot find the first valid entry of t_ped_trigger." << endl;
                 return false;
             }
-            ped_trigger_first_entry_ = cur_elist->GetEntry(0);
             t_ped_trigger_tree_->GetEntry(ped_trigger_first_entry_);
             ped_modules_first_entry_ = t_ped_trigger.pkt_start;
         } else {
-            sprintf(str_buffer,
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
-                    "abs_gps_week * 604800 + abs_gps_second < %ld &&"
-                    "abs_gps_week >= 0 && abs_gps_second >= 0 && abs_gps_valid &&"
-                    "pkt_start >= 0",
-                    static_cast<long int>(gps_value_begin_),
-                    static_cast<long int>(gps_value_end_));
             // phy first
-            t_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < GPS_SPAN_MIN) {
-                cerr << "Cannot find enough valid entries of t_trigger." << endl;
+            phy_trigger_first_entry_ = find_entry_(t_trigger_tree_, t_trigger, gps_value_begin_);
+            if (phy_trigger_first_entry_ < 0) {
+                cerr << "Cannot find the first valid entry of t_trigger." << endl;
                 return false;
             }
-            phy_trigger_first_entry_ = cur_elist->GetEntry(0);
             t_trigger_tree_->GetEntry(phy_trigger_first_entry_);
             phy_modules_first_entry_ = t_trigger.pkt_start;
             // phy last
-            phy_trigger_last_entry_ = cur_elist->GetEntry(cur_elist->GetN() - 1);
-            found_last = false;
-            for (Long64_t i = phy_trigger_last_entry_ + 1; i < t_trigger_tree_->GetEntries(); i++) {
-                t_trigger_tree_->GetEntry(i);
-                if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 &&
-                    t_trigger.abs_gps_valid && t_trigger.pkt_start >= 0) {
-                    found_last = true;
-                    phy_trigger_last_entry_ = i;
-                    break;
-                }
-            }
-            if (found_last) {
-                t_trigger_tree_->GetEntry(phy_trigger_last_entry_);
-                phy_modules_last_entry_ = t_trigger.pkt_start;
-            } else {
-                phy_trigger_last_entry_ = t_trigger_tree_->GetEntries();
-                phy_modules_last_entry_ = t_modules_tree_->GetEntries();
-            }
-            // ped first
-            t_ped_trigger_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < GPS_SPAN_MIN) {
-                cerr << "Cannot find enough valid entries of t_ped_trigger." << endl;
+            phy_trigger_last_entry_ = find_entry_(t_trigger_tree_, t_trigger, gps_value_end_);
+            if (phy_trigger_last_entry_ < 0) {
+                cerr << "Cannot find the last valid entry of t_trigger." << endl;
                 return false;
             }
-            ped_trigger_first_entry_ = cur_elist->GetEntry(0);
+            t_trigger_tree_->GetEntry(phy_trigger_last_entry_);
+            phy_modules_last_entry_ = t_trigger.pkt_start;
+            // ped first
+            ped_trigger_first_entry_ = find_entry_(t_ped_trigger_tree_, t_ped_trigger, gps_value_begin_);
+            if (ped_trigger_first_entry_ < 0) {
+                cerr << "Cannot find the first valid entry of t_ped_trigger." << endl;
+                return false;
+            }
             t_ped_trigger_tree_->GetEntry(ped_trigger_first_entry_);
             ped_modules_first_entry_ = t_ped_trigger.pkt_start;
             // ped last
-            ped_trigger_last_entry_ = cur_elist->GetEntry(cur_elist->GetN() - 1);
-            found_last = false;
-            for (Long64_t i = ped_trigger_last_entry_ + 1; i < t_ped_trigger_tree_->GetEntries(); i++) {
-                t_ped_trigger_tree_->GetEntry(i);
-                if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 &&
-                    t_ped_trigger.abs_gps_valid && t_ped_trigger.pkt_start >= 0) {
-                    found_last = true;
-                    ped_trigger_last_entry_ = i;
-                    break;
-                }
+            ped_trigger_last_entry_ = find_entry_(t_ped_trigger_tree_, t_ped_trigger, gps_value_end_);
+            if (ped_trigger_last_entry_ < 0) {
+                cerr << "Cannot find the last valid entry of t_ped_trigger." << endl;
+                return false;
             }
-            if (found_last) {
-                t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
-                ped_modules_last_entry_ = t_ped_trigger.pkt_start;
-            } else {
-                ped_trigger_last_entry_ = t_ped_trigger_tree_->GetEntries();
-                ped_modules_last_entry_ = t_ped_modules_tree_->GetEntries();
-            }
+            t_ped_trigger_tree_->GetEntry(ped_trigger_last_entry_);
+            ped_modules_last_entry_ = t_ped_trigger.pkt_start;
         }
     }
 

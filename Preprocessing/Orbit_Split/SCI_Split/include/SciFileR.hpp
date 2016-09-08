@@ -59,6 +59,8 @@ private:
     void find_trigger_last_();
     void find_modules_first_();
     void find_modules_last_();
+
+    Long64_t find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_value);
     
 public:
     Modules_T t_modules;

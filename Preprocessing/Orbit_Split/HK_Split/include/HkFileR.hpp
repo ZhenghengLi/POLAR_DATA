@@ -50,6 +50,8 @@ private:
 
 private:
     double value_of_gps_str_(const string gps_str);
+    Long64_t find_entry_obox_(TTree* t_tree, Hk_Obox_T& t_branch, double gps_value);
+    Long64_t find_entry_ibox_(TTree* t_tree, Hk_Ibox_T& t_branch, double gps_value);
 
 private:
     Long64_t hk_obox_cur_entry_;

@@ -18,6 +18,156 @@ HkFileR::~HkFileR() {
     close();
 }
 
+Long64_t HkFileR::find_entry_obox_(TTree* t_tree, Hk_Obox_T& t_branch, double gps_value) {
+    Long64_t head_entry          = -1;
+    bool     head_entry_found    = false;
+    while (head_entry < t_tree->GetEntries()) {
+        head_entry += 1;
+        t_tree->GetEntry(head_entry);
+        if (t_branch.odd_is_bad == 0 || t_branch.even_is_bad == 0) {
+            head_entry_found = true;
+            break;
+        }
+    }
+    if (!head_entry_found) {
+        return -1;
+    }
+    if (gps_value < t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t tail_entry          = t_tree->GetEntries();
+    bool     tail_entry_found    = false;
+    while (tail_entry >= 0) {
+        tail_entry -= 1;
+        t_tree->GetEntry(tail_entry);
+        if (t_branch.odd_is_bad == 0 || t_branch.even_is_bad == 0) {
+            tail_entry_found = true;
+            break;
+        }
+    }
+    if (!tail_entry_found) {
+        return -1;
+    }
+    if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t center_entry        = 0;
+    Long64_t tmp_center_entry    = 0;
+    bool     found_valid_center  = false;
+    while (tail_entry - head_entry > 1) {
+        center_entry = (head_entry + tail_entry) / 2;
+        found_valid_center = false;
+        t_tree->GetEntry(center_entry);
+        if (t_branch.odd_is_bad == 0 || t_branch.even_is_bad == 0) {
+            found_valid_center = true;
+        }
+        tmp_center_entry = center_entry;
+        while (!found_valid_center && tail_entry - tmp_center_entry > 1) {
+            tmp_center_entry += 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.odd_is_bad == 0 || t_branch.even_is_bad == 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            tmp_center_entry = center_entry;
+        }
+        while (!found_valid_center && tmp_center_entry - head_entry > 1) {
+            tmp_center_entry -= 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.odd_is_bad == 0 || t_branch.even_is_bad == 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            break;
+        }
+        if (gps_value == t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            return tmp_center_entry;
+        } else if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            head_entry = tmp_center_entry;
+        } else {
+            tail_entry = tmp_center_entry;
+        }
+    }
+    return tail_entry;
+}
+Long64_t HkFileR::find_entry_ibox_(TTree* t_tree, Hk_Ibox_T& t_branch, double gps_value) {
+    Long64_t head_entry          = -1;
+    bool     head_entry_found    = false;
+    while (head_entry < t_tree->GetEntries()) {
+        head_entry += 1;
+        t_tree->GetEntry(head_entry);
+        if (t_branch.is_bad == 0) {
+            head_entry_found = true;
+            break;
+        }
+    }
+    if (!head_entry_found) {
+        return -1;
+    }
+    if (gps_value < t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t tail_entry          = t_tree->GetEntries();
+    bool     tail_entry_found    = false;
+    while (tail_entry >= 0) {
+        tail_entry -= 1;
+        t_tree->GetEntry(tail_entry);
+        if (t_branch.is_bad == 0) {
+            tail_entry_found = true;
+            break;
+        }
+    }
+    if (!tail_entry_found) {
+        return -1;
+    }
+    if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+        return -1;
+    }
+    Long64_t center_entry        = 0;
+    Long64_t tmp_center_entry    = 0;
+    bool     found_valid_center  = false;
+    while (tail_entry - head_entry > 1) {
+        center_entry = (head_entry + tail_entry) / 2;
+        found_valid_center = false;
+        t_tree->GetEntry(center_entry);
+        if (t_branch.is_bad == 0) {
+            found_valid_center = true;
+        }
+        tmp_center_entry = center_entry;
+        while (!found_valid_center && tail_entry - tmp_center_entry > 1) {
+            tmp_center_entry += 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.is_bad == 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            tmp_center_entry = center_entry;
+        }
+        while (!found_valid_center && tmp_center_entry - head_entry > 1) {
+            tmp_center_entry -= 1;
+            t_tree->GetEntry(tmp_center_entry);
+            if (t_branch.is_bad == 0) {
+                found_valid_center = true;
+            }
+        }
+        if (!found_valid_center) {
+            break;
+        }
+        if (gps_value == t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            return tmp_center_entry;
+        } else if (gps_value > t_branch.abs_gps_week * 604800 + t_branch.abs_gps_second) {
+            head_entry = tmp_center_entry;
+        } else {
+            tail_entry = tmp_center_entry;
+        }
+    }
+    return tail_entry;
+}
+
+
 bool HkFileR::open(const char* filename, const char* gps_begin, const char* gps_end) {
     if (t_file_in_ != NULL)
         return false;
@@ -134,9 +284,6 @@ bool HkFileR::open(const char* filename, const char* gps_begin, const char* gps_
     bind_hk_ibox_tree(t_hk_ibox_tree_, t_hk_ibox);
 
     // find the firest and last entry
-    char str_buffer[200];
-    bool found_last;
-    TEventList* cur_elist;
     if (gps_str_begin_ == "begin") {
         hk_obox_first_entry_ = 0;
         hk_ibox_first_entry_ = 0;
@@ -144,107 +291,51 @@ bool HkFileR::open(const char* filename, const char* gps_begin, const char* gps_
             hk_obox_last_entry_ = t_hk_obox_tree_->GetEntries();
             hk_ibox_last_entry_ = t_hk_ibox_tree_->GetEntries();
         } else {
-            sprintf(str_buffer,
-                    "(odd_is_bad == 0 || even_is_bad == 0) &&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld",
-                    static_cast<long int>(gps_value_end_));
-            t_hk_obox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            hk_obox_last_entry_ = find_entry_obox_(t_hk_obox_tree_, t_hk_obox, gps_value_end_);
+            if (hk_obox_last_entry_ < 1) {
                 cerr << "Cannot find the last valid entry of t_hk_obox." << endl;
                 return false;
             }
-            hk_obox_last_entry_ = cur_elist->GetEntry(0);
-            sprintf(str_buffer,
-                    "is_bad == 0 &&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld",
-                    static_cast<long int>(gps_value_end_));
-            t_hk_ibox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            hk_ibox_last_entry_ = find_entry_ibox_(t_hk_ibox_tree_, t_hk_ibox, gps_value_end_);
+            if (hk_ibox_last_entry_ < 1) {
                 cerr << "Cannot find the last valid entry of t_hk_ibox." << endl;
                 return false;
             }
-            hk_ibox_last_entry_ = cur_elist->GetEntry(0);
         }
     } else {
         if (gps_str_end_ == "end") {
             hk_obox_last_entry_ = t_hk_obox_tree_->GetEntries();
             hk_ibox_last_entry_ = t_hk_ibox_tree_->GetEntries();
-            sprintf(str_buffer,
-                    "(odd_is_bad == 0 || even_is_bad == 0) &&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld",
-                    static_cast<long int>(gps_value_begin_));
-            t_hk_obox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            hk_obox_first_entry_ = find_entry_obox_(t_hk_obox_tree_, t_hk_obox, gps_value_begin_);
+            if (hk_obox_first_entry_ < 1) {
                 cerr << "Cannot find the first valid entry of t_hk_obox." << endl;
                 return false;
             }
-            hk_obox_first_entry_ = cur_elist->GetEntry(0);
-            sprintf(str_buffer,
-                    "is_bad == 0 &&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld",
-                    static_cast<long int>(gps_value_begin_));
-            t_hk_ibox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < 1) {
+            hk_ibox_first_entry_ = find_entry_ibox_(t_hk_ibox_tree_, t_hk_ibox, gps_value_begin_);
+            if (hk_ibox_first_entry_ < 1) {
                 cerr << "Cannot find the first valid entry of t_hk_ibox." << endl;
                 return false;
             }
-            hk_ibox_first_entry_ = cur_elist->GetEntry(0);
         } else {
-            sprintf(str_buffer,
-                    "(odd_is_bad == 0 || even_is_bad == 0) &&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
-                    "abs_gps_week * 604800 + abs_gps_second < %ld",
-                    static_cast<long int>(gps_value_begin_),
-                    static_cast<long int>(gps_value_end_));
-            t_hk_obox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < GPS_SPAN_MIN / 2) {
-                cerr << "Cannot find enough valid entries of t_hk_obox." << endl;
+            hk_obox_first_entry_ = find_entry_obox_(t_hk_obox_tree_, t_hk_obox, gps_value_begin_);
+            if (hk_obox_first_entry_ < 1) {
+                cerr << "Cannot find the first valid entry of t_hk_obox." << endl;
                 return false;
             }
-            hk_obox_first_entry_ = cur_elist->GetEntry(0);
-            hk_obox_last_entry_  = cur_elist->GetEntry(cur_elist->GetN() - 1);
-            found_last = false;
-            for (Long64_t i = hk_obox_last_entry_ + 1; i < t_hk_obox_tree_->GetEntries(); i++) {
-                t_hk_obox_tree_->GetEntry(i);
-                if (t_hk_obox.odd_is_bad == 0 || t_hk_obox.even_is_bad == 0) {
-                    found_last = true;
-                    hk_obox_last_entry_ = i;
-                    break;
-                }
-            }
-            if (!found_last) {
-                hk_obox_last_entry_ = t_hk_obox_tree_->GetEntries();
-            }
-            sprintf(str_buffer,
-                    "is_bad == 0&&"
-                    "abs_gps_week * 604800 + abs_gps_second >= %ld &&"
-                    "abs_gps_week * 604800 + abs_gps_second < %ld",
-                    static_cast<long int>(gps_value_begin_),
-                    static_cast<long int>(gps_value_end_));
-            t_hk_ibox_tree_->Draw(">>elist", str_buffer);
-            cur_elist = static_cast<TEventList*>(gDirectory->Get("elist"));
-            if (cur_elist->GetN() < GPS_SPAN_MIN) {
-                cerr << "Cannot find enough valid entries of t_hk_ibox." << endl;
+            hk_ibox_first_entry_ = find_entry_ibox_(t_hk_ibox_tree_, t_hk_ibox, gps_value_begin_);
+            if (hk_ibox_first_entry_ < 1) {
+                cerr << "Cannot find the first valid entry of t_hk_ibox." << endl;
                 return false;
             }
-            hk_ibox_first_entry_ = cur_elist->GetEntry(0);
-            hk_ibox_last_entry_  = cur_elist->GetEntry(cur_elist->GetN() - 1);
-            found_last = false;
-            for (Long64_t i = hk_ibox_last_entry_ + 1; i < t_hk_ibox_tree_->GetEntries(); i++) {
-                t_hk_ibox_tree_->GetEntry(i);
-                if (t_hk_ibox.is_bad == 0) {
-                    found_last = true;
-                    hk_ibox_last_entry_ = i;
-                    break;
-                }
+            hk_obox_last_entry_ = find_entry_obox_(t_hk_obox_tree_, t_hk_obox, gps_value_end_);
+            if (hk_obox_last_entry_ < 1) {
+                cerr << "Cannot find the last valid entry of t_hk_obox." << endl;
+                return false;
             }
-            if (!found_last) {
-                hk_ibox_last_entry_ = t_hk_ibox_tree_->GetEntries();
+            hk_ibox_last_entry_ = find_entry_ibox_(t_hk_ibox_tree_, t_hk_ibox, gps_value_end_);
+            if (hk_ibox_last_entry_ < 1) {
+                cerr << "Cannot find the last valid entry of t_hk_ibox." << endl;
+                return false;
             }
         }
     }
