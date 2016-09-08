@@ -17,6 +17,8 @@ sci_trigger_r_obj.open_file(args.filename, args.begin, args.end)
 sci_trigger_r_obj.print_file_info()
 print sci_trigger_r_obj.start_week
 print sci_trigger_r_obj.start_second
+print sci_trigger_r_obj.stop_week
+print sci_trigger_r_obj.stop_second
 print sci_trigger_r_obj.gps_time_length
 
 # todo

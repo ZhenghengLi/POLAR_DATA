@@ -22,6 +22,8 @@ class sci_trigger_r:
         self.end_gps_time_sec     = 0.0
         self.start_week           = 0
         self.start_second         = 0.0
+        self.stop_week            = 0
+        self.stop_second          = 0.0
         self.gps_time_length      = 0.0
 
     def __find_entry(self, gps_time_sec):
@@ -97,15 +99,13 @@ class sci_trigger_r:
                 self.start_week   = self.t_trigger.abs_gps_week
                 self.start_second = self.t_trigger.abs_gps_second
                 break
-        stop_week   = 0
-        stop_second = 0.0
         for idx in xrange(self.end_entry - 1, self.begin_entry - 1, -1):
             self.t_trigger.get_entry(idx)
             if self.t_trigger.abs_gps_valid:
-                stop_week   = self.t_trigger.abs_gps_week
-                stop_second = self.t_trigger.abs_gps_second
+                self.stop_week   = self.t_trigger.abs_gps_week
+                self.stop_second = self.t_trigger.abs_gps_second
                 break
-        self.gps_time_length = (stop_week - self.start_week) * 604800 + (stop_second - self.start_second)
+        self.gps_time_length = (self.stop_week - self.start_week) * 604800 + (self.stop_second - self.start_second)
         return True
 
     def print_file_info(self):
