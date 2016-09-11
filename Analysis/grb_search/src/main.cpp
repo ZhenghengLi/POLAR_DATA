@@ -8,6 +8,89 @@
 using namespace std;
 using namespace ROOT::Math;
 
+void find_exceeding(const TH1F* hist, double min_prob, int bkg_distance, int bkg_nbins, vector<int>& exceeding_bins, vector<double>& exceeding_prob) {
+    exceeding_bins.clear();
+    exceeding_prob.clear();
+    int first_bin = 1;
+    int last_bin  = hist->GetNbinsX();
+    for (int i = first_bin; i <= last_bin; i++) {
+        // calculate background
+        bool left_reach_edge  = false;
+        bool right_reach_edge = false;
+        int  bkg_bin_count = 0;
+        int  bkg_bin_total = 0;
+        // to left
+        for (int j = i - 1; j >= i - bkg_distance; j--) {
+            if (j < first_bin) {
+                left_reach_edge = true;
+                break;
+            }
+            int cur_content = hist->GetBinContent(j);
+            if (cur_content == 0) {
+                left_reach_edge = true;
+                break;
+            }
+        }
+        if (!left_reach_edge) {
+            for (int j = i - bkg_distance; j > i - bkg_distance - bkg_nbins; j--) {
+                if (j < first_bin) {
+                    left_reach_edge = true;
+                    break;
+                }
+                int cur_content = hist->GetBinContent(j);
+                if (cur_content == 0) {
+                    left_reach_edge = true;
+                    break;
+                } else {
+                    bkg_bin_count += 1;
+                    bkg_bin_total += cur_content;
+                }
+            }
+        }
+        // to right
+        for (int j = i + 1; j <= i + bkg_distance; j++) {
+            if (j > last_bin) {
+                right_reach_edge = true;
+                break;
+            }
+            int cur_content = hist->GetBinContent(j);
+            if (cur_content == 0) {
+                right_reach_edge = true;
+                break;
+            }
+        }
+        if (!right_reach_edge) {
+            for (int j = i + bkg_distance; j < i + bkg_distance + bkg_nbins; j++) {
+                if (j > last_bin) {
+                    right_reach_edge = true;
+                    break;
+                }
+                int cur_content = hist->GetBinContent(j);
+                if (cur_content == 0) {
+                    right_reach_edge = true;
+                    break;
+                } else {
+                    bkg_bin_count += 1;
+                    bkg_bin_total += cur_content;
+                }
+            }
+        }
+        int bkg_bin_mean  = 0;
+        if (bkg_bin_count > 0) {
+            bkg_bin_mean = bkg_bin_total / bkg_bin_count;
+        } else {
+            continue;
+        }
+        // calculate probability
+        int cur_bin_content = hist->GetBinContent(i);
+        double cur_prob = poisson_cdf_c(cur_bin_content, bkg_bin_mean);
+        if (cur_prob < min_prob) {
+            exceeding_bins.push_back(i);
+            exceeding_prob.push_back(cur_prob);
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
     if (!options_mgr.parse(argc, argv)) {
@@ -47,13 +130,11 @@ int main(int argc, char** argv) {
     Double_t gps_time_length = (end_gps_week - begin_gps_week) * 604800 + (end_gps_second - begin_gps_second);
 
     // prepare histogram
-    vector<int> vec_nblist(vec_bwlist.size());
     char name[50];
     char title[100];
     TH1F* hist_array[vec_bwlist.size()][4];
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
         int cur_nbins = static_cast<int>(gps_time_length / vec_bwlist[i]);
-        vec_nblist[i] = cur_nbins;
         for (size_t j = 0; j < 4; j++) {
             sprintf(name,   "hist_%d_%d", static_cast<int>(i), static_cast<int>(j));
             sprintf(title, "title_%d_%d", static_cast<int>(i), static_cast<int>(j));
@@ -87,21 +168,14 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
     eventIter.close();
 
-    cout << poisson_cdf(10, 5) << endl;
-    cout << poisson_cdf_c(10, 5) << endl;
-
     // grb searching
-    vector<int>   exceeding_bins[vec_bwlist.size()][4];
-    vector<float> exceeding_prob[vec_bwlist.size()][4];
+    vector<int>    exceeding_bins[vec_bwlist.size()][4];
+    vector<double> exceeding_prob[vec_bwlist.size()][4];
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
         for (size_t j = 0; j < 4; j++) {
-            cout << i << " => " << j << endl;
-            for (int k = 1; k <= vec_nblist[i]; k++) {
-                cout << hist_array[i][j]->GetBinContent(k) << endl;
-            }
+            find_exceeding(hist_array[i][j], options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
         }
     }
 
-    
     return 0;
 }
