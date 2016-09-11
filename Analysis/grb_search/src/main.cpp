@@ -8,11 +8,11 @@
 using namespace std;
 using namespace ROOT::Math;
 
-void find_exceeding(const TH1F* hist, double min_prob, int bkg_distance, int bkg_nbins, vector<int>& exceeding_bins, vector<double>& exceeding_prob) {
+void find_exceeding(const TH1F* hist, int j, double min_prob, int bkg_distance, int bkg_nbins, vector<int>& exceeding_bins, vector<double>& exceeding_prob) {
     exceeding_bins.clear();
     exceeding_prob.clear();
     int first_bin = 1;
-    int last_bin  = hist->GetNbinsX();
+    int last_bin = (j == 0 ? hist->GetNbinsX() : hist->GetNbinsX() - 1);
     for (int i = first_bin; i <= last_bin; i++) {
         // calculate background
         bool left_reach_edge  = false;
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
     TH1F* hist_array[vec_bwlist.size()][4];
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
         int cur_nbins = static_cast<int>(gps_time_length / vec_bwlist[i]);
-        for (size_t j = 0; j < 4; j++) {
+        for (int j = 0; j < 4; j++) {
             sprintf(name,   "hist_%d_%d", static_cast<int>(i), static_cast<int>(j));
             sprintf(title, "title_%d_%d", static_cast<int>(i), static_cast<int>(j));
             hist_array[i][j] = new TH1F(name, title, cur_nbins, 0 + j * vec_bwlist[i] / 4, gps_time_length + j * vec_bwlist[i] / 4);
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
             continue;
         }
         for (size_t i = 0; i < vec_bwlist.size(); i++) {
-            for (size_t j = 0; j < 4; j++) {
+            for (int j = 0; j < 4; j++) {
                 hist_array[i][j]->Fill((eventIter.t_trigger.abs_gps_week   - begin_gps_week) * 604800 +
                                        (eventIter.t_trigger.abs_gps_second - begin_gps_second));
             }
@@ -172,8 +172,22 @@ int main(int argc, char** argv) {
     vector<int>    exceeding_bins[vec_bwlist.size()][4];
     vector<double> exceeding_prob[vec_bwlist.size()][4];
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
-        for (size_t j = 0; j < 4; j++) {
-            find_exceeding(hist_array[i][j], options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
+        for (int j = 0; j < 4; j++) {
+            find_exceeding(hist_array[i][j], j, options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
+        }
+    }
+
+    // print result
+    for (size_t i = 0; i < vec_bwlist.size(); i++) {
+        for (int j = 0; j < 4; j++) {
+            cout << vec_bwlist[i] << " : " << j << endl;
+            if (exceeding_bins[i][j].size() > 0) {
+                new TCanvas();
+                hist_array[i][j]->Draw("EH");
+                for (size_t k = 0; k < exceeding_bins[i][j].size(); k++) {
+                    cout << hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]) << " => " << exceeding_prob[i][j][k] << endl;
+                }
+            }
         }
     }
 

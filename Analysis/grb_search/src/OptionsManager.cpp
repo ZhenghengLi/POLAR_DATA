@@ -144,11 +144,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (bw_len <= 0)
         bw_len = 10;
     if (min_prob <= 0)
-        min_prob = 0.001;
+        min_prob = 1.0E-10;
     if (bkg_distance <= 0)
         bkg_distance = 5;
     if (bkg_nbins <= 0)
-        bkg_nbins = 10;
+        bkg_nbins = 5;
     return true;
 }
 
