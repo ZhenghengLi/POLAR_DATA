@@ -37,8 +37,9 @@ void find_exceeding(const TH1F* hist, int j, double min_prob, int bkg_distance, 
                     left_reach_edge = true;
                     break;
                 }
+                int pre_content = hist->GetBinContent(j + 1);
                 int cur_content = hist->GetBinContent(j);
-                if (cur_content == 0) {
+                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob) {
                     left_reach_edge = true;
                     break;
                 } else {
@@ -65,8 +66,9 @@ void find_exceeding(const TH1F* hist, int j, double min_prob, int bkg_distance, 
                     right_reach_edge = true;
                     break;
                 }
+                int pre_content = hist->GetBinContent(j - 1);
                 int cur_content = hist->GetBinContent(j);
-                if (cur_content == 0) {
+                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob) {
                     right_reach_edge = true;
                     break;
                 } else {
@@ -182,8 +184,6 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 4; j++) {
             cout << vec_bwlist[i] << " : " << j << endl;
             if (exceeding_bins[i][j].size() > 0) {
-                new TCanvas();
-                hist_array[i][j]->Draw("EH");
                 for (size_t k = 0; k < exceeding_bins[i][j].size(); k++) {
                     cout << hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]) << " => " << exceeding_prob[i][j][k] << endl;
                 }
