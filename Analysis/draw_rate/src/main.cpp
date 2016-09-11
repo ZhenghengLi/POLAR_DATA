@@ -46,11 +46,12 @@ int main(int argc, char** argv) {
     // prepare histogram
     char name[50];
     char title[100];
-    sprintf(title, "%d:%d => %d:%d",
+    sprintf(title, "%d:%d => %d:%d @ %.3f",
             static_cast<int>(eventIter.phy_begin_trigger.abs_gps_week),
             static_cast<int>(eventIter.phy_begin_trigger.abs_gps_second),
             static_cast<int>(eventIter.phy_end_trigger.abs_gps_week),
-            static_cast<int>(eventIter.phy_end_trigger.abs_gps_second));
+            static_cast<int>(eventIter.phy_end_trigger.abs_gps_second),
+            static_cast<float>(options_mgr.binwidth));
     string gps_time_span = title;
     TH1D* trigger_hist = new TH1D("trigger_hist", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
                                    nbins, 0, gps_time_length);
