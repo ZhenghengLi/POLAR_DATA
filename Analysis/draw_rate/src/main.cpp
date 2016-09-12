@@ -41,20 +41,22 @@ int main(int argc, char** argv) {
     cout << " - time length:     " << gps_time_length << " seconds" << endl;
     cout << " - bin width:       " << options_mgr.binwidth << " seconds" << endl;
     cout << " - number of bins:  " << nbins << endl;
+    cout << " - phase shift:     " << options_mgr.phase << "/4" << endl;
     cout << "----------------------------------------------------------" << endl;
 
     // prepare histogram
     char name[50];
     char title[100];
-    sprintf(title, "%d:%d => %d:%d @ %.3f",
+    sprintf(title, "%d:%d => %d:%d @ %.3f, %d/4",
             static_cast<int>(eventIter.phy_begin_trigger.abs_gps_week),
             static_cast<int>(eventIter.phy_begin_trigger.abs_gps_second),
             static_cast<int>(eventIter.phy_end_trigger.abs_gps_week),
             static_cast<int>(eventIter.phy_end_trigger.abs_gps_second),
-            static_cast<float>(options_mgr.binwidth));
+            static_cast<float>(options_mgr.binwidth),
+            static_cast<int>(options_mgr.phase));
     string gps_time_span = title;
     TH1D* trigger_hist = new TH1D("trigger_hist", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
-                                   nbins, 0, gps_time_length);
+                                   nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     trigger_hist->SetDirectory(NULL);
     trigger_hist->SetMinimum(0);
     trigger_hist->SetLineColor(kRed);
@@ -63,7 +65,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         sprintf(name, "module_hist_%d", i + 1);
         sprintf(title, "module CT_%d: { %s }", i + 1, gps_time_span.c_str());
-        modules_hist[i] = new TH1D(name, title, nbins, 0, gps_time_length);
+        modules_hist[i] = new TH1D(name, title,
+                                   nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
         modules_hist[i]->SetDirectory(NULL);
         modules_hist[i]->SetMinimum(0);
         modules_hist[i]->SetLineColor(kBlue);

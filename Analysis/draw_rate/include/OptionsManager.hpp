@@ -17,6 +17,7 @@ public:
     TString end_gps;
     TString decoded_data_filename;
     double  binwidth;
+    int     phase;
     
 public:
     OptionsManager();

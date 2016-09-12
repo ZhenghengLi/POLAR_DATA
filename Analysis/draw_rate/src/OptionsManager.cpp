@@ -58,6 +58,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'j':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        phase = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -77,17 +89,21 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         end_gps = "end";
     if (binwidth <= 0)
         binwidth = 1.0;
+    if (phase != 0 && phase != 1 && phase != 2 && phase != 3) {
+        phase = 0;
+    }
     return true;
 }
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <decoded_data_file.root> [-B <week1:second1>] [-E <week2:second2>] [-w <binwidth>]" << endl;
+    cout << "  " << SW_NAME << " <decoded_data_file.root> [-B <week1:second1>] [-E <week2:second2>] [-w <binwidth>] [-j <phase>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B week1:second1                 GPS string of beginning" << endl;
     cout << "  -E week2:second2                 GPS string of ending" << endl;
     cout << "  -w binwidth                      bin width of seconds" << endl;
+    cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -112,6 +128,7 @@ void OptionsManager::init() {
     begin_gps.Clear();
     end_gps.Clear();
     binwidth = -1;
+    phase = -1;
 
     version_flag_ = false;
 }
