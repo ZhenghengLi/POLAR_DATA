@@ -170,26 +170,35 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
     eventIter.close();
 
+    cout << "----------------------------------------------------------" << endl;
+
     // grb searching
     vector<int>    exceeding_bins[vec_bwlist.size()][4];
     vector<double> exceeding_prob[vec_bwlist.size()][4];
+    cout << "searching ... " << endl;
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
+        cout << " - bin width: " << vec_bwlist[i] << endl;
         for (int j = 0; j < 4; j++) {
             find_exceeding(hist_array[i][j], j, options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
         }
     }
 
     // print result
+    cout << "----------------------------------------------------------" << endl;
+    int exceeding_count = 0;
     for (size_t i = 0; i < vec_bwlist.size(); i++) {
         for (int j = 0; j < 4; j++) {
-            cout << vec_bwlist[i] << " : " << j << endl;
             if (exceeding_bins[i][j].size() > 0) {
+                exceeding_count += 1;
+                cout << vec_bwlist[i] << " : " << j << endl;
                 for (size_t k = 0; k < exceeding_bins[i][j].size(); k++) {
                     cout << hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]) << " => " << exceeding_prob[i][j][k] << endl;
                 }
             }
         }
     }
-
+    if (exceeding_count < 1) {
+        cout << "No exceeding event found." << endl;
+    }
     return 0;
 }
