@@ -2,6 +2,7 @@
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
+#include "RateCanvas.hpp"
 
 using namespace std;
 
@@ -44,6 +45,8 @@ int main(int argc, char** argv) {
     cout << " - phase shift:     " << options_mgr.phase << "/4" << endl;
     cout << "----------------------------------------------------------" << endl;
 
+    RateCanvas rate_canvas(eventIter.phy_begin_trigger.abs_gps_week, eventIter.phy_begin_trigger.abs_gps_second);
+    
     // prepare histogram
     char name[50];
     char title[100];
@@ -117,17 +120,12 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         modules_hist[i]->SetMaximum(y_max * 1.1);
     }
-    TCanvas* canvas_trigger = new TCanvas("canvas_trigger", "rate of event trigger", 1000, 800);
-    canvas_trigger->ToggleEventStatus();
-    canvas_trigger->SetCrosshair();
-    trigger_hist->Draw("EH");
-    TCanvas* canvas_modules = new TCanvas("canvas_modules", "rate of 25 modules", 1500, 1000);
-    canvas_modules->ToggleEventStatus();
-    canvas_modules->Divide(5, 5);
     for (int i = 0; i < 25; i++) {
-        canvas_modules->cd(5 * (i % 5) + i / 5 + 1);
+        rate_canvas.cd_modules(i);
         modules_hist[i]->Draw("EH");
     }
+    rate_canvas.cd_trigger();
+    trigger_hist->Draw("EH");
 
     rootapp->Run();
     

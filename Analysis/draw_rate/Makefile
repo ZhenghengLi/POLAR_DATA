@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/draw_rate
 
-$(DEST_BIN)/draw_rate: obj/main.o obj/OptionsManager.o \
+$(DEST_BIN)/draw_rate: obj/main.o obj/OptionsManager.o obj/RateCanvas.o obj/RateCanvas_Dict.o \
 	$(MY_LIB)/obj/SciType.o $(MY_LIB)/obj/EventIterator.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
