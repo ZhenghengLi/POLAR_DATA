@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <cmath>
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
@@ -185,8 +186,8 @@ int main(int argc, char** argv) {
     vector<double> exceeding_prob[MAX_LEN][4];
     cout << "probability cut: " << options_mgr.min_prob << endl;
     cout << "searching ..." << endl;
+    cout << left << endl;
     for (int i = 0; i <= options_mgr.bw_len; i++) {
-        cout << left;
         cout << " - bin width: " << setw(10) << vec_bwlist[i] << flush;
         for (int j = 0; j < 4; j++) {
             find_exceeding(hist_array[i][j], j, options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
@@ -194,17 +195,52 @@ int main(int argc, char** argv) {
         }
         cout << setw(6) << " | " << endl;
     }
+    cout << right << endl;
 
     // print result
     cout << "----------------------------------------------------------" << endl;
+    cout << " - search result: " << endl;
     int exceeding_count = 0;
     for (int i = 0; i <= options_mgr.bw_len; i++) {
+        bool is_first = true;
         for (int j = 0; j < 4; j++) {
             if (exceeding_bins[i][j].size() > 0) {
+                if (is_first) {
+                    is_first = false;
+                    cout << " ********************************************************************* " << endl;
+                    cout << " * bin width: " << vec_bwlist[i] << endl;
+                }
+                cout << " + " << j << "/4 +++++++++++++++++++++++++ " << endl;
                 exceeding_count += 1;
-                cout << vec_bwlist[i] << " : " << j << endl;
+                size_t pre_bin, cur_bin;
+                double cur_prob;
+                int event_number;
                 for (size_t k = 0; k < exceeding_bins[i][j].size(); k++) {
-                    cout << hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]) << " => " << exceeding_prob[i][j][k] << endl;
+                    cur_bin  = exceeding_bins[i][j][k];
+                    cur_prob = exceeding_prob[i][j][k];
+                    if (k == 0) {
+                        event_number = 1;
+                        pre_bin = cur_bin;
+                    } else {
+                        if (cur_bin - pre_bin > 1) {
+                            event_number += 1;
+                        }
+                        pre_bin = cur_bin;
+                    }
+                    double first_second = hist_array[i][j]->GetBinCenter(cur_bin) - vec_bwlist[i] / 2;
+                    double last_second  = hist_array[i][j]->GetBinCenter(cur_bin) + vec_bwlist[i] / 2;
+                    cout << " - " << setw(3) << event_number << " -> "
+                         << setw(20)
+                         << Form("%d:%.3f",
+                                 begin_gps_week   + static_cast<int>(first_second / 604800),
+                                 begin_gps_second + fmod(first_second, 604800))
+                         << setw(20)
+                         << Form("%d:%.3f",
+                                 begin_gps_week   + static_cast<int>(last_second / 604800),
+                                 begin_gps_second + fmod(last_second, 604800))
+                         << setw(20)
+                         << cur_prob
+                         << endl;
                 }
             }
         }
