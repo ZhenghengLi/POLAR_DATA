@@ -5,6 +5,8 @@
 #include "EventIterator.hpp"
 #include "Math/ProbFunc.h"
 
+#define MAX_LEN 1000
+
 using namespace std;
 using namespace ROOT::Math;
 
@@ -104,6 +106,10 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    if (options_mgr.bw_len > MAX_LEN) {
+        cout << "The input bw_len is too large. It should not be larger than " << MAX_LEN << "." << endl;
+    }
+
     // prepare bin width list
     double logstep = (TMath::Log10(options_mgr.bw_stop) - TMath::Log10(options_mgr.bw_start)) / options_mgr.bw_len;
     vector<double> vec_bwlist;
@@ -134,8 +140,8 @@ int main(int argc, char** argv) {
     // prepare histogram
     char name[50];
     char title[100];
-    TH1F* hist_array[vec_bwlist.size()][4];
-    for (size_t i = 0; i < vec_bwlist.size(); i++) {
+    TH1F* hist_array[MAX_LEN][4];
+    for (int i = 0; i < options_mgr.bw_len; i++) {
         int cur_nbins = static_cast<int>(gps_time_length / vec_bwlist[i]);
         for (int j = 0; j < 4; j++) {
             sprintf(name,   "hist_%d_%d", static_cast<int>(i), static_cast<int>(j));
@@ -160,7 +166,7 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
-        for (size_t i = 0; i < vec_bwlist.size(); i++) {
+        for (int i = 0; i < options_mgr.bw_len; i++) {
             for (int j = 0; j < 4; j++) {
                 hist_array[i][j]->Fill((eventIter.t_trigger.abs_gps_week   - begin_gps_week) * 604800 +
                                        (eventIter.t_trigger.abs_gps_second - begin_gps_second));
@@ -173,10 +179,10 @@ int main(int argc, char** argv) {
     cout << "----------------------------------------------------------" << endl;
 
     // grb searching
-    vector<int>    exceeding_bins[vec_bwlist.size()][4];
-    vector<double> exceeding_prob[vec_bwlist.size()][4];
+    vector<int>    exceeding_bins[MAX_LEN][4];
+    vector<double> exceeding_prob[MAX_LEN][4];
     cout << "searching ... " << endl;
-    for (size_t i = 0; i < vec_bwlist.size(); i++) {
+    for (int i = 0; i < options_mgr.bw_len; i++) {
         cout << " - bin width: " << vec_bwlist[i] << endl;
         for (int j = 0; j < 4; j++) {
             find_exceeding(hist_array[i][j], j, options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
@@ -186,7 +192,7 @@ int main(int argc, char** argv) {
     // print result
     cout << "----------------------------------------------------------" << endl;
     int exceeding_count = 0;
-    for (size_t i = 0; i < vec_bwlist.size(); i++) {
+    for (int i = 0; i < options_mgr.bw_len; i++) {
         for (int j = 0; j < 4; j++) {
             if (exceeding_bins[i][j].size() > 0) {
                 exceeding_count += 1;
