@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
@@ -182,12 +183,16 @@ int main(int argc, char** argv) {
     // grb searching
     vector<int>    exceeding_bins[MAX_LEN][4];
     vector<double> exceeding_prob[MAX_LEN][4];
-    cout << "searching ... " << endl;
+    cout << "probability cut: " << options_mgr.min_prob << endl;
+    cout << "searching ..." << endl;
     for (int i = 0; i <= options_mgr.bw_len; i++) {
-        cout << " - bin width: " << vec_bwlist[i] << endl;
+        cout << left;
+        cout << " - bin width: " << setw(10) << vec_bwlist[i] << flush;
         for (int j = 0; j < 4; j++) {
             find_exceeding(hist_array[i][j], j, options_mgr.min_prob, options_mgr.bkg_distance, options_mgr.bkg_nbins, exceeding_bins[i][j], exceeding_prob[i][j]);
+            cout << setw(4) << " | " << setw(6) << exceeding_bins[i][j].size() << flush;
         }
+        cout << setw(6) << " | " << endl;
     }
 
     // print result
