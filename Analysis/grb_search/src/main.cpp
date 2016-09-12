@@ -41,7 +41,7 @@ void find_exceeding(const TH1F* hist, int j, double min_prob, int bkg_distance, 
                 }
                 int pre_content = hist->GetBinContent(j + 1);
                 int cur_content = hist->GetBinContent(j);
-                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob) {
+                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob || poisson_cdf_c(cur_content, pre_content) < min_prob) {
                     left_reach_edge = true;
                     break;
                 } else {
@@ -70,7 +70,7 @@ void find_exceeding(const TH1F* hist, int j, double min_prob, int bkg_distance, 
                 }
                 int pre_content = hist->GetBinContent(j - 1);
                 int cur_content = hist->GetBinContent(j);
-                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob) {
+                if (cur_content == 0 || poisson_cdf(cur_content, pre_content) < min_prob || poisson_cdf_c(cur_content, pre_content) < min_prob) {
                     right_reach_edge = true;
                     break;
                 } else {
