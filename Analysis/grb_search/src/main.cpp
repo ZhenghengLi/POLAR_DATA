@@ -108,6 +108,7 @@ int main(int argc, char** argv) {
 
     if (options_mgr.bw_len >= MAX_LEN) {
         cout << "The input bw_len is too large. It should be smaller than " << MAX_LEN << "." << endl;
+        return 1;
     }
 
     // prepare bin width list
