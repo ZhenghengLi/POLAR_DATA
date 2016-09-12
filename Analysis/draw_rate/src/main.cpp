@@ -60,7 +60,6 @@ int main(int argc, char** argv) {
     trigger_hist->SetDirectory(NULL);
     trigger_hist->SetMinimum(0);
     trigger_hist->SetLineColor(kRed);
-    trigger_hist->SetMarkerStyle(3);
     TH1D* modules_hist[25];
     for (int i = 0; i < 25; i++) {
         sprintf(name, "module_hist_%d", i + 1);
@@ -70,7 +69,6 @@ int main(int argc, char** argv) {
         modules_hist[i]->SetDirectory(NULL);
         modules_hist[i]->SetMinimum(0);
         modules_hist[i]->SetLineColor(kBlue);
-        modules_hist[i]->SetMarkerStyle(3);
     }
     
     int pre_percent = 0;
@@ -121,6 +119,7 @@ int main(int argc, char** argv) {
     }
     TCanvas* canvas_trigger = new TCanvas("canvas_trigger", "rate of event trigger", 1000, 800);
     canvas_trigger->ToggleEventStatus();
+    canvas_trigger->SetCrosshair();
     trigger_hist->Draw("EH");
     TCanvas* canvas_modules = new TCanvas("canvas_modules", "rate of 25 modules", 1500, 1000);
     canvas_modules->ToggleEventStatus();
