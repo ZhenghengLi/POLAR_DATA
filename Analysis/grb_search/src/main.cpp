@@ -113,6 +113,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    gROOT->SetBatch(kTRUE);
+    gErrorIgnoreLevel = kWarning;
+
     // prepare bin width list
     double logstep = (TMath::Log10(options_mgr.bw_stop) - TMath::Log10(options_mgr.bw_start)) / options_mgr.bw_len;
     vector<double> vec_bwlist;
@@ -148,7 +151,13 @@ int main(int argc, char** argv) {
         int cur_nbins = static_cast<int>(gps_time_length / vec_bwlist[i]);
         for (int j = 0; j < 4; j++) {
             sprintf(name,   "hist_%d_%d", static_cast<int>(i), static_cast<int>(j));
-            sprintf(title, "title_%d_%d", static_cast<int>(i), static_cast<int>(j));
+            sprintf(title, "%d:%d => %d:%d @ %.3f, %d/4",
+                    static_cast<int>(begin_gps_week),
+                    static_cast<int>(begin_gps_second),
+                    static_cast<int>(end_gps_week),
+                    static_cast<int>(end_gps_second),
+                    static_cast<float>(vec_bwlist[i]),
+                    static_cast<int>(j));
             hist_array[i][j] = new TH1F(name, title, cur_nbins, 0 + j * vec_bwlist[i] / 4, gps_time_length + j * vec_bwlist[i] / 4);
             hist_array[i][j]->SetDirectory(NULL);
         }
@@ -251,6 +260,59 @@ int main(int argc, char** argv) {
         cout << "No exceeding event found." << endl;
     } else {
         cout << " ********************************************************************* " << endl;
+        cout << "print found exceeding event to file: " << TSystem().BaseName(options_mgr.pdf_filename.Data()) << " ... " << endl;
+        cout << endl;
+        gStyle->SetOptStat(0);
+        TCanvas* canvas_array[MAX_LEN];
+        int page_num = 0;
+        for (int i = 0; i <= options_mgr.bw_len; i++) {
+            int sum_bins = 0;
+            for (int j = 0; j < 4; j++) {
+                sum_bins += exceeding_bins[i][j].size();
+            }
+            if (sum_bins < 1) {
+                continue;
+            }
+            page_num += 1;
+            cout << " - page " << setw(3) << page_num << " - bin width: " << vec_bwlist[i] << endl;
+            double y_max = 0;
+            for (int j = 0; j < 4; j++) {
+                for (int k = 1; k <= hist_array[i][j]->GetNbinsX(); k++) {
+                    hist_array[i][j]->SetBinContent(k, hist_array[i][j]->GetBinContent(k) / vec_bwlist[i]);
+                    hist_array[i][j]->SetBinError(k  , hist_array[i][j]->GetBinError(k)   / vec_bwlist[i]);
+                }
+                if (hist_array[i][j]->GetMaximum() > y_max) {
+                    y_max = hist_array[i][j]->GetMaximum();
+                }
+            }
+            for (int j = 0; j < 4; j++) {
+                hist_array[i][j]->SetMaximum(y_max * 1.1);
+            }
+            sprintf(name,  "canvas_%d", static_cast<int>(i));
+            sprintf(title, "canvas_%d", static_cast<int>(i));
+            canvas_array[i] = new TCanvas(name, title, 800, 1000);
+            canvas_array[i]->Divide(1, 4);
+            for (int j = 0; j < 4; j++) {
+                canvas_array[i]->cd(j + 1);
+                hist_array[i][j]->Draw("EH");
+                for (size_t k = 0; k < exceeding_bins[i][j].size(); k++) {
+                    TLine* tmp_line = new TLine(hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]), 0,
+                                                hist_array[i][j]->GetBinCenter(exceeding_bins[i][j][k]), y_max * 1.1);
+                    tmp_line->SetLineColor(kRed);
+                    tmp_line->Draw();
+                }
+            }
+            if (i == 0 && i == options_mgr.bw_len) {
+                canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
+            } else if (i == 0) {
+                canvas_array[i]->Print(options_mgr.pdf_filename + "(", "pdf");
+            } else if (i == options_mgr.bw_len) {
+                canvas_array[i]->Print(options_mgr.pdf_filename + ")", "pdf");
+            } else {
+                canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
+            }
+        }
+        cout << endl;
     }
 
     return 0;

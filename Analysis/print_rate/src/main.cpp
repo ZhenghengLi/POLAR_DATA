@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
@@ -95,10 +96,11 @@ int main(int argc, char** argv) {
 
     // draw
     cout << "print rate hist to file: " << TSystem().BaseName(options_mgr.pdf_filename.Data()) << " ... " << endl;
+    cout << endl;
     gStyle->SetOptStat(0);
     TCanvas* canvas_array[MAX_LEN];    
     for (size_t i = 0; i < options_mgr.binwidth_vec.size(); i++) {
-        cout << " - bin width: " << options_mgr.binwidth_vec[i] << endl;
+        cout << " - page " << left << setw(3) << i + 1 << " - bin width: " << options_mgr.binwidth_vec[i] << endl;
         double y_max = 0;
         for (int j = 0; j < 4; j++) {
             for (int k = 1; k <= hist_array[i][j]->GetNbinsX(); k++) {
@@ -130,6 +132,7 @@ int main(int argc, char** argv) {
             canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
         }
     }
+    cout << endl;
 
  //   rootapp->Run();
     

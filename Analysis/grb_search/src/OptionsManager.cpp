@@ -46,6 +46,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'o':
+                if (idx < argc_par - 1) {
+                    pdf_filename = argv_par[++idx];
+                    if (pdf_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'a':
                 if (idx < argc_par - 1) {
                     TString tmp_string = argv_par[++idx];
@@ -149,6 +159,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         bkg_distance = 5;
     if (bkg_nbins <= 0)
         bkg_nbins = 5;
+    if (pdf_filename.IsNull()) {
+        pdf_filename = "found_exceeding_event.pdf";
+    }
+    TString suffix_str;
+    for (int i = pdf_filename.Length() - 1; i > 0 && i > pdf_filename.Length() - 5; i--) {
+        suffix_str += pdf_filename[i];
+    }
+    if (suffix_str != "fdp.") {
+        cout << "ERROR: output file must be a pdf file." << endl;
+        cout << endl;
+        return false;
+    }
     return true;
 }
 
@@ -158,7 +180,11 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << "[-a <bw_start>] [-b <bw_stop>] [-n <bw_len>] [-p <min_prob>] [-d <bkg_distance>] [-m <bkg_nbins>]" << endl;
+    cout << " [-a <bw_start>] [-b <bw_stop>] [-n <bw_len>] [-p <min_prob>]" << endl;
+    cout << "  ";
+    for (size_t i = 0; i < SW_NAME.length(); i++)
+        cout << " ";
+    cout << " [-d <bkg_distance>] [-m <bkg_nbins>] -o [<filename.pdf>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B week1:second1                 GPS string of beginning" << endl;
@@ -169,6 +195,7 @@ void OptionsManager::print_help() {
     cout << "  -p min_prob                      minimum probability" << endl;
     cout << "  -d bkg_distance                  background distance to select" << endl;
     cout << "  -m bkg_nbins                     number of bins to select for background" << endl;
+    cout << "  -o filename.pdf                  output pdf filename" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -192,6 +219,7 @@ void OptionsManager::init() {
     decoded_data_filename.Clear();
     begin_gps.Clear();
     end_gps.Clear();
+    pdf_filename.Clear();
     bw_start = -1;
     bw_stop = -1;
     bw_len = -1;

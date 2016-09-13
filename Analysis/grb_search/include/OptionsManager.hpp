@@ -16,6 +16,7 @@ public:
     TString begin_gps;                        // -B
     TString end_gps;                          // -E
     TString decoded_data_filename;
+    TString pdf_filename;                     // -o
     double  bw_start;                         // -a
     double  bw_stop;                          // -b
     int     bw_len;                           // -n
