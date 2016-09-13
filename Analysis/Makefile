@@ -6,12 +6,15 @@
 	event_rec event_rec_clean \
 	angle_calc angle_calc_clean \
 	draw_rate draw_rate_clean\
+	print_rate print_rate_clean
 	bin_clean
 
-all: lib ped_calc xtalk_calc ce_calc event_rec angle_calc draw_rate
+all: lib ped_calc xtalk_calc ce_calc event_rec angle_calc \
+	draw_rate print_rate
 
 clean: lib_clean ped_calc_clean xtalk_calc_clean ce_calc_clean \
-	event_rec_clean angle_calc_clean draw_rate_clean bin_clean
+	event_rec_clean angle_calc_clean draw_rate_clean print_rate_clean \
+	bin_clean
 
 lib:
 	cd lib && $(MAKE)
@@ -54,6 +57,12 @@ draw_rate:
 
 draw_rate_clean:
 	cd draw_rate && $(MAKE) clean
+
+print_rate:
+	cd print_rate && $(MAKE)
+
+print_rate_clean:
+	cd print_rate && $(MAKE) clean
 
 bin_clean:
 	@echo "Cleaning binary files ..."

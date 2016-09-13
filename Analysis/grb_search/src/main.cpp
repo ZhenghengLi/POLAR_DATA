@@ -229,7 +229,9 @@ int main(int argc, char** argv) {
                     }
                     double first_second = begin_gps_second + hist_array[i][j]->GetBinCenter(cur_bin) - vec_bwlist[i] / 2;
                     double last_second  = begin_gps_second + hist_array[i][j]->GetBinCenter(cur_bin) + vec_bwlist[i] / 2;
-                    cout << " - " << setw(3) << event_number << " -> "
+                    cout << " - " << right << setw(3) << event_number << " -> " << left
+                         << setw(12)
+                         << hist_array[i][j]->GetBinCenter(cur_bin)
                          << setw(20)
                          << Form("%d:%.3f",
                                  begin_gps_week + static_cast<int>(first_second / 604800),
