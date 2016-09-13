@@ -247,6 +247,9 @@ int main(int argc, char** argv) {
     }
     if (exceeding_count < 1) {
         cout << "No exceeding event found." << endl;
+    } else {
+        cout << " ********************************************************************* " << endl;
     }
+
     return 0;
 }
