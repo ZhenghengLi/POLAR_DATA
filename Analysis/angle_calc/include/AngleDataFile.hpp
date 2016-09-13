@@ -11,6 +11,10 @@ using namespace std;
 class AngleDataFile {
 public:
     struct Angle_T {
+        Int_t     abs_gps_week;
+        Double_t  abs_gps_second;
+        Bool_t    abs_gps_valid;
+        Double_t  abs_ship_second;
         Int_t     first_ij[2];
         Int_t     second_ij[2];
         Float16_t rand_angle;

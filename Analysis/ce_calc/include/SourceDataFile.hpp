@@ -11,6 +11,10 @@ using namespace std;
 class SourceDataFile {
 public:
     struct SourceEvent_T {
+        Int_t    abs_gps_week;
+        Double_t abs_gps_second;
+        Bool_t   abs_gps_valid;
+        Double_t abs_ship_second;
         Int_t    type;
         Bool_t   trig_accepted[25];
         Bool_t   trigger_bit[1600];

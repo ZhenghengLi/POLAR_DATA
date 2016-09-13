@@ -30,6 +30,10 @@ double EventFilter::distance_of_3_points_(double x0, double y0, double x1, doubl
 }
 
 bool EventFilter::find_first_two_bars(const RecEventDataFile::RecEvent_T& rec_event) {
+    abs_gps_week    = rec_event.abs_gps_week;
+    abs_gps_second  = rec_event.abs_gps_second;
+    abs_gps_valid   = rec_event.abs_gps_valid;
+    abs_ship_second = rec_event.abs_ship_second;
     is_first_two_ready = false;
     priority_queue<Bar> bar_queue;
     for (int i = 0; i < 25; i++) {

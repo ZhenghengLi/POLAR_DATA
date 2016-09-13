@@ -183,6 +183,10 @@ void Processor::reconstruct_all_events_(EventIterator& eventIter, RecEventDataFi
         }
         overflow_flag = false;
         rec_event_data_file.clear_cur_entry();
+        rec_event_data_file.t_rec_event.abs_gps_week = eventIter.t_trigger.abs_gps_week;
+        rec_event_data_file.t_rec_event.abs_gps_second = eventIter.t_trigger.abs_gps_second;
+        rec_event_data_file.t_rec_event.abs_gps_valid = eventIter.t_trigger.abs_gps_valid;
+        rec_event_data_file.t_rec_event.abs_ship_second = eventIter.t_trigger.abs_ship_second;
         rec_event_data_file.t_rec_event.type = eventIter.t_trigger.type;
         rec_event_data_file.t_rec_event.trigger_n = eventIter.t_trigger.trigger_n;
         copy(eventIter.t_trigger.trig_accepted, eventIter.t_trigger.trig_accepted + 25,

@@ -45,19 +45,27 @@ bool SourceDataFile::open(const char* filename, char m) {
         }
     }
     if (is_first_created_) {
-        t_source_event_tree_->Branch("type",           &t_source_event.type,           "type/I"                );
-        t_source_event_tree_->Branch("trig_accepted",   t_source_event.trig_accepted,  "trig_accepted[25]/O"   );
-        t_source_event_tree_->Branch("trigger_bit",     t_source_event.trigger_bit,    "trigger_bit[1600]/O"   );
-        t_source_event_tree_->Branch("trigger_n",      &t_source_event.trigger_n,      "trigger_n/I"           );
-        t_source_event_tree_->Branch("multiplicity",    t_source_event.multiplicity,   "multiplicity[25]/I"    );
-        t_source_event_tree_->Branch("energy_adc",      t_source_event.energy_adc,     "energy_adc[1600]/F"    );
+        t_source_event_tree_->Branch("abs_gps_week",    &t_source_event.abs_gps_week,    "abs_gps_week/I"        );
+        t_source_event_tree_->Branch("abs_gps_second",  &t_source_event.abs_gps_second,  "abs_gps_second/D"      );
+        t_source_event_tree_->Branch("abs_gps_valid",   &t_source_event.abs_gps_valid,   "abs_gps_valid/O"       );
+        t_source_event_tree_->Branch("abs_ship_second", &t_source_event.abs_ship_second, "abs_ship_second/D"     );
+        t_source_event_tree_->Branch("type",            &t_source_event.type,            "type/I"                );
+        t_source_event_tree_->Branch("trig_accepted",    t_source_event.trig_accepted,   "trig_accepted[25]/O"   );
+        t_source_event_tree_->Branch("trigger_bit",      t_source_event.trigger_bit,     "trigger_bit[1600]/O"   );
+        t_source_event_tree_->Branch("trigger_n",       &t_source_event.trigger_n,       "trigger_n/I"           );
+        t_source_event_tree_->Branch("multiplicity",     t_source_event.multiplicity,    "multiplicity[25]/I"    );
+        t_source_event_tree_->Branch("energy_adc",       t_source_event.energy_adc,      "energy_adc[1600]/F"    );
     } else {
-        t_source_event_tree_->SetBranchAddress("type",           &t_source_event.type           );
-        t_source_event_tree_->SetBranchAddress("trig_accepted",   t_source_event.trig_accepted  );
-        t_source_event_tree_->SetBranchAddress("trigger_bit",     t_source_event.trigger_bit    );
-        t_source_event_tree_->SetBranchAddress("trigger_n",      &t_source_event.trigger_n      );
-        t_source_event_tree_->SetBranchAddress("multiplicity",    t_source_event.multiplicity   );
-        t_source_event_tree_->SetBranchAddress("energy_adc",      t_source_event.energy_adc     );
+        t_source_event_tree_->SetBranchAddress("abs_gps_week",    &t_source_event.abs_gps_week    );
+        t_source_event_tree_->SetBranchAddress("abs_gps_second",  &t_source_event.abs_gps_second  );
+        t_source_event_tree_->SetBranchAddress("abs_gps_valid",   &t_source_event.abs_gps_valid   );
+        t_source_event_tree_->SetBranchAddress("abs_ship_second", &t_source_event.abs_ship_second );
+        t_source_event_tree_->SetBranchAddress("type",            &t_source_event.type            );
+        t_source_event_tree_->SetBranchAddress("trig_accepted",    t_source_event.trig_accepted   );
+        t_source_event_tree_->SetBranchAddress("trigger_bit",      t_source_event.trigger_bit     );
+        t_source_event_tree_->SetBranchAddress("trigger_n",       &t_source_event.trigger_n       );
+        t_source_event_tree_->SetBranchAddress("multiplicity",     t_source_event.multiplicity    );
+        t_source_event_tree_->SetBranchAddress("energy_adc",       t_source_event.energy_adc      );
     }
     if (mode_ == 'r') {
         m_fromfile_ = static_cast<TNamed*>(t_source_event_file_->Get("m_fromfile"));

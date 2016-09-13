@@ -47,11 +47,15 @@ int Processor::do_action_1_() {
             continue;
         }
         if (event_filter_.check(rec_event_data_file_.t_rec_event)) {
-            angle_data_file_.t_angle.first_ij[0]  = event_filter_.first_pos.i;
-            angle_data_file_.t_angle.first_ij[1]  = event_filter_.first_pos.j;
-            angle_data_file_.t_angle.second_ij[0] = event_filter_.second_pos.i;
-            angle_data_file_.t_angle.second_ij[1] = event_filter_.second_pos.j;
-            angle_data_file_.t_angle.rand_angle   = event_filter_.first_pos.angle_to(event_filter_.second_pos);
+            angle_data_file_.t_angle.abs_gps_week    = event_filter_.abs_gps_week;
+            angle_data_file_.t_angle.abs_gps_second  = event_filter_.abs_gps_second;
+            angle_data_file_.t_angle.abs_gps_valid   = event_filter_.abs_gps_valid;
+            angle_data_file_.t_angle.abs_ship_second = event_filter_.abs_ship_second;
+            angle_data_file_.t_angle.first_ij[0]     = event_filter_.first_pos.i;
+            angle_data_file_.t_angle.first_ij[1]     = event_filter_.first_pos.j;
+            angle_data_file_.t_angle.second_ij[0]    = event_filter_.second_pos.i;
+            angle_data_file_.t_angle.second_ij[1]    = event_filter_.second_pos.j;
+            angle_data_file_.t_angle.rand_angle      = event_filter_.first_pos.angle_to(event_filter_.second_pos);
             angle_data_file_.angle_fill();
         }
     }

@@ -44,13 +44,21 @@ bool AngleDataFile::open(const char* filename, char m) {
         }
     }
     if (is_first_created_) {
-        t_angle_tree_->Branch("first_ij",       t_angle.first_ij,       "first_ij[2]/I"     );
-        t_angle_tree_->Branch("second_ij",      t_angle.second_ij,      "second_ij[2]/I"    );
-        t_angle_tree_->Branch("rand_angle",    &t_angle.rand_angle,     "rand_angle/F"      );
+        t_angle_tree_->Branch("abs_gps_week",    &t_angle.abs_gps_week,     "abs_gps_week/I"    );
+        t_angle_tree_->Branch("abs_gps_second",  &t_angle.abs_gps_second,   "abs_gps_second/D"  );
+        t_angle_tree_->Branch("abs_gps_valid",   &t_angle.abs_gps_valid,    "abs_gps_valid/O"   );
+        t_angle_tree_->Branch("abs_ship_second", &t_angle.abs_ship_second,  "abs_ship_second/D" );
+        t_angle_tree_->Branch("first_ij",         t_angle.first_ij,         "first_ij[2]/I"     );
+        t_angle_tree_->Branch("second_ij",        t_angle.second_ij,        "second_ij[2]/I"    );
+        t_angle_tree_->Branch("rand_angle",      &t_angle.rand_angle,       "rand_angle/F"      );
     } else {
-        t_angle_tree_->SetBranchAddress("first_ij",       t_angle.first_ij         );
-        t_angle_tree_->SetBranchAddress("second_ij",      t_angle.second_ij        );
-        t_angle_tree_->SetBranchAddress("rand_angle",    &t_angle.rand_angle       );
+        t_angle_tree_->SetBranchAddress("abs_gps_week",    &t_angle.abs_gps_week     );
+        t_angle_tree_->SetBranchAddress("abs_gps_second",  &t_angle.abs_gps_second   );
+        t_angle_tree_->SetBranchAddress("abs_gps_valid",   &t_angle.abs_gps_valid    );
+        t_angle_tree_->SetBranchAddress("abs_ship_second", &t_angle.abs_ship_second  );
+        t_angle_tree_->SetBranchAddress("first_ij",         t_angle.first_ij         );
+        t_angle_tree_->SetBranchAddress("second_ij",        t_angle.second_ij        );
+        t_angle_tree_->SetBranchAddress("rand_angle",      &t_angle.rand_angle       );
     }
     if (mode_ == 'r') {
         m_fromfile_ = static_cast<TNamed*>(t_angle_file_->Get("m_fromfile"));

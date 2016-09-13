@@ -179,17 +179,61 @@ bool SciTransfer::open_read(const char* filename) {
     t_ped_modules_tree_in_->SetBranchAddress("common_noise",      &t_ped_modules.common_noise                );
     t_ped_modules_tree_in_->SetBranchAddress("multiplicity",      &t_ped_modules.multiplicity                );
 
-    t_trigger_tree_in_->GetEntry(0);
+    bool found_good = false;
+    for (Long64_t i = 0; i < t_trigger_tot_entries_; i++) {
+        t_trigger_tree_in_->GetEntry(i);
+        if (t_trigger.is_bad < 1) {
+            found_good = true;
+            break;
+        }
+    }
+    if (!found_good) {
+        cout << "ERROR: cannot find first valid phy frame gps." << endl;
+        return false;
+    }
     phy_first_gps.update6(t_trigger.frm_gps_time);
     phy_first_timestamp = t_trigger.time_stamp;
-    t_trigger_tree_in_->GetEntry(t_trigger_tot_entries_ - 1);
+    found_good = false;
+    for (Long64_t i = t_trigger_tot_entries_ - 1; i >= 0; i--) {
+        t_trigger_tree_in_->GetEntry(i);
+        if (t_trigger.is_bad < 1) {
+            found_good = true;
+            break;
+        }
+    }
+    if (!found_good) {
+        cout << "ERROR: cannot find last valid phy frame gps." << endl;
+        return false;
+    }
     phy_last_gps.update6(t_trigger.frm_gps_time);
     phy_last_timestamp = t_trigger.time_stamp;
 
-    t_ped_trigger_tree_in_->GetEntry(0);
+    found_good = false;
+    for (Long64_t i = 0; i < t_ped_trigger_tot_entries_; i++) {
+        t_ped_trigger_tree_in_->GetEntry(i);
+        if (t_ped_trigger.is_bad < 1) {
+            found_good = true;
+            break;
+        }
+    }
+    if (!found_good) {
+        cout << "ERROR: cannot find first valid ped frame gps." << endl;
+        return false;
+    }
     ped_first_gps.update6(t_ped_trigger.frm_gps_time);
     ped_first_timestamp = t_ped_trigger.time_stamp;
-    t_ped_trigger_tree_in_->GetEntry(t_ped_trigger_tot_entries_ - 1);
+    found_good = false;
+    for (Long64_t i = t_ped_trigger_tot_entries_ - 1; i >= 0; i--) {
+        t_ped_trigger_tree_in_->GetEntry(i);
+        if (t_ped_trigger.is_bad < 1) {
+            found_good = true;
+            break;
+        }
+    }
+    if (!found_good) {
+        cout << "ERROR: cannot find last valid ped frame gps." << endl;
+        return false;
+    }
     ped_last_gps.update6(t_ped_trigger.frm_gps_time);
     ped_last_timestamp = t_ped_trigger.time_stamp;
     
