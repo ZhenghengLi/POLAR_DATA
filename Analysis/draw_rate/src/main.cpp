@@ -60,9 +60,12 @@ int main(int argc, char** argv) {
     string gps_time_span = title;
     TH1D* trigger_hist = new TH1D("trigger_hist", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    TH1D* trigger_hist_int = new TH1D("trigger_hist_int", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
+                                      nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     trigger_hist->SetDirectory(NULL);
     trigger_hist->SetMinimum(0);
-    trigger_hist->SetLineColor(kRed);
+    trigger_hist_int->SetDirectory(NULL);
+    trigger_hist_int->SetLineColor(6);
     TH1D* modules_hist[25];
     for (int i = 0; i < 25; i++) {
         sprintf(name, "module_hist_%d", i + 1);
@@ -70,8 +73,8 @@ int main(int argc, char** argv) {
         modules_hist[i] = new TH1D(name, title,
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
         modules_hist[i]->SetDirectory(NULL);
+        modules_hist[i]->SetLineColor(kGreen);
         modules_hist[i]->SetMinimum(0);
-        modules_hist[i]->SetLineColor(kBlue);
     }
     
     int pre_percent = 0;
@@ -100,7 +103,10 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
     eventIter.close();
 
+    double sum = 0;
     for (int i = 0; i < nbins; i++) {
+        sum += trigger_hist->GetBinContent(i + 1);
+        trigger_hist_int->SetBinContent(i + 1, sum);
         trigger_hist->SetBinContent(i + 1, trigger_hist->GetBinContent(i + 1) / options_mgr.binwidth);
         trigger_hist->SetBinError(i + 1, trigger_hist->GetBinError(i + 1) / options_mgr.binwidth);
         for (int j = 0; j < 25; j++) {
@@ -126,6 +132,8 @@ int main(int argc, char** argv) {
     }
     rate_canvas.cd_trigger();
     trigger_hist->Draw("EH");
+
+    rate_canvas.draw_hist_int(trigger_hist_int);
 
     rootapp->Run();
     

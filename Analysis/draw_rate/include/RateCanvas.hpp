@@ -3,9 +3,12 @@
 
 #include <iostream>
 #include <iomanip>
+#include <vector>
+#include <cmath>
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
 #include "RootInc.hpp"
 #include "CooConv.hpp"
+#include "TGaxis.h"
 #endif /* __ROOTCLING__ || __CINT __ */
 #include "RQ_OBJECT.h"
 
@@ -25,9 +28,23 @@ private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
     TCanvas* canvas_trigger_;
     TCanvas* canvas_modules_;
+    TH1D*    cur_hist_int_;
+    TLine*   line_obj_[4];
+    TLine*   line_t90_[2];
+    int      line_cnt_;
     int      start_gps_week_;
     double   start_gps_second_;
     int      select_count_;
+    double   select_x_[4];
+    int      select_i_[4];
+    double   cur_scale_;
+    TF1*     fun_before_;
+    TF1*     fun_after_;
+    TLine*   line_before_;
+    TLine*   line_before_05_;
+    TLine*   line_after_;
+    TLine*   line_after_05_;
+    bool     is_fitted_;
 #endif /* __ROOTCLING__ || __CINT __ */
     
 public:
@@ -36,6 +53,7 @@ public:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
     void cd_trigger();
     void cd_modules(int i);
+    void draw_hist_int(TH1D* hist_int);
 #endif /* __ROOTCLING__ || __CINT __ */
     
 };
