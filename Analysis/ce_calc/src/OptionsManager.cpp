@@ -174,9 +174,9 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-t <Na22|Cs137>] -F <spec_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
-    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> [-s] -m" << endl;
-    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <spec_data_file.root> -s -o <adc_per_kev_file.root>" << endl;
+    cout << " [-t <Na22|Cs137>] -F <source_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <source_data_file.root> [-s] -m" << endl;
+    cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <source_data_file.root> -s -o <adc_per_kev_file.root>" << endl;
     cout << "  " << SW_NAME << " -c <adc_per_kev_file.root>" << endl;
     cout << endl;
     cout << "Options:" << endl;
@@ -185,8 +185,8 @@ void OptionsManager::print_help() {
     cout << "  -p <ped_vec.root>                root file to read that stores pedestal vectors of all modules" << endl;
     cout << "  -x <xtalk_matrix.root>           root file to read that stores crosstalk matrices of all modules" << endl;
     cout << "  -t <source_type>                 only two source types are supported: Na22 and Cs137" << endl;
-    cout << "  -F <spec_data.root>              root file to write that stores source event data" << endl;
-    cout << "  -f <spec_data.root>              root file to read that stores source event data" << endl;
+    cout << "  -F <source_data.root>            root file to write that stores source event data" << endl;
+    cout << "  -f <source_data.root>            root file to read that stores source event data" << endl;
     cout << "  -s                               flag to fit or not fit the spectrum" << endl;
     cout << "  -m                               show count rate and compton edge of 1600 channels" << endl;
     cout << "  -o <adc_per_kev.root>            root file to write that stores ADC/KeV vector of all modules" << endl;
