@@ -29,14 +29,14 @@ private:
     TCanvas* canvas_trigger_;
     TCanvas* canvas_modules_;
     TH1D*    cur_hist_int_;
-    TLine*   line_obj_[4];
+    TLine*   line_obj_[5];
     TLine*   line_t90_[2];
     int      line_cnt_;
     int      start_gps_week_;
     double   start_gps_second_;
     int      select_count_;
-    double   select_x_[4];
-    int      select_i_[4];
+    double   select_x_[5];
+    int      select_i_[5];
     double   cur_scale_;
     TF1*     fun_before_;
     TF1*     fun_after_;

@@ -6,7 +6,7 @@ RateCanvas::RateCanvas(int week, double second) {
     start_gps_week_   = week;
     start_gps_second_ = second;
     select_count_     = 0;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) {
         line_obj_[i] = NULL;
     }
     for (int i = 0; i < 2; i++) {
@@ -89,16 +89,18 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
     double y_max = canvas_trigger_->GetUymax();
 
     if (event == kKeyPress) {  // fitting, calculate T90
-        if (line_cnt_ < 4)
+        if (line_cnt_ < 5)
             return;
         if (is_fitted_)
             return;
         cout << "fitting ... " << endl;
-        TMath::Sort(4, select_x_, select_i_, kFALSE);
+        TMath::Sort(5, select_x_, select_i_, kFALSE);
         double x1 = select_x_[select_i_[0]];
         double x2 = select_x_[select_i_[1]];
-        double x3 = select_x_[select_i_[2]];
-        double x4 = select_x_[select_i_[3]];
+        double x3 = select_x_[select_i_[3]];
+        double x4 = select_x_[select_i_[4]];
+        double xc = select_x_[select_i_[2]];
+        line_obj_[select_i_[2]]->SetLineColor(kBlue);
         fun_before_->SetRange(x1, x2);
         fun_after_->SetRange( x3, x4);
         cur_hist_int_->Fit(fun_before_, "RQN");
@@ -108,8 +110,9 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         double a2 = fun_after_->GetParameter(0);
         double b2 = fun_after_->GetParameter(1);
 
-        double b05 = b1 + (b2 - b1) * 0.05;
-        double b95 = b1 + (b2 - b1) * 0.95;
+        double delta05 = ((a2 - a1) * xc + (b2 - b1)) * 0.05;
+        double b05 = b1 + delta05;
+        double b95 = b2 - delta05;
 
         line_before_ = new TLine(0, b1, x_max, a1 * x_max + b1);
         line_after_  = new TLine(0, b2, x_max, a2 * x_max + b2);
@@ -182,7 +185,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
 
     } else if (event == kArrowKeyPress) {  // clear 
         line_cnt_ = 0;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             if (line_obj_[i] != NULL) {
                 delete line_obj_[i];
                 line_obj_[i] = NULL;
@@ -214,7 +217,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         canvas_trigger_->Update();
         cout << " -*-*-*-*-*-*-*-*-*-*-*-*- " << endl;
     } else if (event == kButton1Down) {  // select 
-        if (line_cnt_ >= 4)
+        if (line_cnt_ >= 5)
             return;
         int x = static_cast<int>(canvas_trigger_->AbsPixeltoX(px));
         select_count_ += 1;
