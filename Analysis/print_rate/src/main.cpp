@@ -64,8 +64,11 @@ int main(int argc, char** argv) {
                     static_cast<float>(options_mgr.binwidth_vec[i]),
                     static_cast<int>(j));
             hist_array[i][j] = new TH1D(name, title, cur_nbins, 0 + j * options_mgr.binwidth_vec[i] / 4, gps_time_length + j * options_mgr.binwidth_vec[i] / 4);
-//            hist_array[i][j]->SetLineColor(kRed);
             hist_array[i][j]->SetDirectory(NULL);
+            hist_array[i][j]->GetXaxis()->SetTitle("Time offset (sec)");
+            hist_array[i][j]->GetXaxis()->CenterTitle(kTRUE);
+            hist_array[i][j]->GetYaxis()->SetTitle("Count rate (counts/sec)");
+            hist_array[i][j]->GetYaxis()->CenterTitle(kTRUE);
         }
     }
 
