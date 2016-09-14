@@ -160,6 +160,8 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         }
         double t90_begin = cur_hist_int_->GetBinCenter(min_bin_05);
         double t90_end   = cur_hist_int_->GetBinCenter(min_bin_95);
+        double t90_total = cur_hist_int_->GetBinContent(min_bin_95) - cur_hist_int_->GetBinContent(min_bin_05);
+        t90_total -= (a1 + a2) * (t90_end - t90_begin) / 2;  // subtract background
         line_t90_[0] = new TLine(t90_begin, 0, t90_begin, y_max);
         line_t90_[1] = new TLine(t90_end,   0, t90_end,   y_max);
         for (int i = 0; i < 2; i++) {
@@ -170,15 +172,18 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         // print T90
         double t90_begin_gps_second = start_gps_second_ + t90_begin;
         double t90_end_gps_second   = start_gps_second_ + t90_end;
-        cout << " * T90 beg: "
+        cout << " * T90 begin:      "
              << start_gps_week_ + static_cast<int>(t90_begin_gps_second / 604800)
              << ":"
              << fmod(t90_begin_gps_second, 604800)
              << endl;
-        cout << " * T90 end: "
+        cout << " * T90 end:        "
              << start_gps_week_ + static_cast<int>(t90_end_gps_second / 604800)
              << ":"
              << fmod(t90_end_gps_second, 604800)
+             << endl;
+        cout << " * T90 mean rate:  "
+             << t90_total / (t90_end - t90_begin)
              << endl;
         
         canvas_trigger_->Update();
