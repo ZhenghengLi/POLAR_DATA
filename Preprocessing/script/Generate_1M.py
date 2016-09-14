@@ -205,10 +205,10 @@ for x in aux_filelist:
 print ' - generating 1M level PPD data ... '
 for x in psd_filelist:
     print ' > processing: ' + x 
-    cur_1M_rootfn = x.replace('0B.dat', '1M.root')
-    cur_1M_logfn  = x.replace('0B.dat', '1M.log')
-    cur_1M_cmdfn  = x.replace('0B.dat', '1M.cmd')
-    cur_1M_outfn  = x.replace('0B.dat', '1M.out')
+    cur_1M_rootfn = x.replace('0B.dat', '1M.root').replace('T2_POL_PSD', 'T2_POL_PPD')
+    cur_1M_logfn  = x.replace('0B.dat', '1M.log').replace('T2_POL_PSD', 'T2_POL_PPD')
+    cur_1M_cmdfn  = x.replace('0B.dat', '1M.cmd').replace('T2_POL_PSD', 'T2_POL_PPD')
+    cur_1M_outfn  = x.replace('0B.dat', '1M.out').replace('T2_POL_PSD', 'T2_POL_PPD')
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
