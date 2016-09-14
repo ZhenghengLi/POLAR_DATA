@@ -264,15 +264,19 @@ int main(int argc, char** argv) {
         cout << endl;
         gStyle->SetOptStat(0);
         TCanvas* canvas_array[MAX_LEN];
-        int page_num = 0;
+        vector<int> found_i;
         for (int i = 0; i <= options_mgr.bw_len; i++) {
             int sum_bins = 0;
             for (int j = 0; j < 4; j++) {
                 sum_bins += exceeding_bins[i][j].size();
             }
-            if (sum_bins < 1) {
-                continue;
+            if (sum_bins > 0) {
+                found_i.push_back(i);
             }
+        }
+        int page_num = 0;
+        for (size_t k = 0; k < found_i.size(); k++) {
+            int i = found_i[k];
             page_num += 1;
             cout << " - page " << setw(3) << page_num << " - bin width: " << vec_bwlist[i] << endl;
             double y_max = 0;
@@ -302,11 +306,11 @@ int main(int argc, char** argv) {
                     tmp_line->Draw();
                 }
             }
-            if (i == 0 && i == options_mgr.bw_len) {
+            if (k == 0 && k == found_i.size() - 1) {
                 canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
-            } else if (i == 0) {
+            } else if (k == 0) {
                 canvas_array[i]->Print(options_mgr.pdf_filename + "(", "pdf");
-            } else if (i == options_mgr.bw_len) {
+            } else if (k == found_i.size() - 1) {
                 canvas_array[i]->Print(options_mgr.pdf_filename + ")", "pdf");
             } else {
                 canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
