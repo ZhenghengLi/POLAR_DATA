@@ -275,8 +275,8 @@ int main(int argc, char** argv) {
             }
         }
         int page_num = 0;
-        for (size_t k = 0; k < found_i.size(); k++) {
-            int i = found_i[k];
+        for (size_t q = 0; q < found_i.size(); q++) {
+            int i = found_i[q];
             page_num += 1;
             cout << " - page " << setw(3) << page_num << " - bin width: " << vec_bwlist[i] << endl;
             double y_max = 0;
@@ -306,11 +306,11 @@ int main(int argc, char** argv) {
                     tmp_line->Draw();
                 }
             }
-            if (k == 0 && k == found_i.size() - 1) {
+            if (q == 0 && q == found_i.size() - 1) {
                 canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
-            } else if (k == 0) {
+            } else if (q == 0) {
                 canvas_array[i]->Print(options_mgr.pdf_filename + "(", "pdf");
-            } else if (k == found_i.size() - 1) {
+            } else if (q == found_i.size() - 1) {
                 canvas_array[i]->Print(options_mgr.pdf_filename + ")", "pdf");
             } else {
                 canvas_array[i]->Print(options_mgr.pdf_filename, "pdf");
