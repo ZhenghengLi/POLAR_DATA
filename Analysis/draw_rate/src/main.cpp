@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     trigger_hist_int->SetDirectory(NULL);
     trigger_hist_int->SetLineColor(6);
     TH1D* modules_hist[25];
+    TH1D* modules_hist_tout1[25];
     for (int i = 0; i < 25; i++) {
         sprintf(name, "module_hist_%d", i + 1);
         sprintf(title, "module CT_%d: { %s }", i + 1, gps_time_span.c_str());
@@ -75,6 +76,16 @@ int main(int argc, char** argv) {
         modules_hist[i]->SetDirectory(NULL);
         modules_hist[i]->SetLineColor(kGreen);
         modules_hist[i]->SetMinimum(0);
+        if (!options_mgr.tout1_flag) {
+            continue;
+        }
+        sprintf(name, "module_hist_tout1_%d", i + 1);
+        sprintf(title, "module CT_%d: { %s }, TOUT1", i + 1, gps_time_span.c_str());
+        modules_hist_tout1[i] = new TH1D(name, title,
+                                         nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+        modules_hist_tout1[i]->SetDirectory(NULL);
+        modules_hist_tout1[i]->SetLineColor(kRed);
+        modules_hist_tout1[i]->SetMinimum(0);
     }
     
     int pre_percent = 0;
@@ -99,6 +110,22 @@ int main(int argc, char** argv) {
                                       (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
             }
         }
+        if (!options_mgr.tout1_flag) {
+            continue;
+        }
+        for (int i = 0; i < 25; i++) {
+            if (eventIter.t_trigger.trig_accepted[i]) {
+                modules_hist_tout1[i]->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
+                                            (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+            }
+        }
+        while (eventIter.phy_modules_next_packet()) {
+            int idx = eventIter.t_modules.ct_num - 1;
+            for (int i = 0; i < eventIter.t_modules.raw_rate; i++) {
+                modules_hist_tout1[idx]->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
+                                              (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+            }
+        }
     }
     cout << " DONE ]" << endl;
     eventIter.close();
@@ -112,6 +139,15 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 25; j++) {
             modules_hist[j]->SetBinContent(i + 1, modules_hist[j]->GetBinContent(i + 1) / options_mgr.binwidth);
             modules_hist[j]->SetBinError(i + 1, modules_hist[j]->GetBinError(i + 1) / options_mgr.binwidth);
+        }
+    }
+
+    if (options_mgr.tout1_flag) {
+        for (int i = 0; i < nbins; i++) {
+            for (int j = 0; j < 25; j++) {
+                modules_hist_tout1[j]->SetBinContent(i + 1, modules_hist_tout1[j]->GetBinContent(i + 1) / options_mgr.binwidth);
+                modules_hist_tout1[j]->SetBinError(i + 1, modules_hist_tout1[j]->GetBinError(i + 1) / options_mgr.binwidth);
+            }
         }
     }
 
@@ -130,6 +166,23 @@ int main(int argc, char** argv) {
         rate_canvas.cd_modules(i);
         modules_hist[i]->Draw("EH");
     }
+
+    if (options_mgr.tout1_flag) {
+        y_max = 0;
+        for (int i = 0; i < 25; i++) {
+            if (modules_hist_tout1[i]->GetMaximum() > y_max) {
+                y_max = modules_hist_tout1[i]->GetMaximum();
+            }
+        }
+        for (int i = 0; i < 25; i++) {
+            modules_hist_tout1[i]->SetMaximum(y_max * 1.1);
+        }
+        for (int i = 0; i < 25; i++) {
+            rate_canvas.cd_modules_tout1(i);
+            modules_hist_tout1[i]->Draw("EH");
+        }
+    }
+
     rate_canvas.cd_trigger();
     trigger_hist->Draw("EH");
 

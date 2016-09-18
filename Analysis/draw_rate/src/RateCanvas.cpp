@@ -54,6 +54,16 @@ void RateCanvas::cd_modules(int i) {
     canvas_modules_->cd(itoc(i));
 }
 
+void RateCanvas::cd_modules_tout1(int i) {
+    canvas_modules_tout1_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_modules_tout1"));
+    if (canvas_modules_tout1_ == NULL) {
+        canvas_modules_tout1_ = new TCanvas("canvas_modules_tout1", "tout1 rate of 25 modules", 1500, 1000);
+        canvas_modules_tout1_->ToggleEventStatus();
+        canvas_modules_tout1_->Divide(5, 5);
+    }
+    canvas_modules_tout1_->cd(itoc(i));
+}
+
 void RateCanvas::draw_hist_int(TH1D* hist_int) {
     if (cur_hist_int_ != NULL)
         return;

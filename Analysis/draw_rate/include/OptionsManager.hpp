@@ -18,6 +18,7 @@ public:
     TString decoded_data_filename;
     double  binwidth;
     int     phase;
+    bool    tout1_flag;
     
 public:
     OptionsManager();

@@ -70,6 +70,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'm':
+                tout1_flag = true;
+                break;
             default:
                 return false;
             }
@@ -104,6 +107,7 @@ void OptionsManager::print_help() {
     cout << "  -E week2:second2                 GPS string of ending" << endl;
     cout << "  -w binwidth                      bin width of seconds" << endl;
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
+    cout << "  -m                               draw tout1 rate of 25 modules" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -129,6 +133,7 @@ void OptionsManager::init() {
     end_gps.Clear();
     binwidth = -1;
     phase = -1;
+    tout1_flag = false;
 
     version_flag_ = false;
 }
