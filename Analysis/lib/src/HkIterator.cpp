@@ -286,7 +286,7 @@ bool HkIterator::open(const char* filename, const char* gps_begin, const char* g
     bind_hk_obox_tree(t_hk_obox_tree_, t_hk_obox);
     bind_hk_ibox_tree(t_hk_ibox_tree_, t_hk_ibox);
 
-    // find the firest and last entry
+    // find the first and last entry
     if (gps_str_begin_ == "begin") {
         hk_obox_first_entry_ = 0;
         hk_ibox_first_entry_ = 0;
@@ -341,6 +341,64 @@ bool HkIterator::open(const char* filename, const char* gps_begin, const char* g
                 return false;
             }
         }
+    }
+
+    // find start and stop hk_obox and hk_ibox
+    // begin_hk_obox
+    bool found_valid = false;
+    for (Long64_t i = hk_obox_first_entry_; i < hk_obox_last_entry_; i++) {
+        t_hk_obox_tree_->GetEntry(i);
+        if (t_hk_obox.obox_is_bad < 1) {
+            found_valid = true;
+            begin_hk_obox = t_hk_obox;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find begin_hk_obox." << endl;
+        return false;
+    }
+    // end_hk_obox
+    found_valid = false;
+    for (Long64_t i = hk_obox_last_entry_ - 1; i >= hk_obox_first_entry_; i--) {
+        t_hk_obox_tree_->GetEntry(i);
+        if (t_hk_obox.obox_is_bad < 1) {
+            found_valid = true;
+            end_hk_obox = t_hk_obox;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find end_hk_obox." << endl;
+        return false;
+    }
+    // begin_hk_ibox
+    found_valid = false;
+    for (Long64_t i = hk_ibox_first_entry_; i < hk_ibox_last_entry_; i++) {
+        t_hk_ibox_tree_->GetEntry(i);
+        if (t_hk_ibox.is_bad < 1) {
+            found_valid = true;
+            begin_hk_ibox = t_hk_ibox;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find begin_hk_ibox." << endl;
+        return false;
+    }
+    // end_hk_ibox
+    found_valid = false;
+    for (Long64_t i = hk_ibox_last_entry_ - 1; i >= hk_ibox_first_entry_; i--) {
+        t_hk_ibox_tree_->GetEntry(i);
+        if (t_hk_ibox.is_bad < 1) {
+            found_valid = true;
+            end_hk_ibox = t_hk_ibox;
+            break;
+        }
+    }
+    if (!found_valid) {
+        cout << "Cannot find end_hk_ibox." << endl;
+        return false;
     }
         
     return true;

@@ -63,6 +63,11 @@ private:
 public:
     Hk_Obox_T t_hk_obox;
     Hk_Ibox_T t_hk_ibox;
+
+    Hk_Obox_T begin_hk_obox;
+    Hk_Obox_T end_hk_obox;
+    Hk_Ibox_T begin_hk_ibox;
+    Hk_Ibox_T end_hk_ibox;
     
 public:
     HkIterator();
