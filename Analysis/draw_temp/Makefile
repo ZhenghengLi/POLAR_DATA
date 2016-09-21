@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/draw_temp
 
-$(DEST_BIN)/draw_temp: obj/main.o obj/OptionsManager.o \
+$(DEST_BIN)/draw_temp: obj/main.o obj/OptionsManager.o obj/TempCanvas.o obj/TempCanvas_Dict.o \
 	$(MY_LIB)/obj/HkType.o $(MY_LIB)/obj/HkIterator.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 

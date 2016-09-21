@@ -47,6 +47,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 }
                 break;
             case 'l':
+                single_flag = true;
                 while (idx < argc_par - 1) {
                     TString tmp_string = argv_par[++idx];
                     if (tmp_string[0] == '-') {
@@ -73,6 +74,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         begin_gps = "begin";
     if (end_gps.IsNull())
         end_gps = "end";
+    if (single_flag && ct_num_vec.size() == 0) {
+        for (int i = 0; i < 25; i++) {
+            ct_num_vec.push_back(i + 1);
+        }
+    }
     for (size_t i = 0; i < ct_num_vec.size(); i++) {
         if (ct_num_vec[i] < 1 || ct_num_vec[i] > 25) {
             return false;
@@ -119,6 +125,7 @@ void OptionsManager::init() {
     begin_gps.Clear();
     end_gps.Clear();
     ct_num_vec.clear();
+    single_flag = false;
 
     version_flag_ = false;
 }

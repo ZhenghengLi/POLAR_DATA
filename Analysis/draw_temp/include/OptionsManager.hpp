@@ -17,6 +17,7 @@ public:
     TString end_gps;
     TString decoded_data_filename;
     vector<int> ct_num_vec;
+    bool single_flag;
     
 public:
     OptionsManager();

@@ -4,6 +4,7 @@
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "HkIterator.hpp"
+#include "TempCanvas.hpp"
 
 using namespace std;
 
@@ -17,6 +18,8 @@ int main(int argc, char** argv) {
         }
         return 1;
     }
+
+    TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
 
     HkIterator hkIter;
     if (!hkIter.open(options_mgr.decoded_data_filename.Data(), options_mgr.begin_gps.Data(), options_mgr.end_gps.Data())) {
@@ -45,15 +48,21 @@ int main(int argc, char** argv) {
             int idx = options_mgr.ct_num_vec[i] - 1;
             sprintf(name, "temp_graph_%d", idx + 1);
             sprintf(title, "temperature { %s }", gps_time_span.c_str());
-            temp_graph[idx] = new TGraph(name, title);
+            temp_graph[idx] = new TGraph();
+            temp_graph[idx]->SetNameTitle(name, title);
             temp_graph[idx]->SetLineColor(ColorIndex[idx]);
+            temp_graph[idx]->SetMaximum(50);
+            temp_graph[idx]->SetMinimum(-20);
         }
     } else {
         for (int i = 0; i < 25; i++) {
             sprintf(name, "temp_graph_%d", i + 1);
             sprintf(title, "temperature { %s } CT_%d", gps_time_span.c_str(), i + 1);
-            temp_graph[i] = new TGraph(name, title);
+            temp_graph[i] = new TGraph();
+            temp_graph[i]->SetNameTitle(name, title);
             temp_graph[i]->SetLineColor(ColorIndex[i]);
+            temp_graph[i]->SetMaximum(50);
+            temp_graph[i]->SetMinimum(-20);
         }
     }
 
@@ -88,6 +97,29 @@ int main(int argc, char** argv) {
             }
         }
     }
+    hkIter.close();
+    cout << " DONE ]" << endl;
+
+    // draw
+    TempCanvas temp_canvas(begin_gps_week, begin_gps_second);
+    if (options_mgr.ct_num_vec.size() > 0) {
+        temp_canvas.cd_single();
+        for (size_t i = 0; i < options_mgr.ct_num_vec.size(); i++) {
+            int idx = options_mgr.ct_num_vec[i] - 1;
+            if (i == 0) {
+                temp_graph[idx]->Draw();
+            } else {
+                temp_graph[idx]->Draw("SAME");
+            }
+        }
+    } else {
+        for (int i = 0; i < 25; i++) {
+            temp_canvas.cd_25_mod(i);
+            temp_graph[i]->Draw();
+        }
+    }
+    
+    rootapp->Run();
     
     return 0;
 }
