@@ -5,9 +5,27 @@ from rootpy.io import File
 from rootpy.tree import Tree
 from collections import deque
 
-def find_maitenance(filename):
-    print "test"
-
+def find_maintenance(filename):
+    aux_file = File(filename, 'read')
+    aux_tree = aux_file.get('t_hk_obox')
+    maintenance_start = False
+    maintenance_list = []
+    gps_time_list = []
+    ship_time_list = []
+    for entry in aux_tree:
+        if entry.obox_is_bad > 0: continue
+        if entry.obox_mode.encode('hex') == '04':
+            if not maintenance_start:
+                maintenance_start = True
+            gps_time_list.append(entry.abs_gps_week * 604800 + entry.abs_gps_second)
+            ship_time_list.append(entry.abs_ship_second)
+        else:
+            if maintenance_start:
+                maintenance_start = False
+                maintenance_list.append(((ship_time_list[0] + ship_time_list[-1]) / 2, (gps_time_list[0] + gps_time_list[-1]) / 2))
+                gps_time_list = []
+                ship_time_list = []
+    return [(int(x[0]), "%d:%d" % (int(x[1] / 604800), int(x[1] % 604800))) for x in maintenance_list]
 
 def find_orbitstart(filename):
     LAT_LEN = 500
