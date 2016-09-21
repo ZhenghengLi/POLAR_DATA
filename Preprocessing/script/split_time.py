@@ -32,4 +32,5 @@ def find_orbitstart(filename):
             ready_flag = False
         if not ready_flag and pre_diff > 0 and cur_diff <= 0:
             ready_flag = True
-    return orbitstart_list 
+        pre_diff = cur_diff
+    return [(int(x[0]), "%d:%d" % (int(x[1] / 604800), int(x[1] % 604800))) for x in orbitstart_list]
