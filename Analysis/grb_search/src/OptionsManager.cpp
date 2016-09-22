@@ -146,9 +146,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (end_gps.IsNull())
         end_gps = "end";
     if (bw_start <= 0)
-        bw_start = 0.1;
+        bw_start = 0.02;
     if (bw_stop <= 0)
-        bw_stop = 100;
+        bw_stop = 20;
     if (bw_stop <= bw_start)
         return false;
     if (bw_len <= 0)
