@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
             temp_graph[idx]->SetLineColor(ColorIndex[idx]);
             temp_graph[idx]->SetMaximum(50);
             temp_graph[idx]->SetMinimum(-20);
-            temp_graph[idx]->SetPoint(0, 0, -20);
+            temp_graph[idx]->SetPoint(0, -1, -20);
             temp_graph[idx]->SetMarkerColor(ColorIndex[idx]);
             temp_graph[idx]->SetLineWidth(2);
         }
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
             temp_graph[i]->SetLineColor(ColorIndex[i]);
             temp_graph[i]->SetMaximum(50);
             temp_graph[i]->SetMinimum(-20);
-            temp_graph[i]->SetPoint(0, 0, -20);
+            temp_graph[i]->SetPoint(0, -1, -20);
             temp_graph[i]->SetMarkerColor(ColorIndex[i]);
             temp_graph[i]->SetLineWidth(2);
         }
@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
         temp_canvas.cd_single();
         for (size_t i = 0; i < options_mgr.ct_num_vec.size(); i++) {
             int idx = options_mgr.ct_num_vec[i] - 1;
+            temp_graph[idx]->GetXaxis()->SetRangeUser(0, gps_time_length);
             if (i == 0) {
                 temp_graph[idx]->Draw();
                 leg->AddEntry(temp_graph[idx], Form("CT_%d", idx + 1), "l");
@@ -131,6 +132,7 @@ int main(int argc, char** argv) {
     } else {
         for (int i = 0; i < 25; i++) {
             temp_canvas.cd_25_mod(i);
+            temp_graph[i]->GetXaxis()->SetRangeUser(0, gps_time_length);
             temp_graph[i]->Draw();
             line_0->Draw("SAME");
         }
