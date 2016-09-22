@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     TLine* line_0 = new TLine(0, 0, gps_time_length, 0);
     line_0->SetLineColor(kRed);
     line_0->SetLineStyle(2);
-    TLegend* leg = new TLegend(0.91, 0.2, 0.99, 0.88);
+    TLegend* leg = new TLegend(0.91, 0.12, 0.99, 0.88);
     leg->SetTextSize(0.02);
     TempCanvas temp_canvas(begin_gps_week, begin_gps_second);
     if (options_mgr.ct_num_vec.size() > 0) {
