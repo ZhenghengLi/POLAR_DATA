@@ -72,6 +72,9 @@ int main(int argc, char** argv) {
             temp_graph[i]->SetLineWidth(2);
         }
     }
+    TGraph* mode_graph = new TGraph();
+    mode_graph->SetLineColor(kBlue);
+    mode_graph->SetLineWidth(2);
 
     int point_num = 0;
     int pre_percent = 0;
@@ -89,6 +92,9 @@ int main(int argc, char** argv) {
             continue;
         }
         point_num += 1;
+        mode_graph->SetPoint(point_num,
+                             (hkIter.t_hk_obox.abs_gps_week - begin_gps_week) * 604800 + (hkIter.t_hk_obox.abs_gps_second - begin_gps_second),
+                             static_cast<Double_t>(hkIter.t_hk_obox.obox_mode));
         if (options_mgr.ct_num_vec.size() > 0) {
             for (size_t i = 0; i < options_mgr.ct_num_vec.size(); i++) {
                 int idx = options_mgr.ct_num_vec[i] - 1;
@@ -128,6 +134,7 @@ int main(int argc, char** argv) {
             }
         }
         line_0->Draw("SAME");
+        mode_graph->Draw("SAME");
         leg->Draw();
     } else {
         for (int i = 0; i < 25; i++) {
