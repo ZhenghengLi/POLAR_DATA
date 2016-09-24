@@ -112,6 +112,7 @@ sci_aux_pair = []
 
 for i in xrange(len(sci_1M_filelist)):
     aux_i = int(raw_input(' - choose AUX file number for SCI file (' + str(i + 1) + '): '))
+    if aux_i == 0: continue
     if aux_i not in range(1, len(aux_1M_filelist) + 1):
         print ' - ERROR: the number you choosed is out of range.'
         exit(1)
