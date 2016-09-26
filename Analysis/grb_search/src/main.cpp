@@ -182,6 +182,9 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
+        if (eventIter.t_trigger.trigger_n > 4) {
+            continue;
+        }
         for (int i = 0; i <= options_mgr.bw_len; i++) {
             for (int j = 0; j < 4; j++) {
                 hist_array[i][j]->Fill((eventIter.t_trigger.abs_gps_week   - begin_gps_week) * 604800 +

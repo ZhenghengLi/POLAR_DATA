@@ -102,6 +102,9 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
+        if (eventIter.t_trigger.trigger_n > 4) {
+            continue;
+        }
         trigger_hist->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
                            (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
         for (int i = 0; i < 25; i++) {
