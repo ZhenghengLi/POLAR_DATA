@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     
     eventIter.print_file_info();
 
-    Double_t gps_time_length = (eventIter.phy_end_trigger.abs_gps_week - eventIter.ped_begin_trigger.abs_gps_week) * 604800 +
+    Double_t gps_time_length = (eventIter.phy_end_trigger.abs_gps_week - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
         (eventIter.phy_end_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second);
     int nbins = gps_time_length / options_mgr.binwidth;
     cout << "----------------------------------------------------------" << endl;
@@ -64,28 +64,34 @@ int main(int argc, char** argv) {
                                       nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     trigger_hist->SetDirectory(NULL);
     trigger_hist->SetMinimum(0);
+    trigger_hist->GetXaxis()->SetTitle("T-T0 (s)");
+    trigger_hist->GetYaxis()->SetTitle("Rate (trigger/s)");
     trigger_hist_int->SetDirectory(NULL);
     trigger_hist_int->SetLineColor(6);
     TH1D* modules_hist[25];
     TH1D* modules_hist_tout1[25];
     for (int i = 0; i < 25; i++) {
-        sprintf(name, "module_hist_%d", i + 1);
-        sprintf(title, "module CT_%d: { %s }", i + 1, gps_time_span.c_str());
+        sprintf(name, "module_hist_%02d", i + 1);
+        sprintf(title, "module CT_%02d: { %s }", i + 1, gps_time_span.c_str());
         modules_hist[i] = new TH1D(name, title,
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
         modules_hist[i]->SetDirectory(NULL);
         modules_hist[i]->SetLineColor(kGreen);
         modules_hist[i]->SetMinimum(0);
+        modules_hist[i]->GetXaxis()->SetTitle("T-T0 (s)");
+        modules_hist[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
         if (!options_mgr.tout1_flag) {
             continue;
         }
-        sprintf(name, "module_hist_tout1_%d", i + 1);
-        sprintf(title, "module CT_%d: { %s }, TOUT1", i + 1, gps_time_span.c_str());
+        sprintf(name, "module_hist_tout1_%02d", i + 1);
+        sprintf(title, "module CT_%02d: { %s }, TOUT1", i + 1, gps_time_span.c_str());
         modules_hist_tout1[i] = new TH1D(name, title,
                                          nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
         modules_hist_tout1[i]->SetDirectory(NULL);
         modules_hist_tout1[i]->SetLineColor(kRed);
         modules_hist_tout1[i]->SetMinimum(0);
+        modules_hist_tout1[i]->GetXaxis()->SetTitle("T-T0 (s)");
+        modules_hist_tout1[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
     }
     
     int pre_percent = 0;
@@ -151,6 +157,35 @@ int main(int argc, char** argv) {
                 modules_hist_tout1[j]->SetBinContent(i + 1, modules_hist_tout1[j]->GetBinContent(i + 1) / options_mgr.binwidth);
                 modules_hist_tout1[j]->SetBinError(i + 1, modules_hist_tout1[j]->GetBinError(i + 1) / options_mgr.binwidth);
             }
+        }
+    }
+
+    if (!options_mgr.output_filename.IsNull()) {
+        cout << " - saving light curve ..." << endl;
+        TFile* outfile = new TFile(options_mgr.output_filename.Data(), "recreate");
+        if (outfile->IsZombie()) {
+            cout << "ERROR: output file open failed: " << options_mgr.output_filename.Data() << endl;
+        } else {
+            trigger_hist->Write();
+            for (int i = 0; i < 25; i++) {
+                modules_hist[i]->Write();
+            }
+            if (options_mgr.tout1_flag) {
+                for (int i = 0; i < 25; i++) {
+                    modules_hist_tout1[i]->Write();
+                }
+            }
+            TNamed("gps_time_span", 
+                    Form("%d:%d => %d:%d", 
+                        static_cast<int>(eventIter.phy_begin_trigger.abs_gps_week),
+                        static_cast<int>(eventIter.phy_begin_trigger.abs_gps_second),
+                        static_cast<int>(eventIter.phy_end_trigger.abs_gps_week),
+                        static_cast<int>(eventIter.phy_end_trigger.abs_gps_second)
+                        )).Write();
+            TNamed("time_length", Form("%f", gps_time_length)).Write();
+            TNamed("bin_width", Form("%f", options_mgr.binwidth)).Write();
+            TNamed("nbins", Form("%d", nbins)).Write();
+            outfile->Close();
         }
     }
 

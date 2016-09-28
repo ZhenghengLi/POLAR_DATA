@@ -16,6 +16,7 @@ public:
     TString begin_gps;
     TString end_gps;
     TString decoded_data_filename;
+    TString output_filename;
     double  binwidth;
     int     phase;
     bool    tout1_flag;

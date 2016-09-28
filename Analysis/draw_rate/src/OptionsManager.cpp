@@ -70,6 +70,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'o':
+                if (idx < argc_par - 1) {
+                    output_filename = argv_par[++idx];
+                    if (output_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'm':
                 tout1_flag = true;
                 break;
@@ -100,7 +110,12 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <decoded_data_file.root> [-B <week1:second1>] [-E <week2:second2>] [-w <binwidth>] [-j <phase>]" << endl;
+	cout << "  " << SW_NAME << " <decoded_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
+    cout << "  ";
+    for (size_t i = 0; i < SW_NAME.length(); i++)
+        cout << " ";
+    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>]" << endl;
+    cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B week1:second1                 GPS string of beginning" << endl;
@@ -108,6 +123,7 @@ void OptionsManager::print_help() {
     cout << "  -w binwidth                      bin width of seconds" << endl;
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
+    cout << "  -o                               output rate hist to a root file" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
