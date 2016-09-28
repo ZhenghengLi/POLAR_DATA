@@ -89,7 +89,7 @@ if check_md5 == 'y' or check_md5 == '':
 
 print delimeter
 
-ref_0bfile = re.compile('T2_POL_.*_0B\.dat')
+ref_0bfile = re.compile('TS_TG02_POL_.*_0B\.dat')
 ref_sci = re.compile('TS_TG02_POL_POLAR_SCI_.*_0B\.dat')
 ref_aux = re.compile('TS_TG02_POL_POLAR_AUX_.*_0B\.dat')
 ref_psd = re.compile('TS_TG02_POL_PSD_ENG_.*_0B\.dat')
