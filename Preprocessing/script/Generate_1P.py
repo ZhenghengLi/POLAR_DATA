@@ -54,11 +54,11 @@ print delimeter
 
 product_dates = [x for x in os.listdir(product_dir) if os.path.isdir(os.path.join(product_dir, x))]
 
-new_dates = []
+new_dates = product_dates
 
-for x in product_dates:
-    if os.path.isdir(os.path.join(product_dir, x, '1M')) and not os.path.isdir(os.path.join(product_dir, x, '1P')):
-        new_dates.append(x)
+#for x in product_dates:
+#    if os.path.isdir(os.path.join(product_dir, x, '1M')) and not os.path.isdir(os.path.join(product_dir, x, '1P')):
+#        new_dates.append(x)
 
 if len(new_dates) < 1:
     print " - There is no new 1M data to process for 1P generating."
@@ -94,6 +94,9 @@ for x in os.listdir(cur_1M_path):
     if ref_aux_1M.match(x):
         aux_1M_filelist.append(x)
         continue
+
+sci_1M_filelist.sort()
+aux_1M_filelist.sort()
 
 print " - 1M data files of " + cur_date + " that need to process: "
 print " - SCI 1M file list:"
@@ -136,21 +139,26 @@ print delimeter
 # internal
 cur_1P_path_int = os.path.join(product_dir, cur_date, '1P')
 print ' - create directory: ' + cur_1P_path_int
-os.mkdir(cur_1P_path_int)
+if os.path.isdir(cur_1P_path_int):
+    print cur_1P_path_int + " => exist, so omit"
+else:
+    os.mkdir(cur_1P_path_int)
 
 # log
 cur_1P_path_log = os.path.join(logfile_dir, cur_date, '1P')
 print ' - create directory: ' + cur_1P_path_log
 if os.path.isdir(cur_1P_path_log):
-    shutil.rmtree(cur_1P_path_log)
-os.mkdir(cur_1P_path_log)
+    print cur_1P_path_log + " => exist, so omit"
+else:
+    os.mkdir(cur_1P_path_log)
 
 # screen
 cur_1P_path_scr = os.path.join(scrfile_dir, cur_date, '1P')
 print ' - create directory: ' + cur_1P_path_scr
 if os.path.isdir(cur_1P_path_scr):
-    shutil.rmtree(cur_1P_path_scr)
-os.mkdir(cur_1P_path_scr)
+    print cur_1P_path_scr + " => exist, so omit"
+else:
+    os.mkdir(cur_1P_path_scr)
 
 failed_files = []
 
@@ -163,6 +171,9 @@ for i, p in enumerate(sci_aux_pair, start = 1):
     cur_1M_sci_file  = os.path.join(cur_1M_path, cur_sci_1M_fn)
     cur_1M_aux_file  = os.path.join(cur_1M_path, cur_aux_1M_fn)
     cur_1P_rootfn    = cur_sci_1M_fn.replace('1M.root', '1P.root')
+    if os.path.isfile(cur_1P_rootfn):
+        print cur_1P_rootfn + " => exist, so omit"
+        continue
     cur_1P_logfn     = cur_sci_1M_fn.replace('1M.root', '1P.log')
     cur_1P_cmdfn     = cur_sci_1M_fn.replace('1M.root', '1P.cmd')
     cur_1P_outfn     = cur_sci_1M_fn.replace('1M.root', '1P.out')

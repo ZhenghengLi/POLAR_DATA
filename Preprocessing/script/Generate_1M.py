@@ -46,7 +46,7 @@ print delimeter
 rawdata_dates = [x for x in os.listdir(rawdata_dir) if os.path.isdir(os.path.join(rawdata_dir, x))]
 product_dates = [x for x in os.listdir(product_dir) if os.path.isdir(os.path.join(product_dir, x))]
 
-new_dates = list(set(rawdata_dates) - set(product_dates))
+new_dates = rawdata_dates
 if len(new_dates) < 1:
     print " - There is no new raw data to process for 1M generating."
     exit(0)
@@ -129,30 +129,44 @@ if start_flag == 'n':
 # internal
 cur_decoded_path_int = os.path.join(product_dir, cur_date)
 print ' - create directory: ' + cur_decoded_path_int
-os.mkdir(cur_decoded_path_int)
+if os.path.isdir(cur_decoded_path_int):
+    print cur_decoded_path_int + " => exist, so omit"
+else:
+    os.mkdir(cur_decoded_path_int)
 cur_1M_path_int = os.path.join(cur_decoded_path_int, '1M')
 print ' - create directory: ' + cur_1M_path_int
-os.mkdir(cur_1M_path_int)
+if os.path.isdir(cur_1M_path_int):
+    print cur_1M_path_int + " => exist, so omit"
+else:
+    os.mkdir(cur_1M_path_int)
 
 # log
 cur_decoded_path_log = os.path.join(logfile_dir, cur_date)
 print ' - create directory: ' + cur_decoded_path_log
 if os.path.isdir(cur_decoded_path_log):
-    shutil.rmtree(cur_decoded_path_log)
-os.mkdir(cur_decoded_path_log)
+    print cur_decoded_path_log + " => exist, so omit"
+else:
+    os.mkdir(cur_decoded_path_log)
 cur_1M_path_log = os.path.join(cur_decoded_path_log, '1M')
 print ' - create directory: ' + cur_1M_path_log
-os.mkdir(cur_1M_path_log)
+if os.path.isdir(cur_1M_path_log):
+    print cur_1M_path_log + " => exist, so omit"
+else:
+    os.mkdir(cur_1M_path_log)
 
 # screen
 cur_decoded_path_scr = os.path.join(scrfile_dir, cur_date)
 print ' - create directory: ' + cur_decoded_path_scr
 if os.path.isdir(cur_decoded_path_scr):
-    shutil.rmtree(cur_decoded_path_scr)
-os.mkdir(cur_decoded_path_scr)
+    print cur_decoded_path_scr + " => exist, so omit"
+else:
+    os.mkdir(cur_decoded_path_scr)
 cur_1M_path_scr = os.path.join(cur_decoded_path_scr, '1M')
 print ' - create directory: ' + cur_1M_path_scr
-os.mkdir(cur_1M_path_scr)
+if os.path.isdir(cur_1M_path_scr):
+    print cur_1M_path_scr + " => exist, so omit"
+else:
+    os.mkdir(cur_1M_path_scr)
 
 failed_files = []
 
@@ -165,6 +179,9 @@ for x in sci_filelist:
     cur_1M_outfn  = x.replace('0B.dat', '1M.out')
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    if os.path.isfile(cur_root_file):
+        print cur_root_file + ' => exist, so omit'
+        continue
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
@@ -188,6 +205,9 @@ for x in aux_filelist:
     cur_1M_outfn  = x.replace('0B.dat', '1M.out')
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    if os.path.isfile(cur_root_file):
+        print cur_root_file + ' => exist, so omit'
+        continue
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
@@ -211,6 +231,9 @@ for x in psd_filelist:
     cur_1M_outfn  = x.replace('0B.dat', '1M.out').replace('T2_POL_PSD', 'T2_POL_PPD')
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
+    if os.path.isfile(cur_root_file):
+        print cur_root_file + ' => exist, so omit'
+        continue
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
