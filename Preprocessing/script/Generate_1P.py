@@ -171,9 +171,6 @@ for i, p in enumerate(sci_aux_pair, start = 1):
     cur_1M_sci_file  = os.path.join(cur_1M_path, cur_sci_1M_fn)
     cur_1M_aux_file  = os.path.join(cur_1M_path, cur_aux_1M_fn)
     cur_1P_rootfn    = cur_sci_1M_fn.replace('1M.root', '1P.root')
-    if os.path.isfile(cur_1P_rootfn):
-        print cur_1P_rootfn + " => exist, so omit"
-        continue
     cur_1P_logfn     = cur_sci_1M_fn.replace('1M.root', '1P.log')
     cur_1P_cmdfn     = cur_sci_1M_fn.replace('1M.root', '1P.cmd')
     cur_1P_outfn     = cur_sci_1M_fn.replace('1M.root', '1P.out')
@@ -181,6 +178,12 @@ for i, p in enumerate(sci_aux_pair, start = 1):
     cur_1P_log_file  = os.path.join(cur_1P_path_log, cur_1P_logfn)
     cur_1P_cmd_file  = os.path.join(cur_1P_path_scr, cur_1P_cmdfn)
     cur_1P_out_file  = os.path.join(cur_1P_path_scr, cur_1P_outfn)
+    if os.path.isfile(cur_1P_root_file):
+        if os.stat(cur_1M_sci_file).st_mtime < os.stat(cur_1P_root_file).st_mtime:
+            print cur_1P_rootfn + " => exist, so omit"
+            continue
+        else:
+            print "1M data file update, so regenerate"
     command = 'Time_Calculate ' + cur_1M_sci_file + ' -k ' + cur_1M_aux_file + ' -o ' + cur_1P_root_file + ' -g ' + cur_1P_log_file
     with open(cur_1P_cmd_file, 'w') as f: f.write(command)
     print subpro_begin

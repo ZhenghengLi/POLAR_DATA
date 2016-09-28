@@ -180,8 +180,11 @@ for x in sci_filelist:
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
     if os.path.isfile(cur_root_file):
-        print cur_root_file + ' => exist, so omit'
-        continue
+        if os.stat(cur_raw_file).st_mtime < os.stat(cur_root_file).st_mtime:
+            print cur_root_file + ' => exist, so omit'
+            continue
+        else:
+            print "raw data file update, so regenerate"
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
@@ -206,8 +209,11 @@ for x in aux_filelist:
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
     if os.path.isfile(cur_root_file):
-        print cur_root_file + ' => exist, so omit'
-        continue
+        if os.stat(cur_raw_file).st_mtime < os.stat(cur_root_file).st_mtime:
+            print cur_root_file + ' => exist, so omit'
+            continue
+        else:
+            print "raw data file update, so regenerate"
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
@@ -232,8 +238,11 @@ for x in psd_filelist:
     cur_raw_file  = os.path.join(cur_raw_path_0B, x)
     cur_root_file = os.path.join(cur_1M_path_int, cur_1M_rootfn)
     if os.path.isfile(cur_root_file):
-        print cur_root_file + ' => exist, so omit'
-        continue
+        if os.stat(cur_raw_file).st_mtime < os.stat(cur_root_file).st_mtime:
+            print cur_root_file + ' => exist, so omit'
+            continue
+        else:
+            print "raw data file update, so regenerate"
     cur_log_file  = os.path.join(cur_1M_path_log, cur_1M_logfn)
     cur_cmd_file  = os.path.join(cur_1M_path_scr, cur_1M_cmdfn)
     cur_out_file  = os.path.join(cur_1M_path_scr, cur_1M_outfn)
