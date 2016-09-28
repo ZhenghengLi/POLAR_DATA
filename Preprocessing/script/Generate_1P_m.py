@@ -26,7 +26,7 @@ def aux_1m_read_timespan(filename):
 
 parser = argparse.ArgumentParser(description='Generate 1P level data from a 1M data folder for PSDC')
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
-parser.add_argument("-t", dest = "type", default = "normal")
+parser.add_argument("-t", dest = "type", default = "manual")
 args = parser.parse_args()
 
 path_prefix = os.path.abspath(args.pathprefix)
