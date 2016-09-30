@@ -202,10 +202,10 @@ for filename in aux_filelist_update + aux_filelist_new:
 # process ENG
 for filename in eng_filelist_update + eng_filelist_new:
     file_0b_dat  = os.path.join(rawdata_dir, filename)
-    file_1m_root = os.path.join(product_dir, ppd_1m, filename).replace('0B.dat', '1M.root')
-    file_1m_log  = os.path.join(logfile_dir, ppd_1m, filename).replace('0B.dat', '1M.log')
-    file_1m_cmd  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.cmd')
-    file_1m_out  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.out')
+    file_1m_root = os.path.join(product_dir, ppd_1m, filename).replace('0B.dat', '1M.root').replace('T2_POL_PSD', 'T2_POL_PPD')
+    file_1m_log  = os.path.join(logfile_dir, ppd_1m, filename).replace('0B.dat', '1M.log').replace('T2_POL_PSD', 'T2_POL_PPD')
+    file_1m_cmd  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.cmd').replace('T2_POL_PSD', 'T2_POL_PPD')
+    file_1m_out  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.out').replace('T2_POL_PSD', 'T2_POL_PPD')
     command = 'PPD_Decode.py ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
     with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
     print " " + "+" * 80
