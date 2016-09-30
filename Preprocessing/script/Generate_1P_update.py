@@ -101,7 +101,7 @@ sci_1p_filelist.sort()
 aux_1m_filelist = []
 for x in os.listdir(os.path.join(product_dir, aux_1m)):
     if ref_aux_1M.match(x): aux_1m_filelist.append(x)
-sci_1p_filelist.sort()
+aux_1m_filelist.sort()
 
 # find new and update
 sci_1m_filelist_new = []
@@ -118,6 +118,7 @@ for filename in sci_1m_filelist:
 
 # match sci and aux
 sci_1m_filelist_all = sci_1m_filelist_update + sci_1m_filelist_new
+sci_1m_filelist_all.sort()
 sci_aux_1m_pair_all = []
 aux_search_start = 0
 for idx in xrange(len(sci_1m_filelist_all)):
@@ -218,4 +219,6 @@ print " - failed: "
 for x in sci_1m_filelist_fail:
     print " > " + x
 print " " + "+" * 80
+
+exit(len(sci_1m_filelist_success) + len(sci_1m_filelist_fail))
 

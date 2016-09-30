@@ -245,4 +245,6 @@ for x in eng_filelist_fail:
     print " > " + os.path.join(args.date, '0B', x)
 print " " + "+" * 80
 
+exit(len(sci_filelist_success) + len(aux_filelist_success) + len(eng_filelist_success) \
+        + len(sci_filelist_fail) + len(aux_filelist_fail) + len(eng_filelist_fail))
 
