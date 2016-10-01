@@ -65,7 +65,7 @@ if not os.path.isfile(maillist_file):
 # create directory
 time_now = datetime.now()
 
-first_time = " ->>>> process start time: " + time_now.strftime('%Y-%m-%dT%H:%M%S') + " <<<<-"
+first_time = " ->>>> process start time: " + time_now.strftime('%Y-%m-%dT%H:%M:%S') + " <<<<-"
 print first_time
 
 nowdate = time_now.strftime('%Y%m%d')
