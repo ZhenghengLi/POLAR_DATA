@@ -113,7 +113,7 @@ for dirname in args.dirlist:
     output_file = os.path.join(processlog_dir_date, dirname + '_1P_' + cur_time + '.log')
     ret_value = 0
     with open(output_file, 'w') as fout:
-        ret_value = subprocess.call([cmd_1m, '--noconfirm', '-t', dirname], stdout = fout, stderr = fout)
+        ret_value = subprocess.call([cmd_1p, '--noconfirm', '-t', dirname], stdout = fout, stderr = fout)
     with open(output_file, 'r') as f: print f.read().rstrip('\n')
     if ret_value > 0:
         total_count[dirname] += ret_value
@@ -133,7 +133,7 @@ if len(message_all) == 0:
     exit(0)
 
 cur_time = datetime.now().strftime('%Y%m%d%H%M%S')
-message_file = os.path.join(mailmessage_dir_date, 'message' + '_' + cur_time + '.txt')
+message_file = os.path.join(mailmessage_dir_date, 'message' + '_' + cur_time + '.msg')
 with open(message_file, 'w') as fout: fout.write(message_all)
 if args.sendmail:
     maillist = [line.rstrip('\n') for line in open(maillist_file, 'r')]
