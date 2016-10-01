@@ -31,7 +31,8 @@ def send_mail(tolist, subject, message):
 
 parser = argparse.ArgumentParser(description='Generate 1M/1P data product automatically')
 parser.add_argument('dirlist', metavar = 'filename', nargs = '+', help = 'list of filenames to open')
-parser.add_argument("-r", dest = "pathprefix", default = '/hxmt/work/POLAR/PSDC/workspace/dataproduct/dailyprocess')
+parser.add_argument("-p", dest = "pathprefix", default = '/hxmt/work/POLAR/PSDC/workspace/dataproduct/dailyprocess')
+parser.add_argument('-r', dest = "dataprefix", default = '/hxmt/data/Mission/POLAR/data_in_orbit_test')
 parser.add_argument('-d', dest = 'days', help = 'number of days of data to check', type = int, default = 2)
 parser.add_argument('--sendmail', dest = 'sendmail', action='store_true', help = 'if send mail when new data processed')
 args = parser.parse_args()
@@ -98,7 +99,7 @@ for dirname in args.dirlist:
         output_file = os.path.join(processlog_dir_date, dirname + '_' + onedate + '_1M_' + cur_time + '.log')
         ret_value = 0
         with open(output_file, 'w') as fout:
-            ret_value = subprocess.call([cmd_1m, '--noconfirm', '-t', dirname, onedate], stdout = fout, stderr = fout)
+            ret_value = subprocess.call([cmd_1m, '--noconfirm', '-r', args.dataprefix, '-t', dirname, onedate], stdout = fout, stderr = fout)
         with open(output_file, 'r') as f: print f.read().rstrip('\n')
         if ret_value > 0:
             total_count[dirname] += ret_value
@@ -113,7 +114,7 @@ for dirname in args.dirlist:
     output_file = os.path.join(processlog_dir_date, dirname + '_1P_' + cur_time + '.log')
     ret_value = 0
     with open(output_file, 'w') as fout:
-        ret_value = subprocess.call([cmd_1p, '--noconfirm', '-t', dirname], stdout = fout, stderr = fout)
+        ret_value = subprocess.call([cmd_1p, '--noconfirm', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
     with open(output_file, 'r') as f: print f.read().rstrip('\n')
     if ret_value > 0:
         total_count[dirname] += ret_value
