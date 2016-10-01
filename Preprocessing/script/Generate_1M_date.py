@@ -11,6 +11,9 @@ FNULL = open(os.devnull, 'w')
 def file_is_not_open(filename):
     return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) != 0
 
+def file_is_open(filename):
+    return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) == 0
+
 delimeter = " " + "-" * 80
 subpro_begin = "*-*-*-*-*-*-* subprocess begin *-*-*-*-*-*-*"
 subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
@@ -160,6 +163,9 @@ for filename in sci_filelist_update + sci_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, sci_1m, filename).replace('0B.dat', '1M.log')
     file_1m_cmd  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.cmd')
     file_1m_out  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.out')
+    if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
+    if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
+    if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
     command = 'SCI_Decode ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
     with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
     print " " + "+" * 80
@@ -186,6 +192,9 @@ for filename in aux_filelist_update + aux_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, aux_1m, filename).replace('0B.dat', '1M.log')
     file_1m_cmd  = os.path.join(scrfile_dir, aux_1m, filename).replace('0B.dat', '1M.cmd')
     file_1m_out  = os.path.join(scrfile_dir, aux_1m, filename).replace('0B.dat', '1M.out')
+    if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
+    if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
+    if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
     command = 'HK_Decode ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
     with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
     print " " + "+" * 80
@@ -212,6 +221,9 @@ for filename in eng_filelist_update + eng_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, ppd_1m, filename).replace('0B.dat', '1M.log').replace('T2_POL_PSD', 'T2_POL_PPD')
     file_1m_cmd  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.cmd').replace('T2_POL_PSD', 'T2_POL_PPD')
     file_1m_out  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.out').replace('T2_POL_PSD', 'T2_POL_PPD')
+    if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
+    if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
+    if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
     command = 'PPD_Decode.py ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
     with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
     print " " + "+" * 80

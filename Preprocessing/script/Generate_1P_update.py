@@ -47,6 +47,9 @@ def time_diff(sci_filename, aux_filename):
 def file_is_not_open(filename):
     return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) != 0
 
+def file_is_open(filename):
+    return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) == 0
+
 delimeter = " " + "-" * 80
 subpro_begin = "*-*-*-*-*-*-* subprocess begin *-*-*-*-*-*-*"
 subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
@@ -199,6 +202,10 @@ for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
     sci_file_1p_log  = os.path.join(logfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.log'))
     sci_file_1p_cmd  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.cmd'))
     sci_file_1p_out  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.out'))
+    if os.path.isfile(sci_file_1m_root) and file_is_open(sci_file_1m_root): continue
+    if os.path.isfile(aux_file_1m_root) and file_is_open(aux_file_1m_root): continue
+    if os.path.isfile(sci_file_1p_root) and file_is_open(sci_file_1p_root): continue
+    if os.path.isfile(sci_file_1p_log)  and file_is_open(sci_file_1p_log):  continue
     command = 'Time_Calculate ' + sci_file_1m_root + ' -k ' + aux_file_1m_root + ' -o ' + sci_file_1p_root + ' -g ' + sci_file_1p_log
     with open(sci_file_1p_cmd, 'w') as fcmd: fcmd.write(command)
     ret_value = 0
