@@ -167,8 +167,7 @@ for filename in sci_filelist_update + sci_filelist_new:
     ret_value = 0
     with open(file_1m_out, 'w') as fout: 
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    if os.path.isfile(file_1m_out):
-        print open(file_1m_out, 'r').read().rstrip('\n')
+    with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
         sci_filelist_success.append(filename)
@@ -194,8 +193,7 @@ for filename in aux_filelist_update + aux_filelist_new:
     ret_value = 0
     with open(file_1m_out, 'w') as fout: 
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    if os.path.isfile(file_1m_out):
-        print open(file_1m_out, 'r').read().rstrip('\n')
+    with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
         aux_filelist_success.append(filename)
@@ -221,8 +219,7 @@ for filename in eng_filelist_update + eng_filelist_new:
     ret_value = 0
     with open(file_1m_out, 'w') as fout: 
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    if os.path.isfile(file_1m_out):
-        print open(file_1m_out, 'r').read().rstrip('\n')
+    with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
         eng_filelist_success.append(filename)

@@ -204,8 +204,7 @@ for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
     ret_value = 0
     with open(sci_file_1p_out, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    if os.path.isfile(sci_file_1p_out):
-        print open(sci_file_1p_out, 'r').read().rstrip('\n')
+    with open(sci_file_1p_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + sci_filename + ' successful to process.'
         sci_1m_filelist_success.append(sci_filename)
