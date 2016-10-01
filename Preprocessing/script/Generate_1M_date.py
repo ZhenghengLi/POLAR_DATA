@@ -124,19 +124,19 @@ for filename in eng_filelist:
 
 print " - files that are updated, need reprocess:" 
 for x in sci_filelist_update:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + ' [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 for x in aux_filelist_update:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + ' [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 for x in eng_filelist_update:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + '   [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 
 print " - files that are new, need process: "
 for x in sci_filelist_new:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + ' [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 for x in aux_filelist_new:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + ' [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 for x in eng_filelist_new:
-    print ' > ' + os.path.join(args.date, '0B', x)
+    print ' > ' + os.path.join(args.date, '0B', x) + '   [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 
 print delimeter
 
