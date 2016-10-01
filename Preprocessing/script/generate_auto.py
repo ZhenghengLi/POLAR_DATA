@@ -126,7 +126,7 @@ for dirname in args.dirlist:
 message_all = ''
 for key in args.dirlist:
     if total_count[key] > 0:
-        message_all += '%' * 10 + ' ' + key + ' ' + '%' * 10
+        message_all += '%' * 10 + ' ' + key + ' ' + '%' * 10 + '\n'
         message_all += message[key]
 
 if len(message_all) == 0:
