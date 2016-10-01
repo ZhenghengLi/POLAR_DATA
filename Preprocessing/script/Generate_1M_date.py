@@ -87,14 +87,18 @@ aux_filelist_update = []
 eng_filelist_new = []
 eng_filelist_update = []
 
+FNULL = open(os.devnull, 'w')
+
 for filename in sci_filelist:
     file_0b = os.path.join(rawdata_dir, filename)
     file_1m = os.path.join(product_dir, sci_1m, filename).replace('0B.dat', '1M.root')
     if os.path.isfile(file_1m):
         if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime:
-            sci_filelist_update.append(filename);
+            if not subprocess.call(['lsof', file_0b], stdout = FNULL, stderr = FNULL) == 0:
+                sci_filelist_update.append(filename);
     else:
-        sci_filelist_new.append(filename)
+        if not subprocess.call(['lsof', file_0b], stdout = FNULL, stderr = FNULL) == 0:
+            sci_filelist_new.append(filename)
 
 for filename in aux_filelist:
     file_0b = os.path.join(rawdata_dir, filename)

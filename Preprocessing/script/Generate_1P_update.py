@@ -107,14 +107,18 @@ aux_1m_filelist.sort()
 sci_1m_filelist_new = []
 sci_1m_filelist_update = []
 
+FNULL = open(os.devnull, 'w')
+
 for filename in sci_1m_filelist:
     sci_1m_file = os.path.join(product_dir, sci_1m, filename)
     sci_1p_file = os.path.join(product_dir, sci_1p, filename).replace('1M.root', '1P.root')
     if os.path.isfile(sci_1p_file):
         if os.stat(sci_1m_file).st_mtime > os.stat(sci_1p_file).st_mtime:
-            sci_1m_filelist_update.append(filename)
+            if not subprocess.call(['lsof', sci_1m_file], stdout = FNULL, stderr = FNULL) == 0:
+                sci_1m_filelist_update.append(filename)
     else:
-        sci_1m_filelist_new.append(filename)
+        if not subprocess.call(['lsof', sci_1m_file], stdout = FNULL, stderr = FNULL) == 0:
+            sci_1m_filelist_new.append(filename)
 
 # match sci and aux
 sci_1m_filelist_all = sci_1m_filelist_update + sci_1m_filelist_new
