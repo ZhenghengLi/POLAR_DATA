@@ -6,6 +6,11 @@ import shutil
 import re
 import subprocess
 
+FNULL = open(os.devnull, 'w')
+
+def file_is_not_open(filename):
+    return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) != 0
+
 delimeter = " " + "-" * 80
 subpro_begin = "*-*-*-*-*-*-* subprocess begin *-*-*-*-*-*-*"
 subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
@@ -87,36 +92,35 @@ aux_filelist_update = []
 eng_filelist_new = []
 eng_filelist_update = []
 
-FNULL = open(os.devnull, 'w')
-
 for filename in sci_filelist:
     file_0b = os.path.join(rawdata_dir, filename)
     file_1m = os.path.join(product_dir, sci_1m, filename).replace('0B.dat', '1M.root')
     if os.path.isfile(file_1m):
-        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime:
-            if not subprocess.call(['lsof', file_0b], stdout = FNULL, stderr = FNULL) == 0:
-                sci_filelist_update.append(filename);
+        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime and file_is_not_open(file_0b) and file_is_not_open(file_1m):
+            sci_filelist_update.append(filename);
     else:
-        if not subprocess.call(['lsof', file_0b], stdout = FNULL, stderr = FNULL) == 0:
+        if file_is_not_open(file_0b):
             sci_filelist_new.append(filename)
 
 for filename in aux_filelist:
     file_0b = os.path.join(rawdata_dir, filename)
     file_1m = os.path.join(product_dir, aux_1m, filename).replace('0B.dat', '1M.root')
     if os.path.isfile(file_1m):
-        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime:
+        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime and file_is_not_open(file_0b) and file_is_not_open(file_1m):
             aux_filelist_update.append(filename);
     else:
-        aux_filelist_new.append(filename)
+        if file_is_not_open(file_0b):
+            aux_filelist_new.append(filename)
 
 for filename in eng_filelist:
     file_0b = os.path.join(rawdata_dir, filename)
     file_1m = os.path.join(product_dir, ppd_1m, filename).replace('0B.dat', '1M.root').replace('T2_POL_PSD', 'T2_POL_PPD')
     if os.path.isfile(file_1m):
-        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime:
+        if os.stat(file_0b).st_mtime > os.stat(file_1m).st_mtime and file_is_not_open(file_0b) and file_is_not_open(file_1m):
             eng_filelist_update.append(filename);
     else:
-        eng_filelist_new.append(filename)
+        if file_is_not_open(file_0b):
+            eng_filelist_new.append(filename)
 
 print " - files that are updated, need reprocess:" 
 for x in sci_filelist_update:

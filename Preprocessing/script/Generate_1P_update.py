@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from rootpy import ROOT
 from rootpy.io import File
 
+FNULL = open(os.devnull, 'w')
+
 def sci_1m_read_timespan(filename):
     t_file = File(filename, 'read')
     m_ped_gps_frm = t_file.get('m_ped_gps_frm')
@@ -41,6 +43,9 @@ def time_diff(sci_filename, aux_filename):
     else:
         return 0
     return ((sci_begin - aux_begin).total_seconds(), (sci_end - aux_end).total_seconds())
+
+def file_is_not_open(filename):
+    return subprocess.call(['lsof', filename], stdout = FNULL, stderr = FNULL) != 0
 
 delimeter = " " + "-" * 80
 subpro_begin = "*-*-*-*-*-*-* subprocess begin *-*-*-*-*-*-*"
@@ -113,11 +118,10 @@ for filename in sci_1m_filelist:
     sci_1m_file = os.path.join(product_dir, sci_1m, filename)
     sci_1p_file = os.path.join(product_dir, sci_1p, filename).replace('1M.root', '1P.root')
     if os.path.isfile(sci_1p_file):
-        if os.stat(sci_1m_file).st_mtime > os.stat(sci_1p_file).st_mtime:
-            if not subprocess.call(['lsof', sci_1m_file], stdout = FNULL, stderr = FNULL) == 0:
-                sci_1m_filelist_update.append(filename)
+        if os.stat(sci_1m_file).st_mtime > os.stat(sci_1p_file).st_mtime and file_is_not_open(sci_1m_file) and file_is_not_open(sci_1p_file):
+            sci_1m_filelist_update.append(filename)
     else:
-        if not subprocess.call(['lsof', sci_1m_file], stdout = FNULL, stderr = FNULL) == 0:
+        if file_is_not_open(sci_1m_file):
             sci_1m_filelist_new.append(filename)
 
 # match sci and aux
@@ -155,7 +159,7 @@ for idx in xrange(len(sci_1m_filelist_all)):
             break
         else:
             break
-    if found_match:
+    if found_match and file_is_not_open(os.path.join(product_dir, aux_1m, aux_1m_filelist[matched_aux_it])):
         sci_aux_1m_pair_all.append((sci_1m_filelist_all[idx], aux_1m_filelist[matched_aux_it]))
     else:
         sci_aux_1m_pair_all.append((sci_1m_filelist_all[idx], 0))
