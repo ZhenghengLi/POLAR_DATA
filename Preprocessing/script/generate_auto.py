@@ -93,7 +93,7 @@ for dirname in args.dirlist:
     # 1M
     for onedate in datelist:
         cur_time = datetime.now().strftime('%Y%m%d%H%M%S')
-        section = ' * 1M * ' + dirname + '/' + onedate + ' ** ' + cur_time + ' * '
+        section = ' ***************** 1M * ' + dirname + '/' + onedate + ' * ' + cur_time + ' ****************** '
         print section + ' processing ... '
         message[dirname] += section + '\n'
         output_file = os.path.join(processlog_dir_date, dirname + '_' + onedate + '_1M_' + cur_time + '.log')
@@ -108,7 +108,7 @@ for dirname in args.dirlist:
             message[dirname] += ' - No new files found.\n'
     # 1P
     cur_time = datetime.now().strftime('%Y%m%d%H%M%S')
-    section = ' * 1P **** ' + cur_time + ' ** '
+    section = ' ***************** 1P * ' + cur_time + ' ********************** '
     print section + ' processing ... '
     message[dirname] += section + '\n'
     output_file = os.path.join(processlog_dir_date, dirname + '_1P_' + cur_time + '.log')
@@ -117,7 +117,6 @@ for dirname in args.dirlist:
         ret_value = subprocess.call([cmd_1p, '--noconfirm', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
     with open(output_file, 'r') as f: print f.read().rstrip('\n')
     if ret_value > 0:
-        total_count[dirname] += ret_value
         with open(output_file, 'r') as f: message[dirname] += f.read()
     else:
         message[dirname] += ' - No new files found.\n'
@@ -126,7 +125,7 @@ for dirname in args.dirlist:
 message_all = ''
 for key in args.dirlist:
     if total_count[key] > 0:
-        message_all += '%' * 10 + ' ' + key + ' ' + '%' * 10 + '\n'
+        message_all += ' ' + '%' * 40 + ' ' + key + ' ' + '%' * 40 + '\n'
         message_all += message[key]
 
 if len(message_all) == 0:
