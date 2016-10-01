@@ -6,9 +6,11 @@ from email.MIMEText import MIMEText
 import argparse
 import subprocess
 import os
+import time
 from datetime import datetime, timedelta
 
 delimeter = " " + "-" * 80
+start_time = time.time()
 
 def send_mail(tolist, subject, message):
     # server setting
@@ -62,6 +64,10 @@ if not os.path.isfile(maillist_file):
 
 # create directory
 time_now = datetime.now()
+
+first_time = " ->>>> process start time: " + time_now.strftime('%Y-%m-%dT%H:%M%S') + " <<<<-"
+print first_time
+
 nowdate = time_now.strftime('%Y%m%d')
 processlog_dir_date = os.path.join(processlog_dir, nowdate)
 if not os.path.isdir(processlog_dir_date): os.mkdir(processlog_dir_date)
@@ -123,14 +129,25 @@ for dirname in args.dirlist:
 
 # save and send message
 message_all = ''
+total_raw = 0
 for key in args.dirlist:
     if total_count[key] > 0:
         message_all += ' ' + '%' * 40 + ' ' + key + ' ' + '%' * 40 + '\n'
         message_all += message[key]
+        total_raw += total_count[key]
 
 if len(message_all) == 0:
-    print " - No new data files found."
+    print " ->>>> No new data files found <<<<-"
     exit(0)
+
+last_line = " ->>>> total " + str(total_raw) + " raw data files processed <<<<-"
+message_all += last_line + '\n'
+print last_line
+last_time = " ->>>> total " + str(time.time() - start_time) + " seconds used <<<<-"
+message_all += last_time + '\n'
+print last_time
+
+message_all = first_time + '\n' + message_all
 
 cur_time = datetime.now().strftime('%Y%m%d%H%M%S')
 message_file = os.path.join(mailmessage_dir_date, 'message' + '_' + cur_time + '.msg')
