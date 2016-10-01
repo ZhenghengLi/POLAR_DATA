@@ -18,7 +18,7 @@ subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
 parser = argparse.ArgumentParser(description='Generate 1M level data from a raw data folder for PSDC')
 parser.add_argument("date", help = "select the date")
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
-parser.add_argument("-t", dest = "type", default = "normal")
+parser.add_argument("-t", dest = "type", default = "manual")
 parser.add_argument("--noconfirm", help = "confirm before process", action="store_true")
 args = parser.parse_args()
 
