@@ -79,8 +79,9 @@ for i, x in enumerate(file_list):
     if i == 0:
         pre_time = cur_time
         continue
-    if (cur_time[0] - pre_time[1]).total_seconds() > 5:
-        print pre_time[1].strftime('%Y-%m-%dT%H:%M:%S') + ' => ' + cur_time[0].strftime('%Y-%m-%dT%H:%M:%S')
+    time_diff_sec = cur_time[0] - pre_time[1]).total_seconds()
+    if time_diff_sec > 5:
+        print pre_time[1].strftime('%Y-%m-%dT%H:%M:%S') + ' => ' + cur_time[0].strftime('%Y-%m-%dT%H:%M:%S') + ' { ' + str(time_diff_sec / 60.0) + ' minutes }'
     pre_time = cur_time
 
 
