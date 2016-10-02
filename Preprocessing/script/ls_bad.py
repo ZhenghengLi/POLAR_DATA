@@ -92,7 +92,7 @@ file_list.sort()
 print " - time bad matched list: "
 for i, x in enumerate(file_list):
     filename_time = calc_time(x)
-    internal_time = read_timespan(os.path.join(data_dir, x), args.type)
+    internal_time = read_timespan(os.path.join(data_dir, x), args.dir)
     begin_diff_sec = (internal_time[0] - filename_time[0]).total_seconds()
     end_diff_sec   = (filename_time[1] - internal_time[1]).total_seconds()
     if abs(begin_diff_sec) > 5 or abs(end_diff_sec) > 5:
