@@ -24,8 +24,8 @@ def aux_1m_read_timespan(filename):
     return m_ibox_gps.GetTitle()
 
 def time_diff(sci_filename, aux_filename):
-    ref_sci = re.compile(r'TS_TG02_POL_POLAR_SCI_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
-    ref_aux = re.compile(r'TS_TG02_POL_POLAR_AUX_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
+    ref_sci = re.compile(r'TS_TG02_POL_POLAR_SCI_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
+    ref_aux = re.compile(r'TS_TG02_POL_POLAR_AUX_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
     sci_begin = None
     sci_end = None
     sci_m = ref_sci.match(sci_filename)
