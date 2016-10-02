@@ -100,7 +100,7 @@ for i, x in enumerate(file_list):
         print x + ' [' + str(os.stat(cur_file).st_size) + ' bytes]'
         print ' > ' + filename_time[0].strftime(timeformat) + '_' + filename_time[1].strftime(timeformat) + ' <=> ' \
                 + internal_time[0].strftime(timeformat) + '_' + internal_time[1].strftime(timeformat) \
-                + ' { ' + str(begin_diff_sec) + ', ' + str(end_diff_sec) + ' } '
+                + ' { ' + str(begin_diff_sec) + ' seconds, ' + str(end_diff_sec) + ' seconds } '
 
 
 
