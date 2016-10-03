@@ -13,10 +13,16 @@ PedMeanCalc::PedMeanCalc() {
     is_all_filled_  = false;
     is_all_fitted_  = false;
     is_all_read_    = false;
+
+    max_bars_ = 64;
 }
 
 PedMeanCalc::~PedMeanCalc() {
     delete_ped_hist();
+}
+
+void PedMeanCalc::set_max_bars(int bars) {
+    max_bars_ = bars;
 }
 
 void PedMeanCalc::fill_ped_data(SciIterator& sciIter, PedDataFile& ped_data_file) {
@@ -33,6 +39,8 @@ void PedMeanCalc::fill_ped_data(SciIterator& sciIter, PedDataFile& ped_data_file
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
+        if (sciIter.t_ped_modules.is_bad > 0 || sciIter.t_ped_modules.multiplicity > max_bars_)
+            continue;
         int idx = sciIter.t_ped_modules.ct_num - 1;
         copy(sciIter.t_ped_modules.energy_adc, sciIter.t_ped_modules.energy_adc + 64,
              ped_data_file.t_ped_data[idx].ped_adc);

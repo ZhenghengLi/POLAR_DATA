@@ -98,6 +98,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -113,6 +125,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         begin_gps = "begin";
     if (end_gps.IsNull())
         end_gps = "end";
+    if (max_bars < 0)
+        max_bars = 64;
     // judge the action
     if (!decoded_data_filename.IsNull() && rw_mode == 'w') {
         action = 1;
@@ -133,7 +147,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <decoded_data_file.root> -F <ped_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
+    cout << "  " << SW_NAME << " <decoded_data_file.root> -F <ped_data_file.root> [-B <week1:second1>] [-E <week2:second2>] [-z <max_bars>]" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -m" << endl;
     cout << "  " << SW_NAME << " -f <ped_data_file.root> -o <ped_vector_file.root>" << endl;
     cout << "  " << SW_NAME << " -p <ped_vector_file.root>" << endl;
@@ -146,6 +160,7 @@ void OptionsManager::print_help() {
     cout << "  -m                               show pedestal mean map of 1600 channels" << endl;
     cout << "  -o <ped_vector.root>             root file to write that stores vectors of pedestal mean and sigma" << endl;
     cout << "  -p <ped_vector.root>             show the mean and sigma values of pedestal vector of each module" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -181,6 +196,7 @@ void OptionsManager::init() {
     show_flag = false;
     rw_mode = '0';
     action = 0;
+    max_bars = -1;
 
     version_flag_ = false;
 }

@@ -38,6 +38,7 @@ int Processor::do_action_1_() {
     }
     sciIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
+    ped_mean_calc_.set_max_bars(cur_options_mgr_->max_bars);
     ped_mean_calc_.fill_ped_data(sciIter_, ped_data_file_);
     ped_data_file_.write_all_tree();
     ped_data_file_.write_meta("m_dattype", "POLAR PEDESTAL DATA", false);

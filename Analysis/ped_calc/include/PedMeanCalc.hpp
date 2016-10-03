@@ -29,6 +29,8 @@ private:
     bool is_all_fitted_;
     bool is_all_read_;
 
+    int max_bars_;
+
 public:
     Float_t mean[25][64];
     Float_t sigma[25][64];
@@ -40,6 +42,7 @@ public:
     ~PedMeanCalc();
 
     // write
+    void set_max_bars(int bars);
     void fill_ped_data(SciIterator& sciIter,
                        PedDataFile& ped_data_file);
 
