@@ -188,7 +188,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-t <Na22|Cs137>] -F <source_data_file.root> [-B <week1:second1>] [-E <week2:second2>]" << endl;
+    cout << " [-t <Na22|Cs137>] -F <source_data_file.root> [-B <week1:second1>] [-E <week2:second2>] [-z <max_bars>]" << endl;
     cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <source_data_file.root> [-s] -m" << endl;
     cout << "  " << SW_NAME << " [-t <Na22|Cs137>] -f <source_data_file.root> -s -o <adc_per_kev_file.root>" << endl;
     cout << "  " << SW_NAME << " -c <adc_per_kev_file.root>" << endl;
@@ -205,6 +205,7 @@ void OptionsManager::print_help() {
     cout << "  -m                               show count rate and compton edge of 1600 channels" << endl;
     cout << "  -o <adc_per_kev.root>            root file to write that stores ADC/KeV vector of all modules" << endl;
     cout << "  -c <adc_per_kev.root>            show the ADC/KeV vector of all modules" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
