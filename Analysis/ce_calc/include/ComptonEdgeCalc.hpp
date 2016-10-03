@@ -98,6 +98,8 @@ private:
 
     string source_type_; // "Na22" | "Cs137"
 
+    int max_bars_;
+
 public:
     Double_t erfc_p[25][64][4];
     Float_t  adc_per_kev[25][64];
@@ -117,6 +119,7 @@ public:
     void set_source_type(string type_str);
     
     // write
+    void set_max_bars(int bars);
     void fill_source_data(EventIterator& eventIter,
                           SourceDataFile& source_data_file);
     bool write_adc_per_kev_vector(const char* filename,

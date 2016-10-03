@@ -48,6 +48,7 @@ int Processor::do_action_1_() {
     }
     eventIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
+    compton_edge_calc_.set_max_bars(cur_options_mgr_->max_bars);
     compton_edge_calc_.fill_source_data(eventIter_, source_data_file_);
     source_data_file_.write_all_tree();
     source_data_file_.write_meta("m_dattype", "POLAR SOURCE EVENT DATA", false);

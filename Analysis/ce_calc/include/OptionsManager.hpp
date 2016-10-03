@@ -26,6 +26,7 @@ public:
     bool    show_flag;
     char    rw_mode;
     int     action;
+    int     max_bars;
     
 public:
     OptionsManager();

@@ -39,6 +39,8 @@ ComptonEdgeCalc::ComptonEdgeCalc() {
     energy_adc_vector_.ResizeTo(64);
 
     source_type_ = "Na22";
+
+    max_bars_ = 64;
     
 }
 
@@ -101,6 +103,10 @@ bool ComptonEdgeCalc::gen_energy_adc_vector_(EventIterator& eventIter) {
     return true;
 }
 
+void ComptonEdgeCalc::set_max_bars(int bars) {
+    max_bars_ = bars;
+}
+
 void ComptonEdgeCalc::fill_source_data(EventIterator& eventIter,
                                        SourceDataFile& source_data_file) {
     if (source_data_file.get_mode() != 'w')
@@ -123,7 +129,7 @@ void ComptonEdgeCalc::fill_source_data(EventIterator& eventIter,
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
+        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0 || eventIter.t_trigger.trigger_n > max_bars_) {
             continue;
         }
         overflow_flag = false;

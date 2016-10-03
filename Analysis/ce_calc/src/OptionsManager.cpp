@@ -131,6 +131,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -146,6 +158,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         begin_gps = "begin";
     if (end_gps.IsNull())
         end_gps = "end";
+    if (max_bars < 0)
+        max_bars = 64;
     if (source_type.IsNull())
         source_type = "Na22";
     if (source_type != "Na22" && source_type != "Cs137")
@@ -221,6 +235,7 @@ void OptionsManager::init() {
     show_flag = false;
     rw_mode = '0';
     action = 0;
+    max_bars = -1;
 
     version_flag_ = false;
 }
