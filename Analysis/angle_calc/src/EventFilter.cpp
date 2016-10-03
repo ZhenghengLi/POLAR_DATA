@@ -4,6 +4,7 @@ using namespace std;
 
 EventFilter::EventFilter() {
     low_energy_thr_ = 0;
+    max_bars_ = 64;
 }
 
 EventFilter::~EventFilter() {
@@ -107,6 +108,8 @@ bool EventFilter::check(const RecEventDataFile::RecEvent_T& rec_event) {
         return false;
     if (second_bar.dep < low_energy_thr_)
         return false;
+    if (rec_event.trigger_n > max_bars_)
+        return false;
     if (check_na22_event_())
         return false;
     
@@ -115,4 +118,8 @@ bool EventFilter::check(const RecEventDataFile::RecEvent_T& rec_event) {
 
 void EventFilter::set_low_energy_thr(float energy) {
     low_energy_thr_ = energy;
+}
+
+void EventFilter::set_max_bars(int bars) {
+    max_bars_ = bars;
 }

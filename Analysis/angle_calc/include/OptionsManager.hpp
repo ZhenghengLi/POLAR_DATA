@@ -19,6 +19,7 @@ public:
     char    rw_mode;
     int     action;
     float   low_energy_thr;
+    int     max_bars;
     
 public:
     OptionsManager();

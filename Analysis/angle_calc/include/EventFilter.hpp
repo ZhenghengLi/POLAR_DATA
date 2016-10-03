@@ -15,6 +15,7 @@ using namespace std;
 class EventFilter {
 private:
     float low_energy_thr_;
+    int   max_bars_;
     
 public:
     
@@ -44,6 +45,7 @@ public:
     bool check(const RecEventDataFile::RecEvent_T& rec_event);
 
     void set_low_energy_thr(float energy);
+    void set_max_bars(int bars);
     
 };
 

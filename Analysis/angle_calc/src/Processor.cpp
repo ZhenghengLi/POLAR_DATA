@@ -32,6 +32,7 @@ int Processor::do_action_1_() {
         return 1;
     }
     event_filter_.set_low_energy_thr(cur_options_mgr_->low_energy_thr);
+    event_filter_.set_max_bars(cur_options_mgr_->max_bars);
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "Calculating Scattering Angle ..." << endl;

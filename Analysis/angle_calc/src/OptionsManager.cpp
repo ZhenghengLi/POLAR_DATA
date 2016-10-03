@@ -67,6 +67,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'm':
                 show_flag = true;
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -80,6 +92,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     }
     if (low_energy_thr < 0) {
         low_energy_thr = 0;
+    }
+    if (max_bars < 0) {
+        max_bars = 64;
     }
     // judge the action
     if (!rec_event_data_filename.IsNull() && rw_mode == 'w') {
@@ -95,7 +110,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <rec_event_data_file.root> -F <angle_data_file.root> [-h <low_erg_thr>]" << endl;
+    cout << "  " << SW_NAME << " <rec_event_data_file.root> -F <angle_data_file.root> [-h <low_erg_thr>] [-z <max_bars>]" << endl;
     cout << "  " << SW_NAME << " -f <angle_data_file.root> -m" << endl;
     cout << endl;
     cout << "Options:" << endl;
@@ -103,6 +118,7 @@ void OptionsManager::print_help() {
     cout << "  -f <angle_data.root>             root file to read that stores scattering angle data" << endl;
     cout << "  -h <log_erg_thr>                 set the low energy threshold " << endl;
     cout << "  -m                               show hit map and modulation curve" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -129,6 +145,7 @@ void OptionsManager::init() {
     rw_mode = '0';
     action = 0;
     low_energy_thr = -1;
+    max_bars = -1;
 
     version_flag_ = false;
 }
