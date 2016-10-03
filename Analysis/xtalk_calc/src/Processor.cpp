@@ -42,6 +42,7 @@ int Processor::do_action_1_() {
     }
     sciIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
+    xtalk_matrix_calc_.set_max_bars(cur_options_mgr_->max_bars);
     xtalk_matrix_calc_.fill_xtalk_data(sciIter_, xtalk_data_file_);
     xtalk_data_file_.write_all_tree();
     xtalk_data_file_.write_meta("m_dattype", "POLAR CROSSTALK DATA", false);

@@ -32,7 +32,7 @@ XtalkMatrixCalc::XtalkMatrixCalc() {
         xtalk_matrix_inv[i].ResizeTo(64, 64);
     }
     energy_adc_vector_.ResizeTo(64);
-    
+    max_bars_ = 64;
 }
 
 XtalkMatrixCalc::~XtalkMatrixCalc() {
@@ -78,6 +78,10 @@ bool XtalkMatrixCalc::gen_energy_adc_vector_(SciIterator& sciIter) {
     return true;
 }
 
+void XtalkMatrixCalc::set_max_bars(int bars) {
+    max_bars_ = bars;
+}
+
 void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk_data_file) {
     if (xtalk_data_file.get_mode() != 'w')
         return;
@@ -95,6 +99,8 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
+        if (sciIter.t_modules.is_bad > 0 || sciIter.t_modules.multiplicity > max_bars_)
+            continue;
         if (sciIter.t_modules.compress == 1)
             continue;
         if (!gen_energy_adc_vector_(sciIter))

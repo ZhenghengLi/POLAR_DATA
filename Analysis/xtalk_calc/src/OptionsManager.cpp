@@ -120,6 +120,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -135,6 +147,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         begin_gps = "begin";
     if (end_gps.IsNull())
         end_gps = "end";
+    if (max_bars < 0)
+        max_bars = 64;
     // judge the action
     if (!ped_vector_filename.IsNull() && !decoded_data_filename.IsNull() && rw_mode == 'w') {
         action = 1;
@@ -159,7 +173,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-B <week1:second1>] [-E <week2:second2>]" << endl;
+    cout << " [-B <week1:second1>] [-E <week2:second2>] [-z <max_bars>]" << endl;
     cout << "  " << SW_NAME << " -f <xtalk_data_file.root> -n <ct_num> -m" << endl;
     cout << "  " << SW_NAME << " -f <xtalk_data_file.root> -o <xtalk_matrix_file.root>" << endl;
     cout << "  " << SW_NAME << " -x <xtalk_matrix_file.root>" << endl;
@@ -174,6 +188,7 @@ void OptionsManager::print_help() {
     cout << "  -m                               show crosstalk matrix map of one module" << endl;
     cout << "  -o <xtalk_matrix.root>           root file to write that stores matrixes of all modules" << endl;
     cout << "  -x <xtalk_matrix.root>           show the crosstalk matrix map of all modules" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -203,6 +218,7 @@ void OptionsManager::init() {
     rw_mode = '0';
     action = 0;
     ct_num = 0;
+    max_bars = -1;
 
     version_flag_ = false;
 }

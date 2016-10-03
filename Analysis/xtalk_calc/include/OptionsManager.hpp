@@ -24,6 +24,7 @@ public:
     char    rw_mode;
     int     action;
     int     ct_num;
+    int     max_bars;
     
 public:
     OptionsManager();

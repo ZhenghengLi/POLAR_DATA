@@ -38,6 +38,8 @@ private:
     char name_[80];
     char title_[80];
 
+    int max_bars_;
+
 public:
     TMatrixF xtalk_matrix[25];
     TMatrixF xtalk_matrix_inv[25];
@@ -50,6 +52,7 @@ public:
     ~XtalkMatrixCalc();
 
     // write
+    void set_max_bars(int bars);
     void fill_xtalk_data(SciIterator& sciIter,
                          XtalkDataFile& xtalk_data_file);
     bool write_xtalk_matrix(const char* filename,
