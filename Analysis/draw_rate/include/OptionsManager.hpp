@@ -20,6 +20,7 @@ public:
     double  binwidth;
     int     phase;
     bool    tout1_flag;
+    int     max_bars;
     
 public:
     OptionsManager();

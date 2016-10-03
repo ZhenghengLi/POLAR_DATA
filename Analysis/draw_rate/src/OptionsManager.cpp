@@ -83,6 +83,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'm':
                 tout1_flag = true;
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -100,6 +112,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         begin_gps = "begin";
     if (end_gps.IsNull())
         end_gps = "end";
+    if (max_bars < 0)
+        max_bars = 4;
     if (binwidth <= 0)
         binwidth = 1.0;
     if (phase != 0 && phase != 1 && phase != 2 && phase != 3) {
@@ -114,7 +128,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>]" << endl;
+    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>] [-z <max_bars>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -124,6 +138,7 @@ void OptionsManager::print_help() {
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
     cout << "  -o                               output rate hist to a root file" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic, default is 4" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -150,6 +165,7 @@ void OptionsManager::init() {
     binwidth = -1;
     phase = -1;
     tout1_flag = false;
+    max_bars = -1;
 
     version_flag_ = false;
 }
