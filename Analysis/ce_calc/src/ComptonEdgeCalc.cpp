@@ -129,7 +129,7 @@ void ComptonEdgeCalc::fill_source_data(EventIterator& eventIter,
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0 || eventIter.t_trigger.trigger_n > max_bars_) {
+        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
             continue;
         }
         overflow_flag = false;
@@ -350,6 +350,9 @@ void ComptonEdgeCalc::fill_spec_hist(SourceDataFile& source_data_file) {
     priority_queue<Bar> bar_queue;
     source_data_file.event_set_start();
     while (source_data_file.event_next()) {
+        if (source_data_file.t_source_event.trigger_n > max_bars_) {
+            continue;
+        }
         while (!bar_queue.empty()) {
             bar_queue.pop();
         }

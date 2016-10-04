@@ -48,7 +48,6 @@ int Processor::do_action_1_() {
     }
     eventIter_.print_file_info();
     cout << "----------------------------------------------------------" << endl;
-    compton_edge_calc_.set_max_bars(cur_options_mgr_->max_bars);
     compton_edge_calc_.fill_source_data(eventIter_, source_data_file_);
     source_data_file_.write_all_tree();
     source_data_file_.write_meta("m_dattype", "POLAR SOURCE EVENT DATA", false);
@@ -70,6 +69,7 @@ int Processor::do_action_2_() {
     }
     compton_edge_calc_.create_spec_hist();
     cout << "Filling spectrum histogram ..." << endl;
+    compton_edge_calc_.set_max_bars(cur_options_mgr_->max_bars);
     compton_edge_calc_.fill_spec_hist(source_data_file_);
     if (cur_options_mgr_->fit_flag) {
         cout << "Fitting spectrum histogram ..." << endl;
