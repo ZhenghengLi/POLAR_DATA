@@ -312,6 +312,7 @@ void ComptonEdgeCalc::create_spec_hist() {
             spec_func_[i][j] = new TF1(Form("spec_func_%02d_%02d", i + 1, j + 1),
                                        "[0]+[1]*TMath::Erfc((x-[2])/[3])", FUNC_MIN, FUNC_MAX);
             spec_func_[i][j]->SetParName(2, "CE");
+			spec_func_[i][j]->SetParLimits(2, FUNC_MIN, FUNC_MAX);
             spec_func_[i][j]->SetParName(3, "Sigma");
         }
     }
@@ -390,6 +391,7 @@ void ComptonEdgeCalc::fit_spec_hist() {
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             // fit 1 => 1700 500
+			spec_func_[i][j]->SetParLimits(0, 0, spec_hist_[i][j]->GetEntries());
             spec_func_[i][j]->SetParameters(5, 50, 1700, 500);
             spec_hist_[i][j]->Fit(spec_func_[i][j], "RNQ");
             spec_func_[i][j]->GetParameters(erfc_p[i][j]);

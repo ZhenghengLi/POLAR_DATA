@@ -13,8 +13,8 @@
 #include "Constants.hpp"
 
 #define SPEC_BINS 64
-#define FUNC_MIN  512
-#define FUNC_MAX  (4096 - 256)
+#define FUNC_MIN  800
+#define FUNC_MAX  4096
 
 using namespace std;
 
