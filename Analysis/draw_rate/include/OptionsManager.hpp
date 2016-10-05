@@ -21,6 +21,7 @@ public:
     int     phase;
     bool    tout1_flag;
     int     max_bars;
+    int     min_bars;
     
 public:
     OptionsManager();

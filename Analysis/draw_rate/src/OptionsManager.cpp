@@ -95,6 +95,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'y':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        min_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -114,6 +126,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         end_gps = "end";
     if (max_bars < 0)
         max_bars = 4;
+    if (min_bars < 0)
+        min_bars = 0;
+    if (max_bars < min_bars)
+        return false;
     if (binwidth <= 0)
         binwidth = 1.0;
     if (phase != 0 && phase != 1 && phase != 2 && phase != 3) {
@@ -138,7 +154,8 @@ void OptionsManager::print_help() {
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
     cout << "  -o                               output rate hist to a root file" << endl;
-    cout << "  -z <max_bars>                    number of bars to cut for cosmic, default is 4" << endl;
+    cout << "  -z <max_bars>                    number of bars to cut for cosmic, default is 5" << endl;
+    cout << "  -y <min_bars>                    number of bars to cut for cosmic, default is 0" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -166,6 +183,7 @@ void OptionsManager::init() {
     phase = -1;
     tout1_flag = false;
     max_bars = -1;
+    min_bars = -1;
 
     version_flag_ = false;
 }

@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
-        if (eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
+        if (eventIter.t_trigger.trigger_n < options_mgr.min_bars || eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
             continue;
         }
         trigger_hist->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
