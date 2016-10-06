@@ -53,6 +53,9 @@ private:
 public:
     RecEvent_T t_rec_event;
 
+	RecEvent_T begin_rec_event;
+	RecEvent_T end_rec_event;
+
     bool is_first_two_ready;
     Bar  first_bar;
     Pos  first_pos;
