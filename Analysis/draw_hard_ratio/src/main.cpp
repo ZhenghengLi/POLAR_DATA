@@ -28,11 +28,8 @@ int main(int argc, char** argv) {
 	}
 
 	recEventIter.print_file_info();
-
     TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
 
-	TH1F* energy_hist = new TH1F("energy_hist", "Deposited Energy Spectrum", NBINS, MIN_ENERGY, MAX_ENERGY);
-	energy_hist->SetDirectory(NULL);
 
 	int pre_percent = 0;
 	int cur_percent = 0;
@@ -59,21 +56,6 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
-		if (options_mgr.na22_flag) {
-			if (recEventIter.t_rec_event.trigger_n < options_mgr.min_bars || recEventIter.t_rec_event.trigger_n > options_mgr.max_bars)
-				continue;
-			if (recEventIter.find_first_two_bars() && recEventIter.cur_is_na22()) {
-				energy_hist->Fill(dep_erg_sum);
-			}
-		} else {
-			if (recEventIter.t_rec_event.trigger_n < options_mgr.min_bars || recEventIter.t_rec_event.trigger_n > options_mgr.max_bars)
-				continue;
-			if (recEventIter.find_first_two_bars() && recEventIter.cur_is_na22()) {
-				continue;
-			} else {
-				energy_hist->Fill(dep_erg_sum);
-			}
-		}
 	}
 	cout << " DONE ]" << endl;
 	recEventIter.close();
@@ -81,7 +63,6 @@ int main(int argc, char** argv) {
 	// draw
 	CommonCanvas commonCanvas;
 	commonCanvas.cd_spec();
-	energy_hist->Draw("EH");
 
 	rootapp->Run();
     return 0;
