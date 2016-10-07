@@ -26,13 +26,14 @@ public: // slots
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
 	TCanvas* canvas_spec_;
+	TCanvas* canvas_ratio_;
 #endif /* __ROOTCLING__ || __CINT __ */
     
 public:
     CommonCanvas();
     virtual ~CommonCanvas();
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-	void cd_spec();
+	void cd_spec(int i);
 #endif /* __ROOTCLING__ || __CINT __ */
     
 };

@@ -19,11 +19,13 @@ void CommonCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selec
 
 }
 
-void CommonCanvas::cd_spec() {
+void CommonCanvas::cd_spec(int i) {
 	canvas_spec_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_spec"));
 	if (canvas_spec_ == NULL) {
 		canvas_spec_ = new TCanvas("canvas_spec", "deposited energy spectrum", 800, 600);
+		canvas_spec_->Divide(1, 2);
 		canvas_spec_->Connect("Closed()", "CommonCanvas", this, "CloseWindow()");
 	}
-	canvas_spec_->cd();
+	canvas_spec_->cd(i);
 }
+

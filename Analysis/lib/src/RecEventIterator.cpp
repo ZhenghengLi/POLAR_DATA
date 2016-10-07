@@ -224,6 +224,7 @@ bool RecEventIterator::open(const char* filename, const char* gps_begin, const c
 		if (t_rec_event.abs_gps_valid) {
 			found_valid = true;
 			begin_rec_event = t_rec_event;
+			break;
 		}
 	}
 	if (!found_valid) {
@@ -236,6 +237,7 @@ bool RecEventIterator::open(const char* filename, const char* gps_begin, const c
 		if (t_rec_event.abs_gps_valid) {
 			found_valid = true;
 			end_rec_event = t_rec_event;
+			break;
 		}
 	}
 	if (!found_valid) {
