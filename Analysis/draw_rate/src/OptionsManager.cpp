@@ -144,7 +144,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>] [-z <max_bars>]" << endl;
+    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>] -y [min_bars] [-z <max_bars>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -154,8 +154,8 @@ void OptionsManager::print_help() {
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
     cout << "  -o                               output rate hist to a root file" << endl;
-    cout << "  -z <max_bars>                    number of bars to cut for cosmic, default is 4" << endl;
-    cout << "  -y <min_bars>                    number of bars to cut for cosmic, default is 0" << endl;
+    cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
+    cout << "  -z <max_bars>                    maximum number of bars to cut, default is 4" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
