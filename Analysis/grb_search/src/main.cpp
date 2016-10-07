@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
-        if (eventIter.t_trigger.trigger_n > 4) {
+        if (eventIter.t_trigger.trigger_n < options_mgr.min_bars || eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
             continue;
         }
         for (int i = 0; i <= options_mgr.bw_len; i++) {

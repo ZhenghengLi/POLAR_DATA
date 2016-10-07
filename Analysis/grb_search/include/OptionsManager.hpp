@@ -23,6 +23,8 @@ public:
     double  min_prob;                         // -p
     int     bkg_distance;                     // -d
     int     bkg_nbins;                        // -m
+    int     min_bars;                         // -y
+    int     max_bars;                         // -z
 
     
 public:

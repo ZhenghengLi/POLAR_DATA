@@ -128,6 +128,30 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'z':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        max_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            case 'y':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        min_bars = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -180,7 +204,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-a <bw_start>] [-b <bw_stop>] [-n <bw_len>] [-p <min_prob>]" << endl;
+    cout << " [-a <bw_start>] [-b <bw_stop>] [-n <bw_len>] [-p <min_prob>] [-y <min_bars>] [-z <max_bars>]" << endl;
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
@@ -196,6 +220,8 @@ void OptionsManager::print_help() {
     cout << "  -d bkg_distance                  background distance to select" << endl;
     cout << "  -m bkg_nbins                     number of bins to select for background" << endl;
     cout << "  -o filename.pdf                  output pdf filename" << endl;
+    cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
+    cout << "  -z <max_bars>                    maximum number of bars to cut, default is 4" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -226,6 +252,8 @@ void OptionsManager::init() {
     min_prob = -1;
     bkg_distance = -1;
     bkg_nbins = -1;
+    min_bars = 0;
+    max_bars = 4;
 
     version_flag_ = false;
 }
