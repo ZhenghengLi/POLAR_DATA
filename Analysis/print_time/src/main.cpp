@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
             continue;
         }
 		double cur_seconds = (eventIter.t_trigger.abs_gps_week - GPSStartWeek) * 604800 + (eventIter.t_trigger.abs_gps_second - GPSStartSecond);
-		outfile << lexical_cast<string>(cur_seconds) << ", " << eventIter.t_trigger.type << ", " << eventIter.t_trigger.trigger_n << endl;
+		outfile << lexical_cast<string>(cur_seconds) << " " << eventIter.t_trigger.type << " " << eventIter.t_trigger.trigger_n << endl;
     }
     cout << " DONE ]" << endl;
     eventIter.close();
