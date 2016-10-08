@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
 
 	ofstream outfile;
 	outfile.open(options_mgr.output_filename.Data());
-	outfile << "utc_time_second, type, trigger_n" << endl;
 
     int pre_percent = 0;
     int cur_percent = 0;
