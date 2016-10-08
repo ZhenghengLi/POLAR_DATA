@@ -61,7 +61,7 @@ for i in tqdm(xrange(ppd_file_r_obj.begin_entry, ppd_file_r_obj.end_entry)):
     utc = datetime.strptime(str(ppd_file_r_obj.t_tree_ppd.utc_time_str), time_fmt_in).strftime(time_fmt_out)
     ra, dec = _wgs84_to_j2000(wgs84_xyz, utc)
     j2000_xyz = _radec_to_j2000xyz(ra, dec, ppd_file_r_obj.t_tree_ppd.geocentric_d)
-    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + '\n')
+    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_dec) + '\n')
 
 fout.close()
 
