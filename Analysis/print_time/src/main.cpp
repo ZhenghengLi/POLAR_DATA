@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        if (!eventIter.t_trigger.abs_gps_valid) {
+        if (eventIter.t_trigger.abs_gps_week < 0) {
             continue;
         }
 		double cur_seconds = (eventIter.t_trigger.abs_gps_week - GPSStartWeek) * 604800 + (eventIter.t_trigger.abs_gps_second - GPSStartSecond);
