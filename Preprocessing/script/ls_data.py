@@ -7,7 +7,7 @@ from rootpy import ROOT
 from rootpy.io import File
 
 delimeter = " " + "-" * 80
-leapsecond = 17
+leapsecond = 18
 
 tnamed_dict = {'SCI_1P':'m_ped_gps', 'SCI_1M':'m_ped_gps_frm', 'AUX_1M':'m_ibox_gps', 'PPD_1M':'m_utc_span'}
 leap_seconds_dict = {'SCI_1P':leapsecond, 'SCI_1M':leapsecond, 'AUX_1M':leapsecond, 'PPD_1M':-3}
