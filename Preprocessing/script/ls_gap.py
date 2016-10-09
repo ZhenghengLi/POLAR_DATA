@@ -74,10 +74,13 @@ if len(file_list) < 2:
 file_list.sort()
 print " - time gap list: "
 pre_time = None
+first_time = None
+last_time = None
 for i, x in enumerate(file_list):
     cur_time = calc_time(x)
     if i == 0:
         pre_time = cur_time
+        first_time = cur_time
         continue
     if pre_time[1] > cur_time[1]:
         continue
@@ -85,5 +88,9 @@ for i, x in enumerate(file_list):
     if time_diff_sec > 5:
         print pre_time[1].strftime(timeformat) + ' => ' + cur_time[0].strftime(timeformat) + ' { ' + str(time_diff_sec / 60.0) + ' minutes }'
     pre_time = cur_time
+    last_time = cur_time
+
+print ' - time span: '
+print first_time[0].strftime(timeformat) + ' => ' + last_time[1].strftime(timeformat)
 
 
