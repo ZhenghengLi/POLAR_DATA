@@ -14,7 +14,7 @@ parser.add_argument("--to", dest = "timeto", default = '20300901000000')
 parser.add_argument("--type", dest = "type", default = 'normal')
 args = parser.parse_args()
 
-if args.dir not in ['SCI_1M', 'AUX_1M', 'PPD_1M']:
+if args.dir not in ['SCI_1M', 'AUX_1M', 'PPD_1M', 'SCI_1P']:
     print 'illegal dir'
     exit(1)
 
@@ -49,9 +49,9 @@ print delimeter
 ref_filename = None
 
 if args.type in ['normal']:
-    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
+    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P].root')
 else:
-    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1M.root')
+    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P].root')
 
 all_file_list = [x for x in os.listdir(data_dir) if ref_filename.match(x)]
 
