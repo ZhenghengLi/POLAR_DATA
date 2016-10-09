@@ -11,7 +11,7 @@ all:
 	done
 
 clean: bin_clean
-	for x in $(GOAL);do\
+	for x in $(GOAL); do\
 		cd $$x && $(MAKE) clean && cd ..;\
 	done
 
