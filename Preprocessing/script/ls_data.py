@@ -97,12 +97,6 @@ for i, x in enumerate(file_list):
     internal_time = read_timespan(cur_file, args.dir)
     begin_diff_sec = (internal_time[0] - filename_time[0]).total_seconds()
     end_diff_sec   = (filename_time[1] - internal_time[1]).total_seconds()
-    if abs(begin_diff_sec) > 5 or abs(end_diff_sec) > 5:
-        print re.sub('_1[M|P].root', '_0B.dat', x)
-        print ' > ' + filename_time[0].strftime(timeformat) + '_' + filename_time[1].strftime(timeformat) + ' <=> ' \
-                + internal_time[0].strftime(timeformat) + '_' + internal_time[1].strftime(timeformat) \
-                + ' { ' + str(begin_diff_sec) + ' seconds, ' + str(end_diff_sec) + ' seconds } '
-
-
+    print x + ' { ' + str(begin_diff_sec) + ' seconds, ' + str(end_diff_sec) + ' seconds } total: ' + str((internal_time[1] - internal_time[0]).total_seconds() / 3600) + ' hours'
 
 
