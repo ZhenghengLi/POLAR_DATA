@@ -90,7 +90,7 @@ if len(file_list) < 2:
     exit(0)
 
 file_list.sort()
-print " - time bad matched list: "
+print " - data file list: "
 for i, x in enumerate(file_list):
     cur_file = os.path.join(data_dir, x)
     filename_time = calc_time(x)
