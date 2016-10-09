@@ -81,7 +81,7 @@ stop_time  = datetime.strptime(args.timeto, timeformat)
 file_list = []
 for x in all_file_list:
     begin_time, end_time = calc_time(x)
-    if begin_time >= start_time and end_time <= stop_time:
+    if end_time >= start_time and begin_time <= stop_time:
         file_list.append(x)
 
 if len(file_list) < 2:
