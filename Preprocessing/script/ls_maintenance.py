@@ -4,6 +4,7 @@ import argparse
 import os, re, time
 from datetime import datetime, timedelta
 from split_time import find_maintenance
+from time_conv import gps_to_beijing
 
 delimeter = " " + "-" * 80
 
@@ -85,6 +86,9 @@ print "list of maintenance: "
 for x in file_list_no_overlap:
     cur_maintenance = find_maintenance(os.path.join(data_dir, x))
     if len(cur_maintenance) < 1: continue
+    cur_beijing_time = []
+    for y in cur_maintenance:
+        cur_beijing_time.append(gps_to_beijing(y[1]))
     print ' - ' + x
-    print ' > ' + str(find_maintenance(os.path.join(data_dir, x)))
+    print ' > ' + str(cur_maintenance) + ' <=> ' + str(cur_beijing_time)
 
