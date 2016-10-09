@@ -3,6 +3,7 @@
 import argparse
 import os, re, time
 from datetime import datetime, timedelta
+from split_time import find_maintenance
 
 delimeter = " " + "-" * 80
 
@@ -78,5 +79,12 @@ for i, x in enumerate(file_list):
         continue
     else:
         file_list_no_overlap.append(x)
+        pre_time = cur_time
 
+print "list of maintenance: "
+for x in file_list_no_overlap:
+    cur_maintenance = find_maintenance(os.path.join(data_dir, x))
+    if len(cur_maintenance) < 1: continue
+    print ' - ' + x
+    print ' > ' + str(find_maintenance(os.path.join(data_dir, x)))
 
