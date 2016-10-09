@@ -7,9 +7,10 @@ from rootpy import ROOT
 from rootpy.io import File
 
 delimeter = " " + "-" * 80
+leapsecond = 17
 
-tnamed_dict = {'SCI_1M':'m_ped_gps_frm', 'AUX_1M':'m_ibox_gps', 'PPD_1M':'m_utc_span'}
-leap_seconds_dict = {'SCI_1M':17, 'AUX_1M':17, 'PPD_1M':0}
+tnamed_dict = {'SCI_1P':'m_ped_gps', 'SCI_1M':'m_ped_gps_frm', 'AUX_1M':'m_ibox_gps', 'PPD_1M':'m_utc_span'}
+leap_seconds_dict = {'SCI_1P':leapsecond, 'SCI_1M':leapsecond, 'AUX_1M':leapsecond, 'PPD_1M':0}
 ref_time = re.compile(r'(\d+):(\d+)\[\d+\] => (\d+):(\d+)\[\d+\].*')
 
 def read_timespan(filename, dat_type):
@@ -31,7 +32,7 @@ parser.add_argument("--to", dest = "timeto", default = '20300901000000')
 parser.add_argument("--type", dest = "type", default = 'normal')
 args = parser.parse_args()
 
-if args.dir not in ['SCI_1M', 'AUX_1M', 'PPD_1M']:
+if args.dir not in ['SCI_1P', 'SCI_1M', 'AUX_1M', 'PPD_1M']:
     print 'illegal dir'
     exit(1)
 
@@ -66,9 +67,9 @@ print delimeter
 ref_filename = None
 
 if args.type in ['normal']:
-    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M.root')
+    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P].root')
 else:
-    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1M.root')
+    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P].root')
 
 all_file_list = [x for x in os.listdir(data_dir) if ref_filename.match(x)]
 
