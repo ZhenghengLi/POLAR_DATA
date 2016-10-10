@@ -252,6 +252,16 @@ int main(int argc, char** argv) {
         }
         rate_canvas.cd_ch_map(1);
         ch_rate_map->Draw("COLZ");
+		TLine* line_h_[4];
+		TLine* line_v_[4];
+		for (int i = 0; i < 4; i++) {
+			line_h_[i] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
+			line_h_[i]->SetLineColor(kWhite);
+			line_h_[i]->Draw("SAME");
+			line_v_[i] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
+			line_v_[i]->SetLineColor(kWhite);
+			line_v_[i]->Draw("SAME");
+		}
         rate_canvas.cd_ch_map(2);
         ch_rate_map->Draw("LEGO2");
     }
