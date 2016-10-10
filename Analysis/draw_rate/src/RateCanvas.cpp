@@ -64,6 +64,17 @@ void RateCanvas::cd_modules_tout1(int i) {
     canvas_modules_tout1_->cd(itoc(i));
 }
 
+void RateCanvas::cd_ch_map(int i) {
+	canvas_ch_map_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_ch_map"));
+	if (canvas_ch_map_ == NULL) {
+		canvas_ch_map_ = new TCanvas("canvas_ch_map", "Mean rate of 1600 channels", 1600, 800);
+		canvas_ch_map_->Divide(2, 1);
+		canvas_ch_map_->GetPad(1)->SetGrid();
+		canvas_ch_map_->GetPad(2)->SetGrid();
+	}
+	canvas_ch_map_->cd(i);
+}
+
 void RateCanvas::draw_hist_int(TH1D* hist_int) {
     if (cur_hist_int_ != NULL)
         return;

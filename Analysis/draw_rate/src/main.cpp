@@ -3,6 +3,7 @@
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
 #include "RateCanvas.hpp"
+#include "CooConv.hpp"
 
 using namespace std;
 
@@ -93,7 +94,21 @@ int main(int argc, char** argv) {
         modules_hist_tout1[i]->GetXaxis()->SetTitle("T-T0 (s)");
         modules_hist_tout1[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
     }
-    
+    TH2D* ch_rate_map = new TH2D("ch_rate_map", "Mean rate of 1600 channels", 40, 0, 40, 40, 0, 40);
+    ch_rate_map->SetDirectory(NULL);
+    ch_rate_map->GetXaxis()->SetNdivisions(40);
+    ch_rate_map->GetYaxis()->SetNdivisions(40);
+    for (int i = 0; i < 40; i++) {
+        if (i % 8 == 0) {
+            ch_rate_map->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            ch_rate_map->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+        }
+    }
+
+    double pre_second = 0;
+    double cur_second = 0;
+    double total_valid_second = 0;
+
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "reading trigger data ... " << endl;
@@ -111,12 +126,12 @@ int main(int argc, char** argv) {
         if (eventIter.t_trigger.trigger_n < options_mgr.min_bars || eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
             continue;
         }
-        trigger_hist->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
-                           (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+        cur_second = (eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 + 
+            (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second);
+        trigger_hist->Fill(cur_second);
         for (int i = 0; i < 25; i++) {
             if (eventIter.t_trigger.trig_accepted[i]) {
-                modules_hist[i]->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
-                                      (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+                modules_hist[i]->Fill(cur_second);
             }
         }
         if (!options_mgr.tout1_flag) {
@@ -124,16 +139,26 @@ int main(int argc, char** argv) {
         }
         for (int i = 0; i < 25; i++) {
             if (eventIter.t_trigger.trig_accepted[i]) {
-                modules_hist_tout1[i]->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
-                                            (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+                modules_hist_tout1[i]->Fill(cur_second);
             }
         }
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
             for (int i = 0; i < eventIter.t_modules.raw_rate; i++) {
-                modules_hist_tout1[idx]->Fill((eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
-                                              (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second));
+                modules_hist_tout1[idx]->Fill(cur_second);
             }
+            for (int j = 0; j < 64; j++) {
+                if (eventIter.t_modules.trigger_bit[j]) {
+                    double cur_bin_content = ch_rate_map->GetBinContent(ijtox(idx, j) + 1, ijtoy(idx, j) + 1);
+                    ch_rate_map->SetBinContent(ijtox(idx, j) + 1, ijtoy(idx, j) + 1, cur_bin_content + 1);
+                }
+            }
+        }
+        if (cur_second - pre_second > 1.0) {
+            if (cur_second - pre_second < 3.0) {
+                total_valid_second += cur_second - pre_second;
+            }
+            pre_second = cur_second;
         }
     }
     cout << " DONE ]" << endl;
@@ -219,6 +244,16 @@ int main(int argc, char** argv) {
             rate_canvas.cd_modules_tout1(i);
             modules_hist_tout1[i]->Draw("EH");
         }
+        for (int i = 0; i < 25; i++) {
+            for (int j = 0; j < 64; j++) {
+                double cur_bin_content = ch_rate_map->GetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1); 
+                ch_rate_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, cur_bin_content / total_valid_second); 
+            }   
+        }
+        rate_canvas.cd_ch_map(1);
+        ch_rate_map->Draw("COLZ");
+        rate_canvas.cd_ch_map(2);
+        ch_rate_map->Draw("LEGO2");
     }
 
     rate_canvas.cd_trigger();

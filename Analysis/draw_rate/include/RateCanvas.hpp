@@ -29,6 +29,7 @@ private:
     TCanvas* canvas_trigger_;
     TCanvas* canvas_modules_;
     TCanvas* canvas_modules_tout1_;
+	TCanvas* canvas_ch_map_;
     TH1D*    cur_hist_int_;
     TLine*   line_obj_[5];
     TLine*   line_t90_[2];
@@ -55,6 +56,7 @@ public:
     void cd_trigger();
     void cd_modules(int i);
     void cd_modules_tout1(int i);
+	void cd_ch_map(int i);
     void draw_hist_int(TH1D* hist_int);
 #endif /* __ROOTCLING__ || __CINT __ */
     
