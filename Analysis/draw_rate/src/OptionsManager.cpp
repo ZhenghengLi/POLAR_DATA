@@ -125,7 +125,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (end_gps.IsNull())
         end_gps = "end";
     if (max_bars < 0)
-        max_bars = 4;
+        max_bars = 1600;
     if (min_bars < 0)
         min_bars = 0;
     if (max_bars < min_bars)
@@ -155,7 +155,7 @@ void OptionsManager::print_help() {
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
     cout << "  -o                               output rate hist to a root file" << endl;
     cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
-    cout << "  -z <max_bars>                    maximum number of bars to cut, default is 4" << endl;
+    cout << "  -z <max_bars>                    maximum number of bars to cut, default is 1600" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
