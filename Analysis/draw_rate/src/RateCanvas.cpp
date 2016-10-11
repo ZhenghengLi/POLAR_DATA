@@ -98,7 +98,7 @@ void RateCanvas::CloseWindow() {
 }
 
 void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selected) {
-    if (event != kArrowKeyPress && event != kKeyPress && event != kButton1Down)
+    if (event != kButton1Double && event != kKeyPress && event != kButton1Down)
         return;
 
     if (cur_hist_int_ == NULL)
@@ -209,7 +209,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         
         canvas_trigger_->Update();
 
-    } else if (event == kArrowKeyPress) {  // clear 
+    } else if (event == kButton1Double) {  // clear 
         line_cnt_ = 0;
         for (int i = 0; i < 5; i++) {
             if (line_obj_[i] != NULL) {
