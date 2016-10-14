@@ -56,11 +56,11 @@ int main(int argc, char** argv) {
         }
         if (eventIter.t_trigger.is_bad > 0) 
             continue;
-        if (eventIter.t_trigger.trigger_n > 4)
-            continue;
+//        if (eventIter.t_trigger.trigger_n > 4)
+//            continue;
         while (eventIter.phy_modules_next_packet()) {
-            if (eventIter.t_modules. multiplicity > 4)
-                continue;
+//            if (eventIter.t_modules. multiplicity > 4)
+//                continue;
             int idx = eventIter.t_modules.ct_num - 1;
             for (int j = 0; j < 64; j++) {
                 if (eventIter.t_modules.energy_adc[j] == 4095)
