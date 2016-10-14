@@ -77,10 +77,12 @@ int main(int argc, char** argv) {
     TCanvas* canvas_spec[25]; 
     for (int i = 0; i < 25; i++) {
         canvas_spec[i] = new TCanvas(Form("canvas_spec_CT_%02d", i + 1), Form("Spectrum of CT_%02d", i + 1), 800, 600);
+        canvas_spec[i]->SetFillColor(kYellow);
         canvas_spec[i]->Divide(8, 8);
         for (int j = 0; j < 64; j++) {
             int c = 8 * (7 - j / 8) + (7 - j % 8) + 1;
             canvas_spec[i]->cd(c);
+            canvas_spec[i]->GetPad(c)->SetFillColor(kWhite);
             canvas_spec[i]->GetPad(c)->SetLogy();
             hist_spec_all[i][j]->SetLineColor(kBlue);
             hist_spec_all[i][j]->Draw();
