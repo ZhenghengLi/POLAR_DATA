@@ -131,7 +131,7 @@ class ppd_data:
         tmp_value = self.__lbtoi(block, 24, 26)
         self.latitude       = (tmp_value if tmp_value < 0x800000 else tmp_value - 2 * 0x800000) * 0.00003
         tmp_value = self.__lbtoi(block, 27, 29)
-        self.geocentric_d   = tmp_value * 10
+        self.geocentric_d   = tmp_value * 1.0
         tmp_value = self.__lbtoi(block, 30, 33)
         self.ship_time_sec  = tmp_value * 1.0 / 32.0
         tmp_value = self.__bbtoi(block, 34, 35)
