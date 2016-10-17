@@ -10,6 +10,10 @@ int main(int argc, char** argv) {
         cout << "USAGE: " << argv[0] << " <beam_event.root> <histogram.pdf>" << endl;
         return 2;
     }
+
+    TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
+    gStyle->SetOptStat(11);
+    gStyle->SetOptFit(111);
     
     string beam_event_fn = argv[1];
     string histogram_fn = argv[2];
@@ -77,10 +81,11 @@ int main(int argc, char** argv) {
             rate_set_flag[i][j] = true;
             spec_hist[i][j] = new TH1F(Form("spec_%d_%d", i + 1, j + 1), Form("spec_%d_%d", i + 1, j + 1), 128, 0, 4096);
             spec_hist[i][j]->SetDirectory(NULL);
-            func_hist[i][j] = new TF1(Form("func_hist_%d_%d", i + 1, j + 1), "TMath::Exp([0] + [1] * x) + gaus(2) + [5]", 500, 4096);
-            func_hist[i][j]->SetParameters(8, -0.006, 50, 1500, 500, 5);
+            func_hist[i][j] = new TF1(Form("func_hist_%d_%d", i + 1, j + 1), "TMath::Exp([0] + [1] * x) + gaus(2) + [5]", 300, 4096);
+            func_hist[i][j]->SetParameters(7, -0.006, 50, 1500, 500, 5);
             func_hist[i][j]->SetParLimits(1, -0.1, -0.0001);
-            func_hist[i][j]->SetParLimits(3, 500, 3500);
+            func_hist[i][j]->SetParLimits(2, 1, 10000);
+            func_hist[i][j]->SetParLimits(3, 20, 3500);
             func_hist[i][j]->SetParLimits(4, 100, 2000);
             func_hist[i][j]->SetParLimits(5, 0, 1000);
         }
@@ -121,8 +126,8 @@ int main(int argc, char** argv) {
 
     // draw histogram
     cout << "drawing ... " << endl;
-    gROOT->SetBatch(kTRUE);
-    gErrorIgnoreLevel = kWarning;
+//    gROOT->SetBatch(kTRUE);
+//    gErrorIgnoreLevel = kWarning;
     TCanvas* canvas_rate_map = new TCanvas("canvas_rate_map", "canvas_rate_map", 2000, 1600);
     canvas_rate_map->SetGrid();
     canvas_rate_map->cd();
@@ -160,6 +165,8 @@ int main(int argc, char** argv) {
             canvas_spec[i]->Print(histogram_fn.c_str(), "pdf");
         }
     }
+
+    rootapp->Run();
   
     return 0;
 }
