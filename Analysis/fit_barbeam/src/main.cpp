@@ -6,8 +6,8 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (argc < 3) {
-        cout << "USAGE: " << argv[0] << " <beam_event.root> <histogram.pdf>" << endl;
+    if (argc < 4) {
+        cout << "USAGE: " << argv[0] << " <beam_event.root> <histogram.pdf> <adc_per_kev.root>" << endl;
         return 2;
     }
 
@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
     
     string beam_event_fn = argv[1];
     string histogram_fn = argv[2];
+    string adc_per_kev_fn = argv[3];
 
     TFile* t_file_merged_in = new TFile(beam_event_fn.c_str(), "read");
     if (t_file_merged_in->IsZombie()) {
@@ -138,6 +139,9 @@ int main(int argc, char** argv) {
     t_file_merged_in->Close();
     cout << " DONE ]" << endl;
 
+    Float_t  adc_per_kev[25][64];
+    Float_t  adc_sigma[25][64];
+
     // draw histogram
     cout << "drawing ... " << endl;
 //    gROOT->SetBatch(kTRUE);
@@ -162,9 +166,14 @@ int main(int argc, char** argv) {
             canvas_spec[i]->cd(jtoc(j));
 //            canvas_spec[i]->GetPad(jtoc(j))->SetLogy();
 //            spec_hist[i][j]->Draw();
-            if (spec_hist[i][j]->GetEntries() < 10) 
+            if (spec_hist[i][j]->GetEntries() < 10) {
+                adc_per_kev[i][j] = -1;
+                adc_sigma[i][j] = -1;
                 continue;
+            }
             spec_hist[i][j]->Fit(func_hist[i][j], "RQ");
+            adc_per_kev[i][j] = func_hist[i][j]->GetParameter(3) / 80;
+            adc_sigma[i][j] = func_hist[i][j]->GetParameter(4);
         }
     }
     
@@ -179,6 +188,25 @@ int main(int argc, char** argv) {
             canvas_spec[i]->Print(histogram_fn.c_str(), "pdf");
         }
     }
+
+    cout << "writing adc_per_kev ..." << endl;
+    TFile* adc_per_kev_file = new TFile(adc_per_kev_fn.c_str(), "recreate");
+    if (adc_per_kev_file->IsZombie()) {
+        cout << "adc_per_kev root file open failed. " << endl;
+        return 1;
+    }
+    TVectorF* tmp_vec;
+    for (int i = 0; i < 25; i++) {
+        tmp_vec = new TVectorF(64, adc_per_kev[i]);
+        tmp_vec->Write(Form("adc_per_kev_vec_ct_%02d", i + 1));
+        delete tmp_vec;
+        tmp_vec = NULL;
+        tmp_vec = new TVectorF(64, adc_sigma[i]);
+        tmp_vec->Write(Form("adc_sigma_vec_ct_%02d", i + 1));
+        delete tmp_vec;
+        tmp_vec = NULL;
+    }
+    adc_per_kev_file->Close();
 
     rootapp->Run();
   
