@@ -2,6 +2,7 @@
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "CooConv.hpp"
+#include "TPolyMarker3D.h"
 
 using namespace std;
 
@@ -64,6 +65,10 @@ int main(int argc, char** argv) {
     t_modules_tree->SetBranchAddress("energy_adc", t_modules.energy_adc);
 
     // draw event
+    TPolyMarker3D* trigger_marker = new TPolyMarker3D();
+    trigger_marker->SetMarkerSize(1.2);
+    trigger_marker->SetMarkerColor(kBlack);
+    trigger_marker->SetMarkerStyle(29);
     TH2F* trigger_map = new TH2F("trigger_map", "Trigger Map", 40, 0, 40, 40, 0, 40);
     trigger_map->SetDirectory(NULL);
     trigger_map->GetXaxis()->SetNdivisions(40);
@@ -94,10 +99,15 @@ int main(int argc, char** argv) {
         cout << "Warning: there is lost packet." << endl;
     }
 
+    int point_num = -1;
     for (Long64_t q = t_trigger.pkt_start; q < t_trigger.pkt_start + t_trigger.pkt_count; q++) {
         t_modules_tree->GetEntry(q);
         int i = t_modules.ct_num - 1;
         for (int j = 0; j < 64; j++) {
+            if (t_modules.trigger_bit[j]) {
+                point_num += 1;
+                trigger_marker->SetPoint(point_num, ijtox(i, j) + 0.5, ijtoy(i, j) + 0.5, t_modules.energy_adc[j]);
+            }
             trigger_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, static_cast<int>(t_modules.trigger_bit[j]));
             energy_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, static_cast<int>(t_modules.energy_adc[j]));
         }
@@ -105,12 +115,14 @@ int main(int argc, char** argv) {
 
     gStyle->SetOptStat(0);
 
-    TCanvas* canvas_map = new TCanvas("canvas_map", "Event Map", 1600, 800);
-    canvas_map->Divide(2, 1);
-    canvas_map->cd(1);
-    trigger_map->Draw("lego2");
-    canvas_map->cd(2);
+    TCanvas* canvas_map = new TCanvas("canvas_map", "Event Map", 800, 800);
+    canvas_map->cd();
+//    canvas_map->Divide(2, 1);
+//    canvas_map->cd(1);
+//    trigger_map->Draw("lego2");
+//    canvas_map->cd(2);
     energy_map->Draw("lego2");
+    trigger_marker->Draw("same");
 
     rootapp->Run();
 
