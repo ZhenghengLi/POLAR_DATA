@@ -111,6 +111,20 @@ int main(int argc, char** argv) {
                 int k = i * 64 + j;
                 if (t_beam_event.energy_adc[k] > 4096)
                     continue;
+                if (!t_beam_event.trigger_bit[k])
+                    continue;
+                bool is_bad_event = false;
+                for (int t = 0; t < 64; t++) {
+                    if (t == j) 
+                        continue;
+                    if (t != j - 1 && t != j + 1 && t != j - 8 && t != j + 8 && // t != j + 7 && t != j - 7 && t != j + 9 && t != j - 9 &&
+                            t_beam_event.trigger_bit[i * 64 + t]) {
+                        is_bad_event = true;
+                        break;
+                    }
+                }
+                if (is_bad_event)
+                    continue;
                 if (t_beam_event.bar_beam[k] && t_beam_event.trigger_bit[k] && t_beam_event.max_rate[k] > 10) {
                     if (rate_set_flag[i][j]) {
                         rate_set_flag[i][j] = false;
