@@ -1,6 +1,9 @@
 #include <iostream>
+#include <queue>
 #include <algorithm>
 #include "RootInc.hpp"
+#include "Na22Info.hpp"
+#include "BarPos.hpp"
 
 using namespace std;
 
