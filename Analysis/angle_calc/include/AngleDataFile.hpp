@@ -17,7 +17,7 @@ public:
         Double_t  abs_ship_second;
         Int_t     first_ij[2];
         Int_t     second_ij[2];
-        Float16_t rand_angle;
+        Float_t   rand_angle;
     };
     
 public:
