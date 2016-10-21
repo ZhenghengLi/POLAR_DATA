@@ -56,6 +56,7 @@ ppd_file_r_obj.print_file_info()
 fout = open(args.outfile, 'w')
 
 for i in tqdm(xrange(ppd_file_r_obj.begin_entry, ppd_file_r_obj.end_entry)):
+    if i % 2 == 0: continue
     ppd_file_r_obj.t_tree_ppd.get_entry(i)
     cur_time = ppd_file_r_obj.t_tree_ppd.utc_time_sec - UTCStartTime
     wgs84_xyz = (ppd_file_r_obj.t_tree_ppd.wgs84_x, ppd_file_r_obj.t_tree_ppd.wgs84_y, ppd_file_r_obj.t_tree_ppd.wgs84_z)
