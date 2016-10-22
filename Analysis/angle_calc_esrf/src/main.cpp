@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
         if (q % 10000 == 0) {
             cout << q << endl;
         }
+        if (t_beam_event.lost_count > 0) continue;
         while (!bar_queue.empty()) bar_queue.pop();
         found_not_adjacent = false;
         is_bad_event = false;
