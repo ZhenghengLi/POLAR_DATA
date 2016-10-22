@@ -20,6 +20,7 @@ private:
     ULong64_t b_gps_count_pps_;
     ULong64_t b_gps_count_gen_;
     Int_t     b_obox_is_bad_;
+    UChar_t   b_obox_mode_;
 
     Long64_t hk_obox_tot_entries_;
     Long64_t hk_obox_cur_index_;
@@ -28,6 +29,7 @@ private:
 
     pair<GPSTime, uint32_t> pre_gps_sync_;
     pair<GPSTime, uint32_t> cur_gps_sync_;
+    Int_t                   cur_obox_mode_;
 
     bool first_valid_;
     bool before_valid_;

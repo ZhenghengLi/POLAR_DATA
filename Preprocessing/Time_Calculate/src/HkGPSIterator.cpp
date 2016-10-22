@@ -27,6 +27,7 @@ bool HkGPSIterator::open(const char* filename) {
     t_hk_obox_->SetBranchAddress("gps_sync_gen_count",  &b_gps_count_gen_);
     t_hk_obox_->SetBranchAddress("gps_pps_count",       &b_gps_count_pps_);
     t_hk_obox_->SetBranchAddress("obox_is_bad",         &b_obox_is_bad_);
+    t_hk_obox_->SetBranchAddress("obox_mode",           &b_obox_mode_);
     
     return true;
 }
@@ -108,7 +109,7 @@ bool HkGPSIterator::set_first_() {
                 break;
             }
         }
-        if (repeat_count > 15) {
+        if (repeat_count > 10) {
             found = true;
             break;
         } else {
@@ -178,7 +179,7 @@ bool HkGPSIterator::set_last_() {
                 break;
             }
         }
-        if (repeat_count > 15) {
+        if (repeat_count > 10) {
             found = true;
             break;
         } else {
@@ -205,8 +206,9 @@ bool HkGPSIterator::next_pair_() {
         if (hk_obox_cur_index_ < hk_obox_tot_entries_) {
             t_hk_obox_->GetEntry(hk_obox_cur_index_);
             if (b_obox_is_bad_ == 0) {
-                pre_gps_sync_ = cur_gps_sync_;
-                cur_gps_sync_ = make_pair(GPSTime().update8(b_gps_count_), b_timestamp_);
+                pre_gps_sync_  = cur_gps_sync_;
+                cur_gps_sync_  = make_pair(GPSTime().update8(b_gps_count_), b_timestamp_);
+                cur_obox_mode_ = static_cast<Int_t>(b_obox_mode_);
                 return true;
             }
         } else {
@@ -230,6 +232,7 @@ bool HkGPSIterator::next_minute() {
     }
     int repeat_count = 0;
     bool found = false;
+    bool found_init = false;
     cur_is_valid_ = false;
     while (true) {
         repeat_count = 0;
@@ -242,11 +245,15 @@ bool HkGPSIterator::next_minute() {
             if (abs(cur_gps_sync_.first - pre_gps_sync_.first) < 25 * 1.0E-9
                 && cur_gps_sync_.second == pre_gps_sync_.second) {
                 repeat_count++;
+                if (cur_obox_mode_ == 7 && cur_gps_sync_.second == 0) {
+                    found_init = true;
+                    repeat_count--;
+                }
             } else {
                 break;
             }
         }
-        if (repeat_count > 15) {
+        if (repeat_count > 10) {
             found = true;
             break;
         } else {
@@ -264,6 +271,11 @@ bool HkGPSIterator::next_minute() {
         if (time_diff < 0)
             time_diff += 4294967296;
         cur_ticks_per_second = time_diff / (after_gps_sync.first - before_gps_sync.first);
+        if (found_init) {
+            before_gps_sync = after_gps_sync;
+            before_valid_ = after_valid_;
+            cur_ticks_per_second = 12500000.0;
+        }
         return true;
     } else {
         before_gps_sync = after_gps_sync;
