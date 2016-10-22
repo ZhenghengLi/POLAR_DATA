@@ -65,6 +65,8 @@ int main(int argc, char** argv) {
         Int_t     first_ij[2];
         Int_t     second_ij[2];
         Float_t   rand_angle;
+        Float_t   first_dep;
+        Float_t   second_dep;
     } t_angle;
     TFile* t_angle_data_file = new TFile(angle_data_fn.c_str(), "recreate");
     if (t_angle_data_file->IsZombie()) {
@@ -75,6 +77,8 @@ int main(int argc, char** argv) {
     t_angle_tree->Branch("first_ij",         t_angle.first_ij,         "first_ij[2]/I"     );
     t_angle_tree->Branch("second_ij",        t_angle.second_ij,        "second_ij[2]/I"    );
     t_angle_tree->Branch("rand_angle",      &t_angle.rand_angle,       "rand_angle/F"      );
+    t_angle_tree->Branch("first_dep",       &t_angle.first_dep,        "first_dep/F"       );
+    t_angle_tree->Branch("second_dep",      &t_angle.second_dep,       "second_dep/F"      );
 
     // calculate angle
     priority_queue<Bar> bar_queue;
@@ -130,6 +134,8 @@ int main(int argc, char** argv) {
             t_angle.second_ij[0]    = second_pos.i;
             t_angle.second_ij[1]    = second_pos.j;
             t_angle.rand_angle      = first_pos.angle_to(second_pos);
+            t_angle.first_dep       = t_beam_event.energy_adc[first_pos.i * 64 + first_pos.j];
+            t_angle.second_dep      = t_beam_event.energy_adc[second_pos.i * 64 + second_pos.j];
             t_angle_tree->Fill();
         }
     }
