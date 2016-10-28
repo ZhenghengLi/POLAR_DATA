@@ -182,7 +182,23 @@ int main(int argc, char** argv) {
         if (!eventIter.t_trigger.abs_gps_valid) {
             continue;
         }
-        if (eventIter.t_trigger.trigger_n < options_mgr.min_bars || eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
+        if (options_mgr.min_bars <= 1600 && options_mgr.max_bars <= 1600) {
+            if (eventIter.t_trigger.trigger_n < options_mgr.min_bars || eventIter.t_trigger.trigger_n > options_mgr.max_bars) {
+                continue;
+            }
+        } else if (options_mgr.min_bars == 1601 && options_mgr.max_bars == 1601) { // only single
+            if (eventIter.t_trigger.type != 0xF000) {
+                continue;
+            }
+        } else if (options_mgr.min_bars == 1602 && options_mgr.max_bars == 1602) { // only normal
+            if (eventIter.t_trigger.type != 0x00FF) {
+                continue;
+            }
+        } else if (options_mgr.min_bars == 1603 && options_mgr.max_bars == 1603) { // only cosmic
+            if (eventIter.t_trigger.type != 0xFF00) {
+                continue;
+            }
+        } else {
             continue;
         }
         for (int i = 0; i <= options_mgr.bw_len; i++) {
