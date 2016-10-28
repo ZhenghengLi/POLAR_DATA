@@ -34,7 +34,6 @@ def _wgs84_to_j2000(wgs84_xyz, utc):
     return [float(pos_j2000.ra) / np.pi * 12, float(pos_j2000.dec) / np.pi * 180]
 
 def _radec_to_j2000xyz(ra, dec, d):
-    d = d * 10.0
     pha = ra / 12 * np.pi
     theta = (90 - dec) / 180 * np.pi
     return (d * np.sin(theta) * np.cos(pha), d * np.sin(theta) * np.sin(pha), d * np.cos(theta)) 
