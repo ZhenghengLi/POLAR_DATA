@@ -60,10 +60,15 @@ for i in tqdm(xrange(ppd_file_r_obj.begin_entry, ppd_file_r_obj.end_entry)):
     ppd_file_r_obj.t_tree_ppd.get_entry(i)
     cur_time = ppd_file_r_obj.t_tree_ppd.utc_time_sec - UTCStartTime
     wgs84_xyz = (ppd_file_r_obj.t_tree_ppd.wgs84_x, ppd_file_r_obj.t_tree_ppd.wgs84_y, ppd_file_r_obj.t_tree_ppd.wgs84_z)
+    wgs84_d = np.sqrt(wgs84_xyz[0] ** 2 + wgs84_xyz[1] ** 2 + wgs84_xyz[2] ** 2)
+    wgs84_xyz_v = (ppd_file_r_obj.t_tree_ppd.wgs84_x_v, ppd_file_r_obj.t_tree_ppd.wgs84_y_v, ppd_file_r_obj.t_tree_ppd.wgs84_z_v)
+    wgs84_d_v = np.sqrt(wgs84_xyz_v[0] ** 2 + wgs84_xyz_v[1] ** 2 + wgs84_xyz_v[2] ** 2)
     utc = datetime.strptime(str(ppd_file_r_obj.t_tree_ppd.utc_time_str), time_fmt_in).strftime(time_fmt_out)
     ra, dec = _wgs84_to_j2000(wgs84_xyz, utc)
-    j2000_xyz = _radec_to_j2000xyz(ra, dec, ppd_file_r_obj.t_tree_ppd.geocentric_d)
-    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_dec) + '\n')
+    ra_v, dec_v = _wgs84_to_j2000(wgs84_xyz_v, utc)
+    j2000_xyz = _radec_to_j2000xyz(ra, dec, wgs84_d)
+    j2000_xyz_v = _radec_to_j2000xyz(ra_v, dec_v, wgs84_d_v)
+    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + ' ' + str(j2000_xyz_v[0]) + ' ' + str(j2000_xyz_v[1]) + ' ' + str(j2000_xyz_v[2]) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_dec) + '\n')
 
 fout.close()
 
