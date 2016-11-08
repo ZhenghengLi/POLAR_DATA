@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
                     if (energy_adc_vector(j) < 4096) {
                         energy_adc_vector(j) -= cur_common_noise;
                     } else {
-                        energy_adc_vector(j) = 0;
+                        energy_adc_vector(j) = gRandom->Uniform(-1, 1);
                     }
                 }
                 copy(energy_adc_vector.GetMatrixArray(), energy_adc_vector.GetMatrixArray() + 64, &t_beam_event.energy_adc[i * 64]);
