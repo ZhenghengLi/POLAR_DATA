@@ -131,6 +131,8 @@ int main(int argc, char** argv) {
                 for (int j = 0; j < 64; j++) {
                     if (energy_adc_vector(j) < 4096) {
                         energy_adc_vector(j) -= cur_common_noise;
+                    } else {
+                        energy_adc_vector(j) = 0;
                     }
                 }
                 copy(energy_adc_vector.GetMatrixArray(), energy_adc_vector.GetMatrixArray() + 64, &t_beam_event.energy_adc[i * 64]);
