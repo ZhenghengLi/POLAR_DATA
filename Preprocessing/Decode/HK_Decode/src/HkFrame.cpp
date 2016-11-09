@@ -171,6 +171,7 @@ void HkFrame::update_ibox_info(int32_t cur_is_bad) {
     set_frame_head_();
     set_command_head_();
     set_command_num_();
+    set_command_code_();
     set_command_arg_();
     set_head_();
     set_tail_();
