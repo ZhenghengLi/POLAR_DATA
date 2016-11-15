@@ -127,11 +127,11 @@ for x in file_list_sci_1p:
         if cur_index >= len(file_list_ppd_1m_alone):
             reach_end = True
             break
-        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m[cur_index])
+        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m_alone[cur_index])
         if (ppd_1m_begin_time - pre_end_time).total_seconds() > 7:
             found_gap = True
             break
-        ppd_1m_list.append(file_list_ppd_1m[ppd_1m_start_index + index_shift])
+        ppd_1m_list.append(file_list_ppd_1m_alone[cur_index])
     if found_gap or reach_end: continue
     sci_1p_ppd_1m_dict[x] = ppd_1m_list
 
@@ -149,7 +149,7 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
     start_time = "%d:%d" % (start_week, start_second)
     stop_time  = "%d:%d" % (stop_week,  stop_second)
     print start_time + ' => ' + stop_time
-    ppd_1n_filename = x.replace('_SCI_', '_PPD_').replace('_1P', '_1N')
+    ppd_1n_filename = k.replace('_SCI_', '_PPD_').replace('_1P', '_1N')
     print ppd_1n_filename
     ppd_1n_file = os.path.join(os.path.join(ppd_1n_dir, ppd_1n_filename))
     ppd_1n_outfile = os.path.join(scrfile_dir_ppd_1n, ppd_1n_filename.replace('.root', '.out'))
