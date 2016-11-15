@@ -44,7 +44,9 @@ class ppd_file_w:
             "earth_lat"            : "D"     ,
             "earth_lon"            : "D"     ,
             "earth_ra"             : "D"     ,
-            "earth_dec"            : "D"     
+            "earth_dec"            : "D"     ,
+            "sun_ra"               : "D"     ,
+            "sun_dec"              : "D"
             })
 
     def fill_data(self, ppd_obj):
@@ -80,6 +82,8 @@ class ppd_file_w:
         self.__t_tree_ppd.earth_lon       = ppd_obj.earth_lon
         self.__t_tree_ppd.earth_ra        = ppd_obj.earth_ra
         self.__t_tree_ppd.earth_dec       = ppd_obj.earth_dec
+        self.__t_tree_ppd.sun_ra          = ppd_obj.sun_ra
+        self.__t_tree_ppd.sun_dec         = ppd_obj.sun_dec
         self.__t_tree_ppd.fill()
 
     def write_tree(self):

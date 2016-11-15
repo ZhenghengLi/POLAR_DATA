@@ -85,6 +85,8 @@ class ppd_data:
         self.earth_lon      = 0.0
         self.earth_ra       = 0.0
         self.earth_dec      = 0.0
+        self.sun_ra         = 0.0
+        self.sun_dec        = 0.0
         self.__utc_year     = 0
         self.__utc_month    = 0
         self.__utc_day      = 0
@@ -185,4 +187,8 @@ class ppd_data:
         self.det_z_ra, self.det_z_dec = _wgs84_to_j2000(wgs84_det_z, utc)
         self.det_x_lat, self.det_x_lon = _xyz_to_latlon(*wgs84_det_x)
         self.det_x_ra, self.det_x_dec = _wgs84_to_j2000(wgs84_det_x, utc)
-        
+        sun = ep.Sun()
+        sun.compute(utc)
+        self.sun_ra = sun.ra / np.pi * 180.0 / 15.0
+        self.sun_dec = sun.dec / np.pi * 180.0
+
