@@ -233,7 +233,7 @@ for filename in eng_filelist_update + eng_filelist_new:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
     out_str = ''
     with open(file_1m_out, 'r') as fin: out_str = fin.read()
-    with open(file_1m_out, 'w') as fout: fout.write(re.sub(r'^.*\nDecoding', 'Decoding', out_str))
+    with open(file_1m_out, 'w') as fout: fout.write(re.sub(r'^.*Decoding', 'Decoding', out_str, flags = re.S))
     with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
