@@ -120,13 +120,13 @@ for x in file_list_sci_1p:
     ppd_1m_list = [file_list_ppd_1m_alone[ppd_1m_start_index]]
     found_gap = False
     reach_end = False
-    pre_end_time = ppd_1m_end_time
     while ppd_1m_end_time < sci_1p_end_time:
         index_shift += 1
         cur_index = ppd_1m_start_index + index_shift
         if cur_index >= len(file_list_ppd_1m_alone):
             reach_end = True
             break
+        pre_end_time = ppd_1m_end_time
         ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m_alone[cur_index])
         if (ppd_1m_begin_time - pre_end_time).total_seconds() > 7:
             found_gap = True
