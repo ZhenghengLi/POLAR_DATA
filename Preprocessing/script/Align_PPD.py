@@ -142,12 +142,14 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
     sci_1p_begin_time, sci_1p_end_time = calc_time(k)
     start_total_seconds = (sci_1p_begin_time - datetime(1980, 1, 6, 8, 0, 0)).total_seconds() - 20
     stop_total_seconds  = (sci_1p_end_time   - datetime(1980, 1, 6, 8, 0, 0)).total_seconds() + 20
+    first_time_seconds = (calc_time(sci_1p_ppd_1m_dict[k][0])[0] - datetime(1980, 1, 6, 8, 0, 0)).total_seconds()
+    last_time_seconds = (calc_time(sci_1p_ppd_1m_dict[k][-1])[1] - datetime(1980, 1, 6, 8, 0, 0)).total_seconds()
     start_week   = int(start_total_seconds / 604800)
     start_second = int(start_total_seconds % 604800)
     stop_week    = int(stop_total_seconds  / 604800)
     stop_second  = int(stop_total_seconds  % 604800)
-    start_time = "%d:%d" % (start_week, start_second)
-    stop_time  = "%d:%d" % (stop_week,  stop_second)
+    start_time = "%d:%d" % (start_week, start_second) if start_total_seconds > first_time_seconds + 10.0 else 'begin'
+    stop_time  = "%d:%d" % (stop_week,  stop_second) if stop_total_seconds < last_time_seconds - 10.0 else 'end'
     print start_time + ' => ' + stop_time
     ppd_1n_filename = k.replace('_SCI_', '_PPD_').replace('_1P', '_1N')
     print ppd_1n_filename
@@ -160,6 +162,10 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
     ret_value = 0
     with open(ppd_1n_outfile, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
+    if ret_value > 0:
+        if os.path.isfile(ppd_1n_file): os.remove(ppd_1n_file)
+        if os.path.isfile(ppd_1n_cmdfile): os.remove(ppd_1n_cmdfile)
+        if os.path.isfile(ppd_1n_outfile): os.remove(ppd_1n_outfile)
     out_str = ''
     with open(ppd_1n_outfile, 'r') as fin: out_str = fin.read()
     out_str_lines = [re.sub(r'^.*Opening', 'Opening', x) for x in out_str.split('\n')]
