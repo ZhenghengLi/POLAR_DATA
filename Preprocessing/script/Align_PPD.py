@@ -162,6 +162,6 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
     out_str = ''
     with open(ppd_1n_outfile, 'r') as fin: out_str = fin.read()
-    with open(ppd_1n_outfile, 'w') as fout: fout.write(re.sub(r'^.*Opening', 'Opening', out_str, flags = re.S))
+    with open(ppd_1n_outfile, 'w') as fout: fout.write('\n'.join([re.sub(r'^.*Opening', 'Opening', x) for x in out_str.split('\n')]))
     with open(ppd_1n_outfile, 'r') as fin: print fin.read().rstrip('\n')
 
