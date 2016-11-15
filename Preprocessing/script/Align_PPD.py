@@ -162,6 +162,8 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
     out_str = ''
     with open(ppd_1n_outfile, 'r') as fin: out_str = fin.read()
-    with open(ppd_1n_outfile, 'w') as fout: fout.write('\n'.join([re.sub(r'^.*Opening', 'Opening', x) for x in out_str.split('\n')]))
+    out_str_lines = [re.sub(r'^.*Opening', 'Opening', x) for x in out_str.split('\n')]
+    out_str_lines = [x for x in out_str_lines if not re.search(r'%', x)]
+    with open(ppd_1n_outfile, 'w') as fout: fout.write('\n'.join(out_str_lines))
     with open(ppd_1n_outfile, 'r') as fin: print fin.read().rstrip('\n')
 
