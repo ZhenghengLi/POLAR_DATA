@@ -94,35 +94,45 @@ if len(file_list_sci_1p) < 2 or len(file_list_ppd_1m) < 2:
     print 'too small number of files.'
     exit(0)
 
+# delete overlap
 file_list_sci_1p.sort()
 file_list_ppd_1m.sort()
+file_list_ppd_1m_alone = [file_list_ppd_1m[0]]
+pre_time = calc_time(file_list_ppd_1m_alone[0])
+for i in xrange(1, len(file_list_ppd_1m)):
+    cur_file = file_list_ppd_1m[i]
+    cur_time = calc_time(cur_file)
+    if ((cur_time[0] - pre_time[1]).total_seconds() >= -1):
+        file_list_ppd_1m_alone.append(cur_file)
+        pre_time = cur_time
 
 # find ppd_1m for sci_1p
 sci_1p_ppd_1m_dict = {}
 ppd_1m_start_index = 0
 for x in file_list_sci_1p:
     sci_1p_begin_time, sci_1p_end_time = calc_time(x)
-    ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m[ppd_1m_start_index])
+    ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m_alone[ppd_1m_start_index])
     while ppd_1m_end_time < sci_1p_begin_time:
         ppd_1m_start_index += 1
-        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m[ppd_1m_start_index])
+        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m_alone[ppd_1m_start_index])
     if ppd_1m_begin_time > sci_1p_begin_time: continue
     index_shift = 0
-    ppd_1m_list = [file_list_ppd_1m[ppd_1m_start_index]]
+    ppd_1m_list = [file_list_ppd_1m_alone[ppd_1m_start_index]]
     found_gap = False
-    found_overlap = False
+    reach_end = False
     pre_end_time = ppd_1m_end_time
     while ppd_1m_end_time < sci_1p_end_time:
         index_shift += 1
-        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m[ppd_1m_start_index + index_shift])
+        cur_index = ppd_1m_start_index + index_shift
+        if cur_index >= len(file_list_ppd_1m_alone):
+            reach_end = True
+            break
+        ppd_1m_begin_time, ppd_1m_end_time = calc_time(file_list_ppd_1m[cur_index])
         if (ppd_1m_begin_time - pre_end_time).total_seconds() > 7:
             found_gap = True
             break
-        if (ppd_1m_begin_time - pre_end_time).total_seconds() < 0:
-            found_overlap = True
-            break
         ppd_1m_list.append(file_list_ppd_1m[ppd_1m_start_index + index_shift])
-    if found_gap or found_overlap: continue
+    if found_gap or reach_end: continue
     sci_1p_ppd_1m_dict[x] = ppd_1m_list
 
 for k in sorted(sci_1p_ppd_1m_dict.keys()):
