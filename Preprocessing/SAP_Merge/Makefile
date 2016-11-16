@@ -1,6 +1,6 @@
 CC := g++
 CC_FLAGS := -Wall -O2 -I./include
-LINK_FLAGS := -Wl,--no-as-needed
+LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 CPP_FILES := $(wildcard src/*.cpp)
