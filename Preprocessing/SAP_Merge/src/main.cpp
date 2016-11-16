@@ -1,6 +1,7 @@
 #include <iostream>
+#include <cstdio>
 #include "OptionsManager.hpp"
-#include "SCIIterator.hpp"
+#include "AUXIterator.hpp"
 
 using namespace std;
 
@@ -20,18 +21,23 @@ int main(int argc, char** argv) {
     cout << options_mgr.ppdfile.Data() << endl;
     cout << options_mgr.outfile.Data() << endl;
 
-    SCIIterator sciIter;
-    if (!sciIter.open(options_mgr.scifile.Data())) {
+    AUXIterator auxIter;
+    if (!auxIter.open(options_mgr.auxfile.Data())) {
         cout << "root file open faild." << endl;
         return 1;
     }
 
-    while (sciIter.next_event()) {
-        cout << sciIter.cur_trigger.trigg_num_g << " " << sciIter.cur_trigger.type << " | " << flush;
-        while(sciIter.next_packet()) {
-            cout << "(" << sciIter.cur_modules.ct_num << ", " << sciIter.cur_modules.compress << ") " << flush;
-        }
-        cout << endl;
+    char str_buffer[200];
+    while (auxIter.next_obox()) {
+        sprintf(str_buffer, 
+                "%10d  %10d  %20.8f  %20.8f %20.8f %20.8f",
+                auxIter.hk_obox_before.packet_num,
+                auxIter.hk_obox_after.packet_num,
+                auxIter.hk_obox_before.abs_ship_second,
+                auxIter.hk_obox_after.abs_ship_second,
+                auxIter.fe_thr_ship_second_current,
+                auxIter.fe_thr_ship_second_next);
+        cout << str_buffer << endl;
     }
 
     return 0;
