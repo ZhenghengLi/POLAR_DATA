@@ -526,7 +526,7 @@ void HkDataFile::gen_gps_result_str() {
     sprintf(str_buffer, "%d[%ld] => %d[%ld]; %ld/%ld",
             static_cast<int>(hk_obox_first_ship_second_),
             static_cast<long int>(hk_obox_first_gps_index_),
-            static_cast<int>(hk_obox_last_gps_second_),
+            static_cast<int>(hk_obox_last_ship_second_),
             static_cast<long int>(hk_obox_last_gps_index_),
             static_cast<long int>(hk_obox_total_gps_count_),
             static_cast<long int>(t_hk_obox_tree_->GetEntries()));
