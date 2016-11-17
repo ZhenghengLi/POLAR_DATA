@@ -94,6 +94,17 @@ int main(int argc, char** argv) {
             cout << q << endl;
         }
         if (t_beam_event.lost_count > 0) continue;
+
+        // cut barbeam
+        bool found_barbeam = false;
+        for (int i = 0; i < 1600; i++) {
+            if (t_beam_event.bar_beam[i] && t_beam_event.max_rate[i] > 10) {
+                found_barbeam = true;
+                break;
+            }
+        }
+        if (!found_barbeam) continue;
+
         while (!bar_queue.empty()) bar_queue.pop();
         found_not_adjacent = false;
         is_bad_event = false;
@@ -115,10 +126,6 @@ int main(int argc, char** argv) {
         first_bar = bar_queue.top();
         bar_queue.pop();
         first_pos.randomize(first_bar.i, first_bar.j);
-
-        // cut barbeam 
-        int k = first_pos.i * 64 + first_pos.j;
-        if (!t_beam_event.bar_beam[k] || t_beam_event.max_rate[k] < 10) continue;
 
         while (!bar_queue.empty()) {
             second_bar = bar_queue.top();
