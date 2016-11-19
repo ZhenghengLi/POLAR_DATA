@@ -4,6 +4,7 @@ import argparse
 import os, re, time
 from datetime import datetime, timedelta
 import subprocess
+from rootpy.io import File
 
 delimeter = " " + "-" * 80
 
