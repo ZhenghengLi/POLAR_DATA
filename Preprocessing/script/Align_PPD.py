@@ -81,6 +81,8 @@ class filename_time:
         time_span = calc_time(filename)
         self.begin_time = time_span[0]
         self.end_time   = time_span[1]
+    def __hash__(self):
+        return hash(self.fn)
     def __lt__(self, right):
         if isinstance(right, filename_time):
             return self.begin_time < right.begin_time
