@@ -158,7 +158,7 @@ for x in file_list_ppd_1m[1:]:
     cur_begin_time = x.begin_time
     cur_end_time   = x.end_time
     cur_filename   = x.fn
-    if (cur_end_time - pre_end_time).total_seconds() < 5:
+    if (cur_end_time - pre_end_time).total_seconds() < 10:
         continue
     elif (cur_begin_time - pre_end_time).total_seconds() < 0:
         pre_timespan = read_timespan(os.path.join(ppd_1m_dir, pre_filename))
