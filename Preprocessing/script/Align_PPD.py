@@ -230,7 +230,7 @@ for x in file_list_sci_1p:
         pre_end_time = ppd_1m_end_time
         ppd_1m_begin_time = file_list_ppd_1m_alone[cur_index].begin_time
         ppd_1m_end_time   = file_list_ppd_1m_alone[cur_index].end_time
-        if (ppd_1m_begin_time - pre_end_time).total_seconds() > 8:
+        if (ppd_1m_begin_time - pre_end_time).total_seconds() > 25:
             found_gap = True
             break
         ppd_1m_list.append(file_list_ppd_1m_alone[cur_index])

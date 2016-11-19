@@ -19,7 +19,7 @@ parser.add_argument('-E', dest = 'end'  , help = 'utc time of ending as gps time
 parser.add_argument('-o', dest = 'outfile', help = 'ROOT file to store splitted platform parameters data', default = 'TG2_PPD_file_split.root')
 args = parser.parse_args()
 
-_MAX_DIFF = 10
+_MAX_DIFF = 30
 
 number_of_files = len(args.filelist)
 ppd_file_r_objs = [ppd_file_r() for x in xrange(number_of_files)]
