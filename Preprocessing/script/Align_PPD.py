@@ -74,9 +74,9 @@ print delimeter
 ref_filename = None
 
 if args.type in ['normal']:
-    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P](_part)*\.root')
+    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P](_part)?\.root')
 else:
-    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P](_part)*\.root')
+    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P](_part)?\.root')
 
 ref_filename_part = re.compile(r'T[2|S]_.*_1[M|P]_part\.root')
 
@@ -170,7 +170,8 @@ for x in file_list_ppd_1m[1:]:
         else:
             # split cur_filename from pre_timespan[1] to end as cur_filename_part
             # use the part file instead
-            start_time_str = (cur_begin_time + timedelta(seconds = pre_timespan[1] + 1 - cur_timespan[0])).strftime(timeformat)
+            start_time_sec = pre_timespan[1] + 1
+            start_time_str = (cur_begin_time + timedelta(seconds = start_time_sec - cur_timespan[0])).strftime(timeformat)
             cur_filename_part = cur_filename.replace(get_begin_time_str(cur_filename), start_time_str)
             cur_filename_part = cur_filename_part.replace('_1M.root', '_1M_part.root')
             if os.path.isfile(os.path.join(ppd_1m_dir, cur_filename_part)):
@@ -180,11 +181,24 @@ for x in file_list_ppd_1m[1:]:
                 pre_end_time   = filename_time_obj.end_time
                 pre_filename   = filename_time_obj.fn
             else:
-                start_time_sec = pre_timespan[1] + 1
                 start_time = '%d:%d' % (start_time_sec / 604800, start_time_sec % 604800)
                 command = 'PPD_Split.py ' + os.path.join(ppd_1m_dir, cur_filename) + ' -B ' + start_time + \
                         ' -o ' + os.path.join(ppd_1m_dir, cur_filename_part)
+                print 'coping with overlap ...'
+                print ' - ' + cur_filename
+                print ' - ' + cur_filename_part
                 ret_value = subprocess.call(command.split(), stdout = FNULL, stderr = FNULL)
+                if ret_value > 0:
+                    print ' # error: failed to split file. '
+                    if os.path.isfile(os.path.join(ppd_1m_dir, cur_filename_part)):
+                        os.remove(os.path.join(ppd_1m_dir, cur_filename_part))
+                else:
+                    print ' - successful'
+                    filename_time_obj = filename_time(cur_filename_part)
+                    file_list_ppd_1m_alone.append(filename_time_obj)
+                    pre_begin_time = filename_time_obj.begin_time
+                    pre_end_time   = filename_time_obj.end_time
+                    pre_filename   = filename_time_obj.fn
     else:
         file_list_ppd_1m_alone.append(x)
         pre_begin_time = cur_begin_time
