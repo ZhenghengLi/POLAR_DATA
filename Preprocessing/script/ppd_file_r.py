@@ -6,7 +6,7 @@ from rootpy import ROOT
 from rootpy.io import File
 from rootpy.tree import Tree
 
-_MIN_DIFF = 5
+_MIN_DIFF = 1
 
 class ppd_file_r:
     def __init__(self):
@@ -98,7 +98,7 @@ class ppd_file_r:
                 return False
         else:
             self.end_utc_time_sec = -1
-        if self.begin_utc_time_sec > 0 and self.end_utc_time_sec > 0 and self.end_utc_time_sec - self.begin_utc_time_sec < _MIN_DIFF:
+        if self.begin_utc_time_sec > 0 and self.end_utc_time_sec > 0 and self.end_utc_time_sec - self.begin_utc_time_sec < _MIN_DIFF * 5:
             print 'WARNING: time span between begin and end utc time is too small: ' + str(self.end_utc_time_sec - self.begin_utc_time_sec)
             return False
         if self.begin_utc_time_sec > 0:

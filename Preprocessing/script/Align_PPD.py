@@ -6,7 +6,17 @@ from datetime import datetime, timedelta
 import subprocess
 
 delimeter = " " + "-" * 80
-leapsecond = 17
+
+ref_time = re.compile(r'(\d+):(\d+)\[\d+\] => (\d+):(\d+)\[\d+\].*')
+
+FNULL = open(os.devnull, 'w')
+
+def read_timespan(filename):
+    t_file = File(filename, 'read')
+    m = ref_time.match(t_file.get('m_utc_span').GetTitle())
+    week1, second1, week2, second2 = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
+    t_file.close()
+    return (week1 * 604800 + second1, week2 * 604800 + second2)
 
 parser = argparse.ArgumentParser(description='list time not matched of data')
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
@@ -64,9 +74,11 @@ print delimeter
 ref_filename = None
 
 if args.type in ['normal']:
-    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P](_part)*.root')
+    ref_filename = re.compile(r'T2_POL_.*_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1[M|P](_part)*\.root')
 else:
-    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P](_part)*.root')
+    ref_filename = re.compile(r'TS_TG02_POL_.*_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1[M|P](_part)*\.root')
+
+ref_filename_part = re.compile(r'T[2|S]_.*_1[M|P]_part\.root')
 
 all_file_list_sci_1p = [x for x in os.listdir(sci_1p_dir) if ref_filename.match(x)]
 all_file_list_ppd_1m = [x for x in os.listdir(ppd_1m_dir) if ref_filename.match(x)]
@@ -74,6 +86,9 @@ all_file_list_ppd_1m = [x for x in os.listdir(ppd_1m_dir) if ref_filename.match(
 def calc_time(filename):
     m = ref_filename.match(filename)
     return (datetime.strptime(m.group(1), timeformat), datetime.strptime(m.group(2), timeformat))
+
+def get_begin_time_str(filename):
+    return ref_filename.match(filename).group(1)
 
 class filename_time:
     def __init__(self, filename):
@@ -114,12 +129,14 @@ stop_time  = datetime.strptime(args.timeto, timeformat)
 file_list_sci_1p = []
 file_list_ppd_1m = []
 for x in all_file_list_sci_1p:
+    if ref_filename_part.match(x): continue
     ppd_1n_filename = x.replace('_SCI_', '_PPD_').replace('_1P', '_1N')
     if os.path.isfile(os.path.join(ppd_1n_dir, ppd_1n_filename)): continue
     filename_time_obj = filename_time(x)
     if filename_time_obj.begin_time >= start_time and filename_time_obj.end_time <= stop_time:
         file_list_sci_1p.append(filename_time_obj)
 for x in all_file_list_ppd_1m:
+    if ref_filename_part.match(x): continue
     filename_time_obj = filename_time(x)
     if filename_time_obj.end_time >= start_time and filename_time_obj.begin_time <= stop_time:
         file_list_ppd_1m.append(filename_time_obj)
@@ -128,19 +145,51 @@ if len(file_list_sci_1p) < 2 or len(file_list_ppd_1m) < 2:
     print 'too small number of files.'
     exit(0)
 
-# delete overlap
+# cope with overlap
+_MIN_DIFF = 1
 file_list_sci_1p.sort()
 file_list_ppd_1m.sort()
 file_list_ppd_1m_alone = [file_list_ppd_1m[0]]
 pre_begin_time = file_list_ppd_1m_alone[0].begin_time
 pre_end_time   = file_list_ppd_1m_alone[0].end_time
+pre_filename   = file_list_ppd_1m_alone[0].fn
 for x in file_list_ppd_1m[1:]:
     cur_begin_time = x.begin_time
     cur_end_time   = x.end_time
-    if ((cur_begin_time - pre_end_time).total_seconds() >= -1):
+    cur_filename   = x.fn
+    if (cur_end_time - pre_end_time).total_seconds() < 5:
+        continue
+    elif (cur_begin_time - pre_end_time).total_seconds() < 0:
+        pre_timespan = read_timespan(os.path.join(ppd_1m_dir, pre_filename))
+        cur_timespan = read_timespan(os.path.join(ppd_1m_dir, cur_filename))
+        if pre_timespan[1] - cur_timespan[0] < 1:
+            file_list_ppd_1m_alone.append(x)
+            pre_begin_time = cur_begin_time
+            pre_end_time   = cur_end_time
+            pre_filename   = cur_filename
+        else:
+            # split cur_filename from pre_timespan[1] to end as cur_filename_part
+            # use the part file instead
+            start_time_str = (cur_begin_time + timedelta(seconds = pre_timespan[1] + 1 - cur_timespan[0])).strftime(timeformat)
+            cur_filename_part = cur_filename.replace(get_begin_time_str(cur_filename), start_time_str)
+            cur_filename_part = cur_filename_part.replace('_1M.root', '_1M_part.root')
+            if os.path.isfile(os.path.join(ppd_1m_dir, cur_filename_part)):
+                filename_time_obj = filename_time(cur_filename_part)
+                file_list_ppd_1m_alone.append(filename_time_obj)
+                pre_begin_time = filename_time_obj.begin_time
+                pre_end_time   = filename_time_obj.end_time
+                pre_filename   = filename_time_obj.fn
+            else:
+                start_time_sec = pre_timespan[1] + 1
+                start_time = '%d:%d' % (start_time_sec / 604800, start_time_sec % 604800)
+                command = 'PPD_Split.py ' + os.path.join(ppd_1m_dir, cur_filename) + ' -B ' + start_time + \
+                        ' -o ' + os.path.join(ppd_1m_dir, cur_filename_part)
+                ret_value = subprocess.call(command.split(), stdout = FNULL, stderr = FNULL)
+    else:
         file_list_ppd_1m_alone.append(x)
         pre_begin_time = cur_begin_time
         pre_end_time   = cur_end_time
+        pre_filename   = cur_filename
 
 # find ppd_1m for sci_1p
 sci_1p_ppd_1m_dict = {}
@@ -167,7 +216,7 @@ for x in file_list_sci_1p:
         pre_end_time = ppd_1m_end_time
         ppd_1m_begin_time = file_list_ppd_1m_alone[cur_index].begin_time
         ppd_1m_end_time   = file_list_ppd_1m_alone[cur_index].end_time
-        if (ppd_1m_begin_time - pre_end_time).total_seconds() > 7:
+        if (ppd_1m_begin_time - pre_end_time).total_seconds() > 8:
             found_gap = True
             break
         ppd_1m_list.append(file_list_ppd_1m_alone[cur_index])
