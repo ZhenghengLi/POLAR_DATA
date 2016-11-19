@@ -92,7 +92,7 @@ bool PPDIterator::next_ppd() {
             ppd_reach_end_ = true;
             return false;
         }
-    } while (cur_ppd_.flag_of_pos != 0x55 or cur_ppd_.utc_time_sec < 0);
+    } while (cur_ppd_.flag_of_pos != 0x55 or cur_ppd_.utc_time_sec < 0 or cur_ppd_.ship_time_sec <= ppd_after.ship_time_sec);
     ppd_before = ppd_after;
     ppd_after = cur_ppd_;
 
