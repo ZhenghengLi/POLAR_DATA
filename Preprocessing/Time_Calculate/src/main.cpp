@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
     }
 
     SciTransfer scitran;
+    scitran.set_jumpsec(options_mgr.jumpsec);
     if (!scitran.open_read(options_mgr.scifile.Data())) {
         cerr << "root file open failed: " << options_mgr.scifile << endl;
         return 1;

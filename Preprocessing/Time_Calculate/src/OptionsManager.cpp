@@ -56,6 +56,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'j':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        jumpsec = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -63,6 +75,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             scifile = cur_par_str;
         }
     }
+    if (jumpsec < 0)
+        jumpsec = 0;
     if (scifile.IsNull() || hkfile.IsNull())
         return false;
     else
@@ -81,6 +95,7 @@ void OptionsManager::print_help() {
     cout << "  -k <hk_decoded_data.root>        root file that stores hk decoded data" << endl;
     cout << "  -o <sci_decoded_data.root>       root file that stores sci decoded data after absolute time is added" << endl;
     cout << "  -g <time_error.log>              text file that records time calculating error log info" << endl;
+    cout << "  -j <jump_second>                 seconds to jump from start for sci data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -100,6 +115,7 @@ void OptionsManager::init() {
     scifile.Clear();
     hkfile.Clear();
     outfile.Clear();
+    jumpsec = -1;
     version_flag_ = false;
 }
 

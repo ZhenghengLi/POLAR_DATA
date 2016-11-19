@@ -12,6 +12,8 @@ SciTransfer::SciTransfer() {
     t_trigger_tree_out_ = NULL;
     t_ped_modules_tree_out_ = NULL;
     t_ped_trigger_tree_out_ = NULL;
+
+    jump_second_ = 0;
 }
 
 SciTransfer::~SciTransfer() {
@@ -78,7 +80,7 @@ bool SciTransfer::open_read(const char* filename) {
     }
 
     read_set_start();
-    
+
     // t_trigger
     t_trigger_tree_in_->SetBranchAddress("trigg_num",         &t_trigger.trigg_num                   );
     t_trigger_tree_in_->SetBranchAddress("trigg_num_g",       &t_trigger.trigg_num_g                 );
@@ -98,9 +100,9 @@ bool SciTransfer::open_read(const char* filename) {
     t_trigger_tree_in_->SetBranchAddress("lost_count",        &t_trigger.lost_count                  );
     t_trigger_tree_in_->SetBranchAddress("trigger_n",         &t_trigger.trigger_n                   );
     t_trigger_tree_in_->SetBranchAddress("status",            &t_trigger.status                      );
-    t_trigger_tree_in_->SetBranchAddress("status_bit",        &t_trigger.status_bit.science_disable  );  
+    t_trigger_tree_in_->SetBranchAddress("status_bit",        &t_trigger.status_bit.science_disable  );
     t_trigger_tree_in_->SetBranchAddress("trig_sig_con",       t_trigger.trig_sig_con                );
-    t_trigger_tree_in_->SetBranchAddress("trig_sig_con_bit",   t_trigger.trig_sig_con_bit.fe_busy    );  
+    t_trigger_tree_in_->SetBranchAddress("trig_sig_con_bit",   t_trigger.trig_sig_con_bit.fe_busy    );
     t_trigger_tree_in_->SetBranchAddress("trig_accepted",      t_trigger.trig_accepted               );
     t_trigger_tree_in_->SetBranchAddress("trig_rejected",      t_trigger.trig_rejected               );
     t_trigger_tree_in_->SetBranchAddress("raw_dead",          &t_trigger.raw_dead                    );
@@ -148,9 +150,9 @@ bool SciTransfer::open_read(const char* filename) {
     t_ped_trigger_tree_in_->SetBranchAddress("lost_count",        &t_ped_trigger.lost_count                  );
     t_ped_trigger_tree_in_->SetBranchAddress("trigger_n",         &t_ped_trigger.trigger_n                   );
     t_ped_trigger_tree_in_->SetBranchAddress("status",            &t_ped_trigger.status                      );
-    t_ped_trigger_tree_in_->SetBranchAddress("status_bit",        &t_ped_trigger.status_bit.science_disable  );  
+    t_ped_trigger_tree_in_->SetBranchAddress("status_bit",        &t_ped_trigger.status_bit.science_disable  );
     t_ped_trigger_tree_in_->SetBranchAddress("trig_sig_con",       t_ped_trigger.trig_sig_con                );
-    t_ped_trigger_tree_in_->SetBranchAddress("trig_sig_con_bit",   t_ped_trigger.trig_sig_con_bit.fe_busy    );  
+    t_ped_trigger_tree_in_->SetBranchAddress("trig_sig_con_bit",   t_ped_trigger.trig_sig_con_bit.fe_busy    );
     t_ped_trigger_tree_in_->SetBranchAddress("trig_accepted",      t_ped_trigger.trig_accepted               );
     t_ped_trigger_tree_in_->SetBranchAddress("trig_rejected",      t_ped_trigger.trig_rejected               );
     t_ped_trigger_tree_in_->SetBranchAddress("raw_dead",          &t_ped_trigger.raw_dead                    );
@@ -180,23 +182,32 @@ bool SciTransfer::open_read(const char* filename) {
     t_ped_modules_tree_in_->SetBranchAddress("multiplicity",      &t_ped_modules.multiplicity                );
 
     bool found_good = false;
+    double first_gps_second = -1;
+    double cur_gps_second;
     for (Long64_t i = 0; i < t_trigger_tot_entries_; i++) {
         t_trigger_tree_in_->GetEntry(i);
         if (t_trigger.is_bad < 1) {
-            found_good = true;
-            break;
+            phy_first_gps.update6(t_trigger.frm_gps_time);
+            phy_first_timestamp = t_trigger.time_stamp;
+            cur_gps_second = phy_first_gps.week * 604800 + phy_first_gps.second;
+            if (first_gps_second < 0)
+                first_gps_second = cur_gps_second;
+            if (cur_gps_second - first_gps_second >= jump_second_) {
+                found_good = true;
+                break;
+            }
         }
     }
     if (!found_good) {
         cout << "ERROR: cannot find first valid phy frame gps." << endl;
         return false;
     }
-    phy_first_gps.update6(t_trigger.frm_gps_time);
-    phy_first_timestamp = t_trigger.time_stamp;
     found_good = false;
-    for (Long64_t i = t_trigger_tot_entries_ - 1; i >= 0; i--) {
+    for (Long64_t i = t_trigger_tot_entries_ - 1; i >= jump_second_; i--) {
         t_trigger_tree_in_->GetEntry(i);
         if (t_trigger.is_bad < 1) {
+            phy_last_gps.update6(t_trigger.frm_gps_time);
+            phy_last_timestamp = t_trigger.time_stamp;
             found_good = true;
             break;
         }
@@ -205,27 +216,33 @@ bool SciTransfer::open_read(const char* filename) {
         cout << "ERROR: cannot find last valid phy frame gps." << endl;
         return false;
     }
-    phy_last_gps.update6(t_trigger.frm_gps_time);
-    phy_last_timestamp = t_trigger.time_stamp;
 
     found_good = false;
+    first_gps_second = -1;
     for (Long64_t i = 0; i < t_ped_trigger_tot_entries_; i++) {
         t_ped_trigger_tree_in_->GetEntry(i);
         if (t_ped_trigger.is_bad < 1) {
-            found_good = true;
-            break;
+            ped_first_gps.update6(t_ped_trigger.frm_gps_time);
+            ped_first_timestamp = t_ped_trigger.time_stamp;
+            cur_gps_second = ped_first_gps.week * 604800 + ped_first_gps.second;
+            if (first_gps_second < 0)
+                first_gps_second = cur_gps_second;
+            if (cur_gps_second - first_gps_second >= jump_second_) {
+                found_good = true;
+                break;
+            }
         }
     }
     if (!found_good) {
         cout << "ERROR: cannot find first valid ped frame gps." << endl;
         return false;
     }
-    ped_first_gps.update6(t_ped_trigger.frm_gps_time);
-    ped_first_timestamp = t_ped_trigger.time_stamp;
     found_good = false;
-    for (Long64_t i = t_ped_trigger_tot_entries_ - 1; i >= 0; i--) {
+    for (Long64_t i = t_ped_trigger_tot_entries_ - 1; i >= jump_second_; i--) {
         t_ped_trigger_tree_in_->GetEntry(i);
         if (t_ped_trigger.is_bad < 1) {
+            ped_last_gps.update6(t_ped_trigger.frm_gps_time);
+            ped_last_timestamp = t_ped_trigger.time_stamp;
             found_good = true;
             break;
         }
@@ -234,9 +251,7 @@ bool SciTransfer::open_read(const char* filename) {
         cout << "ERROR: cannot find last valid ped frame gps." << endl;
         return false;
     }
-    ped_last_gps.update6(t_ped_trigger.frm_gps_time);
-    ped_last_timestamp = t_ped_trigger.time_stamp;
-    
+
     return true;
 }
 
@@ -250,39 +265,39 @@ bool SciTransfer::open_write(const char* filename) {
     // t_modules
     t_modules_tree_out_ = new TTree("t_modules", "physical modules packets");
     t_modules_tree_out_->SetDirectory(t_file_out_);
-    t_modules_tree_out_->Branch("trigg_num",         &t_modules.trigg_num,         "trigg_num/L"           );  
-    t_modules_tree_out_->Branch("event_num",         &t_modules.event_num,         "event_num/L"           );  
-    t_modules_tree_out_->Branch("event_num_g",       &t_modules.event_num_g,       "event_num_g/L"         );  
-    t_modules_tree_out_->Branch("is_bad",            &t_modules.is_bad,            "is_bad/I"              );  
-    t_modules_tree_out_->Branch("pre_is_bad",        &t_modules.pre_is_bad,        "pre_is_bad/I"          );  
-    t_modules_tree_out_->Branch("compress",          &t_modules.compress,          "compress/I"            );  
-    t_modules_tree_out_->Branch("ct_num",            &t_modules.ct_num,            "ct_num/I"              );  
-    t_modules_tree_out_->Branch("time_stamp",        &t_modules.time_stamp,        "time_stamp/i"          );  
-    t_modules_tree_out_->Branch("time_period",       &t_modules.time_period,       "time_period/i"         );  
-    t_modules_tree_out_->Branch("time_align",        &t_modules.time_align,        "time_align/i"          );  
-    t_modules_tree_out_->Branch("time_second",       &t_modules.time_second,       "time_second/D"         );  
-    t_modules_tree_out_->Branch("time_wait",         &t_modules.time_wait,         "time_wait/D"           );  
-    t_modules_tree_out_->Branch("raw_rate",          &t_modules.raw_rate,          "raw_rate/I"            );  
-    t_modules_tree_out_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/i"            );  
-    t_modules_tree_out_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );  
-    t_modules_tree_out_->Branch("status",            &t_modules.status,            "status/s"              );  
-    t_modules_tree_out_->Branch("status_bit",        &t_modules.status_bit.trigger_fe_busy, 
+    t_modules_tree_out_->Branch("trigg_num",         &t_modules.trigg_num,         "trigg_num/L"           );
+    t_modules_tree_out_->Branch("event_num",         &t_modules.event_num,         "event_num/L"           );
+    t_modules_tree_out_->Branch("event_num_g",       &t_modules.event_num_g,       "event_num_g/L"         );
+    t_modules_tree_out_->Branch("is_bad",            &t_modules.is_bad,            "is_bad/I"              );
+    t_modules_tree_out_->Branch("pre_is_bad",        &t_modules.pre_is_bad,        "pre_is_bad/I"          );
+    t_modules_tree_out_->Branch("compress",          &t_modules.compress,          "compress/I"            );
+    t_modules_tree_out_->Branch("ct_num",            &t_modules.ct_num,            "ct_num/I"              );
+    t_modules_tree_out_->Branch("time_stamp",        &t_modules.time_stamp,        "time_stamp/i"          );
+    t_modules_tree_out_->Branch("time_period",       &t_modules.time_period,       "time_period/i"         );
+    t_modules_tree_out_->Branch("time_align",        &t_modules.time_align,        "time_align/i"          );
+    t_modules_tree_out_->Branch("time_second",       &t_modules.time_second,       "time_second/D"         );
+    t_modules_tree_out_->Branch("time_wait",         &t_modules.time_wait,         "time_wait/D"           );
+    t_modules_tree_out_->Branch("raw_rate",          &t_modules.raw_rate,          "raw_rate/I"            );
+    t_modules_tree_out_->Branch("raw_dead",          &t_modules.raw_dead,          "raw_dead/i"            );
+    t_modules_tree_out_->Branch("dead_ratio",        &t_modules.dead_ratio,        "dead_ratio/F"          );
+    t_modules_tree_out_->Branch("status",            &t_modules.status,            "status/s"              );
+    t_modules_tree_out_->Branch("status_bit",        &t_modules.status_bit.trigger_fe_busy,
                             "trigger_fe_busy/O:fifo_full:fifo_empty:trigger_enable:"
                             "trigger_waiting:trigger_hold_b:timestamp_enable:reduction_mode_b1:"
                             "reduction_mode_b0:subsystem_busy:dynode_2:dynode_1:"
-                            "dy12_too_high:t_out_too_many:t_out_2:t_out_1"                             );  
-    t_modules_tree_out_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );  
-    t_modules_tree_out_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );  
-    t_modules_tree_out_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/F"        );  
-    t_modules_tree_out_->Branch("multiplicity",      &t_modules.multiplicity,      "multiplicity/I"        );  
+                            "dy12_too_high:t_out_too_many:t_out_2:t_out_1"                             );
+    t_modules_tree_out_->Branch("trigger_bit",        t_modules.trigger_bit,       "trigger_bit[64]/O"     );
+    t_modules_tree_out_->Branch("energy_adc",         t_modules.energy_adc,        "energy_adc[64]/F"      );
+    t_modules_tree_out_->Branch("common_noise",      &t_modules.common_noise,      "common_noise/F"        );
+    t_modules_tree_out_->Branch("multiplicity",      &t_modules.multiplicity,      "multiplicity/I"        );
 
     // t_trigger
     t_trigger_tree_out_ = new TTree("t_trigger", "physical trigger packets");
     t_trigger_tree_out_->SetDirectory(t_file_out_);
-    t_trigger_tree_out_->Branch("trigg_num",         &t_trigger.trigg_num,         "trigg_num/L"           );  
-    t_trigger_tree_out_->Branch("trigg_num_g",       &t_trigger.trigg_num_g,       "trigg_num_g/L"         );  
-    t_trigger_tree_out_->Branch("is_bad",            &t_trigger.is_bad,            "is_bad/I"              );  
-    t_trigger_tree_out_->Branch("pre_is_bad",        &t_trigger.pre_is_bad,        "pre_is_bad/I"          );  
+    t_trigger_tree_out_->Branch("trigg_num",         &t_trigger.trigg_num,         "trigg_num/L"           );
+    t_trigger_tree_out_->Branch("trigg_num_g",       &t_trigger.trigg_num_g,       "trigg_num_g/L"         );
+    t_trigger_tree_out_->Branch("is_bad",            &t_trigger.is_bad,            "is_bad/I"              );
+    t_trigger_tree_out_->Branch("pre_is_bad",        &t_trigger.pre_is_bad,        "pre_is_bad/I"          );
     t_trigger_tree_out_->Branch("type",              &t_trigger.type,              "type/I"                );
     t_trigger_tree_out_->Branch("packet_num",        &t_trigger.packet_num,        "packet_num/I"          );
     t_trigger_tree_out_->Branch("time_stamp",        &t_trigger.time_stamp,        "time_stamp/i"          );
@@ -305,7 +320,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_trigger_tree_out_->Branch("trig_sig_con",       t_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_trigger_tree_out_->Branch("trig_sig_con_bit",   t_trigger.trig_sig_con_bit.fe_busy,
                             "fe_busy[25]/O:fe_waiting[25]:"
-                            "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"             ); 
+                            "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"             );
     t_trigger_tree_out_->Branch("trig_accepted",      t_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_trigger_tree_out_->Branch("trig_rejected",      t_trigger.trig_rejected,     "trig_rejected[25]/O"   );
     t_trigger_tree_out_->Branch("raw_dead",          &t_trigger.raw_dead,          "raw_dead/i"            );
@@ -334,7 +349,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_ped_modules_tree_out_->Branch("raw_dead",          &t_ped_modules.raw_dead,          "raw_dead/i"            );
     t_ped_modules_tree_out_->Branch("dead_ratio",        &t_ped_modules.dead_ratio,        "dead_ratio/F"          );
     t_ped_modules_tree_out_->Branch("status",            &t_ped_modules.status,            "status/s"              );
-    t_ped_modules_tree_out_->Branch("status_bit",        &t_ped_modules.status_bit.trigger_fe_busy, 
+    t_ped_modules_tree_out_->Branch("status_bit",        &t_ped_modules.status_bit.trigger_fe_busy,
                                 "trigger_fe_busy/O:fifo_full:fifo_empty:trigger_enable:"
                                 "trigger_waiting:trigger_hold_b:timestamp_enable:reduction_mode_b1:"
                                 "reduction_mode_b0:subsystem_busy:dynode_2:dynode_1:"
@@ -373,7 +388,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_ped_trigger_tree_out_->Branch("trig_sig_con",       t_ped_trigger.trig_sig_con,      "trig_sig_con[25]/b"    );
     t_ped_trigger_tree_out_->Branch("trig_sig_con_bit",   t_ped_trigger.trig_sig_con_bit.fe_busy,
                                 "fe_busy[25]/O:fe_waiting[25]:"
-                                "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"                 ); 
+                                "fe_hold_b[25]:fe_tmany_thigh[25]:fe_tout_2[25]:fe_tout_1[25]"                 );
     t_ped_trigger_tree_out_->Branch("trig_accepted",      t_ped_trigger.trig_accepted,     "trig_accepted[25]/O"   );
     t_ped_trigger_tree_out_->Branch("trig_rejected",      t_ped_trigger.trig_rejected,     "trig_rejected[25]/O"   );
     t_ped_trigger_tree_out_->Branch("raw_dead",          &t_ped_trigger.raw_dead,          "raw_dead/i"            );
@@ -382,7 +397,7 @@ bool SciTransfer::open_write(const char* filename) {
     t_ped_trigger_tree_out_->Branch("abs_gps_second",    &t_ped_trigger.abs_gps_second,    "abs_gps_second/D"      );
     t_ped_trigger_tree_out_->Branch("abs_gps_valid",     &t_ped_trigger.abs_gps_valid,     "abs_gps_valid/O"       );
     t_ped_trigger_tree_out_->Branch("abs_ship_second",   &t_ped_trigger.abs_ship_second,   "abs_ship_second/D"     );
-    
+
     return true;
 }
 
@@ -392,7 +407,7 @@ void SciTransfer::close_read() {
 
     t_file_in_->Close();
     t_file_in_ = NULL;
-    
+
     t_trigger_tree_in_ = NULL;
     t_modules_tree_in_ = NULL;
     t_ped_trigger_tree_in_ = NULL;
@@ -402,19 +417,19 @@ void SciTransfer::close_read() {
 void SciTransfer::close_write() {
     if (t_file_in_ == NULL)
         return;
-    
+
     delete t_trigger_tree_out_;
     t_trigger_tree_out_ = NULL;
-    
+
     delete t_modules_tree_out_;
     t_modules_tree_out_ = NULL;
-    
+
     delete t_ped_trigger_tree_out_;
     t_ped_trigger_tree_out_ = NULL;
-    
+
     delete t_ped_modules_tree_out_;
     t_ped_modules_tree_out_ = NULL;
-    
+
     t_file_out_->Close();
     delete t_file_out_;
     t_file_out_ = NULL;

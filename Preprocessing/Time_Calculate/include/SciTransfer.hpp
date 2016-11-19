@@ -67,7 +67,7 @@ public:
         Int_t           is_bad;                   // if the packet is invalid or has CRC error: 3 when short, 2 when invalid, 1 when crc error, 0 when good,
         //                                           -1 when timestamp is 0.
         Int_t           pre_is_bad;               // if the previous packet is invalid or has CRC error
-        Int_t           compress;                 // compress mode: 0 for default, 1 for simple, 2 for pedestal, 3 for full reduction 
+        Int_t           compress;                 // compress mode: 0 for default, 1 for simple, 2 for pedestal, 3 for full reduction
         Int_t           ct_num;                   // CT number, from 1 to 25
         UInt_t          time_stamp;               // raw data of TIMESTAMP field of the packet
         UInt_t          time_period;              // overflow counter of time_stamp
@@ -143,7 +143,7 @@ public:
     uint32_t  ped_first_timestamp;
     GPSTime   ped_last_gps;
     uint32_t  ped_last_timestamp;
-    
+
 private:
     TFile*   t_file_in_;
     TTree*   t_modules_tree_in_;
@@ -169,12 +169,14 @@ private:
     TNamed*  m_gentime_named_in_;
     TNamed*  m_rawfile_named_in_;
     TNamed*  m_dcdinfo_named_in_;
-    
+
     TFile*   t_file_out_;
     TTree*   t_modules_tree_out_;
     TTree*   t_trigger_tree_out_;
     TTree*   t_ped_modules_tree_out_;
     TTree*   t_ped_trigger_tree_out_;
+
+    int      jump_second_;
 
 private:
     double calc_ship_second(const uint64_t raw_ship_time);
@@ -200,6 +202,10 @@ public:
     void ped_trigger_fill();
     void write_all_tree();
     void write_meta(const char* key, const char* value);
+
+    void set_jumpsec(int jump) {
+        jump_second_ = jump;
+    }
 
     const TNamed* get_dattype() const {
         return m_dattype_named_in_;
