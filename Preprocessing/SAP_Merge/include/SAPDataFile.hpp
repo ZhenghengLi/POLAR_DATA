@@ -1,4 +1,4 @@
-#ifndef SAPDATAFILE_H 
+#ifndef SAPDATAFILE_H
 #define SAPDATAFILE_H
 
 #include "RootInc.hpp"
@@ -20,10 +20,10 @@ public:
         Int_t           ct_pre_is_bad;
         Int_t           fe_pre_is_bad[25];
         Double_t        ct_time_second;
-        Float_t         ct_time_wait; 
+        Double_t        ct_time_wait;
         Float_t         ct_dead_ratio;
         Double_t        fe_time_second[25];
-        Float_t         fe_time_wait[25];
+        Double_t        fe_time_wait[25];
         Float_t         fe_dead_ratio[25];
         Bool_t          trig_accepted[25];
         Bool_t          time_aligned[25];
@@ -41,17 +41,17 @@ public:
         Bool_t          t_out_too_many[25];
         Bool_t          t_out_2[25];
         Bool_t          t_out_1[25];
-        // from AUX 
+        // from AUX
         Int_t           obox_mode;
         Float_t         fe_hv[25];
         Float_t         fe_thr[25];
         Float_t         fe_temp[25];
         // from PPD
-        Float_t         wgs84_xyz[3];
-        Float_t         det_z_radec[2];
-        Float_t         det_x_radec[2];
-        Float_t         earth_radec[2];
-        Float_t         sun_radec[2];
+        Double_t        wgs84_xyz[3];
+        Double_t        det_z_radec[2];
+        Double_t        det_x_radec[2];
+        Double_t        earth_radec[2];
+        Double_t        sun_radec[2];
 
     };
 
@@ -60,4 +60,4 @@ public:
 
 };
 
-#endif 
+#endif

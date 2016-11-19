@@ -36,7 +36,7 @@ bool AUXIterator::open(const char* filename) {
         cerr << "ship time span match failed: " << m_oboxship->GetTitle() << endl;
         return false;
     }
-    
+
     t_hk_obox_tree_->SetBranchAddress("packet_num",         &cur_hk_obox_.packet_num       );
     t_hk_obox_tree_->SetBranchAddress("abs_ship_second",    &cur_hk_obox_.abs_ship_second  );
     t_hk_obox_tree_->SetBranchAddress("obox_is_bad",        &cur_hk_obox_.obox_is_bad      );
@@ -78,7 +78,7 @@ bool AUXIterator::open(const char* filename) {
     }
 
     hk_obox_reach_end_ = false;
-    
+
     return true;
 }
 

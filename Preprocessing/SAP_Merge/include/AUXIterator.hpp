@@ -55,7 +55,7 @@ public:
 
     double get_first_ship_second();
     double get_last_ship_second();
-    
+
 };
 
 #endif
