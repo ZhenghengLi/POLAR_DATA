@@ -73,7 +73,7 @@ public:
     double get_first_ship_second();
     double get_last_ship_second();
 
-    string get_bad_ratio();
+    string get_bad_ratio_str();
 
 };
 

@@ -211,7 +211,7 @@ double SCIIterator::get_last_ship_second() {
     return last_ship_second_;
 }
 
-string SCIIterator::get_bad_ratio() {
+string SCIIterator::get_bad_ratio_str() {
     if (ped_trigger_reach_end_ && phy_trigger_reach_end_) {
         return string(Form("bad_packet: %ld/%ld, bad_time: %ld/%ld",
                     static_cast<long int>(bad_entries_),
