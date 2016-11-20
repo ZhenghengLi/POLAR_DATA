@@ -15,7 +15,7 @@ PPDIterator::~PPDIterator() {
 }
 
 bool PPDIterator::open(const char* filename) {
-    if (t_file_in_ == NULL)
+    if (t_file_in_ != NULL)
         return false;
     t_file_in_ = new TFile(filename, "READ");
     if (t_file_in_->IsZombie())
