@@ -55,6 +55,7 @@ bool SCIIterator::open(const char* filename) {
     }
 
     total_entries_ = t_trigger_tree_->GetEntries() + t_ped_trigger_tree_->GetEntries();
+    bad_entries_ = 0;
 
     bind_trigger_tree(t_trigger_tree_, phy_trigger_);
     bind_trigger_tree(t_ped_trigger_tree_, ped_trigger_);
