@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include "OptionsManager.hpp"
-#include "AUXIterator.hpp"
+#include "PPDIterator.hpp"
 
 using namespace std;
 
@@ -21,24 +21,21 @@ int main(int argc, char** argv) {
     cout << options_mgr.ppdfile.Data() << endl;
     cout << options_mgr.outfile.Data() << endl;
 
-    AUXIterator auxIter;
-    if (!auxIter.open(options_mgr.auxfile.Data())) {
+    PPDIterator ppdIter;
+    if (!ppdIter.open(options_mgr.auxfile.Data())) {
         cout << "root file open faild." << endl;
         return 1;
     }
 
-    char str_buffer[200];
-    while (auxIter.next_obox()) {
-        sprintf(str_buffer, 
-                "%10d  %10d  %20.8f  %20.8f %20.8f %20.8f",
-                auxIter.hk_obox_before.packet_num,
-                auxIter.hk_obox_after.packet_num,
-                auxIter.hk_obox_before.abs_ship_second,
-                auxIter.hk_obox_after.abs_ship_second,
-                auxIter.fe_thr_ship_second_current,
-                auxIter.fe_thr_ship_second_next);
-        cout << str_buffer << endl;
+    cout << "first_ship_time: " << ppdIter.get_first_ship_second() << endl;
+    cout << "last_ship_time:  " << ppdIter.get_last_ship_second() << endl;
+
+    while (ppdIter.next_ppd()) {
+        ppdIter.calc_ppd_interm(ppdIter.ppd_before.ship_time_sec + 0.5);
+        cout << ppdIter.ppd_before.wgs84_x << " " << ppdIter.ppd_after.wgs84_x << ppdIter.ppd_interm.wgs84_x << endl;
     }
+
+    ppdIter.close();
 
     return 0;
 }

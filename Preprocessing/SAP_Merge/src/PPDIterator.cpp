@@ -132,4 +132,11 @@ void PPDIterator::calc_ppd_interm(double ship_time) {
     ppd_interm.sun_dec   = ppd_before.sun_dec   + sun_dec_slope_   * ship_time_diff;
 }
 
+double PPDIterator::get_first_ship_second() {
+    return first_ship_second_;
+}
+
+double PPDIterator::get_last_ship_second() {
+    return last_ship_second_;
+}
 
