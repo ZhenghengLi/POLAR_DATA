@@ -44,6 +44,12 @@ private:
 
     Long64_t total_entries_;
     Long64_t bad_entries_;
+    Long64_t bad_time_entries_;
+
+    string m_version_value_;
+    string m_gentime_value_;
+    string m_rawfile_value_;
+    string m_dcdinfo_value_;
 
 public:
     Trigger_T cur_trigger;
@@ -67,7 +73,7 @@ public:
     double get_first_ship_second();
     double get_last_ship_second();
 
-    double get_bad_percent();
+    string get_bad_ratio();
 
 };
 

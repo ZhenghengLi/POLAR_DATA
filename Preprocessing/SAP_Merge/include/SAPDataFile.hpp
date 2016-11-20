@@ -1,6 +1,7 @@
 #ifndef SAPDATAFILE_H
 #define SAPDATAFILE_H
 
+#include <iostream>
 #include "RootInc.hpp"
 
 using namespace std;
@@ -12,7 +13,6 @@ public:
         Long64_t        event_id;
         Int_t           abs_gps_week;
         Double_t        abs_gps_second;
-        Bool_t          abs_gps_valid;
         Double_t        abs_met_second;
         Int_t           type;
         Bool_t          is_ped;
@@ -57,6 +57,25 @@ public:
 
     static const UShort_t ADC_OVERFLOW = 0x1;
     static const UShort_t ADC_NOT_READOUT = 0x3;
+
+private:
+    TFile* t_file_out_;
+    TTree* t_pol_event_tree_;
+
+public:
+    SAPType  t_pol_event;
+
+public:
+    SAPDataFile();
+    ~SAPDataFile();
+
+    bool open(const char* filename);
+    void close();
+
+    void clear_data();
+    void fill_data();
+    void write_tree();
+    void write_meta(const char* key, const char* value);
 
 };
 

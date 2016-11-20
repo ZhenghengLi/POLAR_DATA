@@ -53,9 +53,30 @@ bool SCIIterator::open(const char* filename) {
         cerr << "ship time span match failed: " << m_pedship->GetTitle() << endl;
         return false;
     }
+    TNamed* m_version = static_cast<TNamed*>(t_file_in_->Get("m_version"));
+    if (m_version == NULL)
+        return false;
+    else
+        m_version_value_ = m_version->GetTitle();
+    TNamed* m_gentime = static_cast<TNamed*>(t_file_in_->Get("m_gentime"));
+    if (m_gentime == NULL)
+        return false;
+    else
+        m_gentime_value_ = m_gentime->GetTitle();
+    TNamed* m_rawfile = static_cast<TNamed*>(t_file_in_->Get("m_rawfile"));
+    if (m_rawfile == NULL)
+        return false;
+    else
+        m_rawfile_value_ = m_rawfile->GetTitle();
+    TNamed* m_dcdinfo = static_cast<TNamed*>(t_file_in_->Get("m_dcdinfo"));
+    if (m_dcdinfo == NULL)
+        return false;
+    else
+        m_dcdinfo_value_ = m_dcdinfo->GetTitle();
 
     total_entries_ = t_trigger_tree_->GetEntries() + t_ped_trigger_tree_->GetEntries();
     bad_entries_ = 0;
+    bad_time_entries_ = 0;
 
     bind_trigger_tree(t_trigger_tree_, phy_trigger_);
     bind_trigger_tree(t_ped_trigger_tree_, ped_trigger_);
@@ -98,11 +119,13 @@ bool SCIIterator::ped_trigger_next_() {
             t_ped_trigger_tree_->GetEntry(ped_trigger_cur_entry_);
             if (ped_trigger_.is_bad > 0)
                 bad_entries_++;
+            if (!ped_trigger_.abs_gps_valid || ped_trigger_.abs_gps_week < 0)
+                bad_time_entries_++;
         } else {
             ped_trigger_reach_end_ = true;
             return false;
         }
-    } while (ped_trigger_.is_bad > 0);
+    } while (ped_trigger_.is_bad > 0 || !ped_trigger_.abs_gps_valid || ped_trigger_.abs_gps_week < 0);
     cur_ped_pkt_start_ = ped_trigger_.pkt_start;
     cur_ped_pkt_count_ = ped_trigger_.pkt_count;
     ped_modules_cur_entry_ = cur_ped_pkt_start_ - 1;
@@ -120,11 +143,13 @@ bool SCIIterator::phy_trigger_next_() {
             t_trigger_tree_->GetEntry(phy_trigger_cur_entry_);
             if (phy_trigger_.is_bad > 0)
                 bad_entries_++;
+            if (!phy_trigger_.abs_gps_valid || phy_trigger_.abs_gps_week < 0)
+                bad_time_entries_++;
         } else {
             phy_trigger_reach_end_ = true;
             return false;
         }
-    } while (phy_trigger_.is_bad > 0);
+    } while (phy_trigger_.is_bad > 0 || !phy_trigger_.abs_gps_valid || phy_trigger_.abs_gps_week < 0);
     cur_phy_pkt_start_ = phy_trigger_.pkt_start;
     cur_phy_pkt_count_ = phy_trigger_.pkt_count;
     phy_modules_cur_entry_ = cur_phy_pkt_start_ - 1;
@@ -186,10 +211,15 @@ double SCIIterator::get_last_ship_second() {
     return last_ship_second_;
 }
 
-double SCIIterator::get_bad_percent() {
+string SCIIterator::get_bad_ratio() {
     if (ped_trigger_reach_end_ && phy_trigger_reach_end_) {
-        return static_cast<double>(bad_entries_) / static_cast<double>(total_entries_);
+        return string(Form("bad_packet: %ld/%ld, bad_time: %ld/%ld",
+                    static_cast<long int>(bad_entries_),
+                    static_cast<long int>(total_entries_),
+                    static_cast<long int>(bad_time_entries_),
+                    static_cast<long int>(total_entries_)));
     } else {
-        return -1;
+        return string("not_reach_end");
     }
 }
+
