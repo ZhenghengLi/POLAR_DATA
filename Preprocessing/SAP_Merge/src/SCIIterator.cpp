@@ -10,10 +10,13 @@ SCIIterator::SCIIterator() {
     t_ped_modules_tree_ = NULL;
 
     re_ship_span_ = "^ *(\\d+)\\[\\d+\\] => (\\d+)\\[\\d+\\]; \\d+/\\d+ *$";
+
+    total_entries_ = 0;
+    bad_entries_   = 0;
 }
 
 SCIIterator::~SCIIterator() {
-    if (t_file_in_ != NULL) 
+    if (t_file_in_ != NULL)
         close();
 }
 
@@ -50,6 +53,8 @@ bool SCIIterator::open(const char* filename) {
         cerr << "ship time span match failed: " << m_pedship->GetTitle() << endl;
         return false;
     }
+
+    total_entries_ = t_trigger_tree_->GetEntries() + t_ped_trigger_tree_->GetEntries();
 
     bind_trigger_tree(t_trigger_tree_, phy_trigger_);
     bind_trigger_tree(t_ped_trigger_tree_, ped_trigger_);
@@ -90,6 +95,8 @@ bool SCIIterator::ped_trigger_next_() {
         ped_trigger_cur_entry_++;
         if (ped_trigger_cur_entry_ < t_ped_trigger_tree_->GetEntries()) {
             t_ped_trigger_tree_->GetEntry(ped_trigger_cur_entry_);
+            if (ped_trigger_.is_bad > 0)
+                bad_entries_++;
         } else {
             ped_trigger_reach_end_ = true;
             return false;
@@ -110,6 +117,8 @@ bool SCIIterator::phy_trigger_next_() {
         phy_trigger_cur_entry_++;
         if (phy_trigger_cur_entry_ < t_trigger_tree_->GetEntries()) {
             t_trigger_tree_->GetEntry(phy_trigger_cur_entry_);
+            if (phy_trigger_.is_bad > 0)
+                bad_entries_++;
         } else {
             phy_trigger_reach_end_ = true;
             return false;
@@ -174,4 +183,12 @@ double SCIIterator::get_first_ship_second() {
 
 double SCIIterator::get_last_ship_second() {
     return last_ship_second_;
+}
+
+double SCIIterator::get_bad_percent() {
+    if (ped_trigger_reach_end_ && phy_trigger_reach_end_) {
+        return static_cast<double>(bad_entries_) / static_cast<double>(total_entries_);
+    } else {
+        return -1;
+    }
 }

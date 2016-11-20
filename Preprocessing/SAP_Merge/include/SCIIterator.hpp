@@ -22,7 +22,7 @@ private:
     regex  re_ship_span_;
     double first_ship_second_;
     double last_ship_second_;
-    
+
     bool ped_trigger_reach_end_;
     bool phy_trigger_reach_end_;
 
@@ -41,6 +41,9 @@ private:
     Trigger_T ped_trigger_;
     Modules_T phy_modules_;
     Modules_T ped_modules_;
+
+    Long64_t total_entries_;
+    Long64_t bad_entries_;
 
 public:
     Trigger_T cur_trigger;
@@ -63,7 +66,9 @@ public:
 
     double get_first_ship_second();
     double get_last_ship_second();
-    
+
+    double get_bad_percent();
+
 };
 
 #endif
