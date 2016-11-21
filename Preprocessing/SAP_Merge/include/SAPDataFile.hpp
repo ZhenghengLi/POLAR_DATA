@@ -11,9 +11,7 @@ public:
     struct SAPType {
         // from SCI
         Long64_t        event_id;
-        Int_t           abs_gps_week;
-        Double_t        abs_gps_second;
-        Double_t        abs_met_second;
+        Double_t        event_time;
         Int_t           type;
         Bool_t          is_ped;
         Int_t           packet_num;

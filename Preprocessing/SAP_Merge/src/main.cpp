@@ -46,7 +46,17 @@ int main(int argc, char** argv) {
 
     PPDIterator ppdIter;
     if (options_mgr.ppdfile.IsNull()) {
-
+        cout << "WARNING: no PPD data file input." << endl;
+    } else {
+        if (!ppdIter.open(options_mgr.ppdfile.Data())) {
+            cout << "PPD root file open failed: " << options_mgr.ppdfile.Data() << endl;
+            return 1;
+        }
+    }
+    if (ppdIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
+            || sciIter.get_last_ship_second() - ppdIter.get_last_ship_second() > MAX_OFFSET) {
+        cout << "PPD does not match to SCI y ship time." << endl;
+        return 1;
     }
 
     SAPDataFile sapFile;

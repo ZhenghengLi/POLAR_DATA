@@ -20,9 +20,7 @@ bool SAPDataFile::open(const char* filename) {
     t_pol_event_tree_ = new TTree("t_pol_event", "POLAR event data with AUX and PPD info added");
     // from SCI
     t_pol_event_tree_->Branch("event_id",           &t_pol_event.event_id,          "event_id/L"                 );
-    t_pol_event_tree_->Branch("abs_gps_week",       &t_pol_event.abs_gps_week,      "abs_gps_week/I"             );
-    t_pol_event_tree_->Branch("abs_gps_second",     &t_pol_event.abs_gps_second,    "abs_gps_second/D"           );
-    t_pol_event_tree_->Branch("abs_met_second",     &t_pol_event.abs_met_second,    "abs_met_second/D"           );
+    t_pol_event_tree_->Branch("event_time",         &t_pol_event.event_time,        "event_time/D"               );
     t_pol_event_tree_->Branch("type",               &t_pol_event.type,              "type/I"                     );
     t_pol_event_tree_->Branch("is_ped",             &t_pol_event.is_ped,            "is_ped/O"                   );
     t_pol_event_tree_->Branch("packet_num",         &t_pol_event.packet_num,        "packet_num/I"               );
@@ -103,9 +101,7 @@ void SAPDataFile::write_meta(const char* key, const char* value) {
 void SAPDataFile::clear_data() {
     // from SCI
     t_pol_event.event_id                              = -1;
-    t_pol_event.abs_gps_week                          = -1;
-    t_pol_event.abs_gps_second                        = -1;
-    t_pol_event.abs_met_second                        = -1;
+    t_pol_event.event_time                            = -1;
     t_pol_event.type                                  = -1;
     t_pol_event.is_ped                                = false;
     t_pol_event.packet_num                            = -1;
