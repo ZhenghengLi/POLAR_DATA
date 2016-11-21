@@ -67,6 +67,7 @@ bool PPDIterator::open(const char* filename) {
     ppd_after  = cur_ppd_;
 
     ppd_reach_end_ = false;
+    next_ppd();
 
     return true;
 }

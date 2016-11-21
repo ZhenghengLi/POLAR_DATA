@@ -78,6 +78,7 @@ bool AUXIterator::open(const char* filename) {
     }
 
     hk_obox_reach_end_ = false;
+    next_obox();
 
     return true;
 }
