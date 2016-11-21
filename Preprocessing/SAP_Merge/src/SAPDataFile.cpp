@@ -100,3 +100,71 @@ void SAPDataFile::write_meta(const char* key, const char* value) {
     cur_meta = NULL;
 }
 
+void SAPDataFile::clear_data() {
+    // from SCI
+    t_pol_event.event_id                              = -1;
+    t_pol_event.abs_gps_week                          = -1;
+    t_pol_event.abs_gps_second                        = -1;
+    t_pol_event.abs_met_second                        = -1;
+    t_pol_event.type                                  = -1;
+    t_pol_event.is_ped                                = false;
+    t_pol_event.packet_num                            = -1;
+    t_pol_event.ct_pre_is_bad                         = false;
+    for (int i = 0; i < 25; i++) {
+        t_pol_event.fe_pre_is_bad[i]                  = false;
+    }
+    t_pol_event.ct_time_second                        = -1;
+    t_pol_event.ct_time_wait                          = -1;
+    t_pol_event.ct_dead_ratio                         = -1;
+    for (int i = 0; i < 25; i++) {
+        t_pol_event.fe_time_second[i]                 = -1;
+        t_pol_event.fe_time_wait[i]                   = -1;
+        t_pol_event.fe_dead_ratio[i]                  = -1;
+        t_pol_event.trig_accepted[i]                  = -1;
+        t_pol_event.time_aligned[i]                   = -1;
+        t_pol_event.raw_rate[i]                       = -1;
+    }
+    t_pol_event.pkt_count                             = -1;
+    t_pol_event.lost_count                            = -1;
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            t_pol_event.trigger_bit[i][j]             = false;
+        }
+    }
+    t_pol_event.trigger_n                             = -1;
+    for (int i = 0; i < 25; i++) {
+        t_pol_event.multiplicity[i]                   = -1;
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            t_pol_event.energy_value[i][j]            = -1;
+            t_pol_event.channel_status[i][j]          = 0;
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        t_pol_event.common_noise[i]                   = -1;
+        t_pol_event.compress[i]                       = -1;
+        t_pol_event.dy12_too_high[i]                  = false;
+        t_pol_event.t_out_too_many[i]                 = false;
+        t_pol_event.t_out_2[i]                        = false;
+        t_pol_event.t_out_1[i]                        = false;
+    }
+    // from AUX
+    t_pol_event.obox_mode                             = -1;
+    for (int i = 0; i < 25; i++) {
+        t_pol_event.fe_hv[i]                          = 123456;
+        t_pol_event.fe_thr[i]                         = 123456;
+        t_pol_event.fe_temp[i]                        = 123456;
+    }
+    // from PPD
+    for (int i = 0; i < 3; i++) {
+        t_pol_event.wgs84_xyz[i]                      = 123456;
+    }
+    for (int i = 0; i < 2; i++) {
+        t_pol_event.det_z_radec[i]                    = 123456;
+        t_pol_event.det_x_radec[i]                    = 123456;
+        t_pol_event.earth_radec[i]                    = 123456;
+        t_pol_event.sun_radec[i]                      = 123456;
+    }
+}
+

@@ -1,7 +1,12 @@
 #include <iostream>
 #include <cstdio>
 #include "OptionsManager.hpp"
+#include "SCIIterator.hpp"
+#include "AUXIterator.hpp"
 #include "PPDIterator.hpp"
+#include "SAPDataFile.hpp"
+
+#define MAX_OFFSET 10
 
 using namespace std;
 
@@ -21,21 +26,30 @@ int main(int argc, char** argv) {
     cout << options_mgr.ppdfile.Data() << endl;
     cout << options_mgr.outfile.Data() << endl;
 
-    PPDIterator ppdIter;
-    if (!ppdIter.open(options_mgr.auxfile.Data())) {
-        cout << "root file open faild." << endl;
+    SCIIterator sciIter;
+    if (!sciIter.open(options_mgr.scifile.Data())) {
+        cout << "SCI root file open failed: " << options_mgr.scifile.Data() << endl;
         return 1;
     }
 
-    cout << "first_ship_time: " << ppdIter.get_first_ship_second() << endl;
-    cout << "last_ship_time:  " << ppdIter.get_last_ship_second() << endl;
+    AUXIterator auxIter;
+    if (!auxIter.open(options_mgr.auxfile.Data())) {
+        cout << "AUX root file open failed: " << options_mgr.auxfile.Data() << endl;
+        return 1;
+    }
+    if (auxIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
+            || sciIter.get_last_ship_second() - auxIter.get_last_ship_second() > MAX_OFFSET) {
+        cout << "AUX does not match to SCI by ship time." << endl;
+        return 1;
 
-    while (ppdIter.next_ppd()) {
-        ppdIter.calc_ppd_interm(ppdIter.ppd_before.ship_time_sec + 0.5);
-        cout << ppdIter.ppd_before.wgs84_x << " " << ppdIter.ppd_after.wgs84_x << ppdIter.ppd_interm.wgs84_x << endl;
     }
 
-    ppdIter.close();
+    PPDIterator ppdIter;
+    if (options_mgr.ppdfile.IsNull()) {
+
+    }
+
+    SAPDataFile sapFile;
 
     return 0;
 }
