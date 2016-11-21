@@ -39,7 +39,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'p':
                 if (idx < argc_par - 1) {
                     ppdfile = argv_par[++idx];
-                    if (auxfile[0] == '-') {
+                    if (ppdfile[0] == '-') {
                         return false;
                     }
                 } else {
@@ -60,7 +60,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
             }
         } else {
-            scifile = cur_par_str;
+            if (scifile.IsNull())
+                scifile = cur_par_str;
+            else
+                return false;
         }
     }
     if (scifile.IsNull() || auxfile.IsNull())
@@ -97,6 +100,7 @@ void OptionsManager::print_version() {
 void OptionsManager::init() {
     scifile.Clear();
     auxfile.Clear();
+    ppdfile.Clear();
     outfile.Clear();
     version_flag_ = false;
 }

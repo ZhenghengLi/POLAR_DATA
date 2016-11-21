@@ -10,13 +10,13 @@ using namespace std;
 class OptionsManager {
 private:
     bool version_flag_;
-    
+
 public:
     TString scifile;
     TString auxfile;
     TString ppdfile;
     TString outfile;
-    
+
 public:
     OptionsManager();
     ~OptionsManager();
