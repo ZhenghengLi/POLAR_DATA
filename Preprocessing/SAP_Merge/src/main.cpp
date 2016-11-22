@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <cstdio>
 #include "Constants.hpp"
 #include "OptionsManager.hpp"
 #include "SCIIterator.hpp"
@@ -79,6 +80,10 @@ int main(int argc, char** argv) {
     }
 
     // merge data
+    bool sap_start_flag = true;
+    int  sap_first_time = 0;
+    int  sap_last_time  = 0;
+    long int sap_last_entry = -1;
     int pre_percent = 0;
     int cur_percent = 0;
     double total_seconds = sciIter.get_last_ship_second() - sciIter.get_first_ship_second();
@@ -190,8 +195,18 @@ int main(int argc, char** argv) {
             sapFile.t_pol_event.sun_radec[1] = ppdIter.ppd_interm.sun_dec;
         }
         sapFile.fill_data();
+        sap_last_entry++;
+        if (sap_start_flag) {
+            sap_start_flag = false;
+            sap_first_time = sapFile.t_pol_event.event_time;
+        }
+        sap_last_time = sapFile.t_pol_event.event_time;
     }
     cout << " DONE ]" << endl;
+
+    char time_span_str[100];
+    sprintf(time_span_str, "%d[0] => %d[%ld]",
+            sap_first_time, sap_last_time, sap_last_entry);
 
     // write root
     sapFile.write_tree();
@@ -204,6 +219,8 @@ int main(int argc, char** argv) {
     sciIter.close();
     auxIter.close();
     ppdIter.close();
+
+    cout << time_span_str << endl;
 
     return 0;
 }

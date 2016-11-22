@@ -32,7 +32,7 @@ bool SAPDataFile::open(const char* filename) {
     t_pol_event_tree_->Branch("fe_time_second",      t_pol_event.fe_time_second,    "fe_time_second[25]/D"       );
     t_pol_event_tree_->Branch("fe_time_wait",        t_pol_event.fe_time_wait,      "fe_time_wait[25]/D"         );
     t_pol_event_tree_->Branch("fe_dead_ratio",       t_pol_event.fe_dead_ratio,     "fe_dead_ratio[25]/F"        );
-    t_pol_event_tree_->Branch("trig_accepted",       t_pol_event.trig_accepted,     "trig_accepted[25]O"         );
+    t_pol_event_tree_->Branch("trig_accepted",       t_pol_event.trig_accepted,     "trig_accepted[25]/O"        );
     t_pol_event_tree_->Branch("time_aligned",        t_pol_event.time_aligned,      "time_aligned[25]/O"         );
     t_pol_event_tree_->Branch("raw_rate",            t_pol_event.raw_rate,          "raw_rate[25]/I"             );
     t_pol_event_tree_->Branch("pkt_count",          &t_pol_event.pkt_count,         "pkt_count/I"                );
@@ -116,8 +116,8 @@ void SAPDataFile::clear_data() {
         t_pol_event.fe_time_second[i]                 = -1;
         t_pol_event.fe_time_wait[i]                   = -1;
         t_pol_event.fe_dead_ratio[i]                  = -1;
-        t_pol_event.trig_accepted[i]                  = -1;
-        t_pol_event.time_aligned[i]                   = -1;
+        t_pol_event.trig_accepted[i]                  = false;
+        t_pol_event.time_aligned[i]                   = false;
         t_pol_event.raw_rate[i]                       = -1;
     }
     t_pol_event.pkt_count                             = -1;
