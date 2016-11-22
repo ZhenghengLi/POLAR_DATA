@@ -17,7 +17,7 @@ bool SAPDataFile::open(const char* filename) {
     if (t_file_out_->IsZombie())
         return false;
     t_file_out_->cd();
-    t_pol_event_tree_ = new TTree("t_pol_event", "POLAR event data with AUX and PPD info added");
+    t_pol_event_tree_ = new TTree("t_pol_event", "POLAR event data");
     // from SCI
     t_pol_event_tree_->Branch("event_id",           &t_pol_event.event_id,          "event_id/L"                 );
     t_pol_event_tree_->Branch("event_time",         &t_pol_event.event_time,        "event_time/D"               );

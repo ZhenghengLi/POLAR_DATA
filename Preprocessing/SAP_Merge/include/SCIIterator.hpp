@@ -74,6 +74,10 @@ public:
     double get_last_ship_second();
 
     string get_bad_ratio_str();
+    string get_m_version_str();
+    string get_m_gentime_str();
+    string get_m_rawfile_str();
+    string get_m_dcdinfo_str();
 
 };
 

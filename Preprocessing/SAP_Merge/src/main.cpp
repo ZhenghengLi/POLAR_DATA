@@ -212,7 +212,37 @@ int main(int argc, char** argv) {
     sapFile.write_tree();
 
     // write meta
-
+    // m_dattype
+    sapFile.write_meta("m_dattype", "POLAR EVENT DATA AFTER MERGED");
+    // m_version
+    sapFile.write_meta("m_version", (SW_NAME + " " + SW_VERSION).c_str());
+    // m_gentime
+    TTimeStamp* cur_time = new TTimeStamp();
+    sapFile.write_meta("m_gentime", cur_time->AsString("lc"));
+    delete cur_time;
+    cur_time = NULL;
+    // m_rawfile
+    sapFile.write_meta("m_rawfile", sciIter.get_m_rawfile_str().c_str());
+    // m_dcdinfo
+    sapFile.write_meta("m_dcdinfo", sciIter.get_m_dcdinfo_str().c_str());
+    // m_badinfo
+    sapFile.write_meta("m_badinfo", sciIter.get_bad_ratio_str().c_str());
+    // m_merging
+    if (options_mgr.ppdfile.IsNull()) {
+        sapFile.write_meta("m_merging", "SCI, AUX");
+    } else {
+        sapFile.write_meta("m_merging", "SCI, AUX, PPD");
+    }
+    // m_eneunit
+    sapFile.write_meta("m_eneunit", "ADC");
+    // m_timespan
+    sapFile.write_meta("m_timespan", time_span_str);
+    // m_utc_ref
+    sapFile.write_meta("m_UTC_REF", MET_UTC_REF_str.c_str());
+    // m_tt_ref
+    sapFile.write_meta("m_TT_REF", MET_TT_REF_str.c_str());
+    // m_mjd_ref
+    sapFile.write_meta("m_MJD_REF", MET_MJD_REF_str.c_str());
 
     // close files
     sapFile.close();
@@ -220,7 +250,9 @@ int main(int argc, char** argv) {
     auxIter.close();
     ppdIter.close();
 
-    cout << time_span_str << endl;
+    cout << "================================================================================" << endl;
+    cout << "MET_TIME_SPAN: { " << time_span_str << " } " << endl;
+    cout << "================================================================================" << endl;
 
     return 0;
 }

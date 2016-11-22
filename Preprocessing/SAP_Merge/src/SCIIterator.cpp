@@ -223,3 +223,19 @@ string SCIIterator::get_bad_ratio_str() {
     }
 }
 
+string SCIIterator::get_m_version_str() {
+    return m_version_value_;
+}
+
+string SCIIterator::get_m_gentime_str() {
+    return m_gentime_value_;
+}
+
+string SCIIterator::get_m_rawfile_str() {
+    return m_rawfile_value_;
+}
+
+string SCIIterator::get_m_dcdinfo_str() {
+    return m_dcdinfo_value_;
+}
+
