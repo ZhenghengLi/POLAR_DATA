@@ -40,6 +40,7 @@ bool AUXIterator::open(const char* filename) {
     t_hk_obox_tree_->SetBranchAddress("packet_num",         &cur_hk_obox_.packet_num       );
     t_hk_obox_tree_->SetBranchAddress("abs_ship_second",    &cur_hk_obox_.abs_ship_second  );
     t_hk_obox_tree_->SetBranchAddress("obox_is_bad",        &cur_hk_obox_.obox_is_bad      );
+    t_hk_obox_tree_->SetBranchAddress("obox_mode",          &cur_hk_obox_.obox_mode        );
     t_hk_obox_tree_->SetBranchAddress("fe_hv",               cur_hk_obox_.fe_hv            );
     t_hk_obox_tree_->SetBranchAddress("fe_thr",              cur_hk_obox_.fe_thr           );
     t_hk_obox_tree_->SetBranchAddress("fe_temp",             cur_hk_obox_.fe_temp          );
