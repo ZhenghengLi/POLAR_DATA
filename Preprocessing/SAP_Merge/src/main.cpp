@@ -234,9 +234,11 @@ int main(int argc, char** argv) {
         sapFile.write_meta("m_merging", "SCI, AUX, PPD");
     }
     // m_eneunit
-    sapFile.write_meta("m_eneunit", "ADC");
+    sapFile.write_meta("m_energy_unit", "ADC");
+    // m_levelnum
+    sapFile.write_meta("m_level_num", "0");
     // m_timespan
-    sapFile.write_meta("m_timespan", time_span_str);
+    sapFile.write_meta("m_time_span", time_span_str);
     // m_utc_ref
     sapFile.write_meta("m_UTC_REF", MET_UTC_REF_str.c_str());
     // m_tt_ref
