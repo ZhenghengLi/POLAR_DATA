@@ -115,8 +115,6 @@ aux_1m_filelist.sort()
 sci_1m_filelist_new = []
 sci_1m_filelist_update = []
 
-FNULL = open(os.devnull, 'w')
-
 for filename in sci_1m_filelist:
     sci_1m_file = os.path.join(product_dir, sci_1m, filename)
     sci_1p_file = os.path.join(product_dir, sci_1p, filename).replace('1M.root', '1P.root')
@@ -140,7 +138,7 @@ for idx in xrange(len(sci_1m_filelist_all)):
         if cur_diff == 0:
             bad_match = True
             break
-        if cur_diff[1] > 300: 
+        if cur_diff[1] > 300:
             aux_search_start += 1
         else:
             break
@@ -154,7 +152,7 @@ for idx in xrange(len(sci_1m_filelist_all)):
     found_match = False
     matched_aux_it = 0
     for aux_it in xrange(aux_search_start, len(aux_1m_filelist)):
-        cur_diff = time_diff(sci_1m_filelist_all[idx], aux_1m_filelist[aux_search_start])
+        cur_diff = time_diff(sci_1m_filelist_all[idx], aux_1m_filelist[aux_it])
         if cur_diff == 0: continue
         if cur_diff[0] > -300:
             found_match = True
@@ -225,7 +223,7 @@ for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
 
 # print summary
 print " " + "+" * 80
-print " - SUMMARY OF PROCESSING RESULT -" 
+print " - SUMMARY OF PROCESSING RESULT -"
 print " - successful: "
 for x in sci_1m_filelist_success:
     print " > " + x
