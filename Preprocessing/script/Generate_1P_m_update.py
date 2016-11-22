@@ -115,8 +115,6 @@ aux_1m_filelist.sort()
 sci_1m_filelist_new = []
 sci_1m_filelist_update = []
 
-FNULL = open(os.devnull, 'w')
-
 for filename in sci_1m_filelist:
     sci_1m_file = os.path.join(product_dir, sci_1m, filename)
     sci_1p_file = os.path.join(product_dir, sci_1p, filename).replace('1M.root', '1P.root')
