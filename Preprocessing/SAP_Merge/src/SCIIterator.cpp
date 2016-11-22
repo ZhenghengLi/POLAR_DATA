@@ -126,9 +126,6 @@ bool SCIIterator::ped_trigger_next_() {
             return false;
         }
     } while (ped_trigger_.is_bad > 0 || !ped_trigger_.abs_gps_valid || ped_trigger_.abs_gps_week < 0);
-    cur_ped_pkt_start_ = ped_trigger_.pkt_start;
-    cur_ped_pkt_count_ = ped_trigger_.pkt_count;
-    ped_modules_cur_entry_ = cur_ped_pkt_start_ - 1;
     return true;
 }
 
@@ -150,9 +147,6 @@ bool SCIIterator::phy_trigger_next_() {
             return false;
         }
     } while (phy_trigger_.is_bad > 0 || !phy_trigger_.abs_gps_valid || phy_trigger_.abs_gps_week < 0);
-    cur_phy_pkt_start_ = phy_trigger_.pkt_start;
-    cur_phy_pkt_count_ = phy_trigger_.pkt_count;
-    phy_modules_cur_entry_ = cur_phy_pkt_start_ - 1;
     return true;
 }
 
@@ -175,8 +169,14 @@ bool SCIIterator::next_event() {
         }
     }
     if (cur_is_ped_) {
+        cur_ped_pkt_start_ = ped_trigger_.pkt_start;
+        cur_ped_pkt_count_ = ped_trigger_.pkt_count;
+        ped_modules_cur_entry_ = cur_ped_pkt_start_ - 1;
         ped_trigger_next_();
     } else {
+        cur_phy_pkt_start_ = phy_trigger_.pkt_start;
+        cur_phy_pkt_count_ = phy_trigger_.pkt_count;
+        phy_modules_cur_entry_ = cur_phy_pkt_start_ - 1;
         phy_trigger_next_();
     }
     return true;

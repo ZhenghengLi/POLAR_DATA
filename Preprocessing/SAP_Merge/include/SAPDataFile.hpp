@@ -53,8 +53,8 @@ public:
 
     };
 
-    static const UShort_t ADC_OVERFLOW = 0x1;
-    static const UShort_t ADC_NOT_READOUT = 0x3;
+    static const UShort_t ADC_NOT_READOUT = 0x1;
+    static const UShort_t ADC_OVERFLOW = 0x3;
 
 private:
     TFile* t_file_out_;

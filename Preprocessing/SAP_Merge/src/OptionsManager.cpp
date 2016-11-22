@@ -68,11 +68,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     }
     if (scifile.IsNull() || auxfile.IsNull())
         return false;
-    else
-        return true;
     if (outfile.IsNull()) {
         outfile = "POL_SCI_data_1Q.root";
     }
+    return true;
 }
 
 void OptionsManager::print_help() {
