@@ -34,13 +34,9 @@ private:
     double wgs84_x_slope_;
     double wgs84_y_slope_;
     double wgs84_z_slope_;
-    double det_z_ra_slope_;
     double det_z_dec_slope_;
-    double det_x_ra_slope_;
     double det_x_dec_slope_;
-    double earth_ra_slope_;
     double earth_dec_slope_;
-    double sun_ra_slope_;
     double sun_dec_slope_;
 
 private:
@@ -60,6 +56,14 @@ public:
     PPD_T ppd_before;
     PPD_T ppd_after;
     PPD_T ppd_interm;
+
+private:
+    double calc_ra_(
+            double ship_time,
+            double before_ra,
+            double before_ship_time,
+            double after_ra,
+            double after_ship_time);
 
 public:
     PPDIterator();

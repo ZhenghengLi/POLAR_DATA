@@ -102,13 +102,9 @@ bool PPDIterator::next_ppd() {
     wgs84_x_slope_   = (ppd_after.wgs84_x   - ppd_before.wgs84_x  ) / ship_time_diff;
     wgs84_y_slope_   = (ppd_after.wgs84_y   - ppd_before.wgs84_y  ) / ship_time_diff;
     wgs84_z_slope_   = (ppd_after.wgs84_z   - ppd_before.wgs84_z  ) / ship_time_diff;
-    det_z_ra_slope_  = (ppd_after.det_z_ra  - ppd_before.det_z_ra ) / ship_time_diff;
     det_z_dec_slope_ = (ppd_after.det_z_dec - ppd_before.det_z_dec) / ship_time_diff;
-    det_x_ra_slope_  = (ppd_after.det_x_ra  - ppd_before.det_x_ra ) / ship_time_diff;
     det_x_dec_slope_ = (ppd_after.det_x_dec - ppd_before.det_x_dec) / ship_time_diff;
-    earth_ra_slope_  = (ppd_after.earth_ra  - ppd_before.earth_ra ) / ship_time_diff;
     earth_dec_slope_ = (ppd_after.earth_dec - ppd_before.earth_dec) / ship_time_diff;
-    sun_ra_slope_    = (ppd_after.sun_ra    - ppd_before.sun_ra   ) / ship_time_diff;
     sun_dec_slope_   = (ppd_after.sun_dec   - ppd_before.sun_dec  ) / ship_time_diff;
 
     return true;
@@ -118,51 +114,52 @@ bool PPDIterator::get_reach_end() {
     return ppd_reach_end_;
 }
 
+double PPDIterator::calc_ra_(double ship_time,
+        double before_ra, double before_ship_time,
+        double after_ra,  double after_ship_time) {
+    if (fabs(after_ra - before_ra) > 16 && fabs(after_ship_time - before_ship_time) < 300) {
+        if (after_ra < before_ra) {
+            after_ra += 24.0;
+        } else {
+            before_ra += 24.0;
+        }
+    }
+    double ra_slope = (after_ra - before_ra) / (after_ship_time - before_ship_time);
+    double result_ra = before_ra + ra_slope * (ship_time - before_ship_time);
+    if (result_ra >= 24.0) {
+        result_ra -= 24.0;
+    } else if (result_ra < 0) {
+        result_ra += 24.0;
+    }
+    return result_ra;
+}
+
 void PPDIterator::calc_ppd_interm(double ship_time) {
     double ship_time_diff = ship_time - ppd_before.ship_time_sec;
+
     ppd_interm.wgs84_x   = ppd_before.wgs84_x   + wgs84_x_slope_   * ship_time_diff;
     ppd_interm.wgs84_y   = ppd_before.wgs84_y   + wgs84_y_slope_   * ship_time_diff;
     ppd_interm.wgs84_z   = ppd_before.wgs84_z   + wgs84_z_slope_   * ship_time_diff;
+
+    ppd_interm.det_z_ra  = calc_ra_(ship_time,
+            ppd_before.det_z_ra, ppd_before.ship_time_sec,
+            ppd_after.det_z_ra,  ppd_after.ship_time_sec);
     ppd_interm.det_z_dec = ppd_before.det_z_dec + det_z_dec_slope_ * ship_time_diff;
+
+    ppd_interm.det_x_ra  = calc_ra_(ship_time,
+            ppd_before.det_x_ra, ppd_before.ship_time_sec,
+            ppd_after.det_x_ra,  ppd_after.ship_time_sec);
     ppd_interm.det_x_dec = ppd_before.det_x_dec + det_x_dec_slope_ * ship_time_diff;
+
+    ppd_interm.earth_ra  = calc_ra_(ship_time,
+            ppd_before.earth_ra, ppd_before.ship_time_sec,
+            ppd_after.earth_ra,  ppd_after.ship_time_sec);
     ppd_interm.earth_dec = ppd_before.earth_dec + earth_dec_slope_ * ship_time_diff;
+
+    ppd_interm.sun_ra    = calc_ra_(ship_time,
+            ppd_before.sun_ra,   ppd_before.ship_time_sec,
+            ppd_after.sun_ra,    ppd_after.ship_time_sec);
     ppd_interm.sun_dec   = ppd_before.sun_dec   + sun_dec_slope_   * ship_time_diff;
-    if (fabs(ppd_before.det_z_ra - ppd_after.det_z_ra) > 14) {
-        if (fabs(ship_time - ppd_before.ship_time_sec) < fabs(ship_time - ppd_after.ship_time_sec)) {
-            ppd_interm.det_z_ra = ppd_before.det_z_ra;
-        } else {
-            ppd_interm.det_z_ra = ppd_after.det_z_ra;
-        }
-    } else {
-        ppd_interm.det_z_ra  = ppd_before.det_z_ra  + det_z_ra_slope_  * ship_time_diff;
-    }
-    if (fabs(ppd_before.det_x_ra - ppd_after.det_x_ra) > 14) {
-        if (fabs(ship_time - ppd_before.ship_time_sec) < fabs(ship_time - ppd_after.ship_time_sec)) {
-            ppd_interm.det_x_ra = ppd_before.det_x_ra;
-        } else {
-            ppd_interm.det_x_ra = ppd_after.det_x_ra;
-        }
-    } else {
-        ppd_interm.det_x_ra  = ppd_before.det_x_ra  + det_x_ra_slope_  * ship_time_diff;
-    }
-    if (fabs(ppd_before.earth_ra - ppd_after.earth_ra) > 14) {
-        if (fabs(ship_time - ppd_before.ship_time_sec) < fabs(ship_time - ppd_after.ship_time_sec)) {
-            ppd_interm.earth_ra = ppd_before.earth_ra;
-        } else {
-            ppd_interm.earth_ra = ppd_after.earth_ra;
-        }
-    } else {
-        ppd_interm.earth_ra  = ppd_before.earth_ra  + earth_ra_slope_  * ship_time_diff;
-    }
-    if (fabs(ppd_before.sun_ra - ppd_after.sun_ra) > 14) {
-        if (fabs(ship_time - ppd_before.ship_time_sec) < fabs(ship_time - ppd_after.ship_time_sec)) {
-            ppd_interm.sun_ra = ppd_before.sun_ra;
-        } else {
-            ppd_interm.sun_ra = ppd_after.sun_ra;
-        }
-    } else {
-        ppd_interm.sun_ra  = ppd_before.sun_ra  + sun_ra_slope_  * ship_time_diff;
-    }
 }
 
 double PPDIterator::get_first_ship_second() {
