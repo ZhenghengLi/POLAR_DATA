@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
             auxIter.next_obox();
         }
         while (!ppdIter.get_reach_end()
-                && sciIter.cur_trigger.abs_gps_second > ppdIter.ppd_after.ship_time_sec) {
+                && sciIter.cur_trigger.abs_ship_second > ppdIter.ppd_after.ship_time_sec) {
             ppdIter.next_ppd();
         }
         // merge trigger and modules packets
