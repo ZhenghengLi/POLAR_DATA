@@ -2,6 +2,7 @@
 #define PPDITERATOR_H
 
 #include <iostream>
+#include <cmath>
 #include <boost/regex.hpp>
 #include "RootInc.hpp"
 
