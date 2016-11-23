@@ -253,6 +253,7 @@ int main(int argc, char** argv) {
     ppdIter.close();
 
     cout << "================================================================================" << endl;
+    cout << "BAD_RATIO_INF: { " << sciIter.get_bad_ratio_str() << " } " << endl;
     cout << "MET_TIME_SPAN: { " << time_span_str << " } " << endl;
     cout << "================================================================================" << endl;
 
