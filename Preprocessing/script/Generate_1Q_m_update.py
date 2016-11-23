@@ -30,8 +30,8 @@ def ppd_1n_read_timespan(filename):
     return m_shipspan.GetTitle()
 
 def time_diff(sci_filename, aux_filename):
-    ref_sci = re.compile(r'T2_POL_POLAR_SCI_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1P\.root')
-    ref_aux = re.compile(r'T2_POL_POLAR_AUX_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_1M\.root')
+    ref_sci = re.compile(r'TS_TG02_POL_POLAR_SCI_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1P\.root')
+    ref_aux = re.compile(r'TS_TG02_POL_POLAR_AUX_\d+_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_(\d\d\d\d\d\d\d\d\d\d\d\d\d\d)_\d+_1M\.root')
     sci_begin = None
     sci_end = None
     sci_m = ref_sci.match(sci_filename)
@@ -62,7 +62,7 @@ subpro_end   = "*-*-*-*-*-*-*- subprocess end -*-*-*-*-*-*-*"
 
 parser = argparse.ArgumentParser(description='Generate SCI_1Q data')
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
-parser.add_argument("-t", dest = "type", default = "normal")
+parser.add_argument("-t", dest = "type", default = "manual")
 parser.add_argument("--noconfirm", help = "confirm before process", action="store_true")
 args = parser.parse_args()
 
@@ -95,10 +95,10 @@ print " - scrfile_dir: " + scrfile_dir + '   ' + str(list_of_type)
 print delimeter
 
 # get filelist
-ref_sci_1Q = re.compile('T2_POL_POLAR_SCI_.*_1Q\.root')
-ref_sci_1P = re.compile('T2_POL_POLAR_SCI_.*_1P\.root')
-ref_aux_1M = re.compile('T2_POL_POLAR_AUX_.*_1M\.root')
-ref_ppd_1N = re.compile('T2_POL_POLAR_PPD_.*_1N\.root')
+ref_sci_1Q = re.compile('TS_TG02_POL_POLAR_SCI_.*_1Q\.root')
+ref_sci_1P = re.compile('TS_TG02_POL_POLAR_SCI_.*_1P\.root')
+ref_aux_1M = re.compile('TS_TG02_POL_POLAR_AUX_.*_1M\.root')
+ref_ppd_1N = re.compile('TS_TG02_POL_POLAR_PPD_.*_1N\.root')
 
 sci_1q_filelist = []
 for x in os.listdir(os.path.join(product_dir, sci_1q)):
