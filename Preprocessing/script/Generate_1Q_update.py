@@ -167,75 +167,89 @@ for idx in xrange(len(sci_1p_filelist_all)):
     else:
         sci_aux_pair_all.append((sci_1p_filelist_all[idx], 0))
 
-# TODO
-# match ppd_1n data here
+# find ppd data file
+sci_aux_ppd_tuple_all = []
+for x in sci_aux_pair_all:
+    sci_filename = x[0]
+    ppd_filename = x[0].replace('_SCI_', '_PPD_').replace('_1P', '_1N')
+    if os.path.isfile(os.path.join(product_dir, ppd_1n, ppd_filename)):
+        sci_aux_ppd_tuple_all.append(x + (ppd_filename,))
+    else:
+        sci_aux_ppd_tuple_all.append(x + (0,))
 
-print ' - pair summary before processing: '
-for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
+print ' - matching summary before processing: '
+for i, p in enumerate(sci_aux_ppd_tuple_all, start = 1):
     print ' - > ' + str(i) + ' < -----------------'
     sci_filename = p[0]
-    sci_gps_span = sci_1m_read_timespan(os.path.join(product_dir, sci_1m, sci_filename))
+    sci_timespan = sci_1p_read_timespan(os.path.join(product_dir, sci_1m, sci_filename))
     aux_filename = p[1]
-    aux_gps_span = aux_1m_read_timespan(os.path.join(product_dir, aux_1m, aux_filename)) if aux_filename != 0 else 0
-    print ' v ' + sci_filename + ': { ' + sci_gps_span + ' } '
-    aux_matched = ' ^ ' + aux_filename + ': { ' + aux_gps_span + ' } ' if aux_filename != 0 else " ^ No found matched AUX file"
+    aux_timespan = aux_1m_read_timespan(os.path.join(product_dir, aux_1m, aux_filename)) if aux_filename != 0 else 0
+    ppd_filename = p[2]
+    ppd_timespan = ppd_1n_read_timespan(os.path.join(product_dir, ppd_1n, ppd_filename)) if ppd_filename != 0 else 0
+    print ' v ' + sci_filename + ': { ' + sci_timespan + ' } '
+    aux_matched = ' ^ ' + aux_filename + ': { ' + aux_timespan + ' } ' if aux_filename != 0 else " ^ No found matched AUX file"
     print aux_matched
+    ppd_matched = ' ^ ' + ppd_filename + ': { ' + ppd_timespan + ' } ' if ppd_filename != 0 else " ^ No found matched PPD file"
+    print ppd_matched
 
 if not args.noconfirm:
     if raw_input("Start processing? (Y/n) ").lower() == 'n':
         exit(0)
 
 # start process
-sci_1m_filelist_success = []
-sci_1m_filelist_fail = []
+sci_1p_filelist_success = []
+sci_1p_filelist_fail = []
 
-for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
+for i, p in enumerate(sci_aux_ppd_tuple_all, start = 1):
     sci_filename = p[0]
     aux_filename = p[1]
+    ppd_filename = p[2]
     if aux_filename == 0: continue
-    sci_gps_span = sci_1m_read_timespan(os.path.join(product_dir, sci_1m, sci_filename))
-    aux_gps_span = aux_1m_read_timespan(os.path.join(product_dir, aux_1m, aux_filename))
+    if ppd_filename == 0: continue
+    sci_timespan = sci_1p_read_timespan(os.path.join(product_dir, sci_1p, sci_filename))
+    aux_timespan = aux_1m_read_timespan(os.path.join(product_dir, aux_1m, aux_filename))
+    ppd_timespan = ppd_1n_read_timespan(os.path.join(product_dir, ppd_1n, ppd_filename))
     print " " + "+" * 80
     print ' - > ' + str(i) + ' < --- processing ...'
-    print ' v ' + sci_filename + ': { ' + sci_gps_span + ' } '
-    print ' ^ ' + aux_filename + ': { ' + aux_gps_span + ' } '
-    sci_file_1m_root = os.path.join(product_dir, sci_1m, sci_filename)
+    print ' v ' + sci_filename + ': { ' + sci_timespan + ' } '
+    print ' ^ ' + aux_filename + ': { ' + aux_timespan + ' } '
+    print ' ^ ' + ppd_filename + ': { ' + ppd_timespan + ' } '
+    sci_file_1p_root = os.path.join(product_dir, sci_1p, sci_filename)
     aux_file_1m_root = os.path.join(product_dir, aux_1m, aux_filename)
-    sci_file_1p_root = os.path.join(product_dir, sci_1p, sci_filename.replace('1M.root', '1P.root'))
-    sci_file_1p_log  = os.path.join(logfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.log'))
-    sci_file_1p_cmd  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.cmd'))
-    sci_file_1p_out  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.out'))
-    if os.path.isfile(sci_file_1m_root) and file_is_open(sci_file_1m_root): continue
-    if os.path.isfile(aux_file_1m_root) and file_is_open(aux_file_1m_root): continue
+    ppd_file_1n_root = os.path.join(product_dir, ppd_1n, ppd_filename)
+    sci_file_1q_root = os.path.join(product_dir, sci_1q, sci_filename.replace('1P.root', '1Q.root'))
+    sci_file_1q_cmd  = os.path.join(scrfile_dir, sci_1q, sci_filename.replace('1P.root', '1Q.cmd'))
+    sci_file_1q_out  = os.path.join(scrfile_dir, sci_1q, sci_filename.replace('1P.root', '1Q.out'))
     if os.path.isfile(sci_file_1p_root) and file_is_open(sci_file_1p_root): continue
-    if os.path.isfile(sci_file_1p_log)  and file_is_open(sci_file_1p_log):  continue
-    command = 'Time_Calculate ' + sci_file_1m_root + ' -k ' + aux_file_1m_root + ' -o ' + sci_file_1p_root + ' -g ' + sci_file_1p_log
-    with open(sci_file_1p_cmd, 'w') as fcmd: fcmd.write(command)
+    if os.path.isfile(aux_file_1m_root) and file_is_open(aux_file_1m_root): continue
+    if os.path.isfile(ppd_file_1n_root) and file_is_open(ppd_file_1n_root): continue
+    if os.path.isfile(sci_file_1q_root) and file_is_open(sci_file_1q_root): continue
+    command = 'SAP_Merge ' + sci_file_1p_root + ' -a ' + aux_file_1m_root + ' -p ' + ppd_file_1n_root + ' -o ' + sci_file_1q_root
+    with open(sci_file_1q_cmd, 'w') as fcmd: fcmd.write(command)
     ret_value = 0
-    with open(sci_file_1p_out, 'w') as fout:
+    with open(sci_file_1q_out, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    with open(sci_file_1p_out, 'r') as fin: print fin.read().rstrip('\n')
+    with open(sci_file_1q_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
         print ' - file: ' + sci_filename + ' successful to process.'
-        sci_1m_filelist_success.append(sci_filename)
+        sci_1p_filelist_success.append(sci_filename)
     else:
         print ' - file: ' + sci_filename + ' failed to process.'
-        sci_1m_filelist_fail.append(sci_filename)
-        if os.path.isfile(sci_file_1p_root): os.remove(sci_file_1p_root)
-        if os.path.isfile(sci_file_1p_log):  os.remove(sci_file_1p_log)
-        if os.path.isfile(sci_file_1p_cmd):  os.remove(sci_file_1p_cmd)
-        if os.path.isfile(sci_file_1p_out):  os.remove(sci_file_1p_out)
+        sci_1p_filelist_fail.append(sci_filename)
+        if os.path.isfile(sci_file_1q_root): os.remove(sci_file_1q_root)
+        if os.path.isfile(sci_file_1q_cmd):  os.remove(sci_file_1q_cmd)
+        if os.path.isfile(sci_file_1q_out):  os.remove(sci_file_1q_out)
 
 # print summary
 print " " + "+" * 80
 print " - SUMMARY OF PROCESSING RESULT -"
 print " - successful: "
-for x in sci_1m_filelist_success:
+for x in sci_1p_filelist_success:
     print " > " + x
 print " - failed: "
-for x in sci_1m_filelist_fail:
+for x in sci_1p_filelist_fail:
     print " > " + x
 print " " + "+" * 80
 
-exit(len(sci_1m_filelist_success) + len(sci_1m_filelist_fail))
+exit(len(sci_1p_filelist_success) + len(sci_1p_filelist_fail))
 
