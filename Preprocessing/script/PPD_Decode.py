@@ -63,8 +63,8 @@ for i in tqdm(xrange(file_size / block_size)):
             print 'may be there is half 1553b frame at the start.'
             exit(1)
         if log_flag:
-            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "header error ====")
-            log_file.write("[ " + block.encode('hex') + " ]")
+            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "header error ====\n")
+            log_file.write("[ " + block.encode('hex') + " ]\n")
         continue
     if int(block[2:4].encode('hex'), 16) != 0x3d80:
         continue
@@ -72,8 +72,8 @@ for i in tqdm(xrange(file_size / block_size)):
     if int(block[4:6].encode('hex'), 16) != 0x3d80:
         cnt_ppd_err += 1
         if log_flag:
-            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "ppd error ====")
-            log_file.write("[ " + block.encode('hex') + " ]")
+            log_file.write("==== 1553B FRAME " + str(cnt_total_pkt) + ": " + "ppd error ====\n")
+            log_file.write("[ " + block.encode('hex') + " ]\n")
         continue
     ppd_data_obj.decode(block)
     ppd_data_obj.calc_j2000()
