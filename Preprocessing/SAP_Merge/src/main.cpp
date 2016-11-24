@@ -9,7 +9,7 @@
 #include "PPDIterator.hpp"
 #include "SAPDataFile.hpp"
 
-#define MAX_OFFSET 10
+#define MAX_OFFSET 60
 
 using namespace std;
 
