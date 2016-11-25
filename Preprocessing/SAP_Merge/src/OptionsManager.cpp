@@ -66,7 +66,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
         }
     }
-    if (scifile.IsNull() || auxfile.IsNull())
+    if (scifile.IsNull())
         return false;
     if (outfile.IsNull()) {
         outfile = "POL_SCI_data_1Q.root";
@@ -76,7 +76,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " " << "<SCI_1P.root> -a <AUX_1M.root> [-p <PPD_1N.root>] [-o <SCI_1Q.root>]" << endl;
+    cout << "  " << SW_NAME << " " << "<SCI_1[M|P].root> [-a <AUX_1M.root>] [-p <PPD_1N.root>] [-o <SCI_1Q.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -a <AUX_1M.root>                 root file of AUX_1M level data" << endl;

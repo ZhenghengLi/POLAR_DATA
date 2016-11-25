@@ -39,10 +39,14 @@ bool SCIIterator::open(const char* filename) {
     if (t_ped_modules_tree_ == NULL)
         return false;
 
-    if (!check_1P(t_trigger_tree_))
-        return false;
+    is_1p_file_ = check_1P(t_trigger_tree_);
 
-    TNamed* m_pedship = static_cast<TNamed*>(t_file_in_->Get("m_pedship"));
+    TNamed* m_pedship;
+    if (is_1p_file_) {
+        m_pedship = static_cast<TNamed*>(t_file_in_->Get("m_pedship"));
+    } else {
+        m_pedship = static_cast<TNamed*>(t_file_in_->Get("m_pedship_frm"));
+    }
     if (m_pedship == NULL)
         return false;
     cmatch cm;
@@ -113,19 +117,28 @@ bool SCIIterator::ped_trigger_next_() {
         return false;
     if (ped_trigger_reach_end_)
         return false;
-    do {
+    while (true) {
         ped_trigger_cur_entry_++;
         if (ped_trigger_cur_entry_ < t_ped_trigger_tree_->GetEntries()) {
             t_ped_trigger_tree_->GetEntry(ped_trigger_cur_entry_);
             if (ped_trigger_.is_bad > 0)
                 bad_entries_++;
-            if (!ped_trigger_.abs_gps_valid || ped_trigger_.abs_gps_week < 0)
+            if (is_1p_file_ && ped_trigger_.abs_ship_second < 0)
                 bad_time_entries_++;
         } else {
             ped_trigger_reach_end_ = true;
             return false;
         }
-    } while (ped_trigger_.is_bad > 0 || !ped_trigger_.abs_gps_valid || ped_trigger_.abs_gps_week < 0);
+        if (is_1p_file_) {
+            if (ped_trigger_.is_bad <= 0 && ped_trigger_.abs_ship_second >= 0) {
+                break;
+            }
+        } else {
+            if (ped_trigger_.is_bad <= 0) {
+                break;
+            }
+        }
+    };
     return true;
 }
 
@@ -134,19 +147,28 @@ bool SCIIterator::phy_trigger_next_() {
         return false;
     if (phy_trigger_reach_end_)
         return false;
-    do {
+    while (true) {
         phy_trigger_cur_entry_++;
         if (phy_trigger_cur_entry_ < t_trigger_tree_->GetEntries()) {
             t_trigger_tree_->GetEntry(phy_trigger_cur_entry_);
             if (phy_trigger_.is_bad > 0)
                 bad_entries_++;
-            if (!phy_trigger_.abs_gps_valid || phy_trigger_.abs_gps_week < 0)
+            if (is_1p_file_ && phy_trigger_.abs_ship_second < 0)
                 bad_time_entries_++;
         } else {
             phy_trigger_reach_end_ = true;
             return false;
         }
-    } while (phy_trigger_.is_bad > 0 || !phy_trigger_.abs_gps_valid || phy_trigger_.abs_gps_week < 0);
+        if (is_1p_file_) {
+            if (phy_trigger_.is_bad <= 0 && phy_trigger_.abs_ship_second >= 0) {
+                break;
+            }
+        } else {
+            if (phy_trigger_.is_bad <= 0) {
+                break;
+            }
+        }
+    };
     return true;
 }
 
@@ -205,6 +227,10 @@ bool SCIIterator::next_packet() {
 
 double SCIIterator::get_first_ship_second() {
     return first_ship_second_;
+}
+
+bool SCIIterator::get_is_1p() {
+    return is_1p_file_;
 }
 
 double SCIIterator::get_last_ship_second() {

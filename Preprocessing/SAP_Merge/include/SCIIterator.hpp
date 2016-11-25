@@ -19,6 +19,8 @@ private:
     TTree* t_ped_trigger_tree_;
     TTree* t_ped_modules_tree_;
 
+    bool   is_1p_file_;
+
     regex  re_ship_span_;
     double first_ship_second_;
     double last_ship_second_;
@@ -70,6 +72,7 @@ public:
     bool next_event();
     bool next_packet();
 
+    bool   get_is_1p();
     double get_first_ship_second();
     double get_last_ship_second();
 

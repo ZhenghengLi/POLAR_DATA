@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <cmath>
 #include <cstdio>
+#include <stdint.h>
 #include "Constants.hpp"
 #include "OptionsManager.hpp"
 #include "SCIIterator.hpp"
@@ -10,8 +11,15 @@
 #include "SAPDataFile.hpp"
 
 #define MAX_OFFSET 60
+#define MAX_GAP 60
 
 using namespace std;
+
+double calc_ship_second(const uint64_t raw_ship_time) {
+    double second = static_cast<double>(raw_ship_time >> 16);
+    double millisecond = static_cast<double>(raw_ship_time & 0xFFFF) / 2000;
+    return second + millisecond;
+}
 
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
@@ -36,22 +44,29 @@ int main(int argc, char** argv) {
          << " => "
          << static_cast<int>(sciIter.get_last_ship_second())
          << "]" << endl;
+    if (!sciIter.get_is_1p()) {
+        cout << "WARNING: the opened SCI data file is not 1P level, use frame ship time instead." << endl;
+    }
 
     AUXIterator auxIter;
-    if (!auxIter.open(options_mgr.auxfile.Data())) {
-        cout << "AUX root file open failed: " << options_mgr.auxfile.Data() << endl;
-        return 1;
+    if (options_mgr.auxfile.IsNull()) {
+        cout << "WARNING: no AUX data file input." << endl;
+    } else {
+        if (!auxIter.open(options_mgr.auxfile.Data())) {
+            cout << "AUX root file open failed: " << options_mgr.auxfile.Data() << endl;
+            return 1;
+        }
+        if (auxIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
+                || sciIter.get_last_ship_second() - auxIter.get_last_ship_second() > MAX_OFFSET) {
+            cout << "AUX does not match to SCI by ship time." << endl;
+            return 1;
+        }
+        cout << " - " << options_mgr.auxfile.Data() << " ["
+             << static_cast<int>(auxIter.get_first_ship_second())
+             << " => "
+             << static_cast<int>(auxIter.get_last_ship_second())
+             << "]" << endl;
     }
-    if (auxIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
-            || sciIter.get_last_ship_second() - auxIter.get_last_ship_second() > MAX_OFFSET) {
-        cout << "AUX does not match to SCI by ship time." << endl;
-        return 1;
-    }
-    cout << " - " << options_mgr.auxfile.Data() << " ["
-         << static_cast<int>(auxIter.get_first_ship_second())
-         << " => "
-         << static_cast<int>(auxIter.get_last_ship_second())
-         << "]" << endl;
 
     PPDIterator ppdIter;
     if (options_mgr.ppdfile.IsNull()) {
@@ -80,39 +95,53 @@ int main(int argc, char** argv) {
     }
 
     // merge data
-    bool sap_start_flag = true;
-    int  sap_first_time = 0;
-    int  sap_last_time  = 0;
-    long int sap_last_entry = -1;
-    int pre_percent = 0;
-    int cur_percent = 0;
-    double total_seconds = sciIter.get_last_ship_second() - sciIter.get_first_ship_second();
-    double start_seconds = sciIter.get_first_ship_second();
-    if (options_mgr.ppdfile.IsNull()) {
+    bool     sap_start_flag  = true;
+    int      sap_first_time  = 0;
+    int      sap_last_time   = 0;
+    long int sap_last_entry  = -1;
+    int      pre_percent     = 0;
+    int      cur_percent     = 0;
+    double   cur_ship_second = 0;
+    double   total_seconds   = sciIter.get_last_ship_second() - sciIter.get_first_ship_second();
+    double   start_seconds   = sciIter.get_first_ship_second();
+    long int aux_gap_count   = 0;
+    long int ppd_gap_count   = 0;
+    if (options_mgr.auxfile.IsNull() && options_mgr.ppdfile.IsNull()) {
+        cout << "Merging SCI data ..." << endl;
+    } else if (options_mgr.auxfile.IsNull()) {
+        cout << "Merging SCI and PPD data ..." << endl;
+    } else if (options_mgr.ppdfile.IsNull()) {
         cout << "Merging SCI and AUX data ..." << endl;
     } else {
         cout << "Merging SCI, AUX and PPD data ..." << endl;
     }
     cout << "[ " << flush;
     while (sciIter.next_event()) {
-        cur_percent = static_cast<int>(100 * (sciIter.cur_trigger.abs_ship_second - start_seconds) / total_seconds);
+        if (sciIter.get_is_1p()) {
+            cur_ship_second = sciIter.cur_trigger.abs_ship_second;
+        } else {
+            cur_ship_second = calc_ship_second(sciIter.cur_trigger.frm_ship_time);
+        }
+        cur_percent = static_cast<int>(100 * (cur_ship_second - start_seconds) / total_seconds);
         if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        while (!auxIter.get_reach_end()
-                && sciIter.cur_trigger.abs_ship_second > auxIter.hk_obox_after.abs_ship_second) {
+        while (!options_mgr.auxfile.IsNull() && !auxIter.get_reach_end() && cur_ship_second > auxIter.hk_obox_after.abs_ship_second) {
             auxIter.next_obox();
         }
-        while (!ppdIter.get_reach_end()
-                && sciIter.cur_trigger.abs_ship_second > ppdIter.ppd_after.ship_time_sec) {
+        while (!options_mgr.ppdfile.IsNull() && !ppdIter.get_reach_end() && cur_ship_second > ppdIter.ppd_after.ship_time_sec) {
             ppdIter.next_ppd();
         }
         // merge trigger and modules packets
         sapFile.clear_data();
         sapFile.t_pol_event.event_id = sciIter.cur_trigger.trigg_num_g;
-        sapFile.t_pol_event.event_time = (sciIter.cur_trigger.abs_gps_week - METStartGPSWeek) * 604800
-            + (sciIter.cur_trigger.abs_gps_second - METStartGPSSecond);
+        if (sciIter.get_is_1p()) {
+            sapFile.t_pol_event.event_time = (sciIter.cur_trigger.abs_gps_week - METStartGPSWeek) * 604800
+                + (sciIter.cur_trigger.abs_gps_second - METStartGPSSecond);
+        } else {
+            sapFile.t_pol_event.event_time = cur_ship_second;
+        }
         sapFile.t_pol_event.type = sciIter.cur_trigger.type;
         sapFile.t_pol_event.is_ped = (sciIter.cur_trigger.type == 0x00F0);
         sapFile.t_pol_event.packet_num = sciIter.cur_trigger.packet_num;
@@ -155,35 +184,37 @@ int main(int argc, char** argv) {
             }
         }
         // merge AUX
-        sapFile.t_pol_event.aux_interval = auxIter.hk_obox_after.abs_ship_second - auxIter.hk_obox_before.abs_ship_second;
-        if (fabs(sciIter.cur_trigger.abs_ship_second - auxIter.hk_obox_before.abs_ship_second)
-                < fabs(sciIter.cur_trigger.abs_ship_second - auxIter.hk_obox_after.abs_ship_second)) {
-            sapFile.t_pol_event.obox_mode = auxIter.hk_obox_before.obox_mode;
-            for (int i = 0; i < 25; i++) {
-                sapFile.t_pol_event.fe_hv[i] = auxIter.hk_obox_before.fe_hv[i];
-                sapFile.t_pol_event.fe_temp[i] = auxIter.hk_obox_before.fe_temp[i];
+        if (!options_mgr.auxfile.IsNull()) {
+            sapFile.t_pol_event.aux_interval = auxIter.hk_obox_after.abs_ship_second - auxIter.hk_obox_before.abs_ship_second;
+            if (fabs(cur_ship_second - auxIter.hk_obox_before.abs_ship_second)
+                    < fabs(cur_ship_second - auxIter.hk_obox_after.abs_ship_second)) {
+                sapFile.t_pol_event.obox_mode = auxIter.hk_obox_before.obox_mode;
+                for (int i = 0; i < 25; i++) {
+                    sapFile.t_pol_event.fe_hv[i] = auxIter.hk_obox_before.fe_hv[i];
+                    sapFile.t_pol_event.fe_temp[i] = auxIter.hk_obox_before.fe_temp[i];
+                }
+            } else {
+                sapFile.t_pol_event.obox_mode = auxIter.hk_obox_after.obox_mode;
+                for (int i = 0; i < 25; i++) {
+                    sapFile.t_pol_event.fe_hv[i] = auxIter.hk_obox_after.fe_hv[i];
+                    sapFile.t_pol_event.fe_temp[i] = auxIter.hk_obox_after.fe_temp[i];
+                }
             }
-        } else {
-            sapFile.t_pol_event.obox_mode = auxIter.hk_obox_after.obox_mode;
-            for (int i = 0; i < 25; i++) {
-                sapFile.t_pol_event.fe_hv[i] = auxIter.hk_obox_after.fe_hv[i];
-                sapFile.t_pol_event.fe_temp[i] = auxIter.hk_obox_after.fe_temp[i];
-            }
-        }
-        if (fabs(sciIter.cur_trigger.abs_ship_second - auxIter.fe_thr_ship_second_current)
-                < fabs(sciIter.cur_trigger.abs_ship_second - auxIter.fe_thr_ship_second_next)) {
-            for (int i = 0; i < 25; i++) {
-                sapFile.t_pol_event.fe_thr[i] = auxIter.fe_thr_current[i];
-            }
-        } else {
-            for (int i = 0; i < 25; i++) {
-                sapFile.t_pol_event.fe_thr[i] = auxIter.fe_thr_next[i];
+            if (fabs(cur_ship_second - auxIter.fe_thr_ship_second_current)
+                    < fabs(cur_ship_second - auxIter.fe_thr_ship_second_next)) {
+                for (int i = 0; i < 25; i++) {
+                    sapFile.t_pol_event.fe_thr[i] = auxIter.fe_thr_current[i];
+                }
+            } else {
+                for (int i = 0; i < 25; i++) {
+                    sapFile.t_pol_event.fe_thr[i] = auxIter.fe_thr_next[i];
+                }
             }
         }
         // merge PPD
-        sapFile.t_pol_event.ppd_interval = ppdIter.ppd_after.ship_time_sec - ppdIter.ppd_before.ship_time_sec;
         if (!options_mgr.ppdfile.IsNull()) {
-            ppdIter.calc_ppd_interm(sciIter.cur_trigger.abs_ship_second);
+            sapFile.t_pol_event.ppd_interval = ppdIter.ppd_after.ship_time_sec - ppdIter.ppd_before.ship_time_sec;
+            ppdIter.calc_ppd_interm(cur_ship_second);
             sapFile.t_pol_event.wgs84_xyz[0] = ppdIter.ppd_interm.wgs84_x;
             sapFile.t_pol_event.wgs84_xyz[1] = ppdIter.ppd_interm.wgs84_y;
             sapFile.t_pol_event.wgs84_xyz[2] = ppdIter.ppd_interm.wgs84_z;
@@ -198,6 +229,12 @@ int main(int argc, char** argv) {
         }
         sapFile.fill_data();
         sap_last_entry++;
+        if (sapFile.t_pol_event.aux_interval > MAX_GAP) {
+            aux_gap_count++;
+        }
+        if (sapFile.t_pol_event.ppd_interval > MAX_GAP) {
+            ppd_gap_count++;
+        }
         if (sap_start_flag) {
             sap_start_flag = false;
             sap_first_time = sapFile.t_pol_event.event_time;
@@ -229,12 +266,25 @@ int main(int argc, char** argv) {
     sapFile.write_meta("m_dcdinfo", sciIter.get_m_dcdinfo_str().c_str());
     // m_badinfo
     sapFile.write_meta("m_badinfo", sciIter.get_bad_ratio_str().c_str());
+    // m_gapinfo
+    char gapinfo_buffer[100];
+    sprintf(gapinfo_buffer, "aux_gap: %ld/%ld, ppd_gap: %ld/%ld",
+            aux_gap_count, sap_last_entry + 1, ppd_gap_count, sap_last_entry + 1);
+    sapFile.write_meta("m_gapinfo", gapinfo_buffer);
     // m_merging
-    if (options_mgr.ppdfile.IsNull()) {
-        sapFile.write_meta("m_merging", "SCI, AUX");
+    string merging_str;
+    if (sciIter.get_is_1p()) {
+        merging_str = "SCI_1P";
     } else {
-        sapFile.write_meta("m_merging", "SCI, AUX, PPD");
+        merging_str = "SCI_1M";
     }
+    if (!options_mgr.auxfile.IsNull()) {
+        merging_str += ", AUX_1M";
+    }
+    if (!options_mgr.ppdfile.IsNull()) {
+        merging_str += ", PPD_1N";
+    }
+    sapFile.write_meta("m_merging", merging_str.c_str());
     // m_eneunit
     sapFile.write_meta("m_energy_unit", "ADC");
     // m_levelnum
@@ -255,7 +305,8 @@ int main(int argc, char** argv) {
     ppdIter.close();
 
     cout << "================================================================================" << endl;
-    cout << "BAD_RATIO_INF: { " << sciIter.get_bad_ratio_str() << " } " << endl;
+    cout << "BAD_RATIO_INF: { " << sciIter.get_bad_ratio_str().c_str() << " } " << endl;
+    cout << "GAP_RATIO_INF: { " << gapinfo_buffer << " } " << endl;
     cout << "MET_TIME_SPAN: { " << time_span_str << " } " << endl;
     cout << "================================================================================" << endl;
 
