@@ -17,6 +17,7 @@ parser.add_argument('filelist', metavar = 'filename', nargs = '+', help = 'list 
 parser.add_argument('-B', dest = 'begin', help = 'utc time of beginning as gps time form, like utc_week:utc_second', default = 'begin')
 parser.add_argument('-E', dest = 'end'  , help = 'utc time of ending as gps time form, like utc_week:utc_second', default = 'end')
 parser.add_argument('-o', dest = 'outfile', help = 'ROOT file to store splitted platform parameters data', default = 'TG2_PPD_file_split.root')
+parser.add_argument("--force", help = "merge ppd data even if overlap and gap may exist", action="store_true")
 args = parser.parse_args()
 
 _MAX_DIFF = 30
@@ -45,7 +46,7 @@ else:
             open_result = ppd_file_r_objs[i].open_file(args.filelist[i], 'begin', 'end')
         if open_result:
             ppd_file_r_objs[i].print_file_info()
-            if i > 0:
+            if i > 0 and not args.force:
                 if ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec > _MAX_DIFF:
                     print 'Error: two files cannot connect in UTC time: ' + str(ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec)
                     for j in xrange(i + 1):
