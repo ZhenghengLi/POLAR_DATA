@@ -40,11 +40,13 @@ public:
         Bool_t          t_out_2[25];
         Bool_t          t_out_1[25];
         // from AUX
+        Float_t         aux_interval;
         Int_t           obox_mode;
         Float_t         fe_hv[25];
         Float_t         fe_thr[25];
         Float_t         fe_temp[25];
         // from PPD
+        Float_t         ppd_interval;
         Double_t        wgs84_xyz[3];
         Double_t        det_z_radec[2];
         Double_t        det_x_radec[2];

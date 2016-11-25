@@ -49,11 +49,13 @@ bool SAPDataFile::open(const char* filename) {
     t_pol_event_tree_->Branch("t_out_2",             t_pol_event.t_out_2,           "t_out_2[25]/O"              );
     t_pol_event_tree_->Branch("t_out_1",             t_pol_event.t_out_1,           "t_out_1[25]/O"              );
     // from AUX
+    t_pol_event_tree_->Branch("aux_interval",       &t_pol_event.aux_interval,      "aux_interval/F"             );
     t_pol_event_tree_->Branch("obox_mode",          &t_pol_event.obox_mode,         "obox_mode/I"                );
     t_pol_event_tree_->Branch("fe_hv",               t_pol_event.fe_hv,             "fe_hv[25]/F"                );
     t_pol_event_tree_->Branch("fe_thr",              t_pol_event.fe_thr,            "fe_thr[25]/F"               );
     t_pol_event_tree_->Branch("fe_temp",             t_pol_event.fe_temp,           "fe_temp[25]/F"              );
     // from PPD
+    t_pol_event_tree_->Branch("ppd_interval",       &t_pol_event.ppd_interval,      "ppd_interval/F"             );
     t_pol_event_tree_->Branch("wgs84_xyz",           t_pol_event.wgs84_xyz,         "wgs84_xyz[3]/D"             );
     t_pol_event_tree_->Branch("det_z_radec",         t_pol_event.det_z_radec,       "det_z_radec[2]/D"           );
     t_pol_event_tree_->Branch("det_x_radec",         t_pol_event.det_x_radec,       "det_x_radec[2]/D"           );
@@ -146,6 +148,7 @@ void SAPDataFile::clear_data() {
         t_pol_event.t_out_1[i]                        = false;
     }
     // from AUX
+    t_pol_event.aux_interval                          = 123456;
     t_pol_event.obox_mode                             = -1;
     for (int i = 0; i < 25; i++) {
         t_pol_event.fe_hv[i]                          = 123456;
@@ -153,6 +156,7 @@ void SAPDataFile::clear_data() {
         t_pol_event.fe_temp[i]                        = 123456;
     }
     // from PPD
+    t_pol_event.ppd_interval                          = 123456;
     for (int i = 0; i < 3; i++) {
         t_pol_event.wgs84_xyz[i]                      = 123456;
     }

@@ -7,9 +7,9 @@ using namespace std;
 
 const string SW_NAME = "SAP_Merge";
 
-const string SW_VERSION = "v1.0.0";
+const string SW_VERSION = "v1.1.0";
 
-const string RELEASE_DATE = "2016 Nov 16";
+const string RELEASE_DATE = "2016 Nov 25";
 
 const int    METStartGPSWeek = 1914;
 const double METStartGPSSecond = 396844.816;

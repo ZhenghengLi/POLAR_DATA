@@ -155,6 +155,7 @@ int main(int argc, char** argv) {
             }
         }
         // merge AUX
+        sapFile.t_pol_event.aux_interval = auxIter.hk_obox_after.abs_ship_second - auxIter.hk_obox_before.abs_ship_second;
         if (fabs(sciIter.cur_trigger.abs_ship_second - auxIter.hk_obox_before.abs_ship_second)
                 < fabs(sciIter.cur_trigger.abs_ship_second - auxIter.hk_obox_after.abs_ship_second)) {
             sapFile.t_pol_event.obox_mode = auxIter.hk_obox_before.obox_mode;
@@ -180,6 +181,7 @@ int main(int argc, char** argv) {
             }
         }
         // merge PPD
+        sapFile.t_pol_event.ppd_interval = ppdIter.ppd_after.ship_time_sec - ppdIter.ppd_before.ship_time_sec;
         if (!options_mgr.ppdfile.IsNull()) {
             ppdIter.calc_ppd_interm(sciIter.cur_trigger.abs_ship_second);
             sapFile.t_pol_event.wgs84_xyz[0] = ppdIter.ppd_interm.wgs84_x;
