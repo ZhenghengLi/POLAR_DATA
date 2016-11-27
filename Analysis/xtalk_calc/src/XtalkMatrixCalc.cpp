@@ -29,6 +29,7 @@ XtalkMatrixCalc::XtalkMatrixCalc() {
         ped_mean_vector_[i].ResizeTo(64);
         ped_mean_vector_[i].Zero();
         xtalk_matrix[i].ResizeTo(64, 64);
+        xtalk_matrix_err[i].ResizeTo(64, 64);
         xtalk_matrix_inv[i].ResizeTo(64, 64);
     }
     energy_adc_vector_.ResizeTo(64);
@@ -238,16 +239,20 @@ void XtalkMatrixCalc::fit_xtalk_hist() {
         for (int jy = 0; jy < 64; jy++) {
             if (jx == jy) {
                 xtalk_matrix[current_ct_idx_](jy, jx) = 1.0;
+                xtalk_matrix_err[current_ct_idx_](jy, jx) = 0;
                 continue;
             }
             if (xtalk_hist_[jx][jy]->GetEntries() < 5) {
                 cerr << "CT_" << current_ct_idx_ + 1 << " : " << jx + 1 << " => " << jy + 1
                      << "    " << "number of entries is too small" << endl;
                 xtalk_matrix[current_ct_idx_](jy, jx) = 0.0001 * gRandom->Rndm();
+                xtalk_matrix_err[current_ct_idx_](jy, jx) = 0;
             } else {
                 xtalk_hist_[jx][jy]->Fit(xtalk_line_[jx][jy], "QN");
                 xtalk_matrix[current_ct_idx_](jy, jx) = (xtalk_line_[jx][jy]->GetParameter(0) > 0 ?
                                                          xtalk_line_[jx][jy]->GetParameter(0) : 0.0001 * gRandom->Rndm());
+                xtalk_matrix_err[current_ct_idx_](jy, jx) = (xtalk_line_[jx][jy]->GetParameter(0) > 0 ?
+                                                             xtalk_line_[jx][jy]->GetParError(0) : 0);
             }
         }
     }
@@ -393,6 +398,7 @@ bool XtalkMatrixCalc::write_xtalk_matrix(const char* filename,
         return false;
     for (int i = 0; i < 25; i++) {
         xtalk_matrix[i].Write(Form("xtalk_mat_ct_%02d", i + 1));
+        xtalk_matrix_err[i].Write(Form("xtalk_mat_err_ct_%02d", i + 1));
         xtalk_matrix_inv[i].Write(Form("xtalk_mat_inv_ct_%02d", i + 1));
     }
     TNamed* tmp_meta;

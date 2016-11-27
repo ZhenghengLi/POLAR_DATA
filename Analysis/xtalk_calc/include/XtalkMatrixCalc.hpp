@@ -42,6 +42,7 @@ private:
 
 public:
     TMatrixF xtalk_matrix[25];
+    TMatrixF xtalk_matrix_err[25];
     TMatrixF xtalk_matrix_inv[25];
 
 private:
