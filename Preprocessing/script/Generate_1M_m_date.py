@@ -163,6 +163,8 @@ for filename in sci_filelist_update + sci_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, sci_1m, filename).replace('0B.dat', '1M.log')
     file_1m_cmd  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.cmd')
     file_1m_out  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.out')
+    if os.path.isfile(file_0b_dat) and os.path.isfile(file_1m_root) and \
+            os.stat(file_1m_root).st_mtime > os.stat(file_0b_dat).st_mtime: continue
     if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
     if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
     if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
@@ -192,6 +194,8 @@ for filename in aux_filelist_update + aux_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, aux_1m, filename).replace('0B.dat', '1M.log')
     file_1m_cmd  = os.path.join(scrfile_dir, aux_1m, filename).replace('0B.dat', '1M.cmd')
     file_1m_out  = os.path.join(scrfile_dir, aux_1m, filename).replace('0B.dat', '1M.out')
+    if os.path.isfile(file_0b_dat) and os.path.isfile(file_1m_root) and \
+            os.stat(file_1m_root).st_mtime > os.stat(file_0b_dat).st_mtime: continue
     if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
     if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
     if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
@@ -221,6 +225,8 @@ for filename in eng_filelist_update + eng_filelist_new:
     file_1m_log  = os.path.join(logfile_dir, ppd_1m, filename).replace('0B.dat', '1M.log').replace('TS_TG02_POL_PSD', 'TS_TG02_POL_PPD')
     file_1m_cmd  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.cmd').replace('TS_TG02_POL_PSD', 'TS_TG02_POL_PPD')
     file_1m_out  = os.path.join(scrfile_dir, ppd_1m, filename).replace('0B.dat', '1M.out').replace('TS_TG02_POL_PSD', 'TS_TG02_POL_PPD')
+    if os.path.isfile(file_0b_dat) and os.path.isfile(file_1m_root) and \
+            os.stat(file_1m_root).st_mtime > os.stat(file_0b_dat).st_mtime: continue
     if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
     if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
     if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue

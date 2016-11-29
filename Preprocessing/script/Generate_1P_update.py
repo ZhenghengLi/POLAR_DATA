@@ -200,6 +200,8 @@ for i, p in enumerate(sci_aux_1m_pair_all, start = 1):
     sci_file_1p_log  = os.path.join(logfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.log'))
     sci_file_1p_cmd  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.cmd'))
     sci_file_1p_out  = os.path.join(scrfile_dir, sci_1p, sci_filename.replace('1M.root', '1P.out'))
+    if os.path.isfile(sci_file_1m_root) and os.path.isfile(sci_file_1p_root) and \
+            os.stat(sci_file_1p_root).st_mtime > os.stat(sci_file_1m_root).st_mtime: continue
     if os.path.isfile(sci_file_1m_root) and file_is_open(sci_file_1m_root): continue
     if os.path.isfile(aux_file_1m_root) and file_is_open(aux_file_1m_root): continue
     if os.path.isfile(sci_file_1p_root) and file_is_open(sci_file_1p_root): continue

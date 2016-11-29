@@ -257,6 +257,7 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
     ppd_1n_filename = k.fn.replace('_SCI_', '_PPD_').replace('_1P', '_1N')
     print ppd_1n_filename
     ppd_1n_file = os.path.join(os.path.join(ppd_1n_dir, ppd_1n_filename))
+    if os.path.isfile(ppd_1n_file): continue
     ppd_1n_outfile = os.path.join(scrfile_dir_ppd_1n, ppd_1n_filename.replace('.root', '.out'))
     ppd_1n_cmdfile = os.path.join(scrfile_dir_ppd_1n, ppd_1n_filename.replace('.root', '.cmd'))
     cur_ppd_file_list = [os.path.join(ppd_1m_dir, x.fn) for x in sci_1p_ppd_1m_dict[k]]
