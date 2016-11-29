@@ -136,7 +136,7 @@ for dirname in args.dirlist:
     output_file = os.path.join(processlog_dir_date, dirname + '_1Q_' + cur_time + '.log')
     ret_value = 0
     with open(output_file, 'w') as fout:
-        ret_value = subprocess.call(['Align_PPD.py', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
+        ret_value = subprocess.call(['Align_PPD.py', '-r', args.dataprefix, '--type', dirname], stdout = fout, stderr = fout)
     with open(output_file, 'a') as fout:
         ret_value = subprocess.call([cmd_1q, '--noconfirm', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
     with open(output_file, 'r') as f: print f.read().rstrip('\n')
