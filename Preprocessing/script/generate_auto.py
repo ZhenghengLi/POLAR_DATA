@@ -18,7 +18,7 @@ def send_mail(tolist, subject, message):
     smtp_pass = 'polardata123456'
     smtp_host = 'smtp.163.com'
     smtp_port = 465
-    fromaddr  = 'polardata@163.com'             
+    fromaddr  = 'polardata@163.com'
     # message
     msg = MIMEMultipart()
     msg['From']    = fromaddr
@@ -91,9 +91,11 @@ total_count = {}
 for dirname in args.dirlist:
     cmd_1m = 'Generate_1M_date.py'
     cmd_1p = 'Generate_1P_update.py'
+    cmd_1q = 'Generate_1Q_update.py'
     if dirname in ['manual']:
         cmd_1m = 'Generate_1M_m_date.py'
         cmd_1p = 'Generate_1P_m_update.py'
+        cmd_1q = 'Generate_1Q_m_update.py'
     message[dirname] = ''
     total_count[dirname] = 0
     # 1M
@@ -126,6 +128,23 @@ for dirname in args.dirlist:
         with open(output_file, 'r') as f: message[dirname] += f.read()
     else:
         message[dirname] += ' - No new files found.\n'
+    # 1Q
+    cur_time = datetime.now().strftime('%Y%m%d%H%M%S')
+    section = ' ***************** 1Q * ' + cur_time + ' ********************** '
+    print section + ' processing ... '
+    message[dirname] += section + '\n'
+    output_file = os.path.join(processlog_dir_date, dirname + '_1Q_' + cur_time + '.log')
+    ret_value = 0
+    with open(output_file, 'w') as fout:
+        ret_value = subprocess.call(['Align_PPD.py', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
+    with open(output_file, 'a') as fout:
+        ret_value = subprocess.call([cmd_1q, '--noconfirm', '-r', args.dataprefix, '-t', dirname], stdout = fout, stderr = fout)
+    with open(output_file, 'r') as f: print f.read().rstrip('\n')
+    if ret_value > 0:
+        with open(output_file, 'r') as f: message[dirname] += f.read()
+    else:
+        message[dirname] += ' - No new files found.\n'
+
 
 # save and send message
 message_all = ''
