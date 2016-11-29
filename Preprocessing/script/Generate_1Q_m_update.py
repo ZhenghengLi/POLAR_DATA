@@ -179,7 +179,6 @@ for x in sci_aux_pair_all:
 
 print ' - matching summary before processing: '
 for i, p in enumerate(sci_aux_ppd_tuple_all, start = 1):
-    print ' - > ' + str(i) + ' < -----------------'
     sci_filename = p[0]
     sci_timespan = sci_1p_read_timespan(os.path.join(product_dir, sci_1p, sci_filename))
     aux_filename = p[1]
@@ -187,6 +186,7 @@ for i, p in enumerate(sci_aux_ppd_tuple_all, start = 1):
     ppd_filename = p[2]
     ppd_timespan = ppd_1n_read_timespan(os.path.join(product_dir, ppd_1n, ppd_filename)) if ppd_filename != 0 else 0
     if args.noconfirm and (aux_filename == 0 or ppd_filename == 0): continue
+    print ' - > ' + str(i) + ' < -----------------'
     print ' v ' + sci_filename + ': { ' + sci_timespan + ' } '
     aux_matched = ' ^ ' + aux_filename + ': { ' + aux_timespan + ' } ' if aux_filename != 0 else " ^ No found matched AUX file"
     print aux_matched
