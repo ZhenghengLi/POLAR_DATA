@@ -22,6 +22,7 @@ public:
     bool    tout1_flag;
     int     max_bars;
     int     min_bars;
+    TString bar_mask_filename;
     
 public:
     OptionsManager();

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "EventIterator.hpp"
@@ -16,6 +18,56 @@ int main(int argc, char** argv) {
             options_mgr.print_help();
         }
         return 1;
+    }
+
+    bool bar_mask[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            bar_mask[i][j] = false;
+        }
+    }
+
+    // read bar_mask
+    int type_number = 4;
+    char line_buffer[100];
+    ifstream infile;
+    infile.open(options_mgr.bar_mask_filename.Data());
+    if (!infile.is_open()) {
+        cout << "bar_mask_file open failed." << endl;
+        return 1;
+    }
+    stringstream ss;
+    int ct_num;
+    int ch_idx;
+    while (true) {
+        infile.getline(line_buffer, 100);
+        if (infile.eof()) break;
+        if (string(line_buffer).find("#") != string::npos) {
+            continue;
+        } else if (string(line_buffer).find("single") != string::npos) {
+            type_number = 1;
+            cout << "only select single event" << endl;
+        } else if (string(line_buffer).find("normal") != string::npos) {
+            type_number = 2;
+            cout << "only select normal event" << endl;
+        } else if (string(line_buffer).find("cosmic") != string::npos) {
+            type_number = 3;
+            cout << "only select cosmic event" << endl;
+        } else {
+            ss.clear();
+            ss.str(line_buffer);
+            ss >> ct_num >> ch_idx;
+            if (ct_num < 1 || ct_num > 25) {
+                cout << "ct_num out of range" << endl;
+                return 1;
+            }
+            if (ch_idx < 0 || ch_idx > 63) {
+                cout << "ch_idx out of range" << endl;
+                return 1;
+            }
+            cout << "kill bar ct_" << ct_num << ", ch_" << ch_idx << endl;
+            bar_mask[ct_num - 1][ch_idx] = true;
+        }
     }
 
     argc = 1;
@@ -144,6 +196,27 @@ int main(int argc, char** argv) {
         }
         cur_second = (eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 + 
             (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second);
+        bool is_bad_event = false;
+        if (type_number == 1) {
+            if (eventIter.t_trigger.type != 0xF000) is_bad_event = true;
+        } else if (type_number == 2) {
+            if (eventIter.t_trigger.type != 0x00FF) is_bad_event = true;
+        } else if (type_number == 3) {
+            if (eventIter.t_trigger.type != 0xFF00) is_bad_event = true;
+        }
+        eventIter.phy_modules_set_start();
+        while (!options_mgr.bar_mask_filename.IsNull() && eventIter.phy_modules_next_packet()) {
+            int idx = eventIter.t_modules.ct_num - 1;
+            for (int j = 0; j < 64; j++) {
+                if (eventIter.t_modules.trigger_bit[j] && bar_mask[idx][j]) {
+                    is_bad_event = true;
+                    break;
+                }
+            }
+        }
+        if (is_bad_event) {
+            continue;
+        }
         trigger_hist->Fill(cur_second);
         for (int i = 0; i < 25; i++) {
             if (eventIter.t_trigger.trig_accepted[i]) {
@@ -158,6 +231,7 @@ int main(int argc, char** argv) {
                 modules_hist_tout1[i]->Fill(cur_second);
             }
         }
+        eventIter.phy_modules_set_start();
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
             for (int i = 0; i < eventIter.t_modules.raw_rate; i++) {
