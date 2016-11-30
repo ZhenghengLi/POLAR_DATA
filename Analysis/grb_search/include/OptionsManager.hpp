@@ -25,6 +25,7 @@ public:
     int     bkg_nbins;                        // -m
     int     min_bars;                         // -y
     int     max_bars;                         // -z
+    TString bar_mask_filename;                // -k
 
     
 public:

@@ -152,6 +152,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'k':
+                if (idx < argc_par - 1) {
+                    bar_mask_filename = argv_par[++idx];
+                    if (bar_mask_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -170,9 +180,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (end_gps.IsNull())
         end_gps = "end";
     if (bw_start <= 0)
-        bw_start = 0.02;
+        bw_start = 0.016;
     if (bw_stop <= 0)
-        bw_stop = 20;
+        bw_stop = 8.0;
     if (bw_stop <= bw_start)
         return false;
     if (bw_len <= 0)
@@ -208,7 +218,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-d <bkg_distance>] [-m <bkg_nbins>] -o [<filename.pdf>]" << endl;
+    cout << " [-d <bkg_distance>] [-m <bkg_nbins>] -o [<filename.pdf>] [-k <bar_mask.cfg]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -B week1:second1                 GPS string of beginning" << endl;
@@ -222,6 +232,7 @@ void OptionsManager::print_help() {
     cout << "  -o filename.pdf                  output pdf filename" << endl;
     cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
     cout << "  -z <max_bars>                    maximum number of bars to cut, default is 4" << endl;
+    cout << "  -k <bar_mask.cfg>                file that contains a list of hot bars" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -254,6 +265,7 @@ void OptionsManager::init() {
     bkg_nbins = -1;
     min_bars = 0;
     max_bars = 4;
+    bar_mask_filename.Clear();
 
     version_flag_ = false;
 }
