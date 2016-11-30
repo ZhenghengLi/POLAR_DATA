@@ -31,15 +31,17 @@ int main(int argc, char** argv) {
     int type_number = 4;
     char line_buffer[100];
     ifstream infile;
-    infile.open(options_mgr.bar_mask_filename.Data());
-    if (!infile.is_open()) {
-        cout << "bar_mask_file open failed." << endl;
-        return 1;
+    if (!options_mgr.bar_mask_filename.IsNull()) {
+        infile.open(options_mgr.bar_mask_filename.Data());
+        if (!infile.is_open()) {
+            cout << "bar_mask_file open failed." << endl;
+            return 1;
+        }
     }
     stringstream ss;
     int ct_num;
     int ch_idx;
-    while (true) {
+    while (!options_mgr.bar_mask_filename.IsNull()) {
         infile.getline(line_buffer, 100);
         if (infile.eof()) break;
         if (string(line_buffer).find("#") != string::npos) {
