@@ -9,7 +9,7 @@ SCIIterator::SCIIterator() {
     t_ped_trigger_tree_ = NULL;
     t_ped_modules_tree_ = NULL;
 
-    re_ship_span_ = "^ *(\\d+)\\[\\d+\\] => (\\d+)\\[\\d+\\]; \\d+/\\d+ *$";
+    re_gps_span_ = "^ *(\\d+):(\\d+)\\[\\d+\\] => (\\d+):(\\d+)\\[\\d+\\]; \\d+/\\d+ *$";
 
     total_entries_ = 0;
     bad_entries_   = 0;
@@ -41,20 +41,20 @@ bool SCIIterator::open(const char* filename) {
 
     is_1p_file_ = check_1P(t_trigger_tree_);
 
-    TNamed* m_pedship;
+    TNamed* m_ped_gps;
     if (is_1p_file_) {
-        m_pedship = static_cast<TNamed*>(t_file_in_->Get("m_pedship"));
+        m_ped_gps = static_cast<TNamed*>(t_file_in_->Get("m_ped_gps"));
     } else {
-        m_pedship = static_cast<TNamed*>(t_file_in_->Get("m_pedship_frm"));
+        m_ped_gps = static_cast<TNamed*>(t_file_in_->Get("m_ped_gps_frm"));
     }
-    if (m_pedship == NULL)
+    if (m_ped_gps == NULL)
         return false;
     cmatch cm;
-    if (regex_match(m_pedship->GetTitle(), cm, re_ship_span_)) {
-        first_ship_second_ = TString(cm[1]).Atof();
-        last_ship_second_  = TString(cm[2]).Atof();
+    if (regex_match(m_ped_gps->GetTitle(), cm, re_gps_span_)) {
+        first_gps_time_ = TString(cm[1]).Atof() * 604800 + TString(cm[2]).Atof();
+        last_gps_time_  = TString(cm[3]).Atof() * 604800 + TString(cm[4]).Atof();
     } else {
-        cerr << "ship time span match failed: " << m_pedship->GetTitle() << endl;
+        cerr << "gps time span match failed: " << m_ped_gps->GetTitle() << endl;
         return false;
     }
     TNamed* m_version = static_cast<TNamed*>(t_file_in_->Get("m_version"));
@@ -123,14 +123,14 @@ bool SCIIterator::ped_trigger_next_() {
             t_ped_trigger_tree_->GetEntry(ped_trigger_cur_entry_);
             if (ped_trigger_.is_bad > 0)
                 bad_entries_++;
-            if (is_1p_file_ && ped_trigger_.abs_ship_second < 0)
+            if (is_1p_file_ && ped_trigger_.abs_gps_week < 0)
                 bad_time_entries_++;
         } else {
             ped_trigger_reach_end_ = true;
             return false;
         }
         if (is_1p_file_) {
-            if (ped_trigger_.is_bad <= 0 && ped_trigger_.abs_ship_second >= 0) {
+            if (ped_trigger_.is_bad <= 0 && ped_trigger_.abs_gps_week >= 0) {
                 break;
             }
         } else {
@@ -153,14 +153,14 @@ bool SCIIterator::phy_trigger_next_() {
             t_trigger_tree_->GetEntry(phy_trigger_cur_entry_);
             if (phy_trigger_.is_bad > 0)
                 bad_entries_++;
-            if (is_1p_file_ && phy_trigger_.abs_ship_second < 0)
+            if (is_1p_file_ && phy_trigger_.abs_gps_week < 0)
                 bad_time_entries_++;
         } else {
             phy_trigger_reach_end_ = true;
             return false;
         }
         if (is_1p_file_) {
-            if (phy_trigger_.is_bad <= 0 && phy_trigger_.abs_ship_second >= 0) {
+            if (phy_trigger_.is_bad <= 0 && phy_trigger_.abs_gps_week >= 0) {
                 break;
             }
         } else {
@@ -225,16 +225,16 @@ bool SCIIterator::next_packet() {
     return true;
 }
 
-double SCIIterator::get_first_ship_second() {
-    return first_ship_second_;
+double SCIIterator::get_first_gps_time() {
+    return first_gps_time_;
 }
 
 bool SCIIterator::get_is_1p() {
     return is_1p_file_;
 }
 
-double SCIIterator::get_last_ship_second() {
-    return last_ship_second_;
+double SCIIterator::get_last_gps_time() {
+    return last_gps_time_;
 }
 
 string SCIIterator::get_bad_ratio_str() {

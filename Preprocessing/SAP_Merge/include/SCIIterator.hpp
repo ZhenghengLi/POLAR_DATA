@@ -21,9 +21,9 @@ private:
 
     bool   is_1p_file_;
 
-    regex  re_ship_span_;
-    double first_ship_second_;
-    double last_ship_second_;
+    regex  re_gps_span_;
+    double first_gps_time_;
+    double last_gps_time_;
 
     bool ped_trigger_reach_end_;
     bool phy_trigger_reach_end_;
@@ -73,8 +73,8 @@ public:
     bool next_packet();
 
     bool   get_is_1p();
-    double get_first_ship_second();
-    double get_last_ship_second();
+    double get_first_gps_time();
+    double get_last_gps_time();
 
     string get_bad_ratio_str();
     string get_m_version_str();

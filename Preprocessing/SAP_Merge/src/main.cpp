@@ -15,10 +15,17 @@
 
 using namespace std;
 
-double calc_ship_second(const uint64_t raw_ship_time) {
-    double second = static_cast<double>(raw_ship_time >> 16);
-    double millisecond = static_cast<double>(raw_ship_time & 0xFFFF) / 2000;
-    return second + millisecond;
+double calc_gps_time(const uint64_t raw_gps) {
+    double week = static_cast<double>((raw_gps >> 32) & 0xFFFF);
+    if (week < 1024) {
+        if (week > 629) {
+            week += 1024;
+        } else {
+            week += 2048;
+        }
+    }
+    double second = static_cast<double>((raw_gps >> 12) & 0xFFFFF) + static_cast<double>(raw_gps & 0xFFF) * 0.5 * 1.0E-3;
+    return week * 604800 + second;
 }
 
 int main(int argc, char** argv) {
@@ -40,12 +47,12 @@ int main(int argc, char** argv) {
         return 1;
     }
     cout << " - " << options_mgr.scifile.Data() << " ["
-         << static_cast<int>(sciIter.get_first_ship_second())
+         << static_cast<int>(sciIter.get_first_gps_time() - METStartGPSTime)
          << " => "
-         << static_cast<int>(sciIter.get_last_ship_second())
+         << static_cast<int>(sciIter.get_last_gps_time() - METStartGPSTime)
          << "]" << endl;
     if (!sciIter.get_is_1p()) {
-        cout << "WARNING: the opened SCI data file is not 1P level, use frame ship time instead." << endl;
+        cout << "WARNING: the opened SCI data file is not 1P level, use frame GPS time instead." << endl;
     }
 
     AUXIterator auxIter;
@@ -56,15 +63,15 @@ int main(int argc, char** argv) {
             cout << "AUX root file open failed: " << options_mgr.auxfile.Data() << endl;
             return 1;
         }
-        if (auxIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
-                || sciIter.get_last_ship_second() - auxIter.get_last_ship_second() > MAX_OFFSET) {
-            cout << "AUX does not match to SCI by ship time." << endl;
+        if (auxIter.get_first_gps_time() - sciIter.get_first_gps_time() > MAX_OFFSET
+                || sciIter.get_last_gps_time() - auxIter.get_last_gps_time() > MAX_OFFSET) {
+            cout << "AUX does not match to SCI by GPS time." << endl;
             return 1;
         }
         cout << " - " << options_mgr.auxfile.Data() << " ["
-             << static_cast<int>(auxIter.get_first_ship_second())
+             << static_cast<int>(auxIter.get_first_gps_time() - METStartGPSTime)
              << " => "
-             << static_cast<int>(auxIter.get_last_ship_second())
+             << static_cast<int>(auxIter.get_last_gps_time() - METStartGPSTime)
              << "]" << endl;
     }
 
@@ -76,15 +83,15 @@ int main(int argc, char** argv) {
             cout << "PPD root file open failed: " << options_mgr.ppdfile.Data() << endl;
             return 1;
         }
-        if (ppdIter.get_first_ship_second() - sciIter.get_first_ship_second() > MAX_OFFSET
-                || sciIter.get_last_ship_second() - ppdIter.get_last_ship_second() > MAX_OFFSET) {
-            cout << "PPD does not match to SCI by ship time." << endl;
+        if (ppdIter.get_first_gps_time() - sciIter.get_first_gps_time() > MAX_OFFSET
+                || sciIter.get_last_gps_time() - ppdIter.get_last_gps_time() > MAX_OFFSET) {
+            cout << "PPD does not match to SCI by GPS time." << endl;
             return 1;
         }
         cout << " - " << options_mgr.ppdfile.Data() << " ["
-             << static_cast<int>(ppdIter.get_first_ship_second())
+             << static_cast<int>(ppdIter.get_first_gps_time() - METStartGPSTime)
              << " => "
-             << static_cast<int>(ppdIter.get_last_ship_second())
+             << static_cast<int>(ppdIter.get_last_gps_time() - METStartGPSTime)
              << "]" << endl;
     }
 
@@ -101,9 +108,9 @@ int main(int argc, char** argv) {
     long int sap_last_entry  = -1;
     int      pre_percent     = 0;
     int      cur_percent     = 0;
-    double   cur_ship_second = 0;
-    double   total_seconds   = sciIter.get_last_ship_second() - sciIter.get_first_ship_second();
-    double   start_seconds   = sciIter.get_first_ship_second();
+    double   cur_gps_time = 0;
+    double   total_seconds   = sciIter.get_last_gps_time() - sciIter.get_first_gps_time();
+    double   start_seconds   = sciIter.get_first_gps_time();
     long int aux_gap_count   = 0;
     long int ppd_gap_count   = 0;
     if (options_mgr.auxfile.IsNull() && options_mgr.ppdfile.IsNull()) {
@@ -118,19 +125,19 @@ int main(int argc, char** argv) {
     cout << "[ " << flush;
     while (sciIter.next_event()) {
         if (sciIter.get_is_1p()) {
-            cur_ship_second = sciIter.cur_trigger.abs_ship_second;
+            cur_gps_time = sciIter.cur_trigger.abs_gps_week * 604800 + sciIter.cur_trigger.abs_gps_second;
         } else {
-            cur_ship_second = calc_ship_second(sciIter.cur_trigger.frm_ship_time);
+            cur_gps_time = calc_gps_time(sciIter.cur_trigger.frm_gps_time);
         }
-        cur_percent = static_cast<int>(100 * (cur_ship_second - start_seconds) / total_seconds);
+        cur_percent = static_cast<int>(100 * (cur_gps_time - start_seconds) / total_seconds);
         if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        while (!options_mgr.auxfile.IsNull() && !auxIter.get_reach_end() && cur_ship_second > auxIter.hk_obox_after.abs_ship_second) {
+        while (!options_mgr.auxfile.IsNull() && !auxIter.get_reach_end() && cur_gps_time > auxIter.hk_obox_after.gps_time_sec) {
             auxIter.next_obox();
         }
-        while (!options_mgr.ppdfile.IsNull() && !ppdIter.get_reach_end() && cur_ship_second > ppdIter.ppd_after.ship_time_sec) {
+        while (!options_mgr.ppdfile.IsNull() && !ppdIter.get_reach_end() && cur_gps_time > ppdIter.ppd_after.gps_time_sec) {
             ppdIter.next_ppd();
         }
         // merge trigger and modules packets
@@ -140,7 +147,7 @@ int main(int argc, char** argv) {
             sapFile.t_pol_event.event_time = (sciIter.cur_trigger.abs_gps_week - METStartGPSWeek) * 604800
                 + (sciIter.cur_trigger.abs_gps_second - METStartGPSSecond);
         } else {
-            sapFile.t_pol_event.event_time = cur_ship_second;
+            sapFile.t_pol_event.event_time = cur_gps_time - METStartGPSTime;
         }
         sapFile.t_pol_event.type = sciIter.cur_trigger.type;
         sapFile.t_pol_event.is_ped = (sciIter.cur_trigger.type == 0x00F0);
@@ -185,9 +192,9 @@ int main(int argc, char** argv) {
         }
         // merge AUX
         if (!options_mgr.auxfile.IsNull()) {
-            sapFile.t_pol_event.aux_interval = auxIter.hk_obox_after.abs_ship_second - auxIter.hk_obox_before.abs_ship_second;
-            if (fabs(cur_ship_second - auxIter.hk_obox_before.abs_ship_second)
-                    < fabs(cur_ship_second - auxIter.hk_obox_after.abs_ship_second)) {
+            sapFile.t_pol_event.aux_interval = auxIter.hk_obox_after.gps_time_sec - auxIter.hk_obox_before.gps_time_sec;
+            if (fabs(cur_gps_time - auxIter.hk_obox_before.gps_time_sec)
+                    < fabs(cur_gps_time - auxIter.hk_obox_after.gps_time_sec)) {
                 sapFile.t_pol_event.obox_mode = auxIter.hk_obox_before.obox_mode;
                 for (int i = 0; i < 25; i++) {
                     sapFile.t_pol_event.fe_hv[i] = auxIter.hk_obox_before.fe_hv[i];
@@ -200,8 +207,8 @@ int main(int argc, char** argv) {
                     sapFile.t_pol_event.fe_temp[i] = auxIter.hk_obox_after.fe_temp[i];
                 }
             }
-            if (fabs(cur_ship_second - auxIter.fe_thr_ship_second_current)
-                    < fabs(cur_ship_second - auxIter.fe_thr_ship_second_next)) {
+            if (fabs(cur_gps_time - auxIter.fe_thr_gps_time_current)
+                    < fabs(cur_gps_time - auxIter.fe_thr_gps_time_next)) {
                 for (int i = 0; i < 25; i++) {
                     sapFile.t_pol_event.fe_thr[i] = auxIter.fe_thr_current[i];
                 }
@@ -213,8 +220,8 @@ int main(int argc, char** argv) {
         }
         // merge PPD
         if (!options_mgr.ppdfile.IsNull()) {
-            sapFile.t_pol_event.ppd_interval = ppdIter.ppd_after.ship_time_sec - ppdIter.ppd_before.ship_time_sec;
-            ppdIter.calc_ppd_interm(cur_ship_second);
+            sapFile.t_pol_event.ppd_interval = ppdIter.ppd_after.gps_time_sec - ppdIter.ppd_before.gps_time_sec;
+            ppdIter.calc_ppd_interm(cur_gps_time);
             sapFile.t_pol_event.wgs84_xyz[0] = ppdIter.ppd_interm.wgs84_x;
             sapFile.t_pol_event.wgs84_xyz[1] = ppdIter.ppd_interm.wgs84_y;
             sapFile.t_pol_event.wgs84_xyz[2] = ppdIter.ppd_interm.wgs84_z;

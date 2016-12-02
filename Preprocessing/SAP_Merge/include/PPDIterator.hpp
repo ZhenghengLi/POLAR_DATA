@@ -5,6 +5,7 @@
 #include <cmath>
 #include <boost/regex.hpp>
 #include "RootInc.hpp"
+#include "Constants.hpp"
 
 using namespace std;
 using boost::regex;
@@ -14,7 +15,7 @@ using boost::regex_match;
 class PPDIterator {
 public:
     struct PPD_T {
-        Double_t     ship_time_sec;
+        double       gps_time_sec;
         Double_t     utc_time_sec;
         Int_t        flag_of_pos;
         Double_t     wgs84_x;
@@ -43,9 +44,9 @@ private:
     TFile* t_file_in_;
     TTree* t_ppd_tree_;
 
-    regex  re_ship_span_;
-    double first_ship_second_;
-    double last_ship_second_;
+    regex  re_gps_span_;
+    double first_gps_time_;
+    double last_gps_time_;
 
     Long64_t ppd_cur_entry_;
     bool     ppd_reach_end_;
@@ -59,11 +60,13 @@ public:
 
 private:
     double calc_ra_(
-            double ship_time,
+            double gps_time,
             double before_ra,
-            double before_ship_time,
+            double before_gps_time,
             double after_ra,
-            double after_ship_time);
+            double after_gps_time);
+    double get_leap_seconds_(double utc_time_sec);
+    double utc_to_gps_(double utc_time_sec);
 
 public:
     PPDIterator();
@@ -74,10 +77,10 @@ public:
 
     bool next_ppd();
     bool get_reach_end();
-    void calc_ppd_interm(double ship_time);
+    void calc_ppd_interm(double gps_time);
 
-    double get_first_ship_second();
-    double get_last_ship_second();
+    double get_first_gps_time();
+    double get_last_gps_time();
 
 };
 
