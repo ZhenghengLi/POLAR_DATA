@@ -17,7 +17,7 @@ using boost::regex;
 using boost::cmatch;
 using boost::regex_match;
 
-class SAPFileR: public SAPType {
+class SAPFileR: private SAPType {
 private:
     TString time_begin_str_;
     TString time_end_str_;
