@@ -68,7 +68,7 @@ string SAPFileW::get_time_span() {
     sprintf(str_buffer, "%d[0] => %d[%ld]",
             event_time_first_,
             event_time_last_,
-            static_cast<long int>(t_pol_event_tree_->GetEntries()));
+            static_cast<long int>(t_pol_event_tree_->GetEntries() - 1));
     return string(str_buffer);
 }
 

@@ -123,13 +123,13 @@ int main(int argc, char** argv) {
     fromfile_list += sys.BaseName(sapfile_r_arr[0].get_filename().c_str());
     fromfile_list += Form("[%ld=>%ld]",
             static_cast<long int>(sapfile_r_arr[0].pol_event_get_entry_begin()),
-            static_cast<long int>(sapfile_r_arr[0].pol_event_get_entry_end()));
+            static_cast<long int>(sapfile_r_arr[0].pol_event_get_entry_end() - 1));
     for (size_t i = 1; i < sapfile_r_len; i++) {
         fromfile_list += "; ";
         fromfile_list += sys.BaseName(sapfile_r_arr[i].get_filename().c_str());
         fromfile_list += Form("[%ld=>%ld]",
                 static_cast<long int>(sapfile_r_arr[i].pol_event_get_entry_begin()),
-                static_cast<long int>(sapfile_r_arr[i].pol_event_get_entry_end()));
+                static_cast<long int>(sapfile_r_arr[i].pol_event_get_entry_end() - 1));
 
     }
     sapfile_w.write_meta("m_fromfile", fromfile_list.c_str());

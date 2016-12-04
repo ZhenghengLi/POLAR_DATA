@@ -160,7 +160,7 @@ void SAPFileR::print_file_info() {
             static_cast<int>(begin_time),
             static_cast<long int>(entry_begin_),
             static_cast<int>(end_time),
-            static_cast<long int>(entry_end_),
+            static_cast<long int>(entry_end_ - 1),
             static_cast<long int>(t_pol_event_tree_->GetEntries()));
     cout << filename_str_ << endl;
     cout << " - MET TIME SPAN: { " << time_span_buffer << " }" << endl;
