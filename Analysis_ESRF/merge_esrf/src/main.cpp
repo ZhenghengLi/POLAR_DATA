@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        if (eventIter.t_trigger.is_bad > 0 || eventIter.t_trigger.lost_count > 0) {
+        if (eventIter.t_trigger.is_bad > 0) {
             continue;
         }
         t_event.type = eventIter.t_trigger.type;
