@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             t_event.trig_accepted[i] = eventIter.t_trigger.trig_accepted[i];
             t_event.time_aligned[i] = false;
+            t_event.raw_rate[i] = -1;
             t_event.multiplicity[i] = -1;
             t_event.compress[i] = -1;
             t_event.common_noise[i] = -1;
