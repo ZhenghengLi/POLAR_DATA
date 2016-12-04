@@ -9,6 +9,7 @@
 #include "TCanvas.h"
 #include "TApplication.h"
 #include "TROOT.h"
+#include "TBranch.h"
 #include "TMath.h"
 #include "TStyle.h"
 #include "TGraph.h"
