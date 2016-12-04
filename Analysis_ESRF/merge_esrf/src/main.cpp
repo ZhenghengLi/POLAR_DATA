@@ -23,9 +23,16 @@ int main(int argc, char** argv) {
 
     struct {
         Int_t    type;
+        Int_t    packet_num;
         Double_t ct_time_second;
+        Double_t ct_time_wait;
+        Float_t  ct_dead_ratio;
+        Double_t fe_time_second[25];
+        Double_t fe_time_wait[25];
+        Float_t  fe_dead_ratio[25];
         Bool_t   trig_accepted[25];
         Bool_t   time_aligned[25];
+        Int_t    raw_rate[25];
         Int_t    pkt_count;
         Int_t    lost_count;
         Bool_t   trigger_bit[25][64];
@@ -35,16 +42,22 @@ int main(int argc, char** argv) {
         UShort_t channel_status[25][64];
         Int_t    compress[25];
         Float_t  common_noise[25];
-        Double_t fe_time_second[25];
     } t_event;
 
     TFile* t_file_merged_out = new TFile(event_data_fn.c_str(), "recreate");
     t_file_merged_out->cd();
     TTree* t_event_tree = new TTree("t_event", "event data only after merged");
     t_event_tree->Branch("type",                &t_event.type,                 "type/I"                      );
+    t_event_tree->Branch("packet_num",          &t_event.packet_num,           "packet_num/I"                );
     t_event_tree->Branch("ct_time_second",      &t_event.ct_time_second,       "ct_time_second/D"            );
+    t_event_tree->Branch("ct_time_wait",        &t_event.ct_time_wait,         "ct_time_wait/D"              );
+    t_event_tree->Branch("ct_dead_ratio",       &t_event.ct_dead_ratio,        "ct_dead_ratio/F"             );
+    t_event_tree->Branch("fe_time_second",       t_event.fe_time_second,       "fe_time_second[25]/D"        );
+    t_event_tree->Branch("fe_time_wait",         t_event.fe_time_wait,         "fe_time_wait[25]/D"          );
+    t_event_tree->Branch("fe_dead_ratio",        t_event.fe_dead_ratio,        "fe_dead_ratio[25]/F"         );
     t_event_tree->Branch("trig_accepted",        t_event.trig_accepted,        "trig_accepted[25]/O"         );
     t_event_tree->Branch("time_aligned",         t_event.time_aligned,         "time_aligned[25]/O"          );
+    t_event_tree->Branch("raw_rate",             t_event.raw_rate,             "raw_rate[25]/I"              );
     t_event_tree->Branch("pkt_count",           &t_event.pkt_count,            "pkt_count/I"                 );
     t_event_tree->Branch("lost_count",          &t_event.lost_count,           "lost_count/I"                );
     t_event_tree->Branch("trigger_bit",          t_event.trigger_bit,          "trigger_bit[25][64]/O"       );
@@ -54,7 +67,6 @@ int main(int argc, char** argv) {
     t_event_tree->Branch("channel_status",       t_event.channel_status,       "channel_status[25][64]/s"    );
     t_event_tree->Branch("compress",             t_event.compress,             "compress[25]/I"              );
     t_event_tree->Branch("common_noise",         t_event.common_noise,         "common_noise[25]/F"          );
-    t_event_tree->Branch("fe_time_second",       t_event.fe_time_second,       "fe_time_second[25]/D"        );
 
     eventIter.phy_trigger_set_start();
     int pre_percent = 0;
@@ -71,7 +83,10 @@ int main(int argc, char** argv) {
             continue;
         }
         t_event.type = eventIter.t_trigger.type;
+        t_event.packet_num = eventIter.t_trigger.packet_num;
         t_event.ct_time_second = eventIter.t_trigger.time_second;
+        t_event.ct_time_wait = eventIter.t_trigger.time_wait;
+        t_event.ct_dead_ratio = eventIter.t_trigger.dead_ratio;
         t_event.pkt_count = eventIter.t_trigger.pkt_count;
         t_event.lost_count = eventIter.t_trigger.lost_count;
         t_event.trigger_n = eventIter.t_trigger.trigger_n;
@@ -82,6 +97,8 @@ int main(int argc, char** argv) {
             t_event.compress[i] = -1;
             t_event.common_noise[i] = -1;
             t_event.fe_time_second[i] = -1;
+            t_event.fe_time_wait[i] = -1;
+            t_event.fe_dead_ratio[i] = -1;
             for (int j = 0; j < 64; j++) {
                 t_event.trigger_bit[i][j] = false;
                 t_event.energy_value[i][j] = -1;
@@ -91,10 +108,13 @@ int main(int argc, char** argv) {
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
             t_event.time_aligned[idx] = true;
+            t_event.raw_rate[idx] = eventIter.t_modules.raw_rate;
             t_event.multiplicity[idx] = eventIter.t_modules.multiplicity;
             t_event.compress[idx] = eventIter.t_modules.compress;
             t_event.common_noise[idx] = eventIter.t_modules.common_noise;
             t_event.fe_time_second[idx] = eventIter.t_modules.time_second;
+            t_event.fe_time_wait[idx] = eventIter.t_modules.time_wait;
+            t_event.fe_dead_ratio[idx] = eventIter.t_modules.dead_ratio;
             for (int j = 0; j < 64; j++) {
                 t_event.trigger_bit[idx][j] = eventIter.t_modules.trigger_bit[j];
                 if (eventIter.t_modules.energy_adc[j] > 4095) {
