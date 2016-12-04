@@ -125,7 +125,7 @@ for filename in eng_filelist:
         if file_is_not_open(file_0b):
             eng_filelist_new.append(filename)
 
-print " - files that are updated, need reprocess:" 
+print " - files that are updated, need reprocess:"
 for x in sci_filelist_update:
     print ' > ' + os.path.join(args.date, '0B', x) + ' [' + str(os.stat(os.path.join(rawdata_dir, x)).st_size / 1024) + 'K]'
 for x in aux_filelist_update:
@@ -156,37 +156,6 @@ aux_filelist_success = []
 eng_filelist_fail = []
 eng_filelist_success = []
 
-# process SCI
-for filename in sci_filelist_update + sci_filelist_new:
-    file_0b_dat  = os.path.join(rawdata_dir, filename)
-    file_1m_root = os.path.join(product_dir, sci_1m, filename).replace('0B.dat', '1M.root')
-    file_1m_log  = os.path.join(logfile_dir, sci_1m, filename).replace('0B.dat', '1M.log')
-    file_1m_cmd  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.cmd')
-    file_1m_out  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.out')
-    if os.path.isfile(file_0b_dat) and os.path.isfile(file_1m_root) and \
-            os.stat(file_1m_root).st_mtime > os.stat(file_0b_dat).st_mtime: continue
-    if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
-    if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
-    if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
-    command = 'SCI_Decode ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
-    with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
-    print " " + "+" * 80
-    print ' - processing file: ' + os.path.join(args.date, '0B', filename) + ' ... '
-    ret_value = 0
-    with open(file_1m_out, 'w') as fout: 
-        ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
-    if ret_value == 0:
-        print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
-        sci_filelist_success.append(filename)
-    else:
-        print ' - file: ' + os.path.join(args.date, '0B', filename) + ' failed to process.'
-        sci_filelist_fail.append(filename)
-        if os.path.isfile(file_1m_root): os.remove(file_1m_root)
-        if os.path.isfile(file_1m_log):  os.remove(file_1m_log)
-        if os.path.isfile(file_1m_cmd):  os.remove(file_1m_cmd)
-        if os.path.isfile(file_1m_out):  os.remove(file_1m_out)
-
 # process AUX
 for filename in aux_filelist_update + aux_filelist_new:
     file_0b_dat  = os.path.join(rawdata_dir, filename)
@@ -204,7 +173,7 @@ for filename in aux_filelist_update + aux_filelist_new:
     print " " + "+" * 80
     print ' - processing file: ' + os.path.join(args.date, '0B', filename) + ' ... '
     ret_value = 0
-    with open(file_1m_out, 'w') as fout: 
+    with open(file_1m_out, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
     with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
     if ret_value == 0:
@@ -235,7 +204,7 @@ for filename in eng_filelist_update + eng_filelist_new:
     print " " + "+" * 80
     print ' - processing file: ' + os.path.join(args.date, '0B', filename) + ' ... '
     ret_value = 0
-    with open(file_1m_out, 'w') as fout: 
+    with open(file_1m_out, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
     out_str = ''
     with open(file_1m_out, 'r') as fin: out_str = fin.read()
@@ -252,9 +221,40 @@ for filename in eng_filelist_update + eng_filelist_new:
         if os.path.isfile(file_1m_cmd):  os.remove(file_1m_cmd)
         if os.path.isfile(file_1m_out):  os.remove(file_1m_out)
 
+# process SCI
+for filename in sci_filelist_update + sci_filelist_new:
+    file_0b_dat  = os.path.join(rawdata_dir, filename)
+    file_1m_root = os.path.join(product_dir, sci_1m, filename).replace('0B.dat', '1M.root')
+    file_1m_log  = os.path.join(logfile_dir, sci_1m, filename).replace('0B.dat', '1M.log')
+    file_1m_cmd  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.cmd')
+    file_1m_out  = os.path.join(scrfile_dir, sci_1m, filename).replace('0B.dat', '1M.out')
+    if os.path.isfile(file_0b_dat) and os.path.isfile(file_1m_root) and \
+            os.stat(file_1m_root).st_mtime > os.stat(file_0b_dat).st_mtime: continue
+    if os.path.isfile(file_0b_dat)  and file_is_open(file_0b_dat):  continue
+    if os.path.isfile(file_1m_root) and file_is_open(file_1m_root): continue
+    if os.path.isfile(file_1m_log)  and file_is_open(file_1m_log):  continue
+    command = 'SCI_Decode ' + file_0b_dat + ' -o ' + file_1m_root + ' -g ' + file_1m_log
+    with open(file_1m_cmd, 'w') as fcmd: fcmd.write(command)
+    print " " + "+" * 80
+    print ' - processing file: ' + os.path.join(args.date, '0B', filename) + ' ... '
+    ret_value = 0
+    with open(file_1m_out, 'w') as fout:
+        ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
+    with open(file_1m_out, 'r') as fin: print fin.read().rstrip('\n')
+    if ret_value == 0:
+        print ' - file: ' + os.path.join(args.date, '0B', filename) + ' successful to process.'
+        sci_filelist_success.append(filename)
+    else:
+        print ' - file: ' + os.path.join(args.date, '0B', filename) + ' failed to process.'
+        sci_filelist_fail.append(filename)
+        if os.path.isfile(file_1m_root): os.remove(file_1m_root)
+        if os.path.isfile(file_1m_log):  os.remove(file_1m_log)
+        if os.path.isfile(file_1m_cmd):  os.remove(file_1m_cmd)
+        if os.path.isfile(file_1m_out):  os.remove(file_1m_out)
+
 # print summary
 print " " + "+" * 80
-print " - SUMMARY OF PROCESSING RESULT -" 
+print " - SUMMARY OF PROCESSING RESULT -"
 print " - successful: "
 for x in sci_filelist_success:
     print " > " + os.path.join(args.date, '0B', x)
