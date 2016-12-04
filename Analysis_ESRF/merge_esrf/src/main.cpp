@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
 
     // write meta
     TNamed("m_energy_unit", "ADC").Write();
-    TNamed("m_level_num", "0");
+    TNamed("m_level_num", "0").Write();
 
     t_file_merged_out->Close();
 
