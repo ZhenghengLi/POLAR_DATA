@@ -146,11 +146,11 @@ int main(int argc, char** argv) {
     // m_mjd_ref
     sapfile_w.write_meta("m_MJD_REF", MET_MJD_REF_str.c_str());
 
-    sapfile_w.close();
-
     cout << "================================================================================" << endl;
     cout << "MET TIME SPAN: { " << sapfile_w.get_time_span() << " }" << endl;
     cout << "================================================================================" << endl;
+
+    sapfile_w.close();
 
     return 0;
 }
