@@ -10,8 +10,8 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    string decoded_data_fn = argv[2];
-    string event_data_fn = argv[3];
+    string decoded_data_fn = argv[1];
+    string event_data_fn = argv[2];
 
     EventIterator eventIter;
     if (!eventIter.open(decoded_data_fn.c_str())) {
@@ -31,7 +31,8 @@ int main(int argc, char** argv) {
         Bool_t   trigger_bit[25][64];
         Int_t    trigger_n;
         Int_t    multiplicity[25];
-        Float_t  energy_adc[25][64];
+        Float_t  energy_value[25][64];
+        UShort_t channel_status[25][64];
         Int_t    compress[25];
         Float_t  common_noise[25];
         Double_t fe_time_second[25];
@@ -40,19 +41,20 @@ int main(int argc, char** argv) {
     TFile* t_file_merged_out = new TFile(event_data_fn.c_str(), "recreate");
     t_file_merged_out->cd();
     TTree* t_event_tree = new TTree("t_event", "event data only after merged");
-    t_event_tree->Branch("type",                &t_event.type,                 "type/I"                );
-    t_event_tree->Branch("ct_time_second",      &t_event.ct_time_second,       "ct_time_second/D"      );
-    t_event_tree->Branch("trig_accepted",        t_event.trig_accepted,        "trig_accepted[25]/O"   );
-    t_event_tree->Branch("time_aligned",         t_event.time_aligned,         "time_aligned[25]/O"    );
-    t_event_tree->Branch("pkt_count",           &t_event.pkt_count,            "pkt_count/I"           );
-    t_event_tree->Branch("lost_count",          &t_event.lost_count,           "lost_count/I"          );
-    t_event_tree->Branch("trigger_bit",          t_event.trigger_bit,          "trigger_bit[25][64]/O" );
-    t_event_tree->Branch("trigger_n",           &t_event.trigger_n,            "trigger_n/I"           );
-    t_event_tree->Branch("multiplicity",         t_event.multiplicity,         "multiplicity[25]/I"    );
-    t_event_tree->Branch("energy_adc",           t_event.energy_adc,           "energy_adc[25][64]/F"  );
-    t_event_tree->Branch("compress",             t_event.compress,             "compress[25]/I"        );
-    t_event_tree->Branch("common_noise",         t_event.common_noise,         "common_noise[25]/F"    );
-    t_event_tree->Branch("fe_time_second",       t_event.fe_time_second,       "fe_time_second[25]/D"  );
+    t_event_tree->Branch("type",                &t_event.type,                 "type/I"                      );
+    t_event_tree->Branch("ct_time_second",      &t_event.ct_time_second,       "ct_time_second/D"            );
+    t_event_tree->Branch("trig_accepted",        t_event.trig_accepted,        "trig_accepted[25]/O"         );
+    t_event_tree->Branch("time_aligned",         t_event.time_aligned,         "time_aligned[25]/O"          );
+    t_event_tree->Branch("pkt_count",           &t_event.pkt_count,            "pkt_count/I"                 );
+    t_event_tree->Branch("lost_count",          &t_event.lost_count,           "lost_count/I"                );
+    t_event_tree->Branch("trigger_bit",          t_event.trigger_bit,          "trigger_bit[25][64]/O"       );
+    t_event_tree->Branch("trigger_n",           &t_event.trigger_n,            "trigger_n/I"                 );
+    t_event_tree->Branch("multiplicity",         t_event.multiplicity,         "multiplicity[25]/I"          );
+    t_event_tree->Branch("energy_value",         t_event.energy_value,         "energy_value[25][64]/F"      );
+    t_event_tree->Branch("channel_status",       t_event.channel_status,       "channel_status[25][64]/s"    );
+    t_event_tree->Branch("compress",             t_event.compress,             "compress[25]/I"              );
+    t_event_tree->Branch("common_noise",         t_event.common_noise,         "common_noise[25]/F"          );
+    t_event_tree->Branch("fe_time_second",       t_event.fe_time_second,       "fe_time_second[25]/D"        );
 
     eventIter.phy_trigger_set_start();
     int pre_percent = 0;
@@ -76,13 +78,14 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             t_event.trig_accepted[i] = eventIter.t_trigger.trig_accepted[i];
             t_event.time_aligned[i] = false;
-            t_event.multiplicity[i] = 0;
+            t_event.multiplicity[i] = -1;
             t_event.compress[i] = -1;
-            t_event.common_noise[i] = 0;
+            t_event.common_noise[i] = -1;
             t_event.fe_time_second[i] = -1;
             for (int j = 0; j < 64; j++) {
                 t_event.trigger_bit[i][j] = false;
-                t_event.energy_adc[i][j] = 0;
+                t_event.energy_value[i][j] = -1;
+                t_event.channel_status[i][j] = 0;
             }
         }
         while (eventIter.phy_modules_next_packet()) {
@@ -94,7 +97,13 @@ int main(int argc, char** argv) {
             t_event.fe_time_second[idx] = eventIter.t_modules.time_second;
             for (int j = 0; j < 64; j++) {
                 t_event.trigger_bit[idx][j] = eventIter.t_modules.trigger_bit[j];
-                t_event.energy_adc[idx][j] = eventIter.t_modules.energy_adc[j];
+                if (eventIter.t_modules.energy_adc[j] > 4095) {
+                    t_event.channel_status[idx][j] = 1;
+                    t_event.energy_value[idx][j] = t_event.common_noise[idx];
+                } else {
+                    t_event.channel_status[idx][j] = 0;
+                    t_event.energy_value[idx][j] = eventIter.t_modules.energy_adc[j];
+                }
             }
         }
         t_event_tree->Fill();
@@ -104,6 +113,11 @@ int main(int argc, char** argv) {
     eventIter.close();
 
     t_event_tree->Write();
+
+    // write meta
+    TNamed("m_energy_unit", "ADC").Write();
+    TNamed("m_level_num", "0");
+
     t_file_merged_out->Close();
 
     return 0;
