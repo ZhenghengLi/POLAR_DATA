@@ -88,12 +88,14 @@ void SAPDataFile::write_tree() {
         return;
     if (t_pol_event_tree_ == NULL)
         return;
+    t_file_out_->cd();
     t_pol_event_tree_->Write();
 }
 
 void SAPDataFile::write_meta(const char* key, const char* value) {
     if (t_file_out_ == NULL)
         return;
+    t_file_out_->cd();
     TNamed* cur_meta = new TNamed(key, value);
     cur_meta->Write();
     delete cur_meta;

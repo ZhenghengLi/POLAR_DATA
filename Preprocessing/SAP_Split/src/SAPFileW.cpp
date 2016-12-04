@@ -55,6 +55,7 @@ void SAPFileW::write_tree() {
 void SAPFileW::write_meta(const char* key, const char* value) {
     if (t_file_out_ == NULL)
         return;
+    t_file_out_->cd();
     TNamed* cur_meta = new TNamed(key, value);
     cur_meta->Write();
     delete cur_meta;
