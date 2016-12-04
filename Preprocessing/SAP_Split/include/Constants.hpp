@@ -9,7 +9,7 @@ const string SW_NAME = "SAP_Split";
 
 const string SW_VERSION = "v1.0.0";
 
-const string RELEASE_DATE = "2016 Dec 03";
+const string RELEASE_DATE = "2016 Dec  3";
 
 const double METStartGPSTime = 1157984044.816;
 const int    METStartGPSWeek = 1914;
