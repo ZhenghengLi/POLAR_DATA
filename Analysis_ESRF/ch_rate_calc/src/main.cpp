@@ -1,6 +1,5 @@
 #include <iostream>
-#include "TFile.h"
-#include "TTree.h"
+#include "RootInc.hpp"
 
 using namespace std;
 
@@ -42,15 +41,88 @@ int main(int argc, char** argv) {
 
     // get the first and last time
     t_event_tree->GetEntry(0);
+    double ct_time_second_first = t_event.ct_time_second;
+    t_event_tree->GetEntry(t_event_tree->GetEntries() - 1);
+    double ct_time_second_last  = t_event.ct_time_second;
+
+    // prepare histogram
+    double binw = 0.1;
+    int nbins = static_cast<int>((ct_time_second_last - ct_time_second_first) / binw);
+    TH1F* rate_hist[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            rate_hist[i][j] = new TH1F(Form("rate_hist_CT_%02d_%02d", i + 1, j),
+                    Form("rate_hist_CT_%02d_%02d", i + 1, j), nbins,
+                    ct_time_second_first, ct_time_second_last);
+            rate_hist[i][j]->SetDirectory(NULL);
+        }
+    }
 
     cout << "reading data ..." << endl;
-    for (Long64_t i = 0; i < t_event_tree->GetEntries(); i++) {
-        t_event_tree->GetEntry(i);
-
+    for (Long64_t q = 0; q < t_event_tree->GetEntries(); q++) {
+        t_event_tree->GetEntry(q);
+        for (int i = 0; i < 25; i++) {
+            if (!t_event.time_aligned[i]) continue;
+            for (int j = 0; j < 64; j++) {
+                if (t_event.trigger_bit[i][j]) {
+                    rate_hist[i][j]->Fill(t_event.ct_time_second);
+                }
+            }
+        }
     }
     cout << "done." << endl;
-
     t_file_in->Close();
 
+    // calc bar beam time window
+    TMatrixF begin_time_mat(25, 64);
+    TMatrixF end_time_mat(25, 64);
+    TMatrixF max_rate_mat(25, 64);
+    TMatrixF max_time_mat(25, 64);
+    float ratio = 0.35;
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            rate_hist[i][j]->Scale(1, "width");
+            int maximum_bin = rate_hist[i][j]->GetMaximumBin();
+            max_time_mat[i][j] = rate_hist[i][j]->GetBinCenter(maximum_bin);
+            max_rate_mat[i][j] = rate_hist[i][j]->GetBinContent(maximum_bin);
+            int begin_bin = maximum_bin;
+            while (begin_bin > 0 && begin_bin > (maximum_bin - 1.5 / binw)) {
+                begin_bin--;
+                if (rate_hist[i][j]->GetBinContent(begin_bin) < ratio * max_rate_mat[i][j]) {
+                    break;
+                }
+            }
+            begin_time_mat[i][j] = rate_hist[i][j]->GetBinCenter(begin_bin);
+            int end_bin   = maximum_bin;
+            while (end_bin < nbins && end_bin < (maximum_bin + 1.5 / binw)) {
+                end_bin++;
+                if (rate_hist[i][j]->GetBinContent(end_bin) < ratio * max_rate_mat[i][j]) {
+                    break;
+                }
+            }
+            end_time_mat[i][j] = rate_hist[i][j]->GetBinCenter(end_bin);
+        }
+    }
+
+    cout << "wrtie rate vs. time ..." << endl;
+    TFile* t_file_out = new TFile(rate_data_filename.c_str(), "recreate");
+    if (t_file_out->IsZombie()) {
+        cout << "rate data file open failed." << endl;
+        return 1;
+    }
+    for (int i = 0; i < 25; i++) {
+        t_file_out->mkdir(Form("rate_hist_CT_%02d", i + 1))->cd();
+        for (int j = 0; j < 64; j++) {
+            rate_hist[i][j]->Scale(1, "width");
+            rate_hist[i][j]->Write();
+        }
+    }
+    t_file_out->cd();
+    begin_time_mat.Write("begin_time_mat");
+    end_time_mat.Write("end_time_mat");
+    max_rate_mat.Write("max_rate_mat");
+    max_time_mat.Write("max_time_mat");
+    TNamed("m_eventfile", TSystem().BaseName(event_data_filename.c_str())).Write();
+    t_file_out->Close();
     return 0;
 }
