@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     TMatrixF end_time_mat(25, 64);
     TMatrixF max_rate_mat(25, 64);
     TMatrixF max_time_mat(25, 64);
-    float ratio = 0.35;
+    float ratio = 0.4;
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             rate_hist[i][j]->Scale(1, "width");
