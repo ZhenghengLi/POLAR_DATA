@@ -8,7 +8,8 @@
 
 using namespace std;
 
-static double start_unixtime = 1432392039.0;
+static double first_time_second = 278.045;
+static double start_unixtime = 1432392039.0 - first_time_second;
 static double pos_x_0 = -35.68;
 static double pos_y_0 = 155.39;
 
@@ -59,6 +60,7 @@ int main(int argc, char** argv) {
     TFile* t_file_rate = new TFile(rate_data_filename.c_str(), "read");
     TMatrixF begin_time_mat(25, 64);
     TMatrixF end_time_mat(25, 64);
+    TMatrixF max_time_mat(25, 64);
     TMatrixF* tmp_mat;
     tmp_mat = static_cast<TMatrixF*>(t_file_rate->Get("begin_time_mat"));
     if (tmp_mat == NULL) {
@@ -74,11 +76,19 @@ int main(int argc, char** argv) {
     } else {
         end_time_mat = *tmp_mat;
     }
+    tmp_mat = static_cast<TMatrixF*>(t_file_rate->Get("max_time_mat"));
+    if (tmp_mat == NULL) {
+        cout << "cannot read TMatrixF max_time_mat" << endl;
+        return 1;
+    } else {
+        max_time_mat = *tmp_mat;
+    }
     t_file_rate->Close();
     TMatrixF bar_time_obox(25, 64);
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            bar_time_obox(i, j) = (end_time_mat(i, j) + begin_time_mat(i, j)) / 2 + start_unixtime;
+            // bar_time_obox(i, j) = (end_time_mat(i, j) + begin_time_mat(i, j)) / 2 + start_unixtime;
+            bar_time_obox(i, j) = max_time_mat(i, j) + start_unixtime;
         }
     }
 
@@ -125,6 +135,7 @@ int main(int argc, char** argv) {
     int match_count = 0;
     int total_check = 0;
     for (int i = 0; i < 25; i++) {
+        if (i == 1) continue;
         for (int j = 0; j < 64; j++) {
             double cur_x = pos_x_0 + ijtox(i, j) / 8 * ModD + ijtox(i, j) % 8 * BarD;
             double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
@@ -138,15 +149,71 @@ int main(int argc, char** argv) {
             }
         }
     }
+    double time_diff_mean = time_diff_hist->GetMean();
     cout << "total_check = " << total_check << endl;
     cout << "match_count = " << match_count << endl;
+    cout << "time_diff_mean = " << time_diff_mean << endl;
     t_file_time_diff->cd();
     time_diff_hist->Write();
     t_file_time_diff->Close();
 
+    // calculate beam intensity for each event
+    TFile* t_file_intensity = new TFile(intensity_filename.c_str(), "recreate");
+    if (t_file_intensity->IsZombie()) {
+        cout << "intensity root file open failed." << endl;
+        return 1;
+    }
+    struct {
+        double ct_time_second_3;
+        double current;
+    } t_beam_intensity;
+    TTree* t_beam_intensity_tree = new TTree("t_beam_intensity", "beam intensity for each event");
+    t_beam_intensity_tree->Branch("ct_time_second_3",  &t_beam_intensity.ct_time_second_3,  "ct_time_second_3/D" );
+    t_beam_intensity_tree->Branch("current",           &t_beam_intensity.current,           "current/D"          );
+    Long64_t motor_cur_entry = 0;
+    bool     motor_reach_end = false;
+    t_corrected_tree->GetEntry(motor_cur_entry);
+    double current_before = t_corrected.current;
+    double unixcor_before = t_corrected.unixtime + time_diff_mean;
+    motor_cur_entry++;
+    t_corrected_tree->GetEntry(motor_cur_entry);
+    double current_after  = t_corrected.current;
+    double unixcor_after  = t_corrected.unixtime + time_diff_mean;
+    double current_slope = (current_after - current_before) / (unixcor_after - unixcor_before);
+    for (Long64_t i = 0; i < t_event_tree->GetEntries(); i++) {
+        t_event_tree->GetEntry(i);
+        while (t_event.ct_time_second + start_unixtime > unixcor_after) {
+            do {
+                motor_cur_entry++;
+                if (motor_cur_entry < t_corrected_tree->GetEntries()) {
+                    t_corrected_tree->GetEntry(motor_cur_entry);
+                } else {
+                    motor_reach_end = true;
+                    break;
+                }
+            } while (t_corrected.unixtime + time_diff_mean - unixcor_after < 0.5);
+            if (motor_reach_end) {
+                break;
+            } else {
+                current_before = current_after;
+                unixcor_before = unixcor_after;
+                current_after  = t_corrected.current;
+                unixcor_after  = t_corrected.unixtime + time_diff_mean;
+                current_slope = (current_after - current_before) / (unixcor_after - unixcor_before);
+            }
+        }
+        // save current
+        t_beam_intensity.ct_time_second_3 = t_event.ct_time_second;
+        t_beam_intensity.current = current_before + current_slope * (t_event.ct_time_second + start_unixtime - unixcor_before);
+        t_beam_intensity_tree->Fill();
+    }
+    t_file_intensity->cd();
+    t_beam_intensity_tree->Write();
+    TNamed("m_fromfile", TSystem().BaseName(event_data_filename.c_str())).Write();
+    t_file_intensity->Close();
+
     t_file_event->Close();
     t_file_log->Close();
-
 
     return 0;
 }
