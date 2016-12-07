@@ -57,7 +57,7 @@ void maxrate_time() {
             }
         }
         gr->SetPoint(q, cur_time_second, max_rate);
-        if ((max_i != pre_i || max_j != pre_j) && max_rate > 1000) {
+        if ((max_i != pre_i || max_j != pre_j) && max_rate > 200) {
             out_file << Form("%02d %02d %15.5f %15.5f", max_i + 1, max_j + 1, max_rate, cur_time_second) << endl;
             pre_i = max_i;
             pre_j = max_j;
