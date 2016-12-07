@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
             double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
             for (list<Motor_T>::iterator motor_iter = t_corrected_list.begin(); motor_iter != t_corrected_list.end(); motor_iter++) {
                 total_check++;
-                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) {
+                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2 && fabs(bar_time_obox(i, j) - (*motor_iter).unixtime) < 150) {
                     time_diff_hist->Fill(bar_time_obox(i, j) - (*motor_iter).unixtime);
                     match_count++;
                     break;
