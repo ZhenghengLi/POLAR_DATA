@@ -123,6 +123,9 @@ int main(int argc, char** argv) {
     max_rate_mat.Write("max_rate_mat");
     max_time_mat.Write("max_time_mat");
     TNamed("m_eventfile", TSystem().BaseName(event_data_filename.c_str())).Write();
+    TNamed("m_ct_time_second_first", Form("%f", ct_time_second_first)).Write();
+    TNamed("m_ct_time_second_last",  Form("%f", ct_time_second_last)).Write();
+    TNamed("m_nbins",Form("%d", nbins)).Write();
     t_file_out->Close();
     return 0;
 }
