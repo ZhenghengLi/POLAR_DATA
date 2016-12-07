@@ -113,7 +113,6 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         t_file_out->mkdir(Form("rate_hist_CT_%02d", i + 1))->cd();
         for (int j = 0; j < 64; j++) {
-            rate_hist[i][j]->Scale(1, "width");
             rate_hist[i][j]->Write();
         }
     }
