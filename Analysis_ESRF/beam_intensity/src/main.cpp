@@ -8,8 +8,8 @@
 
 using namespace std;
 
-static double first_time_second = 278.045;
-static double start_unixtime = 1432392039.0 - first_time_second;
+static double first_time_second = 159.858;
+static double start_unixtime = 1432391921.0 - first_time_second;
 static double pos_x_0 = -35.68;
 static double pos_y_0 = 155.39;
 
@@ -84,11 +84,11 @@ int main(int argc, char** argv) {
         max_time_mat = *tmp_mat;
     }
     t_file_rate->Close();
-    TMatrixF bar_time_obox(25, 64);
+    double bar_time_obox[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             // bar_time_obox(i, j) = (end_time_mat(i, j) + begin_time_mat(i, j)) / 2 + start_unixtime;
-            bar_time_obox(i, j) = max_time_mat(i, j) + start_unixtime;
+            bar_time_obox[i][j] = max_time_mat(i, j) + start_unixtime;
         }
     }
 
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
     // calculate time difference
     cout << "calculate time difference ..." << endl;
     TFile* t_file_time_diff = new TFile(time_diff_filename.c_str(), "recreate");
-    TH1F* time_diff_hist = new TH1F("time_diff_hist", "time_diff_hist", 2000, -1000, 1000);
+    TH1F* time_diff_hist = new TH1F("time_diff_hist", "time_diff_hist", 200, -20, 20);
     int match_count = 0;
     int total_check = 0;
     for (int i = 0; i < 25; i++) {
@@ -139,10 +139,10 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             double cur_x = pos_x_0 + ijtox(i, j) / 8 * ModD + ijtox(i, j) % 8 * BarD;
             double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
+            total_check++;
             for (list<Motor_T>::iterator motor_iter = t_corrected_list.begin(); motor_iter != t_corrected_list.end(); motor_iter++) {
-                total_check++;
-                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2 && fabs(bar_time_obox(i, j) - (*motor_iter).unixtime) < 150) {
-                    time_diff_hist->Fill(bar_time_obox(i, j) - (*motor_iter).unixtime);
+                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) {
+                    time_diff_hist->Fill(bar_time_obox[i][j] - (*motor_iter).unixtime);
                     match_count++;
                     break;
                 }
