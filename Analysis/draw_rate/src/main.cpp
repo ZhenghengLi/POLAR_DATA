@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
         eventIter.close();
         return 1;
     }
-    
+
     eventIter.print_file_info();
 
     Double_t gps_time_length = (eventIter.phy_end_trigger.abs_gps_week - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
     cout << "----------------------------------------------------------" << endl;
 
     RateCanvas rate_canvas(eventIter.phy_begin_trigger.abs_gps_week, eventIter.phy_begin_trigger.abs_gps_second);
-    
+
     // prepare histogram
     char name[50];
     char title[100];
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
         modules_hist_tout1[i]->GetXaxis()->SetTitle("T-T0 (s)");
         modules_hist_tout1[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
     }
-    TH2D* ch_rate_map = new TH2D("ch_rate_map", "Mean rate of 1600 channels", 40, 0, 40, 40, 0, 40);
+    TH2D* ch_rate_map = new TH2D("ch_rate_map", "Mean rate of 1600 channels (view from back)", 40, 0, 40, 40, 0, 40);
     ch_rate_map->SetDirectory(NULL);
     ch_rate_map->GetXaxis()->SetNdivisions(40);
     ch_rate_map->GetYaxis()->SetNdivisions(40);
@@ -196,7 +196,7 @@ int main(int argc, char** argv) {
         } else {
             continue;
         }
-        cur_second = (eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 + 
+        cur_second = (eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
             (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second);
         bool is_bad_event = false;
         if (type_number == 1) {
@@ -241,8 +241,8 @@ int main(int argc, char** argv) {
             }
             for (int j = 0; j < 64; j++) {
                 if (eventIter.t_modules.trigger_bit[j]) {
-                    double cur_bin_content = ch_rate_map->GetBinContent(ijtox(idx, j) + 1, ijtoy(idx, j) + 1);
-                    ch_rate_map->SetBinContent(ijtox(idx, j) + 1, ijtoy(idx, j) + 1, cur_bin_content + 1);
+                    double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(idx, j) + 1, ijtoyb(idx, j) + 1);
+                    ch_rate_map->SetBinContent(ijtoxb(idx, j) + 1, ijtoyb(idx, j) + 1, cur_bin_content + 1);
                 }
             }
         }
@@ -292,8 +292,8 @@ int main(int argc, char** argv) {
                     modules_hist_tout1[i]->Write();
                 }
             }
-            TNamed("gps_time_span", 
-                    Form("%d:%d => %d:%d", 
+            TNamed("gps_time_span",
+                    Form("%d:%d => %d:%d",
                         static_cast<int>(eventIter.phy_begin_trigger.abs_gps_week),
                         static_cast<int>(eventIter.phy_begin_trigger.abs_gps_second),
                         static_cast<int>(eventIter.phy_end_trigger.abs_gps_week),
@@ -338,9 +338,9 @@ int main(int argc, char** argv) {
         }
         for (int i = 0; i < 25; i++) {
             for (int j = 0; j < 64; j++) {
-                double cur_bin_content = ch_rate_map->GetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1); 
-                ch_rate_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, cur_bin_content / total_valid_second); 
-            }   
+                double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1);
+                ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content / total_valid_second);
+            }
         }
         rate_canvas.cd_ch_map(1);
         ch_rate_map->Draw("COLZ");
@@ -364,6 +364,6 @@ int main(int argc, char** argv) {
     rate_canvas.draw_hist_int(trigger_hist_int);
 
     rootapp->Run();
-    
+
     return 0;
 }
