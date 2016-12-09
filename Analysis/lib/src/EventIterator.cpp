@@ -35,7 +35,7 @@ Long64_t EventIterator::find_entry_(TTree* t_tree, Trigger_T& t_branch, double g
     while (head_entry < t_tree->GetEntries()) {
         head_entry += 1;
         t_tree->GetEntry(head_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             head_entry_found = true;
             break;
         }
@@ -51,7 +51,7 @@ Long64_t EventIterator::find_entry_(TTree* t_tree, Trigger_T& t_branch, double g
     while (tail_entry >= 0) {
         tail_entry -= 1;
         t_tree->GetEntry(tail_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             tail_entry_found = true;
             break;
         }
@@ -69,14 +69,14 @@ Long64_t EventIterator::find_entry_(TTree* t_tree, Trigger_T& t_branch, double g
         center_entry = (head_entry + tail_entry) / 2;
         found_valid_center = false;
         t_tree->GetEntry(center_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             found_valid_center = true;
         }
         tmp_center_entry = center_entry;
         while (!found_valid_center && tail_entry - tmp_center_entry > 1) {
             tmp_center_entry += 1;
             t_tree->GetEntry(tmp_center_entry);
-            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
                 found_valid_center = true;
             }
         }
@@ -86,7 +86,7 @@ Long64_t EventIterator::find_entry_(TTree* t_tree, Trigger_T& t_branch, double g
         while (!found_valid_center && tmp_center_entry - head_entry > 1) {
             tmp_center_entry -= 1;
             t_tree->GetEntry(tmp_center_entry);
-            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
                 found_valid_center = true;
             }
         }
@@ -401,7 +401,7 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
     bool found_valid = false;
     for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
         t_trigger_tree_->GetEntry(i);
-        if (t_trigger.abs_gps_valid) {
+        if (t_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0) {
             found_valid = true;
             phy_begin_trigger = t_trigger;
             break;
@@ -415,7 +415,7 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
     found_valid = false;
     for (Long64_t i = phy_trigger_last_entry_ - 1; i >= phy_trigger_first_entry_; i--) {
         t_trigger_tree_->GetEntry(i);
-        if (t_trigger.abs_gps_valid) {
+        if (t_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0) {
             found_valid = true;
             phy_end_trigger = t_trigger;
             break;
@@ -429,7 +429,7 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
     found_valid = false;
     for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
         t_ped_trigger_tree_->GetEntry(i);
-        if (t_ped_trigger.abs_gps_valid) {
+        if (t_ped_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0) {
             found_valid = true;
             ped_begin_trigger = t_ped_trigger;
             break;
@@ -443,7 +443,7 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
     found_valid = false;
     for (Long64_t i = ped_trigger_last_entry_; i >= ped_trigger_first_entry_; i--) {
         t_ped_trigger_tree_->GetEntry(i);
-        if (t_ped_trigger.abs_gps_valid) {
+        if (t_ped_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0) {
             found_valid = true;
             ped_end_trigger = t_ped_trigger;
             break;
@@ -583,7 +583,7 @@ string EventIterator::get_ped_first_gps() {
         for (Long64_t i = ped_trigger_first_entry_; i < ped_trigger_last_entry_; i++) {
             t_ped_trigger_tree_->GetEntry(i);
             if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 &&
-                t_ped_trigger.abs_gps_valid)
+                t_ped_trigger.abs_gps_valid && t_ped_trigger.abs_gps_week > 0)
                 break;
         }
         sprintf(str_buffer, "%d:%d",
@@ -603,7 +603,7 @@ string EventIterator::get_ped_last_gps() {
         for (Long64_t i = ped_trigger_last_entry_ - 1; i >= ped_trigger_first_entry_; i--) {
             t_ped_trigger_tree_->GetEntry(i);
             if (t_ped_trigger.abs_gps_week >= 0 && t_ped_trigger.abs_gps_second >= 0 &&
-                t_ped_trigger.abs_gps_valid)
+                t_ped_trigger.abs_gps_valid && t_ped_trigger.abs_gps_week > 0)
                 break;
         }
         sprintf(str_buffer, "%d:%d",
@@ -623,7 +623,7 @@ string EventIterator::get_phy_first_gps() {
         for (Long64_t i = phy_trigger_first_entry_; i < phy_trigger_last_entry_; i++) {
             t_trigger_tree_->GetEntry(i);
             if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 &&
-                t_trigger.abs_gps_valid)
+                t_trigger.abs_gps_valid && t_ped_trigger.abs_gps_week > 0)
                 break;
         }
         sprintf(str_buffer, "%d:%d",
@@ -643,7 +643,7 @@ string EventIterator::get_phy_last_gps() {
         for (Long64_t i = phy_trigger_last_entry_ - 1; i >= phy_trigger_first_entry_; i--) {
             t_trigger_tree_->GetEntry(i);
             if (t_trigger.abs_gps_week >= 0 && t_trigger.abs_gps_second >= 0 &&
-                t_trigger.abs_gps_valid)
+                t_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0)
                 break;
         }
         sprintf(str_buffer, "%d:%d",
