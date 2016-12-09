@@ -23,7 +23,7 @@ Long64_t SciFileR::find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_va
     while (head_entry < t_tree->GetEntries()) {
         head_entry += 1;
         t_tree->GetEntry(head_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             head_entry_found = true;
             break;
         }
@@ -39,7 +39,7 @@ Long64_t SciFileR::find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_va
     while (tail_entry >= 0) {
         tail_entry -= 1;
         t_tree->GetEntry(tail_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             tail_entry_found = true;
             break;
         }
@@ -57,14 +57,14 @@ Long64_t SciFileR::find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_va
         center_entry = (head_entry + tail_entry) / 2;
         found_valid_center = false;
         t_tree->GetEntry(center_entry);
-        if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+        if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
             found_valid_center = true;
         }
         tmp_center_entry = center_entry;
         while (!found_valid_center && tail_entry - tmp_center_entry > 1) {
             tmp_center_entry += 1;
             t_tree->GetEntry(tmp_center_entry);
-            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
                 found_valid_center = true;
             }
         }
@@ -74,7 +74,7 @@ Long64_t SciFileR::find_entry_(TTree* t_tree, Trigger_T& t_branch, double gps_va
         while (!found_valid_center && tmp_center_entry - head_entry > 1) {
             tmp_center_entry -= 1;
             t_tree->GetEntry(tmp_center_entry);
-            if (t_branch.abs_gps_valid && t_branch.pkt_start >= 0) {
+            if (t_branch.abs_gps_valid && t_branch.abs_gps_week > 0 && t_branch.pkt_start >= 0) {
                 found_valid_center = true;
             }
         }
