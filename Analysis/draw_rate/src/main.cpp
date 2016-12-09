@@ -115,14 +115,10 @@ int main(int argc, char** argv) {
     string gps_time_span = title;
     TH1D* trigger_hist = new TH1D("trigger_hist", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
-    TH1D* trigger_hist_int = new TH1D("trigger_hist_int", (string("trigger: { ") + gps_time_span + string(" }")).c_str(),
-                                      nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, gps_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     trigger_hist->SetDirectory(NULL);
     trigger_hist->SetMinimum(0);
     trigger_hist->GetXaxis()->SetTitle("T-T0 (s)");
     trigger_hist->GetYaxis()->SetTitle("Rate (trigger/s)");
-    trigger_hist_int->SetDirectory(NULL);
-    trigger_hist_int->SetLineColor(6);
     TH1D* modules_hist[25];
     TH1D* modules_hist_tout1[25];
     for (int i = 0; i < 25; i++) {
@@ -256,24 +252,69 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
     eventIter.close();
 
-    double sum = 0;
-    for (int i = 0; i < nbins; i++) {
-        sum += trigger_hist->GetBinContent(i + 1);
-        trigger_hist_int->SetBinContent(i + 1, sum);
-        trigger_hist->SetBinContent(i + 1, trigger_hist->GetBinContent(i + 1) / options_mgr.binwidth);
-        trigger_hist->SetBinError(i + 1, trigger_hist->GetBinError(i + 1) / options_mgr.binwidth);
-        for (int j = 0; j < 25; j++) {
-            modules_hist[j]->SetBinContent(i + 1, modules_hist[j]->GetBinContent(i + 1) / options_mgr.binwidth);
-            modules_hist[j]->SetBinError(i + 1, modules_hist[j]->GetBinError(i + 1) / options_mgr.binwidth);
+    // calculate rate for event rate
+    trigger_hist->Scale(1, "width");
+
+    // calculate background
+    TH1D* trigger_hist_fix = static_cast<TH1D*>(trigger_hist->Clone("trigger_hist_fix"));
+    // fill saa gap
+    int bin_idx = 0;
+    while (bin_idx <= trigger_hist_fix->GetNbinsX()) {
+        bin_idx++;
+        if (trigger_hist_fix->GetBinContent(bin_idx) > 0) continue;
+        // find the first bin before saa
+        int bin_idx_left = bin_idx;
+        int pre_count = 0;
+        while (bin_idx_left >= 1) {
+            bin_idx_left--;
+            if (trigger_hist_fix->GetBinContent(bin_idx_left) < pre_count) {
+                bin_idx_left++;
+                break;
+            } else {
+                pre_count = trigger_hist_fix->GetBinContent(bin_idx_left);
+            }
+        }
+        // find the first bin after saa
+        int bin_idx_right = bin_idx;
+        pre_count = 0;
+        while (bin_idx_right <= trigger_hist_fix->GetNbinsX()) {
+            bin_idx_right++;
+            if (trigger_hist_fix->GetBinContent(bin_idx_right) < pre_count) {
+                bin_idx_right--;
+                break;
+            } else {
+                pre_count = trigger_hist_fix->GetBinContent(bin_idx_right);
+            }
+        }
+        // fill gap
+        double slope = (trigger_hist_fix->GetBinContent(bin_idx_right) - trigger_hist_fix->GetBinContent(bin_idx_left)) / (bin_idx_right - bin_idx_left);
+        slope *= 2.0;
+        for (int i = 1; i < bin_idx_right - bin_idx_left; i++) {
+            if (slope > 0) {
+                trigger_hist_fix->SetBinContent(bin_idx_left + i, trigger_hist_fix->GetBinContent(bin_idx_left) + i * slope);
+            } else {
+                trigger_hist_fix->SetBinContent(bin_idx_right - i, trigger_hist_fix->GetBinContent(bin_idx_right) - i * slope);
+            }
+        }
+        // jump the gap
+        bin_idx = bin_idx_right;
+    }
+    TSpectrum t_spec;
+    TH1D* trigger_hist_bkg = static_cast<TH1D*>(t_spec.Background(trigger_hist_fix));
+    // correct bkg
+    for (int i = 1; i <= trigger_hist->GetNbinsX(); i++) {
+        if (trigger_hist->GetBinContent(i) == 0) {
+            trigger_hist_bkg->SetBinContent(i, 0);
         }
     }
 
+    // calculate rate for modules
+    for (int j = 0; j < 25; j++) {
+        modules_hist[j]->Scale(1, "width");
+    }
     if (options_mgr.tout1_flag) {
-        for (int i = 0; i < nbins; i++) {
-            for (int j = 0; j < 25; j++) {
-                modules_hist_tout1[j]->SetBinContent(i + 1, modules_hist_tout1[j]->GetBinContent(i + 1) / options_mgr.binwidth);
-                modules_hist_tout1[j]->SetBinError(i + 1, modules_hist_tout1[j]->GetBinError(i + 1) / options_mgr.binwidth);
-            }
+        for (int j = 0; j < 25; j++) {
+            modules_hist_tout1[j]->Scale(1, "width");
         }
     }
 
@@ -358,10 +399,8 @@ int main(int argc, char** argv) {
         ch_rate_map->Draw("LEGO2");
     }
 
-    rate_canvas.cd_trigger();
-    trigger_hist->Draw("EH");
-
-    rate_canvas.draw_hist_int(trigger_hist_int);
+    rate_canvas.draw_trigger_hist(trigger_hist);
+    rate_canvas.draw_trigger_hist_bkg(trigger_hist_bkg);
 
     rootapp->Run();
 

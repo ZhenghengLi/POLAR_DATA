@@ -19,47 +19,41 @@ class RateCanvas {
 
 public: // slots
     virtual void CloseWindow();
+    virtual void CloseLC();
     virtual void ProcessAction(Int_t event,
                                Int_t px,
                                Int_t py,
                                TObject* selected);
-    
+
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
     TCanvas* canvas_trigger_;
     TCanvas* canvas_modules_;
     TCanvas* canvas_modules_tout1_;
 	TCanvas* canvas_ch_map_;
-    TH1D*    cur_hist_int_;
-    TLine*   line_obj_[5];
-    TLine*   line_t90_[2];
-    int      line_cnt_;
-    int      start_gps_week_;
-    double   start_gps_second_;
+    TCanvas* canvas_trigger_subbkg_;
+    TH1D*    cur_trigger_hist_;
+    TH1D*    cur_trigger_hist_bkg_;
+    TH1D*    cur_trigger_hist_subbkg_;
+    double   start_gps_time_;
     int      select_count_;
-    double   select_x_[5];
-    int      select_i_[5];
-    double   cur_scale_;
-    TF1*     fun_before_;
-    TF1*     fun_after_;
-    TLine*   line_before_;
-    TLine*   line_before_05_;
-    TLine*   line_after_;
-    TLine*   line_after_05_;
-    bool     is_fitted_;
+    double   select_x_[2];
+    int      line_cnt_;
+    TLine*   line_obj_[2];
+    bool     keypressed;
 #endif /* __ROOTCLING__ || __CINT __ */
-    
+
 public:
     RateCanvas(int week, double second);
     virtual ~RateCanvas();
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-    void cd_trigger();
     void cd_modules(int i);
     void cd_modules_tout1(int i);
 	void cd_ch_map(int i);
-    void draw_hist_int(TH1D* hist_int);
+    void draw_trigger_hist(TH1D* trigger_hist);
+    void draw_trigger_hist_bkg(TH1D* trigger_hist_bkg);
 #endif /* __ROOTCLING__ || __CINT __ */
-    
+
 };
 
 #endif
