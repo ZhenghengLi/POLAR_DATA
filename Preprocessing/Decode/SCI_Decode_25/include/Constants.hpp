@@ -22,7 +22,7 @@ const int TriggerIndex[64] = {23, 15, 31,  7, 22, 14, 30,  6,
                               62, 38, 54, 46, 63, 39, 55, 47
 };
 
-//#define ESRF
+#define ESRF
 #ifdef ESRF
 const int CircleTime = 2097152;
 const int PedSecond = 1;

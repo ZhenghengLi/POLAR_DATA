@@ -51,7 +51,7 @@ void RateCanvas::cd_modules(int i) {
         canvas_modules_->ToggleEventStatus();
         canvas_modules_->Divide(5, 5);
     }
-    canvas_modules_->cd(itoc(i));
+    canvas_modules_->cd(itocb(i));
 }
 
 void RateCanvas::cd_modules_tout1(int i) {
@@ -61,7 +61,7 @@ void RateCanvas::cd_modules_tout1(int i) {
         canvas_modules_tout1_->ToggleEventStatus();
         canvas_modules_tout1_->Divide(5, 5);
     }
-    canvas_modules_tout1_->cd(itoc(i));
+    canvas_modules_tout1_->cd(itocb(i));
 }
 
 void RateCanvas::cd_ch_map(int i) {
