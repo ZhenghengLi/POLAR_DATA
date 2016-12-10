@@ -12,6 +12,11 @@ RateCanvas::RateCanvas(int week, double second) {
     for (int i = 0; i < 2; i++) {
         line_obj_[i] = NULL;
     }
+    line_zero_ = NULL;
+    line_t90_left_ = NULL;
+    line_t90_right_ = NULL;
+    line_T0_ = NULL;
+    pavetext_ = NULL;
     keypressed = false;
 }
 
@@ -90,9 +95,29 @@ void RateCanvas::CloseLC() {
             line_obj_[i] = NULL;
         }
     }
+    if (line_zero_ != NULL) {
+        delete line_zero_;
+        line_zero_ = NULL;
+    }
     if (cur_trigger_hist_subbkg_ != NULL) {
         delete cur_trigger_hist_subbkg_;
         cur_trigger_hist_subbkg_ = NULL;
+    }
+    if (line_t90_left_ != NULL) {
+        delete line_t90_left_;
+        line_t90_left_ = NULL;
+    }
+    if (line_t90_right_ != NULL) {
+        delete line_t90_right_;
+        line_t90_right_ = NULL;
+    }
+    if (line_T0_ != NULL) {
+        delete line_T0_;
+        line_T0_ = NULL;
+    }
+    if (pavetext_ != NULL) {
+        delete pavetext_;
+        pavetext_ = NULL;
     }
     keypressed = false;
     canvas_trigger_->Update();
@@ -113,7 +138,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         if (line_cnt_ < 2) return;
         if (keypressed) return;
         // start todo
-        cout << "calculating T90 ..." << endl;
+        cout << "Subtracting background ..." << endl;
         if (select_x_[0] > select_x_[1]) {
             double tmp_x = select_x_[0];
             select_x_[0] = select_x_[1];
@@ -121,29 +146,113 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         }
         int bin_left = (select_x_[0] - cur_trigger_hist_->GetBinLowEdge(0)) / cur_trigger_hist_->GetBinWidth(0);
         int bin_right = (select_x_[1] - cur_trigger_hist_->GetBinLowEdge(0)) / cur_trigger_hist_->GetBinWidth(0);
-        cout << "bin_left = " << bin_left << endl;
-        cout << "bin_right = " << bin_right << endl;
         double left_edge = cur_trigger_hist_->GetBinLowEdge(bin_left);
         double right_edge = cur_trigger_hist_->GetBinLowEdge(bin_right) + cur_trigger_hist_->GetBinWidth(bin_right);
-        cout << "left_edge = " << left_edge << endl;
-        cout << "right_edge = " << right_edge << endl;;
-        cout << "right_edge - left_edge = " << right_edge - left_edge << endl;
-        cur_trigger_hist_subbkg_ = new TH1D("cur_trigger_hist_subbkg_", "trigger rate",
+        // find T0
+        double x_T0 = -1;
+        for (int i = bin_left; i <= bin_right; i++) {
+            double cur_sigbkg = cur_trigger_hist_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
+            double cur_bkg = cur_trigger_hist_bkg_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
+            double cur_signif = (cur_sigbkg - cur_bkg) / TMath::Sqrt(cur_bkg);
+            if (cur_signif > 4.5) {
+                x_T0 = cur_trigger_hist_->GetBinLowEdge(i);
+                break;
+            }
+        }
+        if (x_T0 > 0) {
+            left_edge -= x_T0;
+            right_edge -= x_T0;
+        }
+        cur_trigger_hist_subbkg_ = new TH1D("cur_trigger_hist_subbkg_", "trigger rate after background subtracted",
                 bin_right - bin_left + 1, left_edge, right_edge);
         cur_trigger_hist_subbkg_->SetDirectory(NULL);
+        cur_trigger_hist_subbkg_->GetXaxis()->SetTitle("T-T0 (s)");
+        cur_trigger_hist_subbkg_->GetYaxis()->SetTitle("Rate (trigger/s)");
+
         for (int i = bin_left; i <= bin_right; i++) {
             cur_trigger_hist_subbkg_->SetBinContent(i - bin_left + 1,
                     cur_trigger_hist_->GetBinContent(i) - cur_trigger_hist_bkg_->GetBinContent(i));
+            cur_trigger_hist_subbkg_->SetBinError(i - bin_left + 1,
+                    TMath::Sqrt(cur_trigger_hist_->GetBinContent(i) + cur_trigger_hist_bkg_->GetBinContent(i)));
         }
         canvas_trigger_subbkg_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_trigger_sub_bkg_"));
         if (canvas_trigger_subbkg_ == NULL) {
-            canvas_trigger_subbkg_ = new TCanvas("canvas_trigger_subbkg", "rate of event trigger", 800, 500);
+            canvas_trigger_subbkg_ = new TCanvas("canvas_trigger_subbkg", "rate of event trigger", 800, 600);
+            canvas_trigger_subbkg_->Divide(1, 2);
             canvas_trigger_subbkg_->ToggleEventStatus();
             canvas_trigger_subbkg_->SetCrosshair();
             canvas_trigger_subbkg_->Connect("Closed()", "RateCanvas", this, "CloseLC()");
         }
-        canvas_trigger_subbkg_->cd();
+        canvas_trigger_subbkg_->cd(1);
         cur_trigger_hist_subbkg_->Draw("eh");
+        line_zero_ = new TLine(left_edge, 0, right_edge, 0);
+        line_zero_->SetLineColor(kRed);
+        line_zero_->Draw();
+        double y_min_subbkg = cur_trigger_hist_subbkg_->GetMinimum();
+        double y_max_subbkg = cur_trigger_hist_subbkg_->GetMaximum();
+        double total_counts = cur_trigger_hist_subbkg_->Integral();
+        double x_t90_left = 0;
+        int bin_t90_left = 0;
+        double sum_counts = 0;
+        for (int i = bin_left; i <= bin_right; i++) {
+            sum_counts += cur_trigger_hist_subbkg_->GetBinContent(i - bin_left + 1);
+            if (sum_counts > total_counts * 0.05) {
+                x_t90_left = cur_trigger_hist_subbkg_->GetBinLowEdge(i - bin_left + 1) + cur_trigger_hist_subbkg_->GetBinWidth(i - bin_left + 1);
+                bin_t90_left = i + 1;
+                break;
+            }
+        }
+        double x_t90_right = 0;
+        int bin_t90_right = 0;
+        sum_counts = 0;
+        for (int i = bin_right; i >= bin_left; i--) {
+            sum_counts += cur_trigger_hist_subbkg_->GetBinContent(i - bin_left + 1);
+            if (sum_counts > total_counts * 0.05) {
+                x_t90_right = cur_trigger_hist_subbkg_->GetBinLowEdge(i - bin_left + 1);
+                bin_t90_right = i - 1;
+                break;
+            }
+        }
+        line_t90_left_ = new TLine(x_t90_left, y_min_subbkg, x_t90_left, y_max_subbkg);
+        line_t90_left_->SetLineColor(kRed);
+        line_t90_left_->Draw();
+        line_t90_right_ = new TLine(x_t90_right, y_min_subbkg, x_t90_right, y_max_subbkg);
+        line_t90_right_->SetLineColor(kRed);
+        line_t90_right_->Draw();
+        double sum_bkg = 0;
+        double sum_sigbkg = 0;
+        for (int i = bin_t90_left; i <= bin_t90_right; i++) {
+            sum_sigbkg += cur_trigger_hist_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
+            sum_bkg += cur_trigger_hist_bkg_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
+        }
+        double nsigma = (sum_sigbkg - sum_bkg) / TMath::Sqrt(sum_bkg);
+        // find T0
+        if (x_T0 > 0) {
+            line_T0_ = new TLine(0, y_min_subbkg, 0, y_max_subbkg);
+            line_T0_->SetLineColor(6);
+            line_T0_->Draw();
+        }
+        double time_T0 = (x_T0 > 0 ? start_gps_time_ + x_T0 : 0);
+        double time_t90_start = (x_T0 > 0 ? start_gps_time_ + x_t90_left + x_T0 : start_gps_time_ + x_t90_left);
+        double time_t90_stop  = (x_T0 > 0 ? start_gps_time_ + x_t90_right + x_T0 : start_gps_time_ + x_t90_right);
+        canvas_trigger_subbkg_->cd(2);
+        pavetext_ = new TPaveText(0.1, 0.1, 0.9, 1);
+        pavetext_->AddText(0.0, 0.9, Form("GRB_T0GPS: %d:%.3f",
+                    static_cast<int>(time_T0 / 604800),
+                    fmod(time_T0, 604800)));
+        pavetext_->AddText(0.0, 0.7 , Form("T90_START: %d:%.3f",
+                    static_cast<int>(time_t90_start / 604800),
+                    fmod(time_t90_start, 604800)));
+        pavetext_->AddText(0.0, 0.5, Form("T90_STOP: %d:%.3f",
+                    static_cast<int>(time_t90_stop / 604800),
+                    fmod(time_t90_stop, 604800)));
+        pavetext_->AddText(0.0, 0.3, Form("GRB_INTEN: %d cnts/sec",
+                static_cast<int>((sum_sigbkg - sum_bkg) / (x_t90_right - x_t90_left))));
+        pavetext_->AddText(0.0, 0.1, Form("GRB_SIGNIF: %.2f sigma", nsigma));
+        pavetext_->SetTextAlign(12);
+        pavetext_->SetTextSize(0.1);
+        pavetext_->Draw();
+
         // stop todo
         keypressed = true;
     } else if (event == kButton1Down) {  // select

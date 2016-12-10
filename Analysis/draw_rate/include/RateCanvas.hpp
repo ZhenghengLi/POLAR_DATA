@@ -40,6 +40,11 @@ private:
     double   select_x_[2];
     int      line_cnt_;
     TLine*   line_obj_[2];
+    TLine*   line_zero_;
+    TLine*   line_t90_left_;
+    TLine*   line_t90_right_;
+    TLine*   line_T0_;
+    TPaveText* pavetext_;
     bool     keypressed;
 #endif /* __ROOTCLING__ || __CINT __ */
 

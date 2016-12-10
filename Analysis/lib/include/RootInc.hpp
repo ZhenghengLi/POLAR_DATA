@@ -25,5 +25,8 @@
 #include "TTimeStamp.h"
 #include "TSystem.h"
 #include "TLegend.h"
+#include "TSpectrum.h"
+#include "TH1.h"
+#include "TPaveText.h"
 
 #endif
