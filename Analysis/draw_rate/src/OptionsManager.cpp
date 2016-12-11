@@ -117,6 +117,30 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'n':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        niter = tmp_string.Atoi();
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            case 's':
+                if (idx < argc_par - 1) {
+                    TString tmp_string = argv_par[++idx];
+                    if (tmp_string[0] == '-') {
+                        return false;
+                    } else {
+                        min_signif = tmp_string.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -145,6 +169,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (phase != 0 && phase != 1 && phase != 2 && phase != 3) {
         phase = 0;
     }
+    if (niter < 0)
+        niter = 20;
+    if (min_signif < 0)
+        min_signif = 4.5;
     return true;
 }
 
@@ -154,7 +182,11 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>] -y [min_bars] [-z <max_bars>] [-k <bar_mask.cfg>]" << endl;
+    cout << " [-w <binwidth>] [-j <phase>] [-o <filename.root>] -y [min_bars] [-z <max_bars>]" << endl;
+    cout << "  ";
+    for (size_t i = 0; i < SW_NAME.length(); i++)
+        cout << " ";
+    cout << " [-k <bar_mask.cfg] [-n <niter>] [-s <min_signif>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -167,6 +199,8 @@ void OptionsManager::print_help() {
     cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
     cout << "  -z <max_bars>                    maximum number of bars to cut, default is 1600" << endl;
     cout << "  -k <bar_mask.cfg>                file that contains a list of hot bars" << endl;
+    cout << "  -n <niter>                       numberIterations for background calculation" << endl;
+    cout << "  -s <min_signif>                  min significance level for T0 calculation" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -196,6 +230,8 @@ void OptionsManager::init() {
     max_bars = -1;
     min_bars = -1;
     bar_mask_filename.Clear();
+    niter = -1;
+    min_signif = -1;
 
     version_flag_ = false;
 }

@@ -2,8 +2,9 @@
 
 using namespace std;
 
-RateCanvas::RateCanvas(int week, double second) {
+RateCanvas::RateCanvas(int week, double second, double min_s) {
     start_gps_time_ = week * 604800 + second;
+    min_signif_ = min_s;
     cur_trigger_hist_ = NULL;
     cur_trigger_hist_bkg_ = NULL;
     cur_trigger_hist_subbkg_ = NULL;
@@ -154,7 +155,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
             double cur_sigbkg = cur_trigger_hist_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
             double cur_bkg = cur_trigger_hist_bkg_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
             double cur_signif = (cur_sigbkg - cur_bkg) / TMath::Sqrt(cur_bkg);
-            if (cur_signif > 4.5) {
+            if (cur_signif > min_signif_) {
                 x_T0 = cur_trigger_hist_->GetBinLowEdge(i);
                 break;
             }
@@ -173,7 +174,9 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
             cur_trigger_hist_subbkg_->SetBinContent(i - bin_left + 1,
                     cur_trigger_hist_->GetBinContent(i) - cur_trigger_hist_bkg_->GetBinContent(i));
             cur_trigger_hist_subbkg_->SetBinError(i - bin_left + 1,
-                    TMath::Sqrt(cur_trigger_hist_->GetBinContent(i) + cur_trigger_hist_bkg_->GetBinContent(i)));
+                    TMath::Sqrt(cur_trigger_hist_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i) +
+                        cur_trigger_hist_bkg_->GetBinContent(i) * cur_trigger_hist_bkg_->GetBinWidth(i)) /
+                        cur_trigger_hist_->GetBinWidth(i));
         }
         canvas_trigger_subbkg_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_trigger_sub_bkg_"));
         if (canvas_trigger_subbkg_ == NULL) {

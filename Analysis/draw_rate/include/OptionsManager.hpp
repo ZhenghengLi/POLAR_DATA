@@ -23,6 +23,8 @@ public:
     int     max_bars;
     int     min_bars;
     TString bar_mask_filename;
+    int     niter;
+    double  min_signif;
     
 public:
     OptionsManager();

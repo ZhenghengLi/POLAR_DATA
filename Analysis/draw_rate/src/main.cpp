@@ -26,9 +26,12 @@ int main(int argc, char** argv) {
             bar_mask[i][j] = false;
         }
     }
+    bool type_mask[3];
+    for (int i = 0; i < 3; i++) {
+        type_mask[i] = false;
+    }
 
     // read bar_mask
-    int type_number = 4;
     char line_buffer[100];
     ifstream infile;
     if (!options_mgr.bar_mask_filename.IsNull()) {
@@ -47,14 +50,14 @@ int main(int argc, char** argv) {
         if (string(line_buffer).find("#") != string::npos) {
             continue;
         } else if (string(line_buffer).find("single") != string::npos) {
-            type_number = 1;
-            cout << "only select single event" << endl;
+            type_mask[0] = true;
+            cout << "kill all single event" << endl;
         } else if (string(line_buffer).find("normal") != string::npos) {
-            type_number = 2;
-            cout << "only select normal event" << endl;
+            type_mask[1] = true;
+            cout << "kill all normal event" << endl;
         } else if (string(line_buffer).find("cosmic") != string::npos) {
-            type_number = 3;
-            cout << "only select cosmic event" << endl;
+            type_mask[2] = true;
+            cout << "kill all cosmic event" << endl;
         } else {
             ss.clear();
             ss.str(line_buffer);
@@ -100,7 +103,7 @@ int main(int argc, char** argv) {
     cout << " - phase shift:     " << options_mgr.phase << "/4" << endl;
     cout << "----------------------------------------------------------" << endl;
 
-    RateCanvas rate_canvas(eventIter.phy_begin_trigger.abs_gps_week, eventIter.phy_begin_trigger.abs_gps_second);
+    RateCanvas rate_canvas(eventIter.phy_begin_trigger.abs_gps_week, eventIter.phy_begin_trigger.abs_gps_second, options_mgr.min_signif);
 
     // prepare histogram
     char name[50];
@@ -195,12 +198,12 @@ int main(int argc, char** argv) {
         cur_second = (eventIter.t_trigger.abs_gps_week   - eventIter.phy_begin_trigger.abs_gps_week) * 604800 +
             (eventIter.t_trigger.abs_gps_second - eventIter.phy_begin_trigger.abs_gps_second);
         bool is_bad_event = false;
-        if (type_number == 1) {
-            if (eventIter.t_trigger.type != 0xF000) is_bad_event = true;
-        } else if (type_number == 2) {
-            if (eventIter.t_trigger.type != 0x00FF) is_bad_event = true;
-        } else if (type_number == 3) {
-            if (eventIter.t_trigger.type != 0xFF00) is_bad_event = true;
+        if (type_mask[0] && eventIter.t_trigger.type == 0xF000) {
+            is_bad_event = true;
+        } else if (type_mask[1] && eventIter.t_trigger.type == 0x00FF) {
+            is_bad_event = true;
+        } else if (type_mask[2] && eventIter.t_trigger.type == 0xFF00) {
+            is_bad_event = true;
         }
         eventIter.phy_modules_set_start();
         while (!options_mgr.bar_mask_filename.IsNull() && eventIter.phy_modules_next_packet()) {
@@ -253,7 +256,10 @@ int main(int argc, char** argv) {
     eventIter.close();
 
     // calculate rate for event rate
-    trigger_hist->Scale(1, "width");
+    for (int b = 1; b <= trigger_hist->GetNbinsX(); b++) {
+        trigger_hist->SetBinContent(b, trigger_hist->GetBinContent(b) / trigger_hist->GetBinWidth(b));
+        trigger_hist->SetBinError(b,   trigger_hist->GetBinError(b)   / trigger_hist->GetBinWidth(b));
+    }
 
     // calculate background
     TH1D* trigger_hist_fix = static_cast<TH1D*>(trigger_hist->Clone("trigger_hist_fix"));
@@ -265,13 +271,19 @@ int main(int argc, char** argv) {
         // find the first bin before saa
         int bin_idx_left = bin_idx;
         int pre_count = 0;
+        double bin_center = trigger_hist_fix->GetBinCenter(bin_idx);
         while (bin_idx_left >= 1) {
             bin_idx_left--;
-            if (trigger_hist_fix->GetBinContent(bin_idx_left) < pre_count) {
-                bin_idx_left++;
-                break;
+            if (trigger_hist_fix->GetBinWidth(1) < 1.0) {
+                if (trigger_hist_fix->GetBinCenter(bin_idx_left) < bin_center - 4.0) {
+                    break;
+                }
             } else {
-                pre_count = trigger_hist_fix->GetBinContent(bin_idx_left);
+                if (trigger_hist_fix->GetBinContent(bin_idx_left) < pre_count) {
+                    break;
+                } else {
+                    pre_count = trigger_hist_fix->GetBinContent(bin_idx_left);
+                }
             }
         }
         // find the first bin after saa
@@ -279,28 +291,38 @@ int main(int argc, char** argv) {
         pre_count = 0;
         while (bin_idx_right <= trigger_hist_fix->GetNbinsX()) {
             bin_idx_right++;
-            if (trigger_hist_fix->GetBinContent(bin_idx_right) < pre_count) {
-                bin_idx_right--;
-                break;
+            if (trigger_hist_fix->GetBinContent(bin_idx_right) == 0) {
+                bin_center = trigger_hist_fix->GetBinCenter(bin_idx_right);
+                continue;
+            }
+            if (trigger_hist_fix->GetBinWidth(1) < 1.0) {
+                if (trigger_hist_fix->GetBinWidth(bin_idx_right) < 1.0 && trigger_hist_fix->GetBinCenter(bin_idx_right) > bin_center + 4.0) {
+                    break;
+                }
             } else {
-                pre_count = trigger_hist_fix->GetBinContent(bin_idx_right);
+                if (trigger_hist_fix->GetBinContent(bin_idx_right) < pre_count) {
+                    break;
+                } else {
+                    pre_count = trigger_hist_fix->GetBinContent(bin_idx_right);
+                }
             }
         }
         // fill gap
-        double slope = (trigger_hist_fix->GetBinContent(bin_idx_right) - trigger_hist_fix->GetBinContent(bin_idx_left)) / (bin_idx_right - bin_idx_left);
+        double ratio = 1.5;
+        double slope = (trigger_hist_fix->GetBinContent(bin_idx_right) * ratio - trigger_hist_fix->GetBinContent(bin_idx_left) * ratio) / (bin_idx_right - bin_idx_left);
         slope *= 2.0;
         for (int i = 1; i < bin_idx_right - bin_idx_left; i++) {
             if (slope > 0) {
-                trigger_hist_fix->SetBinContent(bin_idx_left + i, trigger_hist_fix->GetBinContent(bin_idx_left) + i * slope);
+                trigger_hist_fix->SetBinContent(bin_idx_left + i, trigger_hist_fix->GetBinContent(bin_idx_left) * ratio + i * slope);
             } else {
-                trigger_hist_fix->SetBinContent(bin_idx_right - i, trigger_hist_fix->GetBinContent(bin_idx_right) - i * slope);
+                trigger_hist_fix->SetBinContent(bin_idx_right - i, trigger_hist_fix->GetBinContent(bin_idx_right) * ratio - i * slope);
             }
         }
         // jump the gap
         bin_idx = bin_idx_right;
     }
     TSpectrum t_spec;
-    TH1D* trigger_hist_bkg = static_cast<TH1D*>(t_spec.Background(trigger_hist_fix));
+    TH1D* trigger_hist_bkg = static_cast<TH1D*>(t_spec.Background(trigger_hist_fix, options_mgr.niter));
     // correct bkg
     for (int i = 1; i <= trigger_hist->GetNbinsX(); i++) {
         if (trigger_hist->GetBinContent(i) == 0) {
@@ -310,11 +332,17 @@ int main(int argc, char** argv) {
 
     // calculate rate for modules
     for (int j = 0; j < 25; j++) {
-        modules_hist[j]->Scale(1, "width");
+        for (int b = 1; b < modules_hist[j]->GetNbinsX(); b++) {
+            modules_hist[j]->SetBinContent(b, modules_hist[j]->GetBinContent(b) / modules_hist[j]->GetBinWidth(b));
+            modules_hist[j]->SetBinError(  b, modules_hist[j]->GetBinError(b)   / modules_hist[j]->GetBinWidth(b));
+        }
     }
     if (options_mgr.tout1_flag) {
         for (int j = 0; j < 25; j++) {
-            modules_hist_tout1[j]->Scale(1, "width");
+            for (int b = 1; b < modules_hist_tout1[j]->GetNbinsX(); b++) {
+                modules_hist_tout1[j]->SetBinContent(b, modules_hist_tout1[j]->GetBinContent(b) / modules_hist_tout1[j]->GetBinWidth(b));
+                modules_hist_tout1[j]->SetBinError(  b, modules_hist_tout1[j]->GetBinError(b)   / modules_hist_tout1[j]->GetBinWidth(b));
+            }
         }
     }
 

@@ -36,6 +36,7 @@ private:
     TH1D*    cur_trigger_hist_bkg_;
     TH1D*    cur_trigger_hist_subbkg_;
     double   start_gps_time_;
+    double   min_signif_;
     int      select_count_;
     double   select_x_[2];
     int      line_cnt_;
@@ -49,7 +50,7 @@ private:
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
-    RateCanvas(int week, double second);
+    RateCanvas(int week, double second, double min_s);
     virtual ~RateCanvas();
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
     void cd_modules(int i);
