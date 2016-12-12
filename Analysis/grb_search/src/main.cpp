@@ -116,9 +116,12 @@ int main(int argc, char** argv) {
             bar_mask[i][j] = false;
         }
     }
+    bool type_mask[3];
+    for (int i = 0; i < 3; i++) {
+        type_mask[i] = false;
+    }
 
     // read bar_mask
-    int type_number = 4;
     char line_buffer[100];
     ifstream infile;
     if (!options_mgr.bar_mask_filename.IsNull()) {
@@ -137,14 +140,14 @@ int main(int argc, char** argv) {
         if (string(line_buffer).find("#") != string::npos) {
             continue;
         } else if (string(line_buffer).find("single") != string::npos) {
-            type_number = 1;
-            cout << "only select single event" << endl;
+            type_mask[0] = true;
+            cout << "kill all single event" << endl;
         } else if (string(line_buffer).find("normal") != string::npos) {
-            type_number = 2;
-            cout << "only select normal event" << endl;
+            type_mask[1] = true;
+            cout << "kill all normal event" << endl;
         } else if (string(line_buffer).find("cosmic") != string::npos) {
-            type_number = 3;
-            cout << "only select cosmic event" << endl;
+            type_mask[2] = true;
+            cout << "kill all cosmic event" << endl;
         } else {
             ss.clear();
             ss.str(line_buffer);
@@ -257,12 +260,12 @@ int main(int argc, char** argv) {
             continue;
         }
         bool is_bad_event = false;
-        if (type_number == 1) {
-            if (eventIter.t_trigger.type != 0xF000) is_bad_event = true;
-        } else if (type_number == 2) {
-            if (eventIter.t_trigger.type != 0x00FF) is_bad_event = true;
-        } else if (type_number == 3) {
-            if (eventIter.t_trigger.type != 0xFF00) is_bad_event = true;
+        if (type_mask[0] && eventIter.t_trigger.type == 0xF000) {
+            is_bad_event = true;
+        } else if (type_mask[1] && eventIter.t_trigger.type == 0x00FF) {
+            is_bad_event = true;
+        } else if (type_mask[2] && eventIter.t_trigger.type == 0xFF00) {
+            is_bad_event = true;
         }
         eventIter.phy_modules_set_start();
         while (!options_mgr.bar_mask_filename.IsNull() && eventIter.phy_modules_next_packet()) {
