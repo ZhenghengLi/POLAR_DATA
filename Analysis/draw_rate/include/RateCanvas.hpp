@@ -44,9 +44,12 @@ private:
     TLine*   line_zero_;
     TLine*   line_t90_left_;
     TLine*   line_t90_right_;
+    TLine*   line_peak_;
     TLine*   line_T0_;
     TPaveText* pavetext_;
     bool     keypressed;
+    // function
+    string gps_to_utc_str_(double gps_time);
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:

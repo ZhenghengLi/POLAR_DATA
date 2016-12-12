@@ -1,4 +1,8 @@
 #include "RateCanvas.hpp"
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include <cstdio>
 
 using namespace std;
 
@@ -16,6 +20,7 @@ RateCanvas::RateCanvas(int week, double second, double min_s) {
     line_zero_ = NULL;
     line_t90_left_ = NULL;
     line_t90_right_ = NULL;
+    line_peak_ = NULL;
     line_T0_ = NULL;
     pavetext_ = NULL;
     keypressed = false;
@@ -112,6 +117,10 @@ void RateCanvas::CloseLC() {
         delete line_t90_right_;
         line_t90_right_ = NULL;
     }
+    if (line_peak_ != NULL) {
+        delete line_peak_;
+        line_peak_ = NULL;
+    }
     if (line_T0_ != NULL) {
         delete line_T0_;
         line_T0_ = NULL;
@@ -180,7 +189,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         }
         canvas_trigger_subbkg_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_trigger_sub_bkg_"));
         if (canvas_trigger_subbkg_ == NULL) {
-            canvas_trigger_subbkg_ = new TCanvas("canvas_trigger_subbkg", "rate of event trigger", 800, 600);
+            canvas_trigger_subbkg_ = new TCanvas("canvas_trigger_subbkg", "rate of event trigger", 700, 600);
             canvas_trigger_subbkg_->Divide(1, 2);
             canvas_trigger_subbkg_->ToggleEventStatus();
             canvas_trigger_subbkg_->SetCrosshair();
@@ -192,8 +201,9 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         line_zero_->SetLineColor(kRed);
         line_zero_->Draw();
         double y_min_subbkg = cur_trigger_hist_subbkg_->GetMinimum();
-        double y_max_subbkg = cur_trigger_hist_subbkg_->GetMaximum();
+        double y_max_subbkg = cur_trigger_hist_subbkg_->GetMaximum() * 1.1;
         double total_counts = cur_trigger_hist_subbkg_->Integral();
+        // find T90
         double x_t90_left = 0;
         int bin_t90_left = 0;
         double sum_counts = 0;
@@ -229,6 +239,13 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
             sum_bkg += cur_trigger_hist_bkg_->GetBinContent(i) * cur_trigger_hist_->GetBinWidth(i);
         }
         double nsigma = (sum_sigbkg - sum_bkg) / TMath::Sqrt(sum_bkg);
+        // find peak
+        int bin_peak = cur_trigger_hist_subbkg_->GetMaximumBin();
+        int rate_peak = cur_trigger_hist_subbkg_->GetBinContent(bin_peak);
+        double x_peak = cur_trigger_hist_subbkg_->GetBinLowEdge(bin_peak);
+        line_peak_ = new TLine(x_peak, y_min_subbkg, x_peak, y_max_subbkg);
+        line_peak_->SetLineColor(kGreen);
+        line_peak_->Draw();
         // find T0
         if (x_T0 > 0) {
             line_T0_ = new TLine(0, y_min_subbkg, 0, y_max_subbkg);
@@ -238,22 +255,32 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         double time_T0 = (x_T0 > 0 ? start_gps_time_ + x_T0 : 0);
         double time_t90_start = (x_T0 > 0 ? start_gps_time_ + x_t90_left + x_T0 : start_gps_time_ + x_t90_left);
         double time_t90_stop  = (x_T0 > 0 ? start_gps_time_ + x_t90_right + x_T0 : start_gps_time_ + x_t90_right);
+        double time_peak = (x_T0 > 0 ? start_gps_time_ + x_peak + x_T0 : start_gps_time_ + x_peak);
         canvas_trigger_subbkg_->cd(2);
         pavetext_ = new TPaveText(0.1, 0.1, 0.9, 1);
-        pavetext_->AddText(0.0, 0.9, Form("GRB_T0GPS: %d:%.3f",
+        pavetext_->AddText(0.0, 0.9, Form("GRB_T0GPS: %d:%.3f [%s]",
                     static_cast<int>(time_T0 / 604800),
-                    fmod(time_T0, 604800)));
-        pavetext_->AddText(0.0, 0.7 , Form("T90_START: %d:%.3f",
+                    fmod(time_T0, 604800),
+                    gps_to_utc_str_(time_T0).c_str()));
+        pavetext_->AddText(0.0, 0.77 , Form("T90_START: %d:%.3f [%s]",
                     static_cast<int>(time_t90_start / 604800),
-                    fmod(time_t90_start, 604800)));
-        pavetext_->AddText(0.0, 0.5, Form("T90_STOP: %d:%.3f",
+                    fmod(time_t90_start, 604800),
+                    gps_to_utc_str_(time_t90_start).c_str()));
+        pavetext_->AddText(0.0, 0.64, Form("T90_STOP: %d:%.3f [%s]",
                     static_cast<int>(time_t90_stop / 604800),
-                    fmod(time_t90_stop, 604800)));
-        pavetext_->AddText(0.0, 0.3, Form("GRB_INTEN: %d cnts/sec",
+                    fmod(time_t90_stop, 604800),
+                    gps_to_utc_str_(time_t90_stop).c_str()));
+        pavetext_->AddText(0.0, 0.51, Form("PEAK_TIME: %d:%.3f [%s]",
+                    static_cast<int>(time_peak / 604800),
+                    fmod(time_peak, 604800),
+                    gps_to_utc_str_(time_peak).c_str()));
+        pavetext_->AddText(0.0, 0.38, Form("PEAK_RATE: %d cnts/sec",
+                    static_cast<int>(rate_peak)));
+        pavetext_->AddText(0.0, 0.25, Form("GRB_INTEN: %d cnts/sec",
                 static_cast<int>((sum_sigbkg - sum_bkg) / (x_t90_right - x_t90_left))));
-        pavetext_->AddText(0.0, 0.1, Form("GRB_SIGNIF: %.2f sigma", nsigma));
+        pavetext_->AddText(0.0, 0.12, Form("GRB_SIGNIF: %.2f sigma", nsigma));
         pavetext_->SetTextAlign(12);
-        pavetext_->SetTextSize(0.1);
+        pavetext_->SetTextSize(0.06);
         pavetext_->Draw();
 
         // stop todo
@@ -287,4 +314,31 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         canvas_trigger_->Update();
         cout << " -*-*-*-*-*-*-*-*-*-*-*-*- " << endl;
     }
+}
+
+string RateCanvas::gps_to_utc_str_(double gps_time) {
+    double utc_time_second = 0;
+    if (gps_time < 1119744016.0) {
+        utc_time_second = gps_time - 16;
+    } else if (gps_time < 1167264017.0) {
+        utc_time_second = gps_time - 17;
+    } else {
+        utc_time_second = gps_time - 18;
+    }
+    double unixtime = utc_time_second + 315964800.0;
+    double unixtime_second;
+    int unixtime_millsecond;
+    unixtime_millsecond = static_cast<int>(round(modf(unixtime, &unixtime_second) * 1000));
+    char str_buffer[50];
+    time_t cur_unixtime = unixtime_second;
+    strftime(str_buffer, 20, "%Y-%m-%d %H:%M:%S", gmtime(&cur_unixtime));
+    char str_result[50];
+    if (unixtime_millsecond < 10) {
+        sprintf(str_result, "%s.00%d UTC", str_buffer, unixtime_millsecond);
+    } else if (unixtime_millsecond < 100) {
+        sprintf(str_result, "%s.0%d UTC", str_buffer, unixtime_millsecond);
+    } else {
+        sprintf(str_result, "%s.%d UTC", str_buffer, unixtime_millsecond);
+    }
+    return string(str_result);
 }
