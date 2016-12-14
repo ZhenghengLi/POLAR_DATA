@@ -155,6 +155,8 @@ int main(int argc, char** argv) {
         } else if (string(key->GetName()) == "m_level_num") {
             key->SetTitle("1");
             key->Write();
+        } else {
+            key->Write();
         }
     }
 
