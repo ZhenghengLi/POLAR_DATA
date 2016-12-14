@@ -150,17 +150,23 @@ int main(int argc, char** argv) {
 
     t_event_subped_file->cd();
     t_event_tree_new->Write();
+
     // write meta
     TIter fileIter(t_event_file->GetListOfKeys());
-    TKey* key = 0;
+    TKey* key = NULL;
+    TNamed* meta = NULL;
     while ((key = static_cast<TKey*>(fileIter.Next())) != NULL) {
+        if (string(key->GetClassName()) != "TNamed") continue;
         if (string(key->GetName()) == "m_energy_unit") {
-            key->Write();
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->Write();
         } else if (string(key->GetName()) == "m_level_num") {
-            key->SetTitle("1");
-            key->Write();
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->SetTitle("1");
+            meta->Write();
         } else {
-            key->Write();
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->Write();
         }
     }
 
