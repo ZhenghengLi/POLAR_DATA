@@ -26,5 +26,8 @@
 #include "TTimeStamp.h"
 #include "TSystem.h"
 #include "TLegend.h"
+#include "TKey.h"
+#include "TList.h"
+#include "TIterator.h"
 
 #endif
