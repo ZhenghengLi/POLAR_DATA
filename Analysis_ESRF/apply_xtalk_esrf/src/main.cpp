@@ -7,15 +7,15 @@ using namespace std;
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        cout << "USAGE: " << argv[0] << "<event_data.root> <ped_vec.root> <event_data_subped.root>" << endl;
+        cout << "USAGE: " << argv[0] << "<event_data_subped.root> <xtalk_mat.root> <event_data_xtalkcorr.root>" << endl;
         return 0;
     }
 
-    string event_data_fn = argv[1];
-    string ped_vec_fn = argv[2];
-    string event_data_subped_fn = argv[3];
+    string event_data_subped_fn = argv[1];
+    string xtalk_mat_fn = argv[2];
+    string event_data_xtalkcorr_fn = argv[3];
 
-    TFile* t_event_file = new TFile(event_data_fn.c_str(), "read");
+    TFile* t_event_file = new TFile(event_data_subped_fn.c_str(), "read");
     if (t_event_file->IsZombie()) {
         cout << "root file open failed." << endl;
         return 1;
@@ -71,29 +71,29 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchAddress("compress",             t_event.compress             );
     t_event_tree->SetBranchAddress("common_noise",         t_event.common_noise         );
 
-    TFile* t_file_ped_vec = new TFile(ped_vec_fn.c_str(), "read");
-    if (t_file_ped_vec->IsZombie()) {
-        cout << "ped_vec root file open failed. " << endl;
+    TFile* t_file_xtalk_mat = new TFile(xtalk_mat_fn.c_str(), "read");
+    if (t_file_xtalk_mat->IsZombie()) {
+        cout << "xtalk_mat root file open failed. " << endl;
         return 1;
     }
-    TVectorF ped_mean_vec[25];
+    TMatrixF xtalk_mat_inv[25];
     for (int i = 0; i < 25; i++) {
-        TVectorF* tmp_p = static_cast<TVectorF*>(t_file_ped_vec->Get(Form("ped_mean_vec_ct_%02d", i + 1)));
+        TMatrixF* tmp_p = static_cast<TMatrixF*>(t_file_xtalk_mat->Get(Form("xtalk_mat_inv_ct_%02d", i + 1)));
         if (tmp_p == NULL) {
-            cout << "read ped_vec failed." << endl;
+            cout << "read xtalk_mat failed." << endl;
             return 1;
         }
-        ped_mean_vec[i].ResizeTo(64);
-        ped_mean_vec[i] = *tmp_p;
+        xtalk_mat_inv[i].ResizeTo(64, 64);
+        xtalk_mat_inv[i] = *tmp_p;
     }
-    t_file_ped_vec->Close();
+    t_file_xtalk_mat->Close();
 
-    TFile* t_event_subped_file = new TFile(event_data_subped_fn.c_str(), "recreate");
-    if (t_event_subped_file->IsZombie()) {
+    TFile* t_event_xtalkcorr_file = new TFile(event_data_xtalkcorr_fn.c_str(), "recreate");
+    if (t_event_xtalkcorr_file->IsZombie()) {
         cout << "output root file open failed." << endl;
         return 1;
     }
-    t_event_subped_file->cd();
+    t_event_xtalkcorr_file->cd();
     TTree* t_event_tree_new = t_event_tree->CloneTree(0);
 
     TVectorF energy_value_vector;
@@ -106,49 +106,14 @@ int main(int argc, char** argv) {
         for (int i =  0; i < 25; i++) {
             if (t_event.time_aligned[i]) {
                 copy(t_event.energy_value[i], t_event.energy_value[i] + 64, energy_value_vector.GetMatrixArray());
-                float cur_common_sum   = 0;
-                int   cur_common_n     = 0;
-                float cur_common_noise = 0;
-                for (int j = 0; j < 64; j++) {
-                    if (t_event.compress[i] == 3) {
-                        if (!(t_event.channel_status[i][j] & NO_READOUT) && energy_value_vector(j) + ped_mean_vec[i](j) > 4000) {
-                            t_event.channel_status[i][j] |= OVER_FLOW;
-                        }
-                    } else {
-                        if (!(t_event.channel_status[i][j] & NO_READOUT) && energy_value_vector(j) == 4095) {
-                            t_event.channel_status[i][j] |= OVER_FLOW;
-                        }
-                    }
-                    // subtract pedestal
-                    if (t_event.compress[i] != 3) {
-                        if (!(t_event.channel_status[i][j] & NO_READOUT)) {
-                            energy_value_vector(j) -= ped_mean_vec[i](j);
-                        }
-                        if (!t_event.trigger_bit[i][j]) {
-                            cur_common_sum += energy_value_vector(j);
-                            cur_common_n++;
-                        }
-                    }
-                }
-                if (t_event.compress[i] == 0 || t_event.compress[i] == 2) {
-                    cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0);
-                    t_event.common_noise[i] = cur_common_noise;
-                } else if (t_event.compress[i] == 3) {
-                    cur_common_noise = t_event.common_noise[i];
-                } else {
-                    cur_common_noise = 0;
-                }
-                // subtract common noise
-                for (int j = 0; j < 64; j++) {
-                    energy_value_vector(j) -= cur_common_noise;
-                }
+                energy_value_vector = xtalk_mat_inv[i] * energy_value_vector;
                 copy(energy_value_vector.GetMatrixArray(), energy_value_vector.GetMatrixArray() + 64, t_event.energy_value[i]);
             }
         }
         t_event_tree_new->Fill();
     }
 
-    t_event_subped_file->cd();
+    t_event_xtalkcorr_file->cd();
     t_event_tree_new->Write();
     // write meta
     TIter fileIter(t_event_file->GetListOfKeys());
@@ -157,14 +122,14 @@ int main(int argc, char** argv) {
         if (string(key->GetName()) == "m_energy_unit") {
             key->Write();
         } else if (string(key->GetName()) == "m_level_num") {
-            key->SetTitle("1");
+            key->SetTitle("2");
             key->Write();
         } else {
             key->Write();
         }
     }
 
-    t_event_subped_file->Close();
+    t_event_xtalkcorr_file->Close();
 
     return 0;
 }
