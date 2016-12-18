@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/draw_noise
 
-$(DEST_BIN)/draw_noise: obj/main.o obj/OptionsManager.o
+$(DEST_BIN)/draw_noise: obj/main.o obj/OptionsManager.o \
+	$(MY_LIB)/obj/SciIterator.o $(MY_LIB)/obj/SciType.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
