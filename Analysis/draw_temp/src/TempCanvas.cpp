@@ -32,7 +32,7 @@ void TempCanvas::cd_25_mod(int i) {
         canvas_25_mod_->Connect("Closed()", "TempCanvas", this, "CloseWindow()");
         canvas_25_mod_->Divide(5, 5);
     }
-    canvas_25_mod_->cd(itoc(i));
+    canvas_25_mod_->cd(itocb(i));
 }
 
 void TempCanvas::CloseWindow() {
