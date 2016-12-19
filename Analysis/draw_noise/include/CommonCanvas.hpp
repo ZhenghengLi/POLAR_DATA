@@ -22,20 +22,20 @@ public: // slots
                                Int_t px,
                                Int_t py,
                                TObject* selected);
-    
+
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-	TCanvas* canvas_spec_;
-	TCanvas* canvas_ratio_;
+	TCanvas* canvas_noise_;
 #endif /* __ROOTCLING__ || __CINT __ */
-    
+
 public:
     CommonCanvas();
     virtual ~CommonCanvas();
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-	void cd_spec(int i);
+	void cd(int i);
+    TCanvas* get_canvas() { return canvas_noise_; }
 #endif /* __ROOTCLING__ || __CINT __ */
-    
+
 };
 
 #endif

@@ -5,6 +5,8 @@
 #include "OptionsManager.hpp"
 #include "RootInc.hpp"
 #include "SciIterator.hpp"
+#include "CommonCanvas.hpp"
+#include "CooConv.hpp"
 
 #define PED_BINS 256
 #define PED_MAX  1024
@@ -218,6 +220,96 @@ int main(int argc, char** argv) {
             }
         }
     }
+    // draw
+    gROOT->SetBatch(kFALSE);
+    gStyle->SetOptStat(0);
+    CommonCanvas canvas_noise;
+    TLine* line_h[4];
+    TLine* line_v[4];
+    for (int i = 0; i < 4; i++) {
+        line_h[i] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
+        line_h[i]->SetLineColor(kWhite);
+        line_v[i] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
+        line_v[i]->SetLineColor(kWhite);
+    }
+    // pedestal mean
+    TH2D* ped_map = new TH2D("ped_map", "Pedestal Map of 1600 Channels", 40, 0, 40, 40, 0, 40);
+    ped_map->SetDirectory(NULL);
+    ped_map->GetXaxis()->SetNdivisions(40);
+    ped_map->GetYaxis()->SetNdivisions(40);
+    for (int i = 0; i < 40; i++) {
+        if (i % 8 == 0) {
+            ped_map->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            ped_map->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ped_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, ped_mean[i][j]);
+        }
+    }
+    canvas_noise.cd(1);
+    canvas_noise.get_canvas()->GetPad(1)->SetGrid();
+    ped_map->DrawCopy("COLZ");
+    for (int i = 0; i < 4; i++) {
+        line_h[i]->Draw();
+        line_v[i]->Draw();
+    }
+    // common noise
+    canvas_noise.cd(2);
+    TPad* common_noise_pad = static_cast<TPad*>(canvas_noise.get_canvas()->GetPad(2));
+    common_noise_pad->Divide(5, 5);
+    for (int i = 0; i < 25; i++) {
+        common_noise_pad->cd(itocb(i));
+        common_noise_hist[i]->DrawCopy("eh");
+    }
+    // ped_shit
+    TH2D* ped_shift_map = new TH2D("ped_shift_map", "Pedestal Shift Map of 1600 Channels After Common Noise Subtracted", 40, 0, 40, 40, 0, 40);
+    ped_shift_map->SetDirectory(NULL);
+    ped_shift_map->GetXaxis()->SetNdivisions(40);
+    ped_shift_map->GetYaxis()->SetNdivisions(40);
+    for (int i = 0; i < 40; i++) {
+        if (i % 8 == 0) {
+            ped_shift_map->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            ped_shift_map->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ped_shift_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, ped_shift_mean[i][j]);
+        }
+    }
+    canvas_noise.cd(3);
+    canvas_noise.get_canvas()->GetPad(3)->SetGrid();
+    ped_shift_map->DrawCopy("COLZ");
+    for (int i = 0; i < 4; i++) {
+        line_h[i]->Draw();
+        line_v[i]->Draw();
+    }
+    // intrinsic noise
+    TH2D* intrinsic_noise_map = new TH2D("intrinsic_noise_map", "Intrinsic Noise Map of 1600 Channels", 40, 0, 40, 40, 0, 40);
+    intrinsic_noise_map->SetDirectory(NULL);
+    intrinsic_noise_map->GetXaxis()->SetNdivisions(40);
+    intrinsic_noise_map->GetYaxis()->SetNdivisions(40);
+    for (int i = 0; i < 40; i++) {
+        if (i % 8 == 0) {
+            intrinsic_noise_map->GetXaxis()->SetBinLabel(i + 1, Form("%02d", i));
+            intrinsic_noise_map->GetYaxis()->SetBinLabel(i + 1, Form("%02d", i));
+        }
+    }
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            intrinsic_noise_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, ped_shift_sigma[i][j]);
+        }
+    }
+    canvas_noise.cd(4);
+    canvas_noise.get_canvas()->GetPad(4)->SetGrid();
+    intrinsic_noise_map->DrawCopy("COLZ");
+    for (int i = 0; i < 4; i++) {
+        line_h[i]->Draw();
+        line_v[i]->Draw();
+    }
+
     // save data
     if (t_file_out != NULL) {
         t_file_out->cd();
@@ -258,15 +350,13 @@ int main(int argc, char** argv) {
         ped_sigma_mat.Write("ped_sigma_mat");
         ped_shift_mean_mat.Write("ped_shift_mean_mat");
         ped_shift_sigma_mat.Write("ped_shift_sigma_mat");
-
+        canvas_noise.get_canvas()->Write();
         t_file_out->Close();
         cout << "all data writed successfully." << endl;
 
     }
 
-    cout << "end" << endl;
-
-    gROOT->SetBatch(kFALSE);
+    rootapp->Run();
 
     return 0;
 }
