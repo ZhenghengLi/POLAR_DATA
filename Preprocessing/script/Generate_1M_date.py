@@ -23,6 +23,7 @@ parser.add_argument("date", help = "select the date")
 parser.add_argument("-r", dest = "pathprefix", default = "/hxmt/data/Mission/POLAR/data_in_orbit_test")
 parser.add_argument("-t", dest = "type", default = "normal")
 parser.add_argument("--noconfirm", help = "confirm before process", action="store_true")
+parser.add_argument("-b", dest = "blacklist", default = "/hxmt/work/POLAR/PSDC/workspace/dataproduct/blacklist/blacklist_0B.txt")
 args = parser.parse_args()
 
 path_prefix = os.path.abspath(args.pathprefix)
@@ -48,6 +49,13 @@ if not os.path.isdir(logfile_dir):
 scrfile_dir = os.path.join(path_prefix, "data_in_orbit_product", args.type, "screen", "decoded")
 if not os.path.isdir(scrfile_dir):
     print '"' + scrfile_dir + '"' + ' does not exist.'
+    exit(1)
+
+blacklist_files = []
+if os.path.isfile(args.blacklist):
+    with open(args.blacklist, 'r') as fin: blacklist_files = [x.rstrip('\n') for x in fin.readlines()]
+else:
+    print '"' + args.blacklist + '"' + ' does not exist.'
     exit(1)
 
 # check dir of type
@@ -77,6 +85,7 @@ sci_filelist = []
 aux_filelist = []
 eng_filelist = []
 for x in raw_filelist:
+    if x in blacklist_files: continue
     if ref_sci.match(x):
         sci_filelist.append(x)
         continue
