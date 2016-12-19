@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
             Float_t min_adc = ped_mean_0[i][j] - 200 > 0 ? ped_mean_0[i][j] - 200 : 0;
             Float_t max_adc = ped_mean_0[i][j] + 200 < PED_MAX ? ped_mean_0[i][j] + 200 : PED_MAX;
             ped_gaus[i][j]->SetParameter(1, ped_mean_0[i][j]);
-            ped_gaus[i][j]->SetParameter(2, ped_sigma_0[i][j] - 1);
+            ped_gaus[i][j]->SetParameter(2, ped_sigma_0[i][j] / 2);
             ped_gaus[i][j]->SetRange(min_adc, max_adc);
             ped_hist[i][j]->Fit(ped_gaus[i][j], "RQ");
             ped_hist[i][j]->Fit(ped_gaus[i][j], "RQ");
@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
     TF1* ped_shift_gaus[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            ped_shift_gaus[i][j] = new TF1(Form("ped_shift_gaus_%02d_%02d", i + 1, j + 1), "gaus(0)", -32, 32);
+            ped_shift_gaus[i][j] = new TF1(Form("ped_shift_gaus_%02d_%02d", i + 1, j + 1), "gaus(0)", -64, 64);
             ped_shift_gaus[i][j]->SetParameters(1, 0, 25);
             ped_shift_gaus[i][j]->SetParName(0, "Amplitude");
             ped_shift_gaus[i][j]->SetParName(1, "Mean");
@@ -196,13 +196,15 @@ int main(int argc, char** argv) {
             ped_shift_sigma_0[i][j] = ped_shift_hist[i][j]->GetRMS();
             if (ped_shift_hist[i][j]->GetEntries() < 20) {
                 cout << "- WARNING: entries of CH " << i + 1 << "_" << j + 1
-                     << "is too small, use the arithmetic mean and ped_sigma instead." << endl;
+                     << "is too small, use the arithmetic mean and sigma instead." << endl;
                 ped_shift_mean[i][j] = ped_shift_mean_0[i][j];
                 ped_shift_sigma[i][j] = ped_shift_sigma_0[i][j];
                 continue;
             }
             ped_shift_gaus[i][j]->SetParameter(1, ped_shift_mean_0[i][j]);
-            ped_shift_gaus[i][j]->SetParameter(2, ped_shift_sigma_0[i][j] - 1);
+            ped_shift_gaus[i][j]->SetParameter(2, ped_shift_sigma_0[i][j] / 2);
+            ped_shift_gaus[i][j]->SetRange(ped_shift_mean_0[i][j] - 5 * ped_shift_sigma_0[i][j],
+                    ped_shift_mean_0[i][j] + 5 * ped_shift_sigma_0[i][j]);
             ped_shift_hist[i][j]->Fit(ped_shift_gaus[i][j], "RQ");
             ped_shift_hist[i][j]->Fit(ped_shift_gaus[i][j], "RQ");
             ped_shift_mean[i][j]  = ped_shift_gaus[i][j]->GetParameter(1);
