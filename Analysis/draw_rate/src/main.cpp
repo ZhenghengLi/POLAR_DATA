@@ -227,17 +227,10 @@ int main(int argc, char** argv) {
         if (!options_mgr.tout1_flag) {
             continue;
         }
-        for (int i = 0; i < 25; i++) {
-            if (eventIter.t_trigger.trig_accepted[i]) {
-                modules_hist_tout1[i]->Fill(cur_second);
-            }
-        }
         eventIter.phy_modules_set_start();
         while (eventIter.phy_modules_next_packet()) {
             int idx = eventIter.t_modules.ct_num - 1;
-            for (int i = 0; i < eventIter.t_modules.raw_rate; i++) {
-                modules_hist_tout1[idx]->Fill(cur_second);
-            }
+            modules_hist_tout1[idx]->Fill(cur_second, eventIter.t_modules.raw_rate);
             for (int j = 0; j < 64; j++) {
                 if (eventIter.t_modules.trigger_bit[j]) {
                     double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(idx, j) + 1, ijtoyb(idx, j) + 1);
