@@ -209,14 +209,19 @@ for x in file_list_ppd_1m[1:]:
 # find ppd_1m for sci_1p
 sci_1p_ppd_1m_dict = {}
 ppd_1m_start_index = 0
+ppd_1m_reach_end = False
 for x in file_list_sci_1p:
     sci_1p_begin_time, sci_1p_end_time = x.begin_time, x.end_time
     ppd_1m_begin_time = file_list_ppd_1m_alone[ppd_1m_start_index].begin_time
     ppd_1m_end_time   = file_list_ppd_1m_alone[ppd_1m_start_index].end_time
     while ppd_1m_end_time < sci_1p_begin_time:
         ppd_1m_start_index += 1
+        if ppd_1m_start_index >= len(file_list_ppd_1m_alone):
+            ppd_1m_reach_end = True
+            break
         ppd_1m_begin_time = file_list_ppd_1m_alone[ppd_1m_start_index].begin_time
         ppd_1m_end_time   = file_list_ppd_1m_alone[ppd_1m_start_index].end_time
+    if ppd_1m_reach_end: break
     if ppd_1m_begin_time > sci_1p_begin_time: continue
     index_shift = 0
     ppd_1m_list = [file_list_ppd_1m_alone[ppd_1m_start_index]]
