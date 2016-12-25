@@ -140,7 +140,7 @@ for idx in xrange(len(sci_1p_filelist_all)):
         if cur_diff == 0:
             bad_match = True
             break
-        if cur_diff[1] > 300:
+        if cur_diff[1] > 30:
             aux_search_start += 1
         else:
             break
@@ -156,7 +156,7 @@ for idx in xrange(len(sci_1p_filelist_all)):
     for aux_it in xrange(aux_search_start, len(aux_1m_filelist)):
         cur_diff = time_diff(sci_1p_filelist_all[idx], aux_1m_filelist[aux_it])
         if cur_diff == 0: continue
-        if cur_diff[0] > -300:
+        if cur_diff[0] > -30:
             found_match = True
             matched_aux_it = aux_it
             break
