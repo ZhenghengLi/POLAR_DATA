@@ -206,6 +206,7 @@ bool SCIIterator::next_event() {
 
 bool SCIIterator::next_packet() {
     if (cur_is_ped_) {
+        if (cur_ped_pkt_start_ < 0) return false;
         ped_modules_cur_entry_++;
         if (ped_modules_cur_entry_ < cur_ped_pkt_start_ + cur_ped_pkt_count_) {
             t_ped_modules_tree_->GetEntry(ped_modules_cur_entry_);
@@ -214,6 +215,7 @@ bool SCIIterator::next_packet() {
             return false;
         }
     } else {
+        if (cur_phy_pkt_start_ < 0) return false;
         phy_modules_cur_entry_++;
         if (phy_modules_cur_entry_ < cur_phy_pkt_start_ + cur_phy_pkt_count_) {
             t_modules_tree_->GetEntry(phy_modules_cur_entry_);

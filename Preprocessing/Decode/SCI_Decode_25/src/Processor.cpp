@@ -148,6 +148,13 @@ void Processor::sci_trigger_before_sync_() {
     cur_trigg_pre_is_bad_    = sci_trigger_.is_bad;
     sci_trigger_.trigg_num_g = cur_trigg_num_g_;
     cur_trigg_num_g_++;
+    sci_trigger_.set_pkt_count(0);
+    int total_pkt = 0;
+    for (int i = 0; i < 25; i++) {
+        if (sci_trigger_.trig_accepted[i]) total_pkt++;
+    }
+    sci_trigger_.set_lost_count(total_pkt);
+
     if (cur_trigg_is_first_) {
         cur_trigg_is_first_ = false;
         cur_trigg_pre_time_stamp_  = sci_trigger_.timestamp;
