@@ -138,7 +138,7 @@ for idx in xrange(len(sci_1m_filelist_all)):
         if cur_diff == 0:
             bad_match = True
             break
-        if cur_diff[1] > 30:
+        if cur_diff[0] > 30:
             aux_search_start += 1
         else:
             break
@@ -154,11 +154,10 @@ for idx in xrange(len(sci_1m_filelist_all)):
     for aux_it in xrange(aux_search_start, len(aux_1m_filelist)):
         cur_diff = time_diff(sci_1m_filelist_all[idx], aux_1m_filelist[aux_it])
         if cur_diff == 0: continue
-        if cur_diff[0] > -30:
+        if cur_diff[0] < -30: break
+        if cur_diff[1] < 30 and cur_diff[1] > -30:
             found_match = True
             matched_aux_it = aux_it
-            break
-        else:
             break
     if found_match and file_is_not_open(os.path.join(product_dir, aux_1m, aux_1m_filelist[matched_aux_it])):
         sci_aux_1m_pair_all.append((sci_1m_filelist_all[idx], aux_1m_filelist[matched_aux_it]))
