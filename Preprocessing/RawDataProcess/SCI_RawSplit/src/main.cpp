@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
             file_id++;
             sprintf(filename_buffer, "sci_segment_%02d.dat", file_id);
             outfile.close();
+            cout << "open file: " << filename_buffer << " ... " << endl;
             outfile.open(filename_buffer, ios::out|ios::binary);
             pre_gps_time = cur_gps_time;
             outfile.write(filelist.data_buffer, 2052);
