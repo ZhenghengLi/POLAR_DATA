@@ -5,9 +5,9 @@
 	SCI_RawSplit SCI_RawSplit_clean \
 	SCI_RawTime SCI_RawTime_clean
 
-all: SCI_RawSplit HK_RawSplit SCI_RawTime
+all: SCI_RawSplit HK_RawSplit SCI_RawTime HK_RawTime
 
-clean: SCI_RawSplit_clean HK_RawSplit_clean SCI_RawTime_clean
+clean: SCI_RawSplit_clean HK_RawSplit_clean SCI_RawTime_clean HK_RawTime_clean
 
 HK_RawSplit:
 	cd HK_RawSplit && $(MAKE)
