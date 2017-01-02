@@ -26,32 +26,6 @@ double read_gps_time(char* frame) {
     return week_of_gps6(frm_gps_time_) * 604800 + second_of_gps6(frm_gps_time_);
 }
 
-bool check_header_(char* data_buffer) {
-    uint16_t frame_header = 0;
-    for (int i = 0; i < 2; i++) {
-        frame_header <<= 8;
-        frame_header += static_cast<uint8_t>(data_buffer[0 + i]);
-    }
-    if (frame_header != 0x009F)
-        return false;
-    uint16_t frame_length = 0;
-    for (int i = 0; i < 2; i++) {
-        frame_length <<= 8;
-        frame_length += static_cast<uint8_t>(data_buffer[4 + i]);
-    }
-    if (frame_length != 0x07F9)
-        return false;
-    uint32_t sci_starter = 0;
-    for (int i = 0; i < 4; i++) {
-        sci_starter <<= 8;
-        sci_starter += static_cast<uint8_t>(data_buffer[6 + i]);
-    }
-    if (sci_starter != 0x706F6C61)
-        return false;
-
-    return true;
-}
-
 int main(int argc, char** argv) {
     if (argc < 2) {
         cout << "USAGE: " << argv[0] << " <rawdata_filename.dat>" << endl;
@@ -73,7 +47,7 @@ int main(int argc, char** argv) {
     int try_num = 0;
     bool found = false;
     // read first frame
-    while (try_num < BUFFER_SIZE) {
+    while (try_num < BUFFER_SIZE * 5) {
         shift++;
         infile.read(buffer, BUFFER_SIZE);
         expected = 0;
@@ -101,7 +75,7 @@ int main(int argc, char** argv) {
     try_num = 0;
     found = false;
     shift = BUFFER_SIZE - 1;
-    while (try_num < BUFFER_SIZE) {
+    while (try_num < BUFFER_SIZE * 5) {
         shift++;
         infile.seekg(-1 * shift, ios::end);
         infile.read(buffer, BUFFER_SIZE);
