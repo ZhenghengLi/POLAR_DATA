@@ -441,7 +441,7 @@ bool EventIterator::open(const char* filename, const char* gps_begin, const char
     }
     // ped_end_trigger
     found_valid = false;
-    for (Long64_t i = ped_trigger_last_entry_; i >= ped_trigger_first_entry_; i--) {
+    for (Long64_t i = ped_trigger_last_entry_ - 1; i >= ped_trigger_first_entry_; i--) {
         t_ped_trigger_tree_->GetEntry(i);
         if (t_ped_trigger.abs_gps_valid && t_trigger.abs_gps_week > 0) {
             found_valid = true;
