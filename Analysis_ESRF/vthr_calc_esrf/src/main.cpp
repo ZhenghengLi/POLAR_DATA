@@ -5,62 +5,55 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (argc < 4) {
-        cout << "USAGE: " << argv[0] << "<data_1M_file.root> <ped_vec.root> <tcanvas_output.root>" << endl;
+    if (argc < 3) {
+        cout << "USAGE: " << argv[0] << "<data_1Q_file.root> <tcanvas_output.root>" << endl;
         return 2;
     }
-    string data_1M_fn = argv[1];
-    string ped_vec_fn = argv[2];
-    string tcanvas_fn = argv[3];
+    string data_1Q_fn = argv[1];
+    string tcanvas_fn = argv[2];
 
 //    TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
 
     // open data_1M_file
-    TFile* t_file_in = new TFile(data_1M_fn.c_str(), "read");
+    TFile* t_file_in = new TFile(data_1Q_fn.c_str(), "read");
     if (t_file_in->IsZombie()) {
-        cout << "root file of data_1M open failed." << endl;
+        cout << "root file of data_1Q open failed." << endl;
         return 1;
     }
-    TTree* t_modules_tree = static_cast<TTree*>(t_file_in->Get("t_modules"));
-    if (t_modules_tree == NULL) {
-        cout << "read t_modules failed." << endl;
+    TTree* t_event_tree = static_cast<TTree*>(t_file_in->Get("t_event"));
+    if (t_event_tree == NULL) {
+        cout << "read t_event failed." << endl;
         return 1;
     }
 
     struct {
-        Int_t   ct_num;
-        Int_t   is_bad;
-        Int_t   compress;
-        Bool_t  trigger_bit[64];
-        Float_t energy_adc[64];
-        Float_t common_noise;
-    } t_modules;
-    t_modules_tree->SetBranchAddress("ct_num",         &t_modules.ct_num             );
-    t_modules_tree->SetBranchAddress("is_bad",         &t_modules.is_bad             );
-    t_modules_tree->SetBranchAddress("compress",       &t_modules.compress           );
-    t_modules_tree->SetBranchAddress("trigger_bit",     t_modules.trigger_bit        );
-    t_modules_tree->SetBranchAddress("energy_adc",      t_modules.energy_adc         );
-    t_modules_tree->SetBranchAddress("common_noise",   &t_modules.common_noise       );
+        Int_t   type;
+        Int_t   trigger_n;
+        Int_t   multiplicity[25];
+        Bool_t  time_aligned[25];
+        Int_t   pkt_count;
+        Int_t   lost_count;
+        Bool_t  trigger_bit[25][64];
+        Float_t energy_value[25][64];
+    } t_event;
+    t_event_tree->SetBranchAddress("type",             &t_event.type                 );
+    t_event_tree->SetBranchAddress("trigger_n",        &t_event.trigger_n            );
+    t_event_tree->SetBranchAddress("multiplicity",      t_event.multiplicity         );
+    t_event_tree->SetBranchAddress("time_aligned",      t_event.time_aligned         );
+    t_event_tree->SetBranchAddress("pkt_count",        &t_event.pkt_count            );
+    t_event_tree->SetBranchAddress("lost_count",       &t_event.lost_count           );
+    t_event_tree->SetBranchAddress("trigger_bit",       t_event.trigger_bit          );
+    t_event_tree->SetBranchAddress("energy_value",      t_event.energy_value         );
 
-    // open ped_vec file
-    TFile* t_file_ped_vec;
-    t_file_ped_vec = new TFile(ped_vec_fn.c_str(), "read");
-    if (t_file_ped_vec->IsZombie()) {
-        cout << "root file of ped_vec open failed." << endl;
-        return 1;
-    }
-
-    TVectorF ped_mean_vec[25];
-    for (int i = 0; i < 25; i++) {
-        TVectorF* tmp_p = static_cast<TVectorF*>(t_file_ped_vec->Get(Form("ped_mean_vec_ct_%02d", i + 1)));
-        if (tmp_p == NULL) {
-            cout << "read ped_vec failed." << endl;
-            return 1;
-        }
-        ped_mean_vec[i].ResizeTo(64);
-        ped_mean_vec[i] = *tmp_p;
-    }
-    t_file_ped_vec->Close();
+    t_event_tree->SetBranchStatus("*", false);
+    t_event_tree->SetBranchStatus("type", true);
+    t_event_tree->SetBranchStatus("trigger_n", true);
+    t_event_tree->SetBranchStatus("multiplicity", true);
+    t_event_tree->SetBranchStatus("time_aligned", true);
+    t_event_tree->SetBranchStatus("pkt_count", true);
+    t_event_tree->SetBranchStatus("lost_count", true);
+    t_event_tree->SetBranchStatus("trigger_bit", true);
+    t_event_tree->SetBranchStatus("energy_value", true);
 
     TFile* t_file_out = new TFile(tcanvas_fn.c_str(), "recreate");
     if (t_file_out->IsZombie()) {
@@ -82,55 +75,31 @@ int main(int argc, char** argv) {
         }
     }
 
-    Float_t tmp_energy_adc[64];
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "reading data ..." << endl;
     cout << "[ " << flush;
-    for (Long64_t i = 0; i < t_modules_tree->GetEntries(); i++) {
-        cur_percent = static_cast<int>(i * 100 / t_modules_tree->GetEntries());
+    for (Long64_t i = 0; i < t_event_tree->GetEntries(); i++) {
+        cur_percent = static_cast<int>(i * 100 / t_event_tree->GetEntries());
         if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        t_modules_tree->GetEntry(i);
-        if (t_modules.is_bad > 0) continue;
-        int idx = t_modules.ct_num - 1;
-        // subtract pedestal and common noise
-        float cur_common_sum = 0;
-        float cur_common_n   = 0;
-        float cur_common_noise = 0;
-        for (int j = 0; j < 64; j++) {
-            if (t_modules.energy_adc[j] < 4096) {
-                if (t_modules.compress == 3) {
-                    tmp_energy_adc[j] = t_modules.energy_adc[j];
-                } else {
-                    tmp_energy_adc[j] = t_modules.energy_adc[j] - ped_mean_vec[idx](j);
-                    if (!t_modules.trigger_bit[j]) {
-                        cur_common_sum += tmp_energy_adc[j];
-                        cur_common_n   += 1;
-                    }
+        t_event_tree->GetEntry(i);
+
+//        if (t_event.type != 0x00FF) continue;
+
+        for (int i = 0; i < 25; i++) {
+            if (!t_event.time_aligned[i]) continue;
+ //           if (t_event.multiplicity[i] != 1) continue;
+            for (int j = 0; j < 64; j++) {
+                all_spec[i][j]->Fill(t_event.energy_value[i][j]);
+                if (t_event.trigger_bit[i][j]) {
+                    tri_spec[i][j]->Fill(t_event.energy_value[i][j]);
                 }
             }
         }
-        if (t_modules.compress == 3) {
-            cur_common_noise = t_modules.common_noise;
-        } else {
-            cur_common_noise = (cur_common_n > 0 ? cur_common_noise / cur_common_n : 0);
-        }
-        for (int j = 0; j < 64; j++) {
-            if (tmp_energy_adc[j] < 4096) {
-                tmp_energy_adc[j] -= cur_common_noise;
-            } else {
-                tmp_energy_adc[j] = gRandom->Uniform(-1, 1);
-            }
-        }
-        for (int j = 0; j < 64; j++) {
-            all_spec[idx][j]->Fill(tmp_energy_adc[j]);
-            if (t_modules.trigger_bit[j]) {
-                tri_spec[idx][j]->Fill(tmp_energy_adc[j]);
-            }
-        }
+
     }
     cout << " DONE ]" << endl;
     t_file_in->Close();
