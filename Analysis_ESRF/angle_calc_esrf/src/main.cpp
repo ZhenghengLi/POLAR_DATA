@@ -79,8 +79,8 @@ int main(int argc, char** argv) {
         Int_t     first_ij[2];
         Int_t     second_ij[2];
         Float_t   rand_angle;
-        Float_t   first_dep;
-        Float_t   second_dep;
+        Float_t   first_energy;
+        Float_t   second_energy;
         Bool_t    is_valid;
     } t_angle;
     TFile* t_angle_file = new TFile(angle_data_fn.c_str(), "recreate");
@@ -93,8 +93,8 @@ int main(int argc, char** argv) {
     t_angle_tree->Branch("first_ij",         t_angle.first_ij,         "first_ij[2]/I"     );
     t_angle_tree->Branch("second_ij",        t_angle.second_ij,        "second_ij[2]/I"    );
     t_angle_tree->Branch("rand_angle",      &t_angle.rand_angle,       "rand_angle/F"      );
-    t_angle_tree->Branch("first_dep",       &t_angle.first_dep,        "first_dep/F"       );
-    t_angle_tree->Branch("second_dep",      &t_angle.second_dep,       "second_dep/F"      );
+    t_angle_tree->Branch("first_energy",    &t_angle.first_energy,     "first_energy/F"    );
+    t_angle_tree->Branch("second_energy",   &t_angle.second_energy,    "second_energy/F"   );
     t_angle_tree->Branch("is_valid",        &t_angle.is_valid,         "is_valid/O"        );
 
     // calculate angle
@@ -111,14 +111,14 @@ int main(int argc, char** argv) {
             cout << q << endl;
         }
         // init entry
-        t_angle.ct_time_second = -1;
+        t_angle.ct_time_second  = t_event.ct_time_second;
         for (int i = 0; i < 2; i++) {
             t_angle.first_ij[i] = -1;
             t_angle.second_ij[i] = -1;
         }
         t_angle.rand_angle = -1;
-        t_angle.first_dep = -1;
-        t_angle.second_dep = -1;
+        t_angle.first_energy = -1;
+        t_angle.second_energy = -1;
         t_angle.is_valid = false;
 
         // skip event with lost packets
@@ -166,14 +166,13 @@ int main(int argc, char** argv) {
             }
         }
         if (found_not_adjacent) {
-            t_angle.ct_time_second  = t_event.ct_time_second;
             t_angle.first_ij[0]     = first_pos.i;
             t_angle.first_ij[1]     = first_pos.j;
             t_angle.second_ij[0]    = second_pos.i;
             t_angle.second_ij[1]    = second_pos.j;
             t_angle.rand_angle      = first_pos.angle_to(second_pos);
-            t_angle.first_dep       = t_event.energy_value[first_pos.i][first_pos.j];
-            t_angle.second_dep      = t_event.energy_value[second_pos.i][second_pos.j];
+            t_angle.first_energy    = t_event.energy_value[first_pos.i][first_pos.j];
+            t_angle.second_energy   = t_event.energy_value[second_pos.i][second_pos.j];
             t_angle.is_valid = true;
             t_angle_tree->Fill();
         } else {
