@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
     if (argc < 4) {
-        cout << "USAGE: " << argv[0] << "<event_data_xtalkcorr.root> <adc_per_kev.root> <event_data_depenergy.root>" << endl;
+        cout << "USAGE: " << argv[0] << " <event_data_xtalkcorr.root> <adc_per_kev.root> <event_data_depenergy.root>" << endl;
         return 0;
     }
 

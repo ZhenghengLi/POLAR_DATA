@@ -2,7 +2,7 @@
 #define NA22INFO_H
 
 const double BarD = 6.080;
-const double BarW = 5.850;
+const double BarW = 5.800;
 const double BarH = 176.0;
 const double ModD = 60.00;
 const double CarG = 2.045;
