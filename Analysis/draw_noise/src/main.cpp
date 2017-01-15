@@ -222,6 +222,50 @@ int main(int argc, char** argv) {
             }
         }
     }
+    // fit common noise
+    cout << "Fitting common noise ..." << endl;
+    double common_noise_mean_0[25], common_noise_mean[25];
+    double common_noise_sigma_0[25], common_noise_sigma[25];
+    TF1* common_noise_gaus[25];
+    for (int i = 0; i < 25; i++) {
+        common_noise_gaus[i] = new TF1(Form("common_noise_gaus_%02d", i + 1), "gaus(0)", -64, 64);
+        common_noise_gaus[i]->SetParameters(1, 0, 40);
+        common_noise_gaus[i]->SetParName(0, "Amplitude");
+        common_noise_gaus[i]->SetParName(1, "Mean");
+        common_noise_gaus[i]->SetParName(2, "Sigma");
+    }
+    for (int i = 0; i < 25; i++) {
+        common_noise_mean_0[i]  = common_noise_hist[i]->GetMean();
+        common_noise_sigma_0[i] = common_noise_hist[i]->GetRMS();
+        if (common_noise_hist[i]->GetEntries() < 20) {
+            cout << "- WARNING: entries of CT " << i + 1
+                 << "is too small, use the arithmetic mean and sigma instead." << endl;
+            common_noise_mean[i] = common_noise_mean_0[i];
+            common_noise_sigma[i] = common_noise_sigma_0[i];
+            continue;
+        }
+        common_noise_gaus[i]->SetParameter(1, common_noise_mean_0[i]);
+        common_noise_gaus[i]->SetParameter(2, common_noise_sigma_0[i] / 2);
+        common_noise_gaus[i]->SetRange(common_noise_mean_0[i] - 5 * common_noise_sigma_0[i],
+                common_noise_mean_0[i] + 5 * common_noise_sigma_0[i]);
+        common_noise_hist[i]->Fit(common_noise_gaus[i], "RQ");
+        common_noise_hist[i]->Fit(common_noise_gaus[i], "RQ");
+        common_noise_mean[i]  = common_noise_gaus[i]->GetParameter(1);
+        common_noise_sigma[i] = abs(common_noise_gaus[i]->GetParameter(2));
+        if (common_noise_mean[i] < -128 || common_noise_mean[i] > 128) {
+            cout << "- WARNING: common_noise_mean of CT " << i + 1
+                 << " is out of range, use the arithmetic mean instead." << endl;
+            common_noise_mean[i]  = common_noise_mean_0[i];
+            common_noise_sigma[i] = common_noise_sigma_0[i];
+        } else if (common_noise_sigma[i] / common_noise_sigma_0[i] > 2.0) {
+            cout << "- WARNING: common_noise_sigma of CT " << i + 1
+                 << " is too large, use the arithmetic mean instead." << endl;
+            common_noise_mean[i]  = common_noise_mean_0[i];
+            common_noise_sigma[i] = common_noise_sigma_0[i];
+        }
+    }
+
+
     // draw
     gROOT->SetBatch(kFALSE);
     gStyle->SetOptStat(0);
@@ -260,9 +304,11 @@ int main(int argc, char** argv) {
     // common noise
     canvas_noise.cd(2);
     TPad* common_noise_pad = static_cast<TPad*>(canvas_noise.get_canvas()->GetPad(2));
+    common_noise_pad->SetFillColor(kYellow);
     common_noise_pad->Divide(5, 5);
     for (int i = 0; i < 25; i++) {
         common_noise_pad->cd(itocb(i));
+        common_noise_pad->GetPad(itocb(i))->SetFillColor(kWhite);
         common_noise_hist[i]->DrawCopy("eh");
     }
     // ped_shit
@@ -348,10 +394,18 @@ int main(int argc, char** argv) {
             }
         }
         t_file_out->cd();
+        TVectorF common_noise_mean_vec(25);
+        TVectorF common_noise_sigma_vec(25);
+        for (int i = 0; i < 25; i++) {
+            common_noise_mean_vec(i) = common_noise_mean[i];
+            common_noise_sigma_vec(i) = common_noise_sigma[i];
+        }
         ped_mean_mat.Write("ped_mean_mat");
         ped_sigma_mat.Write("ped_sigma_mat");
         ped_shift_mean_mat.Write("ped_shift_mean_mat");
         ped_shift_sigma_mat.Write("ped_shift_sigma_mat");
+        common_noise_mean_vec.Write("common_noise_mean_vec");
+        common_noise_sigma_vec.Write("common_noise_sigma_vec");
         canvas_noise.get_canvas()->Write();
         t_file_out->Close();
         cout << "all data writed successfully." << endl;
