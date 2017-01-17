@@ -37,14 +37,17 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchStatus("trigger_bit", true);
     // t_event_tree->SetBranchStatus("energy_value", true);
 
+    t_event_tree->GetEntry(0);
+    double ct_time_start = t_event.ct_time_second;
+    t_event_tree->GetEntry(t_event_tree->GetEntries() - 1);
+    double ct_time_stop = t_event.ct_time_second;
+
     int count_mat[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             count_mat[i][j] = 0;
         }
     }
-    TH2F* hit_map_hist = new TH2F("hit_map_hist", "mean rate of 1600 channel", 40, 0, 40, 40, 0, 40);
-    hit_map_hist->SetDirectory(NULL);
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "reading data ..." << endl;
@@ -67,11 +70,14 @@ int main(int argc, char** argv) {
     }
     cout << " DONE ]" << endl;
 
+    TH2F* hit_map_hist = new TH2F("hit_map_hist", "mean rate of 1600 channel", 40, 0, 40, 40, 0, 40);
+    hit_map_hist->SetDirectory(NULL);
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             hit_map_hist->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, count_mat[i][j]);
         }
     }
+    hit_map_hist->Scale(1.0 / (ct_time_stop - ct_time_start));
 
     gStyle->SetOptStat(0);
     new TCanvas();

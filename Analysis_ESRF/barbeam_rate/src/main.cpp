@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_event_tree->GetEntry(q);
-        if (t_event.type != 0xF000) continue;
+        // if (t_event.type != 0xF000) continue;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
