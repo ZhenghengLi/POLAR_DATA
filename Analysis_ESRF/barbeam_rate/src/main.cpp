@@ -37,16 +37,19 @@ int main(int argc, char** argv) {
     }
     t_event_tree->AddFriend(t_beam_intensity_tree);
     struct {
+        Int_t    type;
         Double_t ct_time_second;
         Bool_t   time_aligned[25];
         Bool_t   trigger_bit[25][64];
         Double_t current;
     } t_event;
+    t_event_tree->SetBranchAddress("type",            &t_event.type             );
     t_event_tree->SetBranchAddress("ct_time_second",  &t_event.ct_time_second   );
     t_event_tree->SetBranchAddress("time_aligned",     t_event.time_aligned     );
     t_event_tree->SetBranchAddress("trigger_bit",      t_event.trigger_bit      );
     t_event_tree->SetBranchAddress("current",         &t_event.current          );
     t_event_tree->SetBranchStatus("*", false);
+    t_event_tree->SetBranchStatus("type", true);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
@@ -99,6 +102,7 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_event_tree->GetEntry(q);
+        if (t_event.type != 0xF000) continue;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
