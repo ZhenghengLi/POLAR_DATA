@@ -41,18 +41,21 @@ int main(int argc, char** argv) {
         Double_t ct_time_second;
         Bool_t   time_aligned[25];
         Bool_t   trigger_bit[25][64];
+        Float_t  energy_value[25][64];
         Double_t current;
     } t_event;
     t_event_tree->SetBranchAddress("type",            &t_event.type             );
     t_event_tree->SetBranchAddress("ct_time_second",  &t_event.ct_time_second   );
     t_event_tree->SetBranchAddress("time_aligned",     t_event.time_aligned     );
     t_event_tree->SetBranchAddress("trigger_bit",      t_event.trigger_bit      );
+    t_event_tree->SetBranchAddress("energy_value",     t_event.energy_value     );
     t_event_tree->SetBranchAddress("current",         &t_event.current          );
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("type", true);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
+    t_event_tree->SetBranchStatus("energy_value");
     t_event_tree->SetBranchStatus("current", true);
 
     // read barbeam time span
@@ -107,6 +110,7 @@ int main(int argc, char** argv) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat[i][j] && t_event.ct_time_second < end_time_mat[i][j]) {
+                    if (t_event.energy_value[i][j] < 20.0) continue;
                     barbeam_total_counts[i][j] += 1;
                     barbeam_total_intensity[i][j] += t_event.current;
                 }
