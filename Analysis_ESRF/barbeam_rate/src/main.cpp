@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat[i][j] && t_event.ct_time_second < end_time_mat[i][j]) {
-                    if (t_event.energy_value[i][j] < 20.0) continue;
+                    if (t_event.energy_value[i][j] < 25.0) continue;
                     barbeam_total_counts[i][j] += 1;
                     barbeam_total_intensity[i][j] += t_event.current;
                 }

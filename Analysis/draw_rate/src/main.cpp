@@ -258,7 +258,7 @@ int main(int argc, char** argv) {
     TH1D* trigger_hist_fix = static_cast<TH1D*>(trigger_hist->Clone("trigger_hist_fix"));
     // fill saa gap
     int bin_idx = 0;
-    while (bin_idx <= trigger_hist_fix->GetNbinsX()) {
+    while (bin_idx < trigger_hist_fix->GetNbinsX()) {
         bin_idx++;
         if (trigger_hist_fix->GetBinContent(bin_idx) > 0) continue;
         // find the first bin before saa
