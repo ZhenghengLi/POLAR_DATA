@@ -28,5 +28,6 @@
 #include "TSpectrum.h"
 #include "TH1.h"
 #include "TPaveText.h"
+#include "TProfile.h"
 
 #endif

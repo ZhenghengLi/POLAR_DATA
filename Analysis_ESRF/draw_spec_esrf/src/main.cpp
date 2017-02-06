@@ -28,18 +28,21 @@ int main(int argc, char** argv) {
         Double_t   ct_time_second;
         Bool_t     time_aligned[25];
         Bool_t     trigger_bit[25][64];
-        Float_t   energy_value[25][64];
+        Float_t    energy_value[25][64];
+        Int_t      multiplicity[25];
     } t_event;
     t_event_tree->SetBranchAddress("ct_time_second",        &t_event.ct_time_second     );
     t_event_tree->SetBranchAddress("time_aligned",           t_event.time_aligned       );
     t_event_tree->SetBranchAddress("trigger_bit",            t_event.trigger_bit        );
     t_event_tree->SetBranchAddress("energy_value",           t_event.energy_value       );
+    t_event_tree->SetBranchAddress("multiplicity",           t_event.multiplicity       );
 
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
     t_event_tree->SetBranchStatus("energy_value", true);
+    t_event_tree->SetBranchStatus("multiplicity", true);
 
     // read time range;
     TFile* t_file_rate = new TFile(rate_data_fn.c_str(), "read");
@@ -103,6 +106,7 @@ int main(int argc, char** argv) {
         t_event_tree->GetEntry(q);
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
+            // if (t_event.multiplicity[i] != 2) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat(i, j) && t_event.ct_time_second < end_time_mat(i, j)) {
                     hist_spec[i][j]->Fill(t_event.energy_value[i][j]);
@@ -119,7 +123,7 @@ int main(int argc, char** argv) {
         t_file_out->cd();
         t_file_out->mkdir(Form("spec_CT_%02d", i + 1))->cd();
         for (int j = 0; j < 64; j++) {
-            hist_spec[i][j]->Fit(func_hist[i][j], "RQ");
+            //hist_spec[i][j]->Fit(func_hist[i][j], "RQ");
             hist_spec[i][j]->Write();
         }
     }
