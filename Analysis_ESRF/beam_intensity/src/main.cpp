@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
             double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
             total_check++;
             for (list<Motor_T>::iterator motor_iter = t_corrected_list.begin(); motor_iter != t_corrected_list.end(); motor_iter++) {
-                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) {
+                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) { // fixme
                     time_diff_hist->Fill(bar_time_obox[i][j] - (*motor_iter).unixtime);
                     match_count++;
                     break;
@@ -166,20 +166,30 @@ int main(int argc, char** argv) {
     struct {
         double ct_time_second_3;
         double current;
+        double motor_x;
+        double motor_y;
     } t_beam_intensity;
     TTree* t_beam_intensity_tree = new TTree("t_beam_intensity", "beam intensity for each event");
     t_beam_intensity_tree->Branch("ct_time_second_3",  &t_beam_intensity.ct_time_second_3,  "ct_time_second_3/D" );
     t_beam_intensity_tree->Branch("current",           &t_beam_intensity.current,           "current/D"          );
+    t_beam_intensity_tree->Branch("motor_x",           &t_beam_intensity.motor_x,           "motor_x/D"          );
+    t_beam_intensity_tree->Branch("motor_y",           &t_beam_intensity.motor_y,           "motor_y/D"          );
     Long64_t motor_cur_entry = 0;
     bool     motor_reach_end = false;
     t_corrected_tree->GetEntry(motor_cur_entry);
     double current_before = t_corrected.current;
     double unixcor_before = t_corrected.unixtime + time_diff_mean;
+    double motor_x_before = t_corrected.z; // fixme
+    double motor_y_before = t_corrected.y; // fixme
     motor_cur_entry++;
     t_corrected_tree->GetEntry(motor_cur_entry);
     double current_after  = t_corrected.current;
     double unixcor_after  = t_corrected.unixtime + time_diff_mean;
+    double motor_x_after  = t_corrected.z; // fixme
+    double motor_y_after  = t_corrected.y; // fixme
     double current_slope = (current_after - current_before) / (unixcor_after - unixcor_before);
+    double motor_x_slope = (motor_x_after - motor_x_before) / (unixcor_after - unixcor_before);
+    double motor_y_slope = (motor_y_after - motor_y_before) / (unixcor_after - unixcor_before);
     for (Long64_t i = 0; i < t_event_tree->GetEntries(); i++) {
         t_event_tree->GetEntry(i);
         while (t_event.ct_time_second + start_unixtime > unixcor_after) {
@@ -197,14 +207,22 @@ int main(int argc, char** argv) {
             } else {
                 current_before = current_after;
                 unixcor_before = unixcor_after;
+                motor_x_before = motor_x_after;
+                motor_y_before = motor_y_after;
                 current_after  = t_corrected.current;
                 unixcor_after  = t_corrected.unixtime + time_diff_mean;
-                current_slope = (current_after - current_before) / (unixcor_after - unixcor_before);
+                motor_x_after  = t_corrected.z; // fixme
+                motor_y_after  = t_corrected.y; // fixme
+                current_slope  = (current_after - current_before) / (unixcor_after - unixcor_before);
+                motor_x_slope  = (motor_x_after - motor_x_before) / (unixcor_after - unixcor_before);
+                motor_y_slope  = (motor_y_after - motor_y_before) / (unixcor_after - unixcor_before);
             }
         }
-        // save current
+        // save current and position
         t_beam_intensity.ct_time_second_3 = t_event.ct_time_second;
         t_beam_intensity.current = current_before + current_slope * (t_event.ct_time_second + start_unixtime - unixcor_before);
+        t_beam_intensity.motor_x = motor_x_before + motor_x_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_x_0;
+        t_beam_intensity.motor_y = motor_y_before + motor_y_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_y_0;
         t_beam_intensity_tree->Fill();
     }
     t_file_intensity->cd();
