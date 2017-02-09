@@ -8,10 +8,17 @@
 
 using namespace std;
 
-static double first_time_second = 159.858;
-static double start_unixtime = 1432391921.0 - first_time_second;
-static double pos_x_0 = -35.68;
-static double pos_y_0 = 155.39;
+// H
+//static double first_time_second = 159.858;
+//static double start_unixtime = 1432391921.0 - first_time_second;
+//static double pos_x_0 = -35.68;
+//static double pos_y_0 = 155.39;
+
+// V
+static double first_time_second = 140.914;
+static double start_unixtime = 1432434545.0 - first_time_second;
+static double pos_x_0 = 465.64;
+static double pos_y_0 = -30.16;
 
 struct Motor_T {
     Double_t unixtime;
@@ -137,12 +144,18 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         if (i == 1) continue;
         for (int j = 0; j < 64; j++) {
-            double cur_x = pos_x_0 + ijtox(i, j) / 8 * ModD + ijtox(i, j) % 8 * BarD;
+            // H
+            //double cur_x = pos_x_0 + ijtox(i, j) / 8 * ModD + ijtox(i, j) % 8 * BarD;
+            //double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
+            // V
+            double cur_x = pos_x_0 - ijtox(i, j) / 8 * ModD - ijtox(i, j) % 8 * BarD;
             double cur_y = pos_y_0 + ijtoy(i, j) / 8 * ModD + ijtoy(i, j) % 8 * BarD;
             total_check++;
             for (list<Motor_T>::iterator motor_iter = t_corrected_list.begin(); motor_iter != t_corrected_list.end(); motor_iter++) {
-                if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) { // fixme
+                //if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) { // H
+                if (fabs(cur_x - (*motor_iter).y) < BarD / 2 && fabs(cur_y - (*motor_iter).z) < BarD / 2) { // V
                     time_diff_hist->Fill(bar_time_obox[i][j] - (*motor_iter).unixtime);
+                    cout << bar_time_obox[i][j] - (*motor_iter).unixtime << endl;
                     match_count++;
                     break;
                 }
@@ -179,14 +192,22 @@ int main(int argc, char** argv) {
     t_corrected_tree->GetEntry(motor_cur_entry);
     double current_before = t_corrected.current;
     double unixcor_before = t_corrected.unixtime + time_diff_mean;
-    double motor_x_before = t_corrected.z; // fixme
-    double motor_y_before = t_corrected.y; // fixme
+    // H
+    //double motor_x_before = t_corrected.z;
+    //double motor_y_before = t_corrected.y;
+    // V
+    double motor_x_before = t_corrected.y;
+    double motor_y_before = t_corrected.z;
     motor_cur_entry++;
     t_corrected_tree->GetEntry(motor_cur_entry);
     double current_after  = t_corrected.current;
     double unixcor_after  = t_corrected.unixtime + time_diff_mean;
-    double motor_x_after  = t_corrected.z; // fixme
-    double motor_y_after  = t_corrected.y; // fixme
+    // H
+    //double motor_x_after  = t_corrected.z;
+    //double motor_y_after  = t_corrected.y;
+    // V
+    double motor_x_after  = t_corrected.y;
+    double motor_y_after  = t_corrected.z;
     double current_slope = (current_after - current_before) / (unixcor_after - unixcor_before);
     double motor_x_slope = (motor_x_after - motor_x_before) / (unixcor_after - unixcor_before);
     double motor_y_slope = (motor_y_after - motor_y_before) / (unixcor_after - unixcor_before);
@@ -211,8 +232,12 @@ int main(int argc, char** argv) {
                 motor_y_before = motor_y_after;
                 current_after  = t_corrected.current;
                 unixcor_after  = t_corrected.unixtime + time_diff_mean;
-                motor_x_after  = t_corrected.z; // fixme
-                motor_y_after  = t_corrected.y; // fixme
+                // H
+                //motor_x_after  = t_corrected.z;
+                //motor_y_after  = t_corrected.y;
+                // V
+                motor_x_after  = t_corrected.y;
+                motor_y_after  = t_corrected.z;
                 current_slope  = (current_after - current_before) / (unixcor_after - unixcor_before);
                 motor_x_slope  = (motor_x_after - motor_x_before) / (unixcor_after - unixcor_before);
                 motor_y_slope  = (motor_y_after - motor_y_before) / (unixcor_after - unixcor_before);
@@ -221,7 +246,11 @@ int main(int argc, char** argv) {
         // save current and position
         t_beam_intensity.ct_time_second_3 = t_event.ct_time_second;
         t_beam_intensity.current = current_before + current_slope * (t_event.ct_time_second + start_unixtime - unixcor_before);
-        t_beam_intensity.motor_x = motor_x_before + motor_x_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_x_0;
+        // H
+        //t_beam_intensity.motor_x = motor_x_before + motor_x_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_x_0;
+        //t_beam_intensity.motor_y = motor_y_before + motor_y_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_y_0;
+        // V
+        t_beam_intensity.motor_x = pos_x_0 - motor_x_before - motor_x_slope * (t_event.ct_time_second + start_unixtime - unixcor_before);
         t_beam_intensity.motor_y = motor_y_before + motor_y_slope * (t_event.ct_time_second + start_unixtime - unixcor_before) - pos_y_0;
         t_beam_intensity_tree->Fill();
     }
