@@ -155,7 +155,6 @@ int main(int argc, char** argv) {
                 //if (fabs(cur_x - (*motor_iter).z) < BarD / 2 && fabs(cur_y - (*motor_iter).y) < BarD / 2) { // H
                 if (fabs(cur_x - (*motor_iter).y) < BarD / 2 && fabs(cur_y - (*motor_iter).z) < BarD / 2) { // V
                     time_diff_hist->Fill(bar_time_obox[i][j] - (*motor_iter).unixtime);
-                    cout << bar_time_obox[i][j] - (*motor_iter).unixtime << endl;
                     match_count++;
                     break;
                 }
