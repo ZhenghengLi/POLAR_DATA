@@ -8,7 +8,7 @@ struct Bar {
     float dep;
     int   i;
     int   j;
-    
+
     Bar(float my_dep = 0, int my_i = 0, int my_j = 0) {
         dep = my_dep;
         i   = my_i;
@@ -36,7 +36,7 @@ struct Pos {
     int   j;
     float abs_x;
     float abs_y;
-    
+
     Pos(int my_i = 0, int my_j = 0) {
         randomize(my_i, my_j);
     }
@@ -61,6 +61,9 @@ struct Pos {
     float angle_to(const Pos& my_pos) {
         float angle = TMath::ATan2(my_pos.abs_y - abs_y, my_pos.abs_x - abs_x) / TMath::Pi() * 180.0;
         return (angle >= 0 ? angle : 360 + angle);
+    }
+    float distance_to(const Pos& my_pos) {
+        return TMath::Sqrt((my_pos.abs_y - abs_y) * (my_pos.abs_y - abs_y) + (my_pos.abs_x - abs_x) * (my_pos.abs_x - abs_x));
     }
 };
 

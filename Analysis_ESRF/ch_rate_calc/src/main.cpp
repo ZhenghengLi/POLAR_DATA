@@ -26,18 +26,21 @@ int main(int argc, char** argv) {
         Double_t ct_time_second;
         Bool_t   time_aligned[25];
         Bool_t   trigger_bit[25][64];
+        Int_t    raw_rate[25];
     } t_event;
 
     // set address
     t_event_tree->SetBranchAddress("ct_time_second",      &t_event.ct_time_second          );
     t_event_tree->SetBranchAddress("time_aligned",         t_event.time_aligned            );
     t_event_tree->SetBranchAddress("trigger_bit",          t_event.trigger_bit             );
+    t_event_tree->SetBranchAddress("raw_rate",             t_event.raw_rate                );
 
     // select branch
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
+    t_event_tree->SetBranchStatus("raw_rate", true);
 
     // get the first and last time
     t_event_tree->GetEntry(0);
@@ -49,7 +52,12 @@ int main(int argc, char** argv) {
     double binw = 0.1;
     int nbins = static_cast<int>((ct_time_second_last - ct_time_second_first) / binw);
     TH1F* rate_hist[25][64];
+    TH1F* dead_ratio_hist[25];
     for (int i = 0; i < 25; i++) {
+        dead_ratio_hist[i] = new TH1F(Form("dead_ratio_hist_CT_%02d", i + 1),
+                Form("dead_ratio_hist_CT_%02d", i + 1), nbins,
+                ct_time_second_first, ct_time_second_last);
+        dead_ratio_hist[i]->SetDirectory(NULL);
         for (int j = 0; j < 64; j++) {
             rate_hist[i][j] = new TH1F(Form("rate_hist_CT_%02d_%02d", i + 1, j),
                     Form("rate_hist_CT_%02d_%02d", i + 1, j), nbins,
@@ -63,6 +71,7 @@ int main(int argc, char** argv) {
         t_event_tree->GetEntry(q);
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
+            dead_ratio_hist[i]->Fill(t_event.ct_time_second, (t_event.raw_rate[i] + 1) * 68.82E-6);
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j]) {
                     rate_hist[i][j]->Fill(t_event.ct_time_second);
@@ -80,6 +89,7 @@ int main(int argc, char** argv) {
     TMatrixF max_time_mat(25, 64);
     float ratio = 0.35;
     for (int i = 0; i < 25; i++) {
+        dead_ratio_hist[i]->Scale(1, "width");
         for (int j = 0; j < 64; j++) {
             rate_hist[i][j]->Scale(1, "width");
             int maximum_bin = rate_hist[i][j]->GetMaximumBin();
@@ -112,6 +122,7 @@ int main(int argc, char** argv) {
     }
     for (int i = 0; i < 25; i++) {
         t_file_out->mkdir(Form("rate_hist_CT_%02d", i + 1))->cd();
+        dead_ratio_hist[i]->Write();
         for (int j = 0; j < 64; j++) {
             rate_hist[i][j]->Write();
         }

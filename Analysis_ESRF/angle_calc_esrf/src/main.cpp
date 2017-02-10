@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
         Int_t     first_ij[2];
         Int_t     second_ij[2];
         Float_t   rand_angle;
+        Float_t   rand_distance;
         Float_t   first_energy;
         Float_t   second_energy;
         Bool_t    is_valid;
@@ -93,6 +94,7 @@ int main(int argc, char** argv) {
     t_angle_tree->Branch("first_ij",         t_angle.first_ij,         "first_ij[2]/I"     );
     t_angle_tree->Branch("second_ij",        t_angle.second_ij,        "second_ij[2]/I"    );
     t_angle_tree->Branch("rand_angle",      &t_angle.rand_angle,       "rand_angle/F"      );
+    t_angle_tree->Branch("rand_distance",   &t_angle.rand_distance,    "rand_distance/F"   );
     t_angle_tree->Branch("first_energy",    &t_angle.first_energy,     "first_energy/F"    );
     t_angle_tree->Branch("second_energy",   &t_angle.second_energy,    "second_energy/F"   );
     t_angle_tree->Branch("is_valid",        &t_angle.is_valid,         "is_valid/O"        );
@@ -133,7 +135,7 @@ int main(int argc, char** argv) {
         is_bad_event = false;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
-            if (i == 1) {
+            if (i == 1 || i == 7 || i == 8 || i == 3) {
                 is_bad_event = true;
                 break;
             }
@@ -141,12 +143,6 @@ int main(int argc, char** argv) {
                 if (t_event.trigger_bit[i][j] && t_event.channel_status[i][j] > 0) {
                    is_bad_event = true;
                    break;
-                }
-                if (t_event.trigger_bit[i][j]) {
-                    if (i == 1 || i == 7 || i == 8 || i == 3) {
-                        is_bad_event = true;
-                        break;
-                    }
                 }
                 if (t_event.trigger_bit[i][j]) {
                     bar_queue.push(Bar(t_event.energy_value[i][j], i, j));
@@ -181,6 +177,7 @@ int main(int argc, char** argv) {
             t_angle.second_ij[0]    = second_pos.i;
             t_angle.second_ij[1]    = second_pos.j;
             t_angle.rand_angle      = first_pos.angle_to(second_pos);
+            t_angle.rand_distance   = first_pos.distance_to(second_pos);
             t_angle.first_energy    = t_event.energy_value[first_pos.i][first_pos.j];
             t_angle.second_energy   = t_event.energy_value[second_pos.i][second_pos.j];
             t_angle.is_valid = true;
