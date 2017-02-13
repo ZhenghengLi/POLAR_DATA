@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
         t_event_tree->GetEntry(q);
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
-            dead_ratio_hist[i]->Fill(t_event.ct_time_second, (t_event.raw_rate[i] + 1) * 68.82E-6);
+            dead_ratio_hist[i]->Fill(t_event.ct_time_second, (1.0 * 68.82E-6));
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j]) {
                     rate_hist[i][j]->Fill(t_event.ct_time_second);
