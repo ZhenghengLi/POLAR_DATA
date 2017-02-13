@@ -29,5 +29,6 @@
 #include "TKey.h"
 #include "TList.h"
 #include "TIterator.h"
+#include "TProfile.h"
 
 #endif
