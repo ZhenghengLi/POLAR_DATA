@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/pos_inten_prof
+all: $(DEST_BIN)/rate_vs_dist
 
-$(DEST_BIN)/pos_inten_prof: obj/main.o
+$(DEST_BIN)/rate_vs_dist: obj/main.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
