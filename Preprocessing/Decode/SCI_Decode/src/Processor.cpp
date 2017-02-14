@@ -182,7 +182,7 @@ void Processor::sci_trigger_before_sync_() {
         sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
         int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
         cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
-        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536) / 4;
+        tmp_dead_diff = (tmp_dead_diff >= 0 ? tmp_dead_diff : tmp_dead_diff + 65536) / 4;
         if (cur_trigg_pre_dead_diff_ready_) {
             sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(cur_trigg_pre_dead_diff_) / static_cast<double>(sci_trigger_.time_wait));
             cur_trigg_pre_dead_diff_ = tmp_dead_diff;
@@ -229,7 +229,7 @@ void Processor::sci_event_before_sync_(int idx) {
         sci_event_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
         int32_t tmp_dead_diff = static_cast<int32_t>(sci_event_.deadtime) - cur_event_pre_raw_dead_[idx];
         cur_event_pre_raw_dead_[idx] = static_cast<int32_t>(sci_event_.deadtime);
-        tmp_dead_diff = (tmp_dead_diff > 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
+        tmp_dead_diff = (tmp_dead_diff >= 0 ? tmp_dead_diff : tmp_dead_diff + 65536);
         sci_event_.dead_ratio = static_cast<float>(static_cast<double>(tmp_dead_diff) / static_cast<double>(sci_event_.time_wait));
     }
 }
