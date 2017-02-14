@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     TFile* t_file_out = new TFile(output_fn.c_str(), "recreate");
 
     double barbeam_total_distance[25][64];
-    int    barbeam_total_deadtime[25][64];
+    double barbeam_total_deadtime[25][64];
     int    barbeam_total_counts[25][64];
     double barbeam_total_intensity[25][64];
     // initialize
