@@ -150,6 +150,7 @@ int main(int argc, char** argv) {
                 bar_distance(i, j) = barbeam_total_distance[i][j] / barbeam_total_counts[i][j];
             } else {
                 bar_rate(i, j) = -1;
+                bar_dead(i, j) = -1;
                 bar_intensity(i, j) = -1;
                 bar_distance(i, j) = -1;
             }
