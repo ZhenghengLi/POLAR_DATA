@@ -83,6 +83,7 @@ int main(int argc, char** argv) {
         Float_t   first_energy;
         Float_t   second_energy;
         Bool_t    is_valid;
+        Bool_t    is_adjacent;
     } t_angle;
     TFile* t_angle_file = new TFile(angle_data_fn.c_str(), "recreate");
     if (t_angle_file->IsZombie()) {
@@ -98,10 +99,10 @@ int main(int argc, char** argv) {
     t_angle_tree->Branch("first_energy",    &t_angle.first_energy,     "first_energy/F"    );
     t_angle_tree->Branch("second_energy",   &t_angle.second_energy,    "second_energy/F"   );
     t_angle_tree->Branch("is_valid",        &t_angle.is_valid,         "is_valid/O"        );
+    t_angle_tree->Branch("is_adjacent",     &t_angle.is_adjacent,      "is_adjacent/O"     );
 
     // calculate angle
     priority_queue<Bar> bar_queue;
-    bool found_not_adjacent = false;
     bool is_bad_event = false;
     Bar first_bar;
     Pos first_pos;
@@ -131,7 +132,6 @@ int main(int argc, char** argv) {
 
         // find the first two bars
         while (!bar_queue.empty()) bar_queue.pop();
-        found_not_adjacent = false;
         is_bad_event = false;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
@@ -161,30 +161,24 @@ int main(int argc, char** argv) {
         first_bar = bar_queue.top();
         bar_queue.pop();
         first_pos.randomize(first_bar.i, first_bar.j);
-
-        while (!bar_queue.empty()) {
-            second_bar = bar_queue.top();
-            bar_queue.pop();
-            second_pos.randomize(second_bar.i, second_bar.j);
-            if (!first_pos.is_adjacent_to(second_pos)) {
-                found_not_adjacent = true;
-                break;
-            }
-        }
-        if (found_not_adjacent) {
-            t_angle.first_ij[0]     = first_pos.i;
-            t_angle.first_ij[1]     = first_pos.j;
-            t_angle.second_ij[0]    = second_pos.i;
-            t_angle.second_ij[1]    = second_pos.j;
-            t_angle.rand_angle      = first_pos.angle_to(second_pos);
-            t_angle.rand_distance   = first_pos.distance_to(second_pos);
-            t_angle.first_energy    = t_event.energy_value[first_pos.i][first_pos.j];
-            t_angle.second_energy   = t_event.energy_value[second_pos.i][second_pos.j];
-            t_angle.is_valid = true;
+        if (bar_queue.empty()) {
             t_angle_tree->Fill();
-        } else {
-            t_angle_tree->Fill();
+            continue;
         }
+        second_bar = bar_queue.top();
+        bar_queue.pop();
+        second_pos.randomize(second_bar.i, second_bar.j);
+        t_angle.first_ij[0]     = first_pos.i;
+        t_angle.first_ij[1]     = first_pos.j;
+        t_angle.second_ij[0]    = second_pos.i;
+        t_angle.second_ij[1]    = second_pos.j;
+        t_angle.rand_angle      = first_pos.angle_to(second_pos);
+        t_angle.rand_distance   = first_pos.distance_to(second_pos);
+        t_angle.first_energy    = t_event.energy_value[first_pos.i][first_pos.j];
+        t_angle.second_energy   = t_event.energy_value[second_pos.i][second_pos.j];
+        t_angle.is_valid = true;
+        t_angle.is_adjacent     = first_pos.is_adjacent_to(second_pos);
+        t_angle_tree->Fill();
     }
 
     t_angle_file->cd();
