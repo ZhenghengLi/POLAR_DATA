@@ -136,6 +136,7 @@ int main(int argc, char** argv) {
             tmp_mod_weight = 1.0;
             int sum_ch = 0;
             for (int j = 0; j < 64; j++) {
+                if (!t_event.trigger_bit[i][j]) continue;
                 double ch_eff = eff_fun_CT_[i][j]->Eval(t_event.energy_value[i][j]);
                 if (ch_eff < min_eff || t_event.energy_value[i][j] < cut_value) {
                     t_weight.ch_weight[i][j] = 0.0;
