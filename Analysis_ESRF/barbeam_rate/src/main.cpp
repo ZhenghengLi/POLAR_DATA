@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
                     barbeam_total_deadtime[i][j] += 68.82E-6;
                 }
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat[i][j] && t_event.ct_time_second < end_time_mat[i][j]) {
-                    if (t_event.energy_value[i][j] < 0.0) continue;
+                    if (t_event.energy_value[i][j] < 25.0) continue;
                     barbeam_total_counts[i][j] += 1;
                     barbeam_total_intensity[i][j] += intensity_prof->Interpolate(t_event.ct_time_second);
                     barbeam_total_distance[i][j] += distance_prof_CT_[i][j]->Interpolate(t_event.ct_time_second);
