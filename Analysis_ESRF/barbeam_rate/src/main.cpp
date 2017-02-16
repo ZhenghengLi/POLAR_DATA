@@ -4,14 +4,15 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    if (argc < 5) {
-        cout << "USAGE: " << argv[0] << " <event_data.root> <dist_inten.root> <rate.root> <output.root>" << endl;
+    if (argc < 6) {
+        cout << "USAGE: " << argv[0] << " <event_data.root> <weight.root> <dist_inten.root> <rate.root> <output.root>" << endl;
         return 2;
     }
     string event_data_fn = argv[1];
-    string dist_inten_fn = argv[2];
-    string rate_fn = argv[3];
-    string output_fn = argv[4];
+    string weight_fn = argv[2];
+    string dist_inten_fn = argv[3];
+    string rate_fn = argv[4];
+    string output_fn = argv[5];
 
     // open event_data
     TFile* t_event_file = new TFile(event_data_fn.c_str(), "read");
@@ -24,24 +25,45 @@ int main(int argc, char** argv) {
         cout << "cannot find TTree t_event" << endl;
         return 1;
     }
+
+    // open weight data
+    TFile* weight_file = new TFile(weight_fn.c_str(), "read");
+    if (weight_file->IsZombie()) {
+        cout << "weight_file open failed." << endl;
+        return 1;
+    }
+    TTree* t_weight_tree = static_cast<TTree*>(weight_file->Get("t_weight"));
+    if (t_weight_tree == NULL) {
+        cout << "cannot find TTree t_weight" << endl;
+        return 1;
+    }
+
+    if (t_weight_tree->GetEntries() != t_event_tree->GetEntries()) {
+        cout << "the number of entries between weight and event is different" << endl;
+        return 1;
+    } else {
+        t_event_tree->AddFriend(t_weight_tree);
+    }
+
+    // bind tree
     struct {
         Int_t    type;
         Double_t ct_time_second;
         Bool_t   time_aligned[25];
         Bool_t   trigger_bit[25][64];
-        Float_t  energy_value[25][64];
+        Float_t  ch_weight[25][64];
     } t_event;
     t_event_tree->SetBranchAddress("type",            &t_event.type             );
     t_event_tree->SetBranchAddress("ct_time_second",  &t_event.ct_time_second   );
     t_event_tree->SetBranchAddress("time_aligned",     t_event.time_aligned     );
     t_event_tree->SetBranchAddress("trigger_bit",      t_event.trigger_bit      );
-    t_event_tree->SetBranchAddress("energy_value",     t_event.energy_value     );
+    t_event_tree->SetBranchAddress("ch_weight",        t_event.ch_weight        );
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("type", true);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
-    t_event_tree->SetBranchStatus("energy_value");
+    t_event_tree->SetBranchStatus("ch_weight", true);
 
     // open dist_inten file
     TFile* dist_inten_file = new TFile(dist_inten_fn.c_str(), "read");
@@ -93,6 +115,7 @@ int main(int argc, char** argv) {
     double barbeam_total_distance[25][64];
     double barbeam_total_deadtime[25][64];
     int    barbeam_total_counts[25][64];
+    double barbeam_total_weight[25][64];
     double barbeam_total_intensity[25][64];
     // initialize
     for (int i = 0; i < 25; i++) {
@@ -100,6 +123,7 @@ int main(int argc, char** argv) {
             barbeam_total_distance[i][j] = 0;
             barbeam_total_deadtime[i][j] = 0;
             barbeam_total_counts[i][j] = 0;
+            barbeam_total_weight[i][j] = 0;
             barbeam_total_intensity[i][j] = 0;
         }
     }
@@ -124,8 +148,8 @@ int main(int argc, char** argv) {
                     barbeam_total_deadtime[i][j] += 68.82E-6;
                 }
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat[i][j] && t_event.ct_time_second < end_time_mat[i][j]) {
-                    if (t_event.energy_value[i][j] < 25.0) continue;
                     barbeam_total_counts[i][j] += 1;
+                    barbeam_total_weight[i][j] += t_event.ch_weight[i][j];
                     barbeam_total_intensity[i][j] += intensity_prof->Interpolate(t_event.ct_time_second);
                     barbeam_total_distance[i][j] += distance_prof_CT_[i][j]->Interpolate(t_event.ct_time_second);
                 }
@@ -144,7 +168,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             if (end_time_mat(i, j) - begin_time_mat(i, j) > 0 && barbeam_total_counts[i][j] > 0) {
-                bar_rate(i, j) = barbeam_total_counts[i][j] / (end_time_mat(i, j) - begin_time_mat(i, j));
+                bar_rate(i, j) = barbeam_total_weight[i][j] / (end_time_mat(i, j) - begin_time_mat(i, j));
                 bar_dead(i, j) = barbeam_total_deadtime[i][j] / (end_time_mat(i, j) - begin_time_mat(i, j));
                 bar_intensity(i, j) = barbeam_total_intensity[i][j] / barbeam_total_counts[i][j];
                 bar_distance(i, j) = barbeam_total_distance[i][j] / barbeam_total_counts[i][j];
