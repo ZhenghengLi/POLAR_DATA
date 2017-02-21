@@ -67,18 +67,18 @@ int main(int argc, char** argv) {
     }
     struct {
         Double_t ct_time_second_5;
-        Float_t  dead_ratio[25];
+        Float_t  module_dead_ratio[25];
     } t_dead_ratio;
     TFile* deadtime_file = new TFile(deadtime_filename.c_str(), "recreate");
     TTree* t_dead_ratio_tree = new TTree("t_dead_ratio", "deadtime ratio calculated by a larger bin size");
-    t_dead_ratio_tree->Branch("ct_time_second_5",     &t_dead_ratio.ct_time_second_5,  "ct_time_second_5/D"    );
-    t_dead_ratio_tree->Branch("dead_ratio",            t_dead_ratio.dead_ratio,        "dead_ratio[25]/F"      );
+    t_dead_ratio_tree->Branch("ct_time_second_5",     &t_dead_ratio.ct_time_second_5,    "ct_time_second_5/D"        );
+    t_dead_ratio_tree->Branch("module_dead_ratio",     t_dead_ratio.module_dead_ratio,   "module_dead_ratio[25]/F"   );
     cout << "writing deadtime ..." << endl;
     for (Long64_t q = 0; q < t_event_tree->GetEntries(); q++) {
         t_event_tree->GetEntry(q);
         t_dead_ratio.ct_time_second_5 = t_event.ct_time_second;
         for (int i = 0; i < 25; i++) {
-            t_dead_ratio.dead_ratio[i] = dead_ratio_hist[i]->Interpolate(t_event.ct_time_second);
+            t_dead_ratio.module_dead_ratio[i] = dead_ratio_hist[i]->Interpolate(t_event.ct_time_second);
         }
         t_dead_ratio_tree->Fill();
     }

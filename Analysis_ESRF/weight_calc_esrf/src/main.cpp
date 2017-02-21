@@ -66,6 +66,7 @@ int main(int argc, char** argv) {
     }
 
     // calculate cut_value;
+    double vthr_value[1600];
     double cut_value = 0;
     int n = 0;
     for (int i = 0; i < 25; i++) {
@@ -73,11 +74,10 @@ int main(int argc, char** argv) {
             continue;
         }
         for (int j = 0; j < 64; j++) {
-            cut_value += vthr_adc_value_CT_[i](j);
-            n++;
+            vthr_value[n++] = vthr_adc_value_CT_[i](j);
         }
     }
-    cut_value /= n;
+    cut_value = TMath::Median(n, vthr_value);
 
     // open weight file
     TFile* weight_file = new TFile(weight_filename.c_str(), "recreate");
@@ -90,14 +90,14 @@ int main(int argc, char** argv) {
         Float_t  ch_weight[25][64];
         Float_t  mod_weight[25];
         Float_t  event_weight;
-        Bool_t   is_bad;
+        Bool_t   weight_is_bad;
     } t_weight;
     TTree* t_weight_tree = new TTree("t_weight", "weight in channel, module and event level");
     t_weight_tree->Branch("ct_time_second_4", &t_weight.ct_time_second_4, "ct_time_second_4/D"     );
     t_weight_tree->Branch("ch_weight",         t_weight.ch_weight,        "ch_weight[25][64]/F"    );
     t_weight_tree->Branch("mod_weight",        t_weight.mod_weight,       "mod_weight[25]/F"       );
     t_weight_tree->Branch("event_weight",     &t_weight.event_weight,     "event_weight/F"         );
-    t_weight_tree->Branch("is_bad",           &t_weight.is_bad,           "is_bad/O"               );
+    t_weight_tree->Branch("weight_is_bad",    &t_weight.weight_is_bad,    "weight_is_bad/O"        );
 
     // calculate weight
     double min_eff = 0.1;
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
                 t_weight.ch_weight[i][j] = -1;
             }
         }
-        t_weight.is_bad = false;
+        t_weight.weight_is_bad = false;
         tmp_event_weight = 1.0;
         int sum_mod = 0;
         for (int i = 0; i < 25; i++) {
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             if (i == 1 || i == 7 || i == 8 || i == 3) {
-                t_weight.is_bad = true;
+                t_weight.weight_is_bad = true;
                 break;
             }
             tmp_mod_weight = 1.0;
