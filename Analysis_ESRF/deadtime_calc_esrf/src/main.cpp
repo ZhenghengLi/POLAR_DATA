@@ -62,6 +62,9 @@ int main(int argc, char** argv) {
         }
     }
     cout << "done." << endl;
+    for (int i = 0; i < 25; i++) {
+        dead_ratio_hist[i]->Scale(1, "width");
+    }
     struct {
         Double_t ct_time_second_5;
         Float_t  dead_ratio[25];
