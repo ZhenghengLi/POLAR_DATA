@@ -74,6 +74,10 @@ int main(int argc, char** argv) {
             continue;
         }
         for (int j = 0; j < 64; j++) {
+            if (i == 5 && j == 13) continue;
+            if (i == 5 && j == 5 ) continue;
+            if (i == 5 && j == 12) continue;
+            if (i == 5 && j == 4 ) continue;
             vthr_value[n++] = vthr_adc_value_CT_[i](j);
         }
     }
@@ -129,9 +133,29 @@ int main(int argc, char** argv) {
             if (!t_event.time_aligned[i]) {
                 continue;
             }
+            // kill bad modules
             if (i == 1 || i == 7 || i == 8 || i == 3) {
                 t_weight.weight_is_bad = true;
                 break;
+            }
+            // kill bad channels
+            for (int j = 0; j < 64; j++) {
+                if (t_event.trigger_bit[i][j] && i == 5 && j == 13) {
+                    t_weight.weight_is_bad = true;
+                    break;
+                }
+                if (t_event.trigger_bit[i][j] && i == 5 && j == 5 ) {
+                    t_weight.weight_is_bad = true;
+                    break;
+                }
+                if (t_event.trigger_bit[i][j] && i == 5 && j == 12) {
+                    t_weight.weight_is_bad = true;
+                    break;
+                }
+                if (t_event.trigger_bit[i][j] && i == 5 && j == 4 ) {
+                    t_weight.weight_is_bad = true;
+                    break;
+                }
             }
             tmp_mod_weight = 1.0;
             int sum_ch = 0;

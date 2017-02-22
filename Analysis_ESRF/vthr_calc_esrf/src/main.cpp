@@ -3,12 +3,14 @@
 #include "CooConv.hpp"
 
 // for energy
-#define VTHR_MEAN 15.0
+#define VTHR_MEAN 10.0
+#define VTHR_SIGMA 5.0
 #define VTHR_MAX 60.0
 #define VTHR_MIN -15.0
 
 // for adc
 //#define VTHR_MEAN 300.0
+//#define VTHR_SIGMA 2.0
 //#define VTHR_MAX 1280.0
 //#define VTHR_MIN -128.0
 
@@ -81,7 +83,7 @@ int main(int argc, char** argv) {
             all_spec[i][j] = new TH1F(Form("all_spec_%02d_%02d", i + 1, j + 1), Form("all_spec_%02d_%02d", i + 1, j + 1), 256, VTHR_MIN, VTHR_MAX);
             all_spec[i][j]->SetDirectory(NULL);
             fun_spec[i][j] = new TF1(Form("fun_spec_%02d_%02d", i + 1, j + 1), "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", VTHR_MIN, VTHR_MAX);
-            fun_spec[i][j]->SetParameters(VTHR_MEAN, 2.0);
+            fun_spec[i][j]->SetParameters(VTHR_MEAN, VTHR_SIGMA);
         }
     }
 

@@ -52,18 +52,21 @@ int main(int argc, char** argv) {
         Bool_t   time_aligned[25];
         Bool_t   trigger_bit[25][64];
         Float_t  ch_weight[25][64];
+        Bool_t   weight_is_bad;
     } t_event;
     t_event_tree->SetBranchAddress("type",            &t_event.type             );
     t_event_tree->SetBranchAddress("ct_time_second",  &t_event.ct_time_second   );
     t_event_tree->SetBranchAddress("time_aligned",     t_event.time_aligned     );
     t_event_tree->SetBranchAddress("trigger_bit",      t_event.trigger_bit      );
     t_event_tree->SetBranchAddress("ch_weight",        t_event.ch_weight        );
+    t_event_tree->SetBranchAddress("weight_is_bad",   &t_event.weight_is_bad    );
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("type", true);
     t_event_tree->SetBranchStatus("ct_time_second", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
     t_event_tree->SetBranchStatus("ch_weight", true);
+    t_event_tree->SetBranchStatus("weight_is_bad", true);
 
     // open dist_inten file
     TFile* dist_inten_file = new TFile(dist_inten_fn.c_str(), "read");
@@ -149,7 +152,8 @@ int main(int argc, char** argv) {
                 }
                 if (t_event.trigger_bit[i][j] && t_event.ct_time_second > begin_time_mat[i][j] && t_event.ct_time_second < end_time_mat[i][j]) {
                     barbeam_total_counts[i][j] += 1;
-                    barbeam_total_weight[i][j] += t_event.ch_weight[i][j];
+                    barbeam_total_weight[i][j] += (t_event.weight_is_bad ? 0.0 : t_event.ch_weight[i][j]);
+                    //barbeam_total_weight[i][j] += 1.0;
                     barbeam_total_intensity[i][j] += intensity_prof->Interpolate(t_event.ct_time_second);
                     barbeam_total_distance[i][j] += distance_prof_CT_[i][j]->Interpolate(t_event.ct_time_second);
                 }

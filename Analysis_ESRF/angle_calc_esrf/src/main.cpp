@@ -37,6 +37,7 @@ int main(int argc, char** argv) {
         // from friends
         Float_t  module_dead_ratio[25];
         Float_t  ch_weight[25][64];
+        Bool_t   weight_is_bad;
         Double_t current;
     } t_event;
 
@@ -102,7 +103,6 @@ int main(int argc, char** argv) {
         }
     }
 
-
     t_event_tree->SetBranchAddress("ct_time_second",      &t_event.ct_time_second       );
     t_event_tree->SetBranchAddress("fe_dead_ratio",        t_event.fe_dead_ratio        );
     t_event_tree->SetBranchAddress("time_aligned",         t_event.time_aligned         );
@@ -112,6 +112,7 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchAddress("channel_status",       t_event.channel_status       );
     t_event_tree->SetBranchAddress("module_dead_ratio",    t_event.module_dead_ratio    );
     t_event_tree->SetBranchAddress("ch_weight",            t_event.ch_weight            );
+    t_event_tree->SetBranchAddress("weight_is_bad",       &t_event.weight_is_bad        );
     t_event_tree->SetBranchAddress("current",             &t_event.current              );
 
     t_event_tree->SetBranchStatus("*", false);
@@ -124,6 +125,7 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchStatus("channel_status", true);
     t_event_tree->SetBranchStatus("module_dead_ratio", true);
     t_event_tree->SetBranchStatus("ch_weight", true);
+    t_event_tree->SetBranchStatus("weight_is_bad", true);
     t_event_tree->SetBranchStatus("current", true);
 
     // open angle data file
@@ -250,7 +252,7 @@ int main(int argc, char** argv) {
             }
             if (t_angle.deadtime_weight < 0) t_angle.deadtime_weight = 0;
             t_angle.efficiency_weight = t_event.ch_weight[first_pos.i][first_pos.j] * t_event.ch_weight[second_pos.i][second_pos.j];
-            if (t_angle.efficiency_weight < 0) t_angle.efficiency_weight = 0;
+            if (t_event.weight_is_bad) t_angle.efficiency_weight = 0;
             if (t_event.current > 0) {
                 t_angle.current_weight = 1 / t_event.current;
             } else {
