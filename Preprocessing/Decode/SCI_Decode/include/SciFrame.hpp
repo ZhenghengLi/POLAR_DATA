@@ -27,7 +27,11 @@ private:
     bool reach_end_;
     uint64_t frm_ship_time_;
     uint64_t frm_gps_time_;
-    
+
+    double cur_shiptime_second_;
+    double pre_shiptime_second_;
+    bool   back_flag_;
+
 private:
     uint16_t get_cur_packet_len_() {
         return 2 * (static_cast<uint16_t>(
@@ -57,6 +61,7 @@ public:
     bool find_start_pos();
     const char* get_cur_pkt_buf();
     size_t get_cur_pkt_len();
+    bool check_back();
     bool can_connect();
     void cur_print_packet(ostream& os = cout);
     void update_time();

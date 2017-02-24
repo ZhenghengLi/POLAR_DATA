@@ -61,6 +61,9 @@ private:
     bool   noped_start_flag_;
     int    noped_trigg_counter_[SAA_LEN];
     int    noped_current_counter_;
+
+    // skip frames
+    int64_t skipped_frames_;
     
 public:
     Counter cnt;
@@ -78,6 +81,7 @@ public:
     bool process_frame(SciFrame& frame);
     bool process_start(SciFrame& frame, SciDataFile& datafile);
     bool process_restart(SciFrame& frame, SciDataFile& datafile);
+    bool backward_occurred(SciFrame& frame);
     bool interruption_occurred(SciFrame& frame);
     void process_packet(SciFrame& frame, SciDataFile& datafile);
     // for log

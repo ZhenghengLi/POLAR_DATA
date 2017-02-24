@@ -1,5 +1,6 @@
 #include "SciFrame.hpp"
 #include <cstring>
+#include <cstdio>
 
 using namespace std;
 using boost::crc_optimal;
@@ -24,6 +25,9 @@ SciFrame::SciFrame(const char* data) {
     start_packet_pos_ = 22;
     cur_is_cross_ = true;
     reach_end_ = false;
+    cur_shiptime_second_ = -1;
+    pre_shiptime_second_ = 0;
+    back_flag_ = false;
 }
 
 SciFrame::~SciFrame() {
@@ -69,6 +73,9 @@ void SciFrame::reset() {
     start_packet_pos_ = 22;
     cur_is_cross_ = true;
     reach_end_ = false;
+    cur_shiptime_second_ = -1;
+    pre_shiptime_second_ = 0;
+    back_flag_ = false;
 }
 
 bool SciFrame::check_valid() const {
@@ -323,10 +330,33 @@ bool SciFrame::can_connect() {
     uint16_t cur_frm_index = get_index();
     assert(cur_is_cross_);
     if (cur_frm_index == pre_frame_index_ + 1
-        || ((pre_frame_index_ == 16383) && (cur_frm_index == 0)))
+            || ((pre_frame_index_ == 16383) && (cur_frm_index == 0))) {
         return true;
-    else
+    } else {
+        char buffer[200];
+        sprintf(buffer, "[ %15.4f => %15.4f ] %f seconds",
+                pre_shiptime_second_, cur_shiptime_second_,
+                cur_shiptime_second_ - pre_shiptime_second_);
+        cout << buffer << endl;
         return false;
+    }
+}
+
+bool SciFrame::check_back() {
+    if (pre_shiptime_second_ > cur_shiptime_second_) {
+        if (!back_flag_) {
+            char buffer[200];
+            sprintf(buffer, "[ %15.4f => %15.4f ] %f seconds",
+                    pre_shiptime_second_, cur_shiptime_second_,
+                    cur_shiptime_second_ - pre_shiptime_second_);
+            cout << buffer << endl;
+        }
+        back_flag_ = true;
+        return true;
+    } else {
+        back_flag_ = false;
+        return false;
+    }
 }
 
 void SciFrame::cur_print_packet(ostream& os) {
@@ -345,6 +375,12 @@ void SciFrame::update_time() {
         frm_ship_time_ <<= 8;
         frm_ship_time_ += static_cast<uint8_t>(frame_data_[10 + i]);
     }
+    if (!back_flag_) {
+        pre_shiptime_second_ = cur_shiptime_second_;
+    }
+    double second = static_cast<double>(frm_ship_time_ >> 16);
+    double millisecond = static_cast<double>(frm_ship_time_ & 0xFFFF) / 2000;
+    cur_shiptime_second_ = second + millisecond;
     frm_gps_time_ = 0;
     for (int i = 0; i < 6; i++) {
         frm_gps_time_ <<= 8;

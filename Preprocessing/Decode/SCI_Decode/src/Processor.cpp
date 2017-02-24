@@ -41,6 +41,7 @@ void Processor::initialize() {
         noped_trigg_counter_[i] = 0;
     }
     noped_current_counter_ = 0;
+    skipped_frames_ = 0;
 }
 
 bool Processor::logfile_open(const char* filename) {
@@ -70,6 +71,19 @@ void Processor::set_log(bool flag) {
 
 bool Processor::can_log() {
     return log_flag_ && os_logfile_.is_open();
+}
+
+bool Processor::backward_occurred(SciFrame& frame) {
+    if (frame.check_back()) {
+        skipped_frames_++;
+        return true;
+    } else {
+        if (skipped_frames_ > 0) {
+            cout << "FRAME BACKWARD OCCURRED, " << skipped_frames_ << " FRAMES SKIPPED." << endl;
+            skipped_frames_ = 0;
+        }
+        return false;
+    }
 }
 
 bool Processor::interruption_occurred(SciFrame& frame) {

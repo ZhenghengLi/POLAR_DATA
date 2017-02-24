@@ -74,7 +74,9 @@ int main(int argc, char** argv) {
         while (filelist.next_frame()) {
             frame.updated();
             if (pro.process_frame(frame)) {
-                if (!have_started) {
+                if (pro.backward_occurred(frame)) {
+                    continue;
+                } else if (!have_started) {
                     if (pro.process_start(frame, root_datafile)) {
                         have_started = true;
                     }
