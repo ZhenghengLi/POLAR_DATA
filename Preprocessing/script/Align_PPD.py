@@ -271,14 +271,14 @@ for k in sorted(sci_1p_ppd_1m_dict.keys()):
     ret_value = 0
     with open(ppd_1n_outfile, 'w') as fout:
         ret_value = subprocess.call(command.split(), stdout = fout, stderr = fout)
-    if ret_value > 0:
-        if os.path.isfile(ppd_1n_file): os.remove(ppd_1n_file)
-        if os.path.isfile(ppd_1n_cmdfile): os.remove(ppd_1n_cmdfile)
-        if os.path.isfile(ppd_1n_outfile): os.remove(ppd_1n_outfile)
     out_str = ''
     with open(ppd_1n_outfile, 'r') as fin: out_str = fin.read()
     out_str_lines = [re.sub(r'^.*Opening', 'Opening', x) for x in out_str.split('\n')]
     out_str_lines = [x for x in out_str_lines if not re.search(r'%', x)]
     with open(ppd_1n_outfile, 'w') as fout: fout.write('\n'.join(out_str_lines))
     with open(ppd_1n_outfile, 'r') as fin: print fin.read().rstrip('\n')
+    if ret_value > 0:
+        if os.path.isfile(ppd_1n_file): os.remove(ppd_1n_file)
+        if os.path.isfile(ppd_1n_cmdfile): os.remove(ppd_1n_cmdfile)
+        if os.path.isfile(ppd_1n_outfile): os.remove(ppd_1n_outfile)
 
