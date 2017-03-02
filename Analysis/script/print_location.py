@@ -67,7 +67,7 @@ for i in tqdm(xrange(ppd_file_r_obj.begin_entry, ppd_file_r_obj.end_entry)):
     ra_v, dec_v = _wgs84_to_j2000(wgs84_xyz_v, utc)
     j2000_xyz = _radec_to_j2000xyz(ra, dec, wgs84_d)
     j2000_xyz_v = _radec_to_j2000xyz(ra_v, dec_v, wgs84_d_v)
-    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + ' ' + str(j2000_xyz_v[0]) + ' ' + str(j2000_xyz_v[1]) + ' ' + str(j2000_xyz_v[2]) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_dec) + '\n')
+    fout.write(str(cur_time) + ' ' + str(j2000_xyz[0]) + ' ' + str(j2000_xyz[1]) + ' ' + str(j2000_xyz[2]) + ' ' + str(j2000_xyz_v[0]) + ' ' + str(j2000_xyz_v[1]) + ' ' + str(j2000_xyz_v[2]) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_z_dec) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_x_ra) + ' ' + str(ppd_file_r_obj.t_tree_ppd.det_x_dec) + '\n')
 
 fout.close()
 
