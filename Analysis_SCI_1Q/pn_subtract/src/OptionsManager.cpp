@@ -57,6 +57,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             }
         }
     }
+    if (pol_event_filename.IsNull()) return false;
+    if (ped_vector_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_subped.root";
     }

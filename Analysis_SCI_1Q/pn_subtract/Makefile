@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/pn_subtract
 
-$(DEST_BIN)/pn_subtract: obj/main.o obj/OptionsManager.o obj/Pedestal.o
+$(DEST_BIN)/pn_subtract: obj/main.o obj/OptionsManager.o obj/Pedestal.o \
+	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
