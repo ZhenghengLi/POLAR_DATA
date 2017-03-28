@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     pol_event_file_subped->cd();
     t_pol_event_tree_new->Write();
 
-    cout << "writing meta information ... " << flush;
+    cout << "writing meta information ... " << endl;
     // write meta
     TIter fileIter(pol_event_file->GetListOfKeys());
     TKey* key = NULL;
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     delete pol_event_file_subped;
     pol_event_file_subped = NULL;
 
-    cout << " DONE ]" << endl;
+    cout << "[ DONE ]" << endl;
 
     return 0;
 }
