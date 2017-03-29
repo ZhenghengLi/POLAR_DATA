@@ -36,15 +36,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
-            case 'p':
-                if (idx < argc_par - 1) {
-                    ped_vector_filename = argv_par[++idx];
-                    if (ped_vector_filename[0] == '-') {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
+            case 'e':
+                energy_flag = true;
                 break;
             default:
                 return false;
@@ -58,19 +51,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
-    if (ped_vector_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
-        output_filename = "output_subped.root";
+        output_filename = "output_vthr.root";
     }
     return true;
 }
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -p <ped_vec_file.root> [-o <output_subped.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-e] [-o <output_subped.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -p <ped_vector.root>             pedestal vector file" << endl;
+    cout << "  -e                               calculate vthr at keV level, default is ADC level" << endl;
     cout << "  -o <output_subped.root>          pedestal subtracted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -92,7 +84,7 @@ void OptionsManager::print_options() {
 
 void OptionsManager::init() {
     pol_event_filename.Clear();
-    ped_vector_filename.Clear();
+    energy_flag = false;
     output_filename.Clear();
 
     version_flag_ = false;
