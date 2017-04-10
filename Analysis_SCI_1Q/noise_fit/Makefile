@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/ped_select
+all: $(DEST_BIN)/noise_fit
 
-$(DEST_BIN)/ped_select: obj/main.o
+$(DEST_BIN)/noise_fit: obj/main.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
