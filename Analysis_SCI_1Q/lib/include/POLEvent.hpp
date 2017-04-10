@@ -64,6 +64,8 @@ public:
     void active_all(TTree* t_pol_event_tree);
     void active(TTree* t_pol_event_tree, const char* branch_name);
 
+    Long64_t find_entry(TTree* t_pol_event_tree, double met_time);
+
 };
 
 #endif

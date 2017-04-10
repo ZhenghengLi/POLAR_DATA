@@ -108,3 +108,29 @@ void POLEvent::active(TTree* t_pol_event_tree, const char* branch_name) {
     t_pol_event_tree->SetBranchStatus(branch_name, true);
 }
 
+Long64_t POLEvent::find_entry(TTree* t_pol_event_tree, double met_time) {
+    if (t_pol_event_tree == NULL) return -1;
+    t_pol_event_tree->SetBranchStatus("event_time", true);
+    Long64_t head_entry = 0;
+    Long64_t tail_entry = t_pol_event_tree->GetEntries() - 1;
+    t_pol_event_tree->GetEntry(head_entry);
+    double first_time = event_time;
+    t_pol_event_tree->GetEntry(tail_entry);
+    double last_time = event_time;
+    if (met_time < first_time) return -1;
+    if (met_time > last_time) return -1;
+    Long64_t center_entry = 0;
+    while (tail_entry - head_entry > 1) {
+        center_entry = (head_entry + tail_entry) / 2;
+        t_pol_event_tree->GetEntry(center_entry);
+        if (met_time > event_time) {
+            head_entry = center_entry;
+        } else if (met_time < event_time) {
+            tail_entry = center_entry;
+        } else {
+            return center_entry;
+        }
+    }
+    return tail_entry;
+}
+

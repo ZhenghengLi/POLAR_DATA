@@ -26,18 +26,39 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
             char cur_option = cur_par_str[1];
             switch (cur_option) {
-            case 'o':
+            case 'F':
                 if (idx < argc_par - 1) {
-                    output_filename = argv_par[++idx];
-                    if (output_filename[0] == '-') {
+                    ped_data_filename = argv_par[++idx];
+                    if (ped_data_filename[0] == '-') {
                         return false;
                     }
                 } else {
                     return false;
                 }
                 break;
-            case 'e':
-                energy_flag = true;
+            case 'B':
+                if (idx < argc_par - 1) {
+                    TString tmp_arg = argv_par[++idx];
+                    if (tmp_arg[0] == '-') {
+                        return false;
+                    } else {
+                        begin_met_time = tmp_arg.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            case 'E':
+                if (idx < argc_par - 1) {
+                    TString tmp_arg = argv_par[++idx];
+                    if (tmp_arg[0] == '-') {
+                        return false;
+                    } else {
+                        end_met_time = tmp_arg.Atof();
+                    }
+                } else {
+                    return false;
+                }
                 break;
             default:
                 return false;
@@ -51,19 +72,20 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
-    if (output_filename.IsNull()) {
-        output_filename = "vthr_output.root";
+    if (ped_data_filename.IsNull()) {
+        ped_data_filename = "ped_data.root";
     }
     return true;
 }
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-e] [-o <output_subped.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-B <begin_met>] [-E <end_met>] [-F <ped_data.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -e                               calculate vthr at keV level, default is ADC level" << endl;
-    cout << "  -o <output_subped.root>          pedestal subtracted data" << endl;
+    cout << "  -B <begin_met>                   begin MET time" << endl;
+    cout << "  -E <end_met>                     end MET time" << endl;
+    cout << "  -F <ped_data.root>               root file to collect pedestal data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -84,8 +106,9 @@ void OptionsManager::print_options() {
 
 void OptionsManager::init() {
     pol_event_filename.Clear();
-    energy_flag = false;
-    output_filename.Clear();
+    ped_data_filename.Clear();
+    begin_met_time = -1;
+    end_met_time = -1;
 
     version_flag_ = false;
 }
