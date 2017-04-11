@@ -122,7 +122,7 @@ void OptionsManager::print_options() {
 void OptionsManager::init() {
     ped_data_filename.Clear();
     ct_num = -1;
-    low_temp = 127;
+    low_temp = -128;
     high_temp = 128;
 
     version_flag_ = false;
