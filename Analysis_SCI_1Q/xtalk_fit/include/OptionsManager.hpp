@@ -20,6 +20,7 @@ public:
     float   low_hv;                  // -x
     float   high_hv;                 // -y
     TString xtalk_result_filename;   // -o
+    bool    show_flag;               // -m
 
 public:
     OptionsManager();

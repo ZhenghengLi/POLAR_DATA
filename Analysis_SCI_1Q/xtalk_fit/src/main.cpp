@@ -47,14 +47,25 @@ int main(int argc, char** argv) {
     t_xtalk_data_tree->SetBranchAddress("aux_interval",   &t_xtalk_data.aux_interval   );
     cout << options_mgr.xtalk_data_filename.Data() << " { " << "ct_num = " << options_mgr.ct_num << " }" << endl;
 
-    // open output file
-    TFile* xtalk_result_file = new TFile(options_mgr.xtalk_result_filename.Data(), "recreate");
-    if (xtalk_result_file->IsZombie()) {
-        cout << "xtalk_result_file open failed." << endl;
-        return 1;
-    }
 
     // prepare histogram
+    TF1*   xtalk_line[64][64];
+    TH2F*  xtalk_hist[64][64];
+    for (int jx = 0; jx < 64; jx++) {
+        for (int jy = 0; jy < 64; jy++) {
+            if (jx == jy)
+                continue;
+             xtalk_hist[jx][jy] = new TH2F(Form("xtalk_hist%02d_%02d", jx + 1, jy + 1),
+                                           Form("Crosstalk of %02d => %02d", jx + 1, jy + 1),
+                                           256, 0, 4096, 128, -128, 1536);
+            xtalk_hist[jx][jy]->SetDirectory(NULL);
+            xtalk_hist[jx][jy]->SetMarkerColor(9);
+            xtalk_hist[jx][jy]->SetMarkerStyle(31);
+            xtalk_line[jx][jy] = new TF1(Form("xtalk_line%02d_%02d", jx + 1, jy + 1),
+                                          "[0] * x", 0, 4096);
+            xtalk_line[jx][jy]->SetParameter(0, 0.1);
+        }
+    }
 
     // reading and selecting data
     int pre_percent = 0;
@@ -76,20 +87,52 @@ int main(int argc, char** argv) {
         if (t_xtalk_data.fe_hv < options_mgr.low_hv) continue;
         if (t_xtalk_data.fe_hv > options_mgr.high_hv) continue;
         // filter stop
-
+        xtalk_hist[t_xtalk_data.jx][t_xtalk_data.jy]->Fill(
+                t_xtalk_data.x, t_xtalk_data.y);
 
     }
     cout << " DONE ]" << endl;
 
-    gROOT->SetBatch(kTRUE);
-    gErrorIgnoreLevel = kWarning;
-    gStyle->SetOptStat(0);
+    // fit xtalk_hist
+    TMatrixF xtalk_matrix(64, 64);
+    TMatrixF xtalk_matrix_err(64, 64);
+    TMatrixF xtalk_matrix_inv(64, 64);
+    for (int jx = 0; jx < 64; jx++) {
+        for (int jy = 0; jy < 64; jy++) {
+            if (jx == jy) {
+                xtalk_matrix(jy, jx) = 1.0;
+                xtalk_matrix_err(jy, jx) = 0;
+                continue;
+            }
+            if (xtalk_hist[jx][jy]->GetEntries() < 5) {
+                cerr << "CT_" << options_mgr.ct_num << " : " << jx + 1 << " => " << jy + 1
+                     << "    " << "number of entries is too small" << endl;
+                xtalk_matrix(jy, jx) = 0.0001 * gRandom->Rndm();
+                xtalk_matrix_err(jy, jx) = 0;
+            } else {
+                xtalk_hist[jx][jy]->Fit(xtalk_line[jx][jy], "QN");
+                xtalk_matrix(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
+                        xtalk_line[jx][jy]->GetParameter(0) : 0.0001 * gRandom->Rndm());
+                xtalk_matrix_err(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
+                        xtalk_line[jx][jy]->GetParError(0) : 0);
+            }
+        }
+    }
+    xtalk_matrix_inv = xtalk_matrix;
+    xtalk_matrix_inv.Invert();
 
     // draw and save result
+    // open output file
+    TFile* xtalk_result_file = new TFile(options_mgr.xtalk_result_filename.Data(), "recreate");
+    if (xtalk_result_file->IsZombie()) {
+        cout << "xtalk_result_file open failed." << endl;
+        return 1;
+    }
     xtalk_result_file->cd();
     TNamed("ct_num", Form("%d", options_mgr.ct_num)).Write();
-
-
+    xtalk_matrix.Write("xtalk_matrix");
+    xtalk_matrix_err.Write("xtalk_matrix_err");
+    xtalk_matrix_inv.Write("xtalk_matrix_inv");
     TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
     TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
     TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();

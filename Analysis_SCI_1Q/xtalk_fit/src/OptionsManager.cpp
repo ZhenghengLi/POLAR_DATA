@@ -96,6 +96,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'm':
+                show_flag = true;
+                break;
             default:
                 return false;
             }
@@ -131,6 +134,7 @@ void OptionsManager::print_help() {
     cout << "  -x <low_hv>                      low HV" << endl;
     cout << "  -y <high_hv>                     high HV" << endl;
     cout << "  -o <xtalk_res.root>              root file to store xtalk matrix" << endl;
+    cout << "  -m                               show crosstalk matrix map of one module" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -157,6 +161,7 @@ void OptionsManager::init() {
     low_hv = -128;
     high_hv = 1280;
     xtalk_result_filename.Clear();
+    show_flag = false;
 
     version_flag_ = false;
 }
