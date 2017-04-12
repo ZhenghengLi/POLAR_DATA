@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     // reading and selecting data
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "reading and selecting data ... " << endl;
+    cout << "Filling crosstalk histogram of CT_" << options_mgr.ct_num << " ..." << endl;
     cout << "[ " << flush;
     for (Long64_t q = 0; q < t_xtalk_data_tree->GetEntries(); q++) {
         cur_percent = static_cast<int>(q * 100.0 / t_xtalk_data_tree->GetEntries());
@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
 
     // fit xtalk_hist
+    cout << "Fitting crosstalk histogram ..." << endl;
     TMatrixF xtalk_matrix(64, 64);
     TMatrixF xtalk_matrix_err(64, 64);
     TMatrixF xtalk_matrix_inv(64, 64);
@@ -136,7 +137,7 @@ int main(int argc, char** argv) {
     TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
     TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
     TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();
-    TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
+    TNamed("high_hv", Form("%f", options_mgr.high_hv)).Write();
 
     return 0;
 }
