@@ -8,8 +8,8 @@
 
 using namespace std;
 
-static double first_time_second = 81.8464;
-static double start_unixtime = 1432508820.0 - first_time_second;
+static double first_time_second = 136.655;
+static double start_unixtime = 1432262229.0 - first_time_second;
 
 struct Motor_T {
     Double_t unixtime;
@@ -53,21 +53,21 @@ int main(int argc, char** argv) {
         cout << "rate root file open failed." << endl;
         return 1;
     }
-    TTree* t_corrected_tree = static_cast<TTree*>(t_file_log->Get("corrected"));
+    TTree* t_corrected_tree = static_cast<TTree*>(t_file_log->Get("current"));
     if (t_corrected_tree == NULL) {
         cout << "cannot file TTree corrected" << endl;
         return 1;
     }
     Motor_T t_corrected;
-    t_corrected_tree->SetBranchAddress("unixtime",   &t_corrected.unixtime );
-    t_corrected_tree->SetBranchAddress("y",          &t_corrected.y        );
-    t_corrected_tree->SetBranchAddress("z",          &t_corrected.z        );
-    t_corrected_tree->SetBranchAddress("current",    &t_corrected.current  );
+    t_corrected_tree->SetBranchAddress("unix",   &t_corrected.unixtime );
+//    t_corrected_tree->SetBranchAddress("y",          &t_corrected.y        );
+//    t_corrected_tree->SetBranchAddress("z",          &t_corrected.z        );
+    t_corrected_tree->SetBranchAddress("cur",    &t_corrected.current  );
     t_corrected_tree->SetBranchStatus("*", false);
-    t_corrected_tree->SetBranchStatus("unixtime", true);
-    t_corrected_tree->SetBranchStatus("y", true);
-    t_corrected_tree->SetBranchStatus("z", true);
-    t_corrected_tree->SetBranchStatus("current", true);
+    t_corrected_tree->SetBranchStatus("unix", true);
+//    t_corrected_tree->SetBranchStatus("y", true);
+//    t_corrected_tree->SetBranchStatus("z", true);
+    t_corrected_tree->SetBranchStatus("cur", true);
 
     double time_diff_mean = 11.0;
 

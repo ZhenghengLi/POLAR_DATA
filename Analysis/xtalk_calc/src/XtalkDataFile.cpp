@@ -60,10 +60,10 @@ bool XtalkDataFile::open(const char* filename, char m) {
             t_xtalk_data_tree_[i]->SetBranchAddress("y",    &t_xtalk_data[i].y  );
         }
         if (mode_ == 'r') {
-            m_fromfile_ = static_cast<TNamed*>(t_xtalk_file_->Get("m_fromfile"));
-            m_gps_span_ = static_cast<TNamed*>(t_xtalk_file_->Get("m_gps_span"));
-            if (m_fromfile_ == NULL || m_gps_span_ == NULL)
-                return false;
+            //m_fromfile_ = static_cast<TNamed*>(t_xtalk_file_->Get("m_fromfile"));
+            //m_gps_span_ = static_cast<TNamed*>(t_xtalk_file_->Get("m_gps_span"));
+            //if (m_fromfile_ == NULL || m_gps_span_ == NULL)
+            //    return false;
             mod_set_start(i);
         }
     }

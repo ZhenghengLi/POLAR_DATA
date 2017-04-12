@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             // kill bad modules
-            if (i == 1 || i == 7 || i == 8 || i == 3) {
+            if (i == 1 || i == 3 || i == 7) {
                 t_weight.weight_is_bad = true;
                 break;
             }

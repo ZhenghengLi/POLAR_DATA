@@ -11,7 +11,7 @@
 // for adc
 //#define VTHR_MEAN 300.0
 //#define VTHR_SIGMA 2.0
-//#define VTHR_MAX 1280.0
+//#define VTHR_MAX 768.0
 //#define VTHR_MIN -128.0
 
 using namespace std;
@@ -78,9 +78,9 @@ int main(int argc, char** argv) {
     TF1*  fun_spec[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            tri_spec[i][j] = new TH1F(Form("tri_spec_%02d_%02d", i + 1, j + 1), Form("tri_spec_%02d_%02d", i + 1, j + 1), 256, VTHR_MIN, VTHR_MAX);
+            tri_spec[i][j] = new TH1F(Form("tri_spec_%02d_%02d", i + 1, j + 1), Form("tri_spec_%02d_%02d", i + 1, j + 1), 128, VTHR_MIN, VTHR_MAX);
             // tri_spec[i][j]->SetDirectory(NULL);
-            all_spec[i][j] = new TH1F(Form("all_spec_%02d_%02d", i + 1, j + 1), Form("all_spec_%02d_%02d", i + 1, j + 1), 256, VTHR_MIN, VTHR_MAX);
+            all_spec[i][j] = new TH1F(Form("all_spec_%02d_%02d", i + 1, j + 1), Form("all_spec_%02d_%02d", i + 1, j + 1), 128, VTHR_MIN, VTHR_MAX);
             all_spec[i][j]->SetDirectory(NULL);
             fun_spec[i][j] = new TF1(Form("fun_spec_%02d_%02d", i + 1, j + 1), "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", VTHR_MIN, VTHR_MAX);
             fun_spec[i][j]->SetParameters(VTHR_MEAN, VTHR_SIGMA);
@@ -140,6 +140,12 @@ int main(int argc, char** argv) {
             canvas_spec[i]->cd(jtoc(j));
             canvas_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
             tri_spec[i][j]->Divide(all_spec[i][j]);
+            for (int k = tri_spec[i][j]->GetNbinsX() - 1; k > 0; k--) {
+                if (tri_spec[i][j]->GetBinContent(k) < 0.4) {
+                    fun_spec[i][j]->SetParameter(0, tri_spec[i][j]->GetBinCenter(k));
+                    break;
+                }
+            }
             tri_spec[i][j]->Fit(fun_spec[i][j], "RQ");
             vthr_adc_value[i](j) = fun_spec[i][j]->GetParameter(0);
             vthr_adc_value_err[i](j) = fun_spec[i][j]->GetParError(0);

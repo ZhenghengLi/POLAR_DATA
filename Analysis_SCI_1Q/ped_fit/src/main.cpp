@@ -262,7 +262,7 @@ int main(int argc, char** argv) {
 
     // draw and save result
     ped_result_file->cd();
-    TNamed("ct_num", Form("%02d", options_mgr.ct_num)).Write();
+    TNamed("ct_num", Form("%d", options_mgr.ct_num)).Write();
     TCanvas* canvas_ped_hist = new TCanvas(Form("ped_hist_CT_%02d", options_mgr.ct_num),
             Form("ped_hist_CT_%02d", options_mgr.ct_num), 900, 900);
     canvas_ped_hist->Divide(8, 8);

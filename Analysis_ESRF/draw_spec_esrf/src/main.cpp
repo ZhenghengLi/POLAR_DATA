@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     TF1*  func_hist[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            hist_spec[i][j] = new TH1F(Form("hist_spec_%02d_%02d", i + 1, j + 1), Form("hist_spec_%02d_%02d", i + 1, j + 1), 256, 0, 4096);
+            hist_spec[i][j] = new TH1F(Form("hist_spec_%02d_%02d", i + 1, j + 1), Form("hist_spec_%02d_%02d", i + 1, j + 1), 128, 0, 4096);
             func_hist[i][j] = new TF1(Form("func_hist_%d_%d", i + 1, j + 1), "TMath::Exp([0] + [1] * x) + gaus(2) + [5]", 300, 4096);
             func_hist[i][j]->SetParameters(7, -0.006, 50, 1500, 500, 5);
             func_hist[i][j]->SetParLimits(1, -0.1, -0.0001);

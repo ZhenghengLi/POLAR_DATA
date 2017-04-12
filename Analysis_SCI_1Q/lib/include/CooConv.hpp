@@ -69,4 +69,36 @@ inline int itocb(int i) {
     return 5 * (i % 5) + (4 - i / 5) + 1;
 }
 
+inline int itox(int i) {
+    return i / 5;
+}
+
+inline int itoxb(int i) {
+    return 4 - i / 5;
+}
+
+inline int itoy(int i) {
+    return 4 - i % 5;
+}
+
+inline int itoyb(int i) {
+    return 4 - i % 5;
+}
+
+inline int jtox(int j) {
+    return 7 - j % 8;
+}
+
+inline int jtoxb(int j) {
+    return j % 8;
+}
+
+inline int jtoy(int j) {
+    return j / 8;
+}
+
+inline int jtoyb(int j) {
+    return j / 8;
+}
+
 #endif
