@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/ped_res_show
+all: $(DEST_BIN)/ped_vec_show
 
-$(DEST_BIN)/ped_res_show: obj/main.o obj/CommonCanvas.o obj/CommonCanvas_Dict.o
+$(DEST_BIN)/ped_vec_show: obj/main.o obj/CommonCanvas.o obj/CommonCanvas_Dict.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp

@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        cout << "USAGE: " << argv[0] << " <ped_res.root>" << endl;
+        cout << "USAGE: " << argv[0] << " <ped_vec.root>" << endl;
         return 2;
     }
 
