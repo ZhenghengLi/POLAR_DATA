@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/xtalk_fit
 
-$(DEST_BIN)/xtalk_fit: obj/main.o obj/OptionsManager.o \
+$(DEST_BIN)/xtalk_fit: obj/main.o obj/OptionsManager.o obj/CommonCanvas.o obj/CommonCanvas_Dict.o \
 	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 

@@ -113,9 +113,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (xtalk_data_filename.IsNull()) return false;
     if (ct_num < 1 || ct_num > 25) return false;
     if (low_temp > high_temp) return false;
-    if (xtalk_result_filename.IsNull()) {
-        xtalk_result_filename = "xtalk_result.root";
-    }
+    if (xtalk_result_filename.IsNull() && !show_flag) return false;
     return true;
 }
 

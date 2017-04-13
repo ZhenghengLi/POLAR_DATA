@@ -2,6 +2,7 @@
 #include "RootInc.hpp"
 #include "OptionsManager.hpp"
 #include "CooConv.hpp"
+#include "CommonCanvas.hpp"
 
 using namespace std;
 
@@ -111,7 +112,7 @@ int main(int argc, char** argv) {
                 xtalk_matrix(jy, jx) = 0.0001 * gRandom->Rndm();
                 xtalk_matrix_err(jy, jx) = 0;
             } else {
-                xtalk_hist[jx][jy]->Fit(xtalk_line[jx][jy], "QN");
+                xtalk_hist[jx][jy]->Fit(xtalk_line[jx][jy], "RQN");
                 xtalk_matrix(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
                         xtalk_line[jx][jy]->GetParameter(0) : 0.0001 * gRandom->Rndm());
                 xtalk_matrix_err(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
@@ -122,22 +123,36 @@ int main(int argc, char** argv) {
     xtalk_matrix_inv = xtalk_matrix;
     xtalk_matrix_inv.Invert();
 
-    // draw and save result
-    // open output file
-    TFile* xtalk_result_file = new TFile(options_mgr.xtalk_result_filename.Data(), "recreate");
-    if (xtalk_result_file->IsZombie()) {
-        cout << "xtalk_result_file open failed." << endl;
-        return 1;
+    // save result
+    if (!options_mgr.xtalk_result_filename.IsNull()) {
+        cout << "Saving crosstalk matrix of CT " << options_mgr.ct_num << " ..." << endl;
+        TFile* xtalk_result_file = new TFile(options_mgr.xtalk_result_filename.Data(), "recreate");
+        if (xtalk_result_file->IsZombie()) {
+            cout << "xtalk_result_file open failed." << endl;
+            return 1;
+        }
+        xtalk_result_file->cd();
+        TNamed("ct_num", Form("%d", options_mgr.ct_num)).Write();
+        xtalk_matrix.Write("xtalk_matrix");
+        xtalk_matrix_err.Write("xtalk_matrix_err");
+        xtalk_matrix_inv.Write("xtalk_matrix_inv");
+        TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
+        TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
+        TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();
+        TNamed("high_hv", Form("%f", options_mgr.high_hv)).Write();
+        xtalk_result_file->Close();
+        delete xtalk_result_file;
+        xtalk_result_file = NULL;
     }
-    xtalk_result_file->cd();
-    TNamed("ct_num", Form("%d", options_mgr.ct_num)).Write();
-    xtalk_matrix.Write("xtalk_matrix");
-    xtalk_matrix_err.Write("xtalk_matrix_err");
-    xtalk_matrix_inv.Write("xtalk_matrix_inv");
-    TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
-    TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
-    TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();
-    TNamed("high_hv", Form("%f", options_mgr.high_hv)).Write();
+
+    if (options_mgr.show_flag) {
+        cout << "Showing crosstalk matrix of CT " << options_mgr.ct_num << " ..." << endl;
+        TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
+        CommonCanvas canvas_xtalk(options_mgr.ct_num);
+        canvas_xtalk.init(xtalk_matrix, xtalk_hist, xtalk_line);
+        canvas_xtalk.draw_xtalk_matrix();
+        rootapp->Run();
+    }
 
     return 0;
 }
