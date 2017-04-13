@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/xtalk_correct
 
-$(DEST_BIN)/xtalk_correct: obj/main.o
+$(DEST_BIN)/xtalk_correct: obj/main.o obj/OptionsManager.o obj/Crosstalk.o \
+	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
