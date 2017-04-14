@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
             int   cur_i   = t_na22_data.first_ij[0];
             int   cur_j   = t_na22_data.first_ij[1];
             float cur_adc = t_na22_data.energy_value[cur_i][cur_j];
-            if (cur_adc > ADC_MIN) {
+            if (cur_adc > ADC_MIN && t_na22_data.channel_status[cur_i][cur_j] < 1) {
                 spec_hist[cur_j]->Fill(cur_adc);
             }
         }
@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
             int   cur_i   = t_na22_data.second_ij[0];
             int   cur_j   = t_na22_data.second_ij[1];
             float cur_adc = t_na22_data.energy_value[cur_i][cur_j];
-            if (cur_adc > ADC_MIN) {
+            if (cur_adc > ADC_MIN && t_na22_data.channel_status[cur_i][cur_j] < 1) {
                 spec_hist[cur_j]->Fill(cur_adc);
             }
         }
