@@ -94,7 +94,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<ped_data.root> -n <ct_num> [-a <low_temp>] [-b <high_temp>] [-o <ped_res.root>]" << endl;
+    cout << "  " << SW_NAME << " <ped_data.root> -n <ct_num> [-a <low_temp>] [-b <high_temp>] [-o <ped_res.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -n <ct_num>                      select which module to process" << endl;
