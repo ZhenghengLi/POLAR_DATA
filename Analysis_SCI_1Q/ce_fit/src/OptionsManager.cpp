@@ -28,8 +28,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             switch (cur_option) {
             case 'o':
                 if (idx < argc_par - 1) {
-                    xtalk_result_filename = argv_par[++idx];
-                    if (xtalk_result_filename[0] == '-') {
+                    ce_result_filename = argv_par[++idx];
+                    if (ce_result_filename[0] == '-') {
                         return false;
                     }
                 } else {
@@ -96,31 +96,30 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
-            case 'm':
-                show_flag = true;
-                break;
             default:
                 return false;
             }
         } else {
-            if (xtalk_data_filename.IsNull()) {
-                xtalk_data_filename = cur_par_str;
+            if (na22_data_filename.IsNull()) {
+                na22_data_filename = cur_par_str;
             } else {
                 return false;
             }
         }
     }
-    if (xtalk_data_filename.IsNull()) return false;
+    if (na22_data_filename.IsNull()) return false;
     if (ct_num < 1 || ct_num > 25) return false;
     if (low_temp > high_temp) return false;
     if (low_hv > high_hv) return false;
-    if (xtalk_result_filename.IsNull() && !show_flag) return false;
+    if (ce_result_filename.IsNull()) {
+        ce_result_filename = "ce_result.root";
+    }
     return true;
 }
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <xtalk_data.root> -n <ct_num> [-o <xtalk_res.root>]" << endl;
+    cout << "  " << SW_NAME << " <na22_data.root> -n <ct_num> [-o <ce_res.root>]" << endl;
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
@@ -132,8 +131,7 @@ void OptionsManager::print_help() {
     cout << "  -b <high_temp>                   high temperature" << endl;
     cout << "  -x <low_hv>                      low HV" << endl;
     cout << "  -y <high_hv>                     high HV" << endl;
-    cout << "  -o <xtalk_res.root>              root file to store xtalk matrix" << endl;
-    cout << "  -m                               show crosstalk matrix map of one module" << endl;
+    cout << "  -o <ce_res.root>                 root file to store compton edge fitting result" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -153,14 +151,13 @@ void OptionsManager::print_options() {
 }
 
 void OptionsManager::init() {
-    xtalk_data_filename.Clear();
+    na22_data_filename.Clear();
     ct_num = -1;
     low_temp = -128;
     high_temp = 128;
     low_hv = -128;
     high_hv = 1280;
-    xtalk_result_filename.Clear();
-    show_flag = false;
+    ce_result_filename.Clear();
 
     version_flag_ = false;
 }

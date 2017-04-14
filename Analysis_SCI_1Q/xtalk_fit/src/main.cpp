@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     // open xtalk_data_file
     TFile* xtalk_data_file = new TFile(options_mgr.xtalk_data_filename.Data(), "read");
     if (xtalk_data_file->IsZombie()) {
-        cout << "ped_data_file open failed." << endl;
+        cout << "xtalk_data_file open failed." << endl;
         return 1;
     }
     TTree* t_xtalk_data_tree = static_cast<TTree*>(xtalk_data_file->Get(Form("t_xtalk_data_ct_%02d", options_mgr.ct_num)));

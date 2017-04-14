@@ -11,9 +11,10 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/na22_fit
+all: $(DEST_BIN)/ce_fit
 
-$(DEST_BIN)/na22_fit: obj/main.o
+$(DEST_BIN)/ce_fit: obj/main.o obj/OptionsManager.o \
+	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
