@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/na22_collect
 
-$(DEST_BIN)/na22_collect: obj/main.o obj/OptionsManager.o \
+$(DEST_BIN)/na22_collect: obj/main.o obj/OptionsManager.o obj/Na22Check.o \
 	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 

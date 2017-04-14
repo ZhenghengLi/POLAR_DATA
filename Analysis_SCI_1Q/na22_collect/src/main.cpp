@@ -2,6 +2,7 @@
 #include "RootInc.hpp"
 #include "OptionsManager.hpp"
 #include "POLEvent.hpp"
+#include "Na22Check.hpp"
 
 using namespace std;
 
@@ -86,8 +87,8 @@ int main(int argc, char** argv) {
         UShort_t channel_status[25][64];
         Int_t    first_ij[2];
         Int_t    second_ij[2];
-        Float_t  fe_temp;
-        Float_t  fe_hv;
+        Float_t  fe_temp[25];
+        Float_t  fe_hv[25];
         Float_t  aux_interval;
     } t_na22_data;
     TTree* t_na22_data_tree;
@@ -108,8 +109,8 @@ int main(int argc, char** argv) {
         t_na22_data_tree->Branch("channel_status",  t_na22_data.channel_status,  "channel_status[25][64]/s"  );
         t_na22_data_tree->Branch("first_ij",        t_na22_data.first_ij,        "first_ij[2]/I"             );
         t_na22_data_tree->Branch("second_ij",       t_na22_data.second_ij,       "second_ij[2]/I"            );
-        t_na22_data_tree->Branch("fe_temp",        &t_na22_data.fe_temp,         "fe_temp/F"                 );
-        t_na22_data_tree->Branch("fe_hv",          &t_na22_data.fe_hv,           "fe_hv/F"                   );
+        t_na22_data_tree->Branch("fe_temp",         t_na22_data.fe_temp,         "fe_temp[25]/F"             );
+        t_na22_data_tree->Branch("fe_hv",           t_na22_data.fe_hv,           "fe_hv[25]/F"               );
         t_na22_data_tree->Branch("aux_interval",   &t_na22_data.aux_interval,    "aux_interval/F"            );
     } else {
         t_na22_data_tree->SetBranchAddress("event_time",     &t_na22_data.event_time      );
@@ -121,12 +122,13 @@ int main(int argc, char** argv) {
         t_na22_data_tree->SetBranchAddress("channel_status",  t_na22_data.channel_status  );
         t_na22_data_tree->SetBranchAddress("first_ij",        t_na22_data.first_ij        );
         t_na22_data_tree->SetBranchAddress("second_ij",       t_na22_data.second_ij       );
-        t_na22_data_tree->SetBranchAddress("fe_temp",        &t_na22_data.fe_temp         );
-        t_na22_data_tree->SetBranchAddress("fe_hv",          &t_na22_data.fe_hv           );
+        t_na22_data_tree->SetBranchAddress("fe_temp",         t_na22_data.fe_temp         );
+        t_na22_data_tree->SetBranchAddress("fe_hv",           t_na22_data.fe_hv           );
         t_na22_data_tree->SetBranchAddress("aux_interval",   &t_na22_data.aux_interval    );
     }
 
     // collecting Na22 event data
+    Na22Check na22_checker;
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "colecting Na22 event data ... " << endl;
@@ -139,8 +141,28 @@ int main(int argc, char** argv) {
         }
         t_pol_event_tree->GetEntry(q);
         if (t_pol_event.is_ped) continue;
-        // select Na22 event data
-
+        // check Na22 event
+        if (!na22_checker.check_na22_event(t_pol_event)) continue;
+        // save Na22 event
+        t_na22_data.event_time = t_pol_event.event_time;
+        t_na22_data.trigger_n  = t_pol_event.trigger_n;
+        t_na22_data.aux_interval   = t_pol_event.aux_interval;
+        for (int i = 0; i < 25; i++) {
+            t_na22_data.time_aligned[i] = t_pol_event.time_aligned[i];
+            t_na22_data.multiplicity[i] = t_pol_event.multiplicity[i];
+            t_na22_data.fe_temp[i]      = t_pol_event.fe_temp[i];
+            t_na22_data.fe_hv[i]        = t_pol_event.fe_hv[i];
+            for (int j = 0; j < 64; j++) {
+                t_na22_data.trigger_bit[i][j] = t_pol_event.trigger_bit[i][j];
+                t_na22_data.energy_value[i][j] = t_pol_event.energy_value[i][j];
+                t_na22_data.channel_status[i][j] = t_pol_event.channel_status[i][j];
+            }
+        }
+        for (int k = 0; k < 2; k++) {
+            t_na22_data.first_ij[k] = na22_checker.cur_first_ij[k];
+            t_na22_data.second_ij[k] = na22_checker.cur_second_ij[k];
+        }
+        t_na22_data_tree->Fill();
 
     }
     t_na22_data_tree->Write("", TObject::kOverwrite);
