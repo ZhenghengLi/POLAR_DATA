@@ -67,6 +67,8 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "fe_temp");
     t_pol_event.active(t_pol_event_tree, "fe_hv");
     t_pol_event.active(t_pol_event_tree, "is_ped");
+    t_pol_event.active(t_pol_event_tree, "pkt_count");
+    t_pol_event.active(t_pol_event_tree, "lost_count");
 
     t_pol_event_tree->GetEntry(begin_entry);
     int begin_time = static_cast<int>(t_pol_event.event_time);
@@ -141,6 +143,8 @@ int main(int argc, char** argv) {
         }
         t_pol_event_tree->GetEntry(q);
         if (t_pol_event.is_ped) continue;
+        if (t_pol_event.pkt_count > 25) continue;
+        if (t_pol_event.lost_count > 0) continue;
         // check Na22 event
         if (!na22_checker.check_na22_event(t_pol_event)) continue;
         // save Na22 event
