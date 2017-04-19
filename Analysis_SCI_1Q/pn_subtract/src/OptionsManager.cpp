@@ -46,6 +46,17 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'P':
+                ped_temp_flag = true;
+                if (idx < argc_par - 1) {
+                    ped_temp_par_filename = argv_par[++idx];
+                    if (ped_temp_par_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -58,7 +69,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
-    if (ped_vector_filename.IsNull()) return false;
+    if (ped_vector_filename.IsNull() && ped_temp_par_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_subped.root";
     }
@@ -93,7 +104,9 @@ void OptionsManager::print_options() {
 void OptionsManager::init() {
     pol_event_filename.Clear();
     ped_vector_filename.Clear();
+    ped_temp_par_filename.Clear();
     output_filename.Clear();
+    ped_temp_flag = false;
 
     version_flag_ = false;
 }

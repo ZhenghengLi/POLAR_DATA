@@ -9,6 +9,8 @@ using namespace std;
 class Pedestal {
 private:
     TVectorF ped_mean_vec_CT_[25];
+    TVectorF ped_const_vec_CT_[25];
+    TVectorF ped_slope_vec_CT_[25];
 
 private:
 
@@ -20,6 +22,7 @@ public:
     ~Pedestal();
 
     bool read_pedestal(const char* ped_filename);
+    bool read_ped_temp_par(const char* ped_temp_par_filename);
     void gen_pedestal();
     void gen_pedestal(int ct_num, double temp);
 

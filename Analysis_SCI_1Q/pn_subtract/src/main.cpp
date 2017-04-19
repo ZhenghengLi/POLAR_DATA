@@ -19,11 +19,18 @@ int main(int argc, char** argv) {
 
     // prepare pedestal
     Pedestal ped_obj;
-    if (!ped_obj.read_pedestal(options_mgr.ped_vector_filename.Data())) {
-        cout << "pedestal vector read failed: " << options_mgr.ped_vector_filename.Data() << endl;
-        return 1;
+    if (options_mgr.ped_temp_flag) {
+        if (!ped_obj.read_ped_temp_par(options_mgr.ped_temp_par_filename.Data())) {
+            cout << "ped_temp_par vector read failed: " << options_mgr.ped_temp_par_filename.Data() << endl;
+            return 1;
+        }
+    } else {
+        if (!ped_obj.read_pedestal(options_mgr.ped_vector_filename.Data())) {
+            cout << "pedestal vector read failed: " << options_mgr.ped_vector_filename.Data() << endl;
+            return 1;
+        }
+        ped_obj.gen_pedestal();
     }
-    ped_obj.gen_pedestal();
 
     // read event data
     TFile* pol_event_file = new TFile(options_mgr.pol_event_filename.Data(), "read");
@@ -94,6 +101,18 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             if (t_pol_event.compress[i] == 3) continue;
+            if (options_mgr.ped_temp_flag) {
+                if (i == 9) {
+                    double temp_sum = 0;
+                    for (int k = 0; k < 25; k++) {
+                        if (k == 9) continue;
+                        temp_sum += t_pol_event.fe_temp[k];
+                    }
+                    ped_obj.gen_pedestal(i + 1, round(temp_sum / 24.0));
+                } else {
+                    ped_obj.gen_pedestal(i + 1, t_pol_event.fe_temp[i]);
+                }
+            }
             for (int j = 0; j < 64; j++) {
                 if (!(t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT)) {
                     t_pol_event.energy_value[i][j] -= ped_obj.ped_vec_CT[i](j);

@@ -14,8 +14,10 @@ private:
 
 public:
     TString pol_event_filename;
-    TString ped_vector_filename;  // -p
-    TString output_filename;      // -o
+    TString ped_vector_filename;    // -p
+    TString ped_temp_par_filename;  // -P
+    bool    ped_temp_flag;
+    TString output_filename;        // -o
 
 public:
     OptionsManager();
