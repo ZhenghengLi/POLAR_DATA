@@ -4,6 +4,8 @@ Pedestal::Pedestal() {
     for (int i = 0; i < 25; i++) {
         ped_mean_vec_CT_[i].ResizeTo(64);
         ped_vec_CT[i].ResizeTo(64);
+        ped_const_vec_CT_[i].ResizeTo(64);
+        ped_slope_vec_CT_[i].ResizeTo(64);
     }
 }
 
