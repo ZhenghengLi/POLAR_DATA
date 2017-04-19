@@ -78,10 +78,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -p <ped_vec_file.root> [-o <output_subped.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-p <ped_vec_file.root>]|[-P <ped_temp_par.root>] [-o <output_subped.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -p <ped_vector.root>             pedestal vector file" << endl;
+    cout << "  -P <ped_temp_par.root>           pedestal and temperature dependence parameters" << endl;
     cout << "  -o <output_subped.root>          pedestal subtracted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
