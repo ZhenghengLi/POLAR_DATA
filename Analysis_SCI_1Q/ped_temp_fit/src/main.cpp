@@ -79,9 +79,12 @@ int main(int argc, char** argv) {
     }
 
     TGraph* ped_temp_gr[64];
+    TF1*    ped_temp_ln[64];
     for (int j = 0; j < 64; j++) {
         ped_temp_gr[j] = new TGraph();
         ped_temp_gr[j]->SetTitle(Form("ped_temp_bar_%02d", j));
+        ped_temp_ln[j] = new TF1(Form("ped_temp_lin_%02d", j), "[0] + [1] * x", 0, 100);
+        ped_temp_ln[j]->SetParameters(200, 1);
     }
 
     int ct_num;
@@ -89,6 +92,8 @@ int main(int argc, char** argv) {
     float temp_mean;
 
     int g_ct_num = -1;
+    float min_temp = 100;
+    float max_temp = 0;
 
     for (int i = 2; i < argc; i++) {
         if (read_ped_temp(argv[i],
@@ -104,6 +109,12 @@ int main(int argc, char** argv) {
                     return 1;
                 }
             }
+            if (min_temp > temp_mean) {
+                min_temp = temp_mean;
+            }
+            if (max_temp < temp_mean) {
+                max_temp = temp_mean;
+            }
             for (int j = 0; j < 64; j++) {
                 ped_temp_gr[j]->SetPoint(i - 2, temp_mean, ped_mean_vec(j));
             }
@@ -115,7 +126,7 @@ int main(int argc, char** argv) {
     gROOT->SetBatch(kTRUE);
     gErrorIgnoreLevel = kWarning;
 
-    cout << "All ped_result are read, now writting them into file: " << argv[1] << " ..." << endl;
+    cout << "All ped_result are read, now do fitting and writting the result into file: " << argv[1] << " ..." << endl;
     // wrtie ped_vec
     TFile* ped_temp_file = new TFile(argv[1], "recreate");
     if (ped_temp_file->IsZombie()) {
@@ -124,11 +135,17 @@ int main(int argc, char** argv) {
     }
     ped_temp_file->cd();
     TNamed("ct_num", Form("%d", g_ct_num)).Write();
+
+    TVectorF ped_const(64);
+    TVectorF ped_slope(64);
     TCanvas* canvas_ped_temp = new TCanvas("ped_temp_canvas", "Pedestal vs Temperature", 900, 900);
     canvas_ped_temp->Divide(8, 8);
     for (int j = 0; j < 64; j++) {
         canvas_ped_temp->cd(jtoc(j));
-        ped_temp_gr[j]->Draw("AC*");
+        ped_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
+        ped_temp_gr[j]->Fit(ped_temp_ln[j], "QR");
+        ped_const(j) = ped_temp_ln[j]->GetParameter(0);
+        ped_slope(j) = ped_temp_ln[j]->GetParameter(1);
     }
     ped_temp_file->mkdir("ped_temp_graph")->cd();
     for (int j = 0; j < 64; j++) {
@@ -136,6 +153,8 @@ int main(int argc, char** argv) {
     }
     ped_temp_file->cd();
     canvas_ped_temp->Write();
+    ped_const.Write("ped_const");
+    ped_slope.Write("ped_slope");
 
     return 0;
 }
