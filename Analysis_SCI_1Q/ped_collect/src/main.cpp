@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "RootInc.hpp"
 #include "OptionsManager.hpp"
 #include "POLEvent.hpp"
@@ -120,7 +121,16 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.time_aligned[i]) {
                 t_ped_data[i].event_time = t_pol_event.event_time;
-                t_ped_data[i].fe_temp = t_pol_event.fe_temp[i];
+                if (i == 9) {
+                    double temp_sum = 0;
+                    for (int i = 0; i < 25; i++) {
+                        if (i == 9) continue;
+                        temp_sum += t_pol_event.fe_temp[i];
+                    }
+                    t_ped_data[i].fe_temp = round(temp_sum / 24.0);
+                } else {
+                    t_ped_data[i].fe_temp = t_pol_event.fe_temp[i];
+                }
                 t_ped_data[i].aux_interval = t_pol_event.aux_interval;
                 for (int j = 0; j < 64; j++) {
                     t_ped_data[i].trigger_bit[j] = t_pol_event.trigger_bit[i][j];

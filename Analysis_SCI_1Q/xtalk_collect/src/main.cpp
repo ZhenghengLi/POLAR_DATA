@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "RootInc.hpp"
 #include "OptionsManager.hpp"
 #include "POLEvent.hpp"
@@ -165,7 +166,16 @@ int main(int argc, char** argv) {
                     t_xtalk_data[i].x  = t_pol_event.energy_value[i][jx];
                     t_xtalk_data[i].jy = jy;
                     t_xtalk_data[i].y  = t_pol_event.energy_value[i][jy];
-                    t_xtalk_data[i].fe_temp = t_pol_event.fe_temp[i];
+                    if (i == 9) {
+                        double temp_sum = 0;
+                        for (int i = 0; i < 25; i++) {
+                            if (i == 9) continue;
+                            temp_sum += t_pol_event.fe_temp[i];
+                        }
+                        t_xtalk_data[i].fe_temp = round(temp_sum / 24.0);
+                    } else {
+                        t_xtalk_data[i].fe_temp = t_pol_event.fe_temp[i];
+                    }
                     t_xtalk_data[i].fe_hv = t_pol_event.fe_hv[i];
                     t_xtalk_data[i].aux_interval = t_pol_event.aux_interval;
                     t_xtalk_data_tree[i]->Fill();

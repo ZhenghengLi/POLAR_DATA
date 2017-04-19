@@ -154,7 +154,16 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             t_na22_data.time_aligned[i] = t_pol_event.time_aligned[i];
             t_na22_data.multiplicity[i] = t_pol_event.multiplicity[i];
-            t_na22_data.fe_temp[i]      = t_pol_event.fe_temp[i];
+            if (i == 9) {
+                double temp_sum = 0;
+                for (int i = 0; i < 25; i++) {
+                    if (i == 9) continue;
+                    temp_sum += t_pol_event.fe_temp[i];
+                }
+                t_na22_data.fe_temp[i] = round(temp_sum / 24.0);
+            } else {
+                t_na22_data.fe_temp[i] = t_pol_event.fe_temp[i];
+            }
             t_na22_data.fe_hv[i]        = t_pol_event.fe_hv[i];
             for (int j = 0; j < 64; j++) {
                 t_na22_data.trigger_bit[i][j] = t_pol_event.trigger_bit[i][j];
