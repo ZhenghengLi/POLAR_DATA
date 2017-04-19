@@ -123,9 +123,9 @@ int main(int argc, char** argv) {
                 t_ped_data[i].event_time = t_pol_event.event_time;
                 if (i == 9) {
                     double temp_sum = 0;
-                    for (int i = 0; i < 25; i++) {
-                        if (i == 9) continue;
-                        temp_sum += t_pol_event.fe_temp[i];
+                    for (int k = 0; k < 25; k++) {
+                        if (k == 9) continue;
+                        temp_sum += t_pol_event.fe_temp[k];
                     }
                     t_ped_data[i].fe_temp = round(temp_sum / 24.0);
                 } else {

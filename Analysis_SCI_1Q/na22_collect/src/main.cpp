@@ -156,9 +156,9 @@ int main(int argc, char** argv) {
             t_na22_data.multiplicity[i] = t_pol_event.multiplicity[i];
             if (i == 9) {
                 double temp_sum = 0;
-                for (int i = 0; i < 25; i++) {
-                    if (i == 9) continue;
-                    temp_sum += t_pol_event.fe_temp[i];
+                for (int k = 0; k < 25; k++) {
+                    if (k == 9) continue;
+                    temp_sum += t_pol_event.fe_temp[k];
                 }
                 t_na22_data.fe_temp[i] = round(temp_sum / 24.0);
             } else {
