@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
     TF1*    ped_temp_ln[64];
     for (int j = 0; j < 64; j++) {
         ped_temp_gr[j] = new TGraph();
+        ped_temp_gr[j]->SetName(Form("ped_temp_bar_%02d", j));
         ped_temp_gr[j]->SetTitle(Form("ped_temp_bar_%02d", j));
         ped_temp_ln[j] = new TF1(Form("ped_temp_lin_%02d", j), "[0] + [1] * x", 0, 100);
         ped_temp_ln[j]->SetParameters(200, 1);
@@ -144,6 +145,7 @@ int main(int argc, char** argv) {
         canvas_ped_temp->cd(jtoc(j));
         ped_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
         ped_temp_gr[j]->Fit(ped_temp_ln[j], "QR");
+        ped_temp_gr[j]->Draw("AC*");
         ped_const(j) = ped_temp_ln[j]->GetParameter(0);
         ped_slope(j) = ped_temp_ln[j]->GetParameter(1);
     }
