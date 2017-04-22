@@ -5,8 +5,8 @@
 #include "CommonCanvas.hpp"
 
 #define SPEC_BINS 64
-#define ADC_MIN   400
-#define FUNC_MIN  800
+#define ADC_MIN   250
+#define FUNC_MIN  300
 #define FUNC_MAX  4096
 
 using namespace std;
@@ -122,10 +122,10 @@ int main(int argc, char** argv) {
     // fit
     Double_t erfc_p[25][64][4];
     TVectorF adc_per_kev[25];
-    TVectorF ce_adc_sigma[25];
+    TVectorF gain_sigma[25];
     for (int i = 0; i < 25; i++) {
         adc_per_kev[i].ResizeTo(64);
-        ce_adc_sigma[i].ResizeTo(64);
+        gain_sigma[i].ResizeTo(64);
     }
     cout << "Fitting compton edge ..." << endl;
     for (int i = 0; i < 25; i++) {
@@ -210,10 +210,10 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000) {
                 adc_per_kev[i](j) = erfc_p[i][j][2] / CE_Na22;
-                ce_adc_sigma[i](j) = erfc_p[i][j][3];
+                gain_sigma[i](j) = erfc_p[i][j][3] / CE_Na22;
             } else {
                 adc_per_kev[i](j) = 0;
-                ce_adc_sigma[i](j) = 0;
+                gain_sigma[i](j) = 0;
             }
         }
     }
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
         TFile* ce_result_file = new TFile(options_mgr.ce_result_filename.Data(), "recreate");
         for (int i = 0; i < 25; i++) {
             adc_per_kev[i].Write(Form("adc_per_kev_ct_%02d", i + 1));
-            ce_adc_sigma[i].Write(Form("ce_adc_sigma_ct_%02d", i + 1));
+            gain_sigma[i].Write(Form("gain_sigma_ct_%02d", i + 1));
         }
         ce_result_file->Close();
         delete ce_result_file;

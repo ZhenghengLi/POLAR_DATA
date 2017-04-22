@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
 
     Double_t erfc_p[64][4];
     TVectorF adc_per_kev(64);
-    TVectorF ce_adc_sigma(64);
+    TVectorF gain_sigma(64);
 
     cout << "Fitting compton edge of CT_" << options_mgr.ct_num << " ..." << endl;
     // fit
@@ -211,10 +211,10 @@ int main(int argc, char** argv) {
     for (int j = 0; j < 64; j++) {
         if (erfc_p[j][2] > 200 && erfc_p[j][2] < 4095 && erfc_p[j][3] > 100 && erfc_p[j][3] < 2000) {
             adc_per_kev(j) = erfc_p[j][2] / CE_Na22;
-            ce_adc_sigma(j) = erfc_p[j][3];
+            gain_sigma(j) = erfc_p[j][3] / CE_Na22;
         } else {
             adc_per_kev(j) = 0;
-            ce_adc_sigma(j) = 0;
+            gain_sigma(j) = 0;
         }
     }
 
@@ -244,7 +244,7 @@ int main(int argc, char** argv) {
     ce_result_file->cd();
     canvas_spec_hist->Write();
     adc_per_kev.Write("adc_per_kev");
-    ce_adc_sigma.Write("ce_adc_sigma");
+    gain_sigma.Write("gain_sigma");
     TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
     TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
     TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();
