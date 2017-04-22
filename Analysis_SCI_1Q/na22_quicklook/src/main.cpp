@@ -208,13 +208,8 @@ int main(int argc, char** argv) {
     const float CE_Na22  = 340.667;
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            if (erfc_p[i][j][2] > 200 && erfc_p[i][j][2] < 4095 && erfc_p[i][j][3] > 100 && erfc_p[i][j][3] < 2000) {
-                adc_per_kev[i](j) = erfc_p[i][j][2] / CE_Na22;
-                gain_sigma[i](j) = erfc_p[i][j][3] / CE_Na22;
-            } else {
-                adc_per_kev[i](j) = 0;
-                gain_sigma[i](j) = 0;
-            }
+            adc_per_kev[i](j) = erfc_p[i][j][2] / CE_Na22;
+            gain_sigma[i](j) = erfc_p[i][j][3] / CE_Na22;
         }
     }
 
