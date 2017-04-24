@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
     CommonCanvas canvas;
     gStyle->SetOptStat(0);
     canvas.cd();
+    canvas.get_canvas()->SetGrid();
     gain_map->Draw("colz");
     for (int i = 0; i < 4; i++) {
         line_h[i]->Draw();
