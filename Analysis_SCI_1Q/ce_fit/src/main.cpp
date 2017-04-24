@@ -4,8 +4,8 @@
 #include "CooConv.hpp"
 
 #define SPEC_BINS 64
-#define ADC_MIN   400
-#define FUNC_MIN  800
+#define ADC_MIN   300
+#define FUNC_MIN  400
 #define FUNC_MAX  4096
 
 using namespace std;

@@ -5,8 +5,8 @@
 #include "CommonCanvas.hpp"
 
 #define SPEC_BINS 64
-#define ADC_MIN   250
-#define FUNC_MIN  300
+#define ADC_MIN   300
+#define FUNC_MIN  400
 #define FUNC_MAX  4096
 
 using namespace std;
