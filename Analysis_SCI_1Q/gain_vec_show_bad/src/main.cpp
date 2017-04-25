@@ -49,9 +49,7 @@ int main(int argc, char** argv) {
     TLine* line_v[4];
     for (int i = 0; i < 4; i++) {
         line_h[i] = new TLine(0, (i + 1) * 8, 40, (i + 1) * 8);
-        line_h[i]->SetLineColor(kWhite);
         line_v[i] = new TLine((i + 1) * 8, 0, (i + 1) * 8, 40);
-        line_v[i]->SetLineColor(kWhite);
     }
 
     TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
