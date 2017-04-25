@@ -16,15 +16,15 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    double vthr_mean_0 = 30.0;
+    double vthr_mean_0 = 500.0;
     double vthr_sigma_0 = 30.0;
-    double vthr_max = 768.0;
+    double vthr_max = 3072;
     double vthr_min = -128.0;
 
     if (options_mgr.energy_flag) {
-        vthr_mean_0 = 15.0;
+        vthr_mean_0 = 25.0;
         vthr_sigma_0 = 5.0;
-        vthr_max = 60.0;
+        vthr_max = 240.0;
         vthr_min = -15.0;
     }
 
@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "trigger_bit");
     t_pol_event.active(t_pol_event_tree, "energy_value");
     t_pol_event.active(t_pol_event_tree, "channel_status");
+    t_pol_event.active(t_pol_event_tree, "dy12_too_high");
 
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -79,6 +80,18 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
+
+        // start bad event checking
+        bool is_bad_event = false;
+        for (int i = 0; i < 25; i++) {
+            if (!t_pol_event.time_aligned[i]) continue;
+            if (t_pol_event.dy12_too_high[i]) {
+                is_bad_event = true;
+                continue;
+            }
+        }
+        if (is_bad_event) continue;
+        // stop bad event checking
 
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
