@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/draw_rate_1q
+all: $(DEST_BIN)/draw_rate_1Q
 
-$(DEST_BIN)/draw_rate_1q: obj/main.o obj/OptionsManager.o obj/RateCanvas.o obj/RateCanvas_Dict.o \
+$(DEST_BIN)/draw_rate_1Q: obj/main.o obj/OptionsManager.o obj/RateCanvas.o obj/RateCanvas_Dict.o \
 	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
