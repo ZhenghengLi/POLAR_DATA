@@ -54,7 +54,8 @@ public:
 
 public:
     static const UShort_t ADC_NOT_READOUT = 0x1;
-    static const UShort_t ADC_OVERFLOW = 0x3;
+    static const UShort_t ADC_OVERFLOW = 0x2;
+    static const UShort_t BAD_CALIB = 0x4;
 
 public:
     void bind_pol_event_tree(TTree* t_pol_event_tree);
