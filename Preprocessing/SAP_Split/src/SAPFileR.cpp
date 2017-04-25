@@ -112,6 +112,24 @@ bool SAPFileR::open(const char* filename, const char* time_begin, const char* ti
             return false;
         }
     }
+
+    // read energy_unit and level_num
+    TNamed* tmp_tnamed;
+    tmp_tnamed = static_cast<TNamed*>(t_file_in_->Get("m_energy_unit"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed m_energy_unit." << endl;
+        return false;
+    } else {
+        energy_unit_ = tmp_tnamed->GetTitle();
+    }
+    tmp_tnamed = static_cast<TNamed*>(t_file_in_->Get("m_level_num"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed m_level_num." << endl;
+        return false;
+    } else {
+        level_num_ = tmp_tnamed->GetTitle();
+    }
+
     // bind tree
     bind_pol_event_tree(t_pol_event_tree_, t_pol_event);
     // find entry_begin_ and entry_end_
@@ -176,6 +194,14 @@ double SAPFileR::get_time_first() {
 
 double SAPFileR::get_time_last() {
     return time_last_;
+}
+
+string SAPFileR::get_energy_unit() {
+    return energy_unit_;
+}
+
+string SAPFileR::get_level_num() {
+    return level_num_;
 }
 
 void SAPFileR::pol_event_set_start() {

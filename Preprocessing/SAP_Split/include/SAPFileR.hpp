@@ -33,6 +33,9 @@ private:
     double  time_first_;
     double  time_last_;
 
+    string  energy_unit_;
+    string  level_num_;
+
     Long64_t entry_begin_;
     Long64_t entry_end_;
 
@@ -59,6 +62,8 @@ public:
     string get_filename();
     double get_time_first();
     double get_time_last();
+    string get_energy_unit();
+    string get_level_num();
 
     void     pol_event_set_start();
     bool     pol_event_next();

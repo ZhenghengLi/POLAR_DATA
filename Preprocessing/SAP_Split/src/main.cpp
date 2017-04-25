@@ -54,19 +54,36 @@ int main(int argc, char** argv) {
             if (open_result) {
                 sapfile_r_arr[i].print_file_info();
                 // check connection
-                if (i > 0) {
+                if (i > 0 && !options_mgr.no_check_conn) {
                     if (sapfile_r_arr[i].get_time_first() - sapfile_r_arr[i - 1].get_time_last() > TIME_GAP_MAX) {
                         cout << "Error: two files cannot connect in MET time." << endl;
                         for (size_t j = 0; j <= i; j++) {
                             sapfile_r_arr[j].close();
                         }
-                        return false;
+                        return 1;
                     } else if (sapfile_r_arr[i].get_time_first() - sapfile_r_arr[i - 1].get_time_last() < -1) {
                         cout << "Error: two files have overlap in MET time." << endl;
                         for (size_t j = 0; j <= i; j++) {
                             sapfile_r_arr[j].close();
                         }
-                        return false;
+                        return 1;
+                    }
+                }
+                // check matching of energy_unit and level_num
+                if (i > 0) {
+                    if (sapfile_r_arr[i].get_level_num() != sapfile_r_arr[i - 1].get_level_num()) {
+                        cout << "Error: m_level_num of two files are not the same." << endl;
+                        for (size_t j = 0; j <= i; j++) {
+                            sapfile_r_arr[j].close();
+                        }
+                        return 1;
+                    }
+                    if (sapfile_r_arr[i].get_energy_unit() != sapfile_r_arr[i - 1].get_energy_unit()) {
+                        cout << "Error: m_energy_unit of two files are not the same." << endl;
+                        for (size_t j = 0; j <= i; j++) {
+                            sapfile_r_arr[j].close();
+                        }
+                        return 1;
                     }
                 }
             } else {
@@ -74,7 +91,7 @@ int main(int argc, char** argv) {
                 for (size_t j = 0; j <= i; j++) {
                     sapfile_r_arr[j].close();
                 }
-                return false;
+                return 1;
             }
         }
     }
@@ -134,9 +151,9 @@ int main(int argc, char** argv) {
     }
     sapfile_w.write_meta("m_fromfile", fromfile_list.c_str());
     // m_eneunit
-    sapfile_w.write_meta("m_energy_unit", "ADC");
+    sapfile_w.write_meta("m_energy_unit", sapfile_r_arr[0].get_energy_unit().c_str());
     // m_levelnum
-    sapfile_w.write_meta("m_level_num", "0");
+    sapfile_w.write_meta("m_level_num", sapfile_r_arr[0].get_level_num().c_str());
     // m_timespan
     sapfile_w.write_meta("m_time_span", sapfile_w.get_time_span().c_str());
     // m_utc_ref

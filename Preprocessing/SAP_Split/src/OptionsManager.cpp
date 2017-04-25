@@ -46,6 +46,8 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'N':
+                no_check_conn = true;
             case 'o':
                 if (idx < argc_par - 1) {
                     out_file = argv_par[++idx];
@@ -93,6 +95,7 @@ void OptionsManager::print_help() {
     cout << "Options:" << endl;
     cout << "  -B <met_begin_str>               string of beginning MET, a float number or just begin" << endl;
     cout << "  -E <met_end_str>                 string of ending MET, a float number or just end" << endl;
+    cout << "  -N                               do not check MET connection" << endl;
     cout << "  -o <splitted_data.root>          root file that stores the splitted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -112,6 +115,8 @@ void OptionsManager::init() {
     met_begin.Clear();
     met_end.Clear();
     raw_file_vector.clear();
+    no_check_conn = false;
+
     version_flag_ = false;
 }
 

@@ -17,6 +17,7 @@ public:
     TString out_file;
     TString met_begin;
     TString met_end;
+    bool    no_check_conn;
 
 public:
     OptionsManager();
