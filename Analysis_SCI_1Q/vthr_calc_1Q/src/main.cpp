@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
             if (!t_pol_event.time_aligned[i]) continue;
             if (t_pol_event.dy12_too_high[i]) {
                 is_bad_event = true;
-                continue;
+                break;
             }
         }
         if (is_bad_event) continue;
