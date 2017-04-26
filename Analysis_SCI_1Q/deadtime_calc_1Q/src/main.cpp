@@ -58,9 +58,9 @@ int main(int argc, char** argv) {
 
     // prepare histogram
     int nbins = static_cast<int>((end_time - begin_time) / options_mgr.binw);
-    TH1F* dead_ratio_hist[25];
+    TH1D* dead_ratio_hist[25];
     for (int i = 0; i < 25; i++) {
-        dead_ratio_hist[i] = new TH1F(Form("dead_ratio_hist_CT_%02d", i + 1),
+        dead_ratio_hist[i] = new TH1D(Form("dead_ratio_hist_CT_%02d", i + 1),
                 Form("dead_ratio_hist_CT_%02d", i + 1), nbins, begin_time, end_time);
         dead_ratio_hist[i]->SetDirectory(NULL);
     }
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
-        if (!t_pol_event.is_ped) continue;
+        if (t_pol_event.is_ped) continue;
 
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.time_aligned[i]) {
