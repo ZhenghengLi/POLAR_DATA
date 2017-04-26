@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
 
         // start init angle
-        t_pol_event.event_time = t_pol_event.event_time;
+        t_pol_angle.event_time = t_pol_event.event_time;
         for (int i = 0; i < 2; i++) {
             t_pol_angle.first_ij[i] = -1;
             t_pol_angle.second_ij[i] = -1;
