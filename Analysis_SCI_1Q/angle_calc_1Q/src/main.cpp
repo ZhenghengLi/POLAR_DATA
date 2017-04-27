@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
         Bool_t    is_valid;
         Bool_t    is_na22;
         Bool_t    is_cosmic;
+        Bool_t    is_bad_calib;
         Float_t   deadtime_weight;
         Float_t   efficiency_weight;
     } t_pol_angle;
@@ -105,6 +106,7 @@ int main(int argc, char** argv) {
     t_pol_angle_tree->Branch("is_valid",          &t_pol_angle.is_valid,           "is_valid/O"          );
     t_pol_angle_tree->Branch("is_na22",           &t_pol_angle.is_na22,            "is_na22/O"           );
     t_pol_angle_tree->Branch("is_cosmic",         &t_pol_angle.is_cosmic,          "is_cosmic/O"         );
+    t_pol_angle_tree->Branch("is_bad_calib",      &t_pol_angle.is_bad_calib,       "is_bad_calib/O"      );
     t_pol_angle_tree->Branch("deadtime_weight",   &t_pol_angle.deadtime_weight,    "deadtime_weight/F"   );
     t_pol_angle_tree->Branch("efficiency_weight", &t_pol_angle.efficiency_weight,  "efficiency_weight/F" );
 
@@ -156,14 +158,18 @@ int main(int argc, char** argv) {
         // good event check
         if (t_pol_event.pkt_count > 25) not_ready = true;
         if (t_pol_event.lost_count > 0) not_ready = true;
+        // if not ready to calculate angle, save now
+        if (not_ready) {
+            t_pol_angle_tree->Fill();
+            continue;
+        }
         // na22 check
-        if (!not_ready && na22_checker.check_na22_event(t_pol_event)) {
-            not_ready = true;
+        if (na22_checker.check_na22_event(t_pol_event)) {
             t_pol_angle.is_na22 = true;
         }
         // cosmic check
         bool cur_is_cosmic = false;
-        if (t_pol_event.trigger_n > 25) cur_is_cosmic = true;
+        if (t_pol_event.trigger_n > 50) cur_is_cosmic = true;
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.time_aligned[i] && t_pol_event.dy12_too_high[i]) {
                 cur_is_cosmic = true;
@@ -171,13 +177,23 @@ int main(int argc, char** argv) {
             }
         }
         if (cur_is_cosmic) {
-            not_ready = true;
             t_pol_angle.is_cosmic = true;
         }
-        // if not ready to calculate angle, save now
-        if (not_ready) {
-            t_pol_angle_tree->Fill();
-            continue;
+        // bad calib check
+        bool cur_is_bad_calib = false;
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.time_aligned[i]) {
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j] && (t_pol_event.channel_status[i][j] & POLEvent::BAD_CALIB)) {
+                        cur_is_bad_calib = true;
+                        break;
+                    }
+                }
+            }
+            if (cur_is_bad_calib) break;
+        }
+        if (cur_is_bad_calib) {
+            t_pol_angle.is_bad_calib = cur_is_bad_calib;
         }
 
         // start angle calculating
@@ -190,7 +206,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
-                if (t_pol_event.trigger_bit[i][j] && t_pol_event.channel_status[i][j] > 0) {
+                if (t_pol_event.trigger_bit[i][j] && t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) {
                    is_bad_event = true;
                    break;
                 }
