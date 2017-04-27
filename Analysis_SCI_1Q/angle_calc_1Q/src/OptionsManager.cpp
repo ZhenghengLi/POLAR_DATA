@@ -46,6 +46,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'w':
+                if (idx < argc_par - 1) {
+                    weight_filename = argv_par[++idx];
+                    if (weight_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -59,6 +69,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     }
     if (pol_event_filename.IsNull()) return false;
     if (deadtime_filename.IsNull()) return false;
+    if (weight_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_angle.root";
     }
@@ -67,10 +78,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -d <deadtime_file.root> [-o <output_xtalkcorr.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> -d <deadtime_file.root> -w <weight_file.root> [-o <output_angle.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -d <deadtime_file.root>          deadtime file" << endl;
+    cout << "  -w <weight_file.root>            weight file" << endl;
     cout << "  -o <output_xtalkcorr.root>       crosstalk corrected data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -93,6 +105,7 @@ void OptionsManager::print_options() {
 void OptionsManager::init() {
     pol_event_filename.Clear();
     deadtime_filename.Clear();
+    weight_filename.Clear();
     output_filename.Clear();
 
     version_flag_ = false;

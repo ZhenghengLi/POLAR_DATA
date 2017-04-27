@@ -15,6 +15,7 @@ private:
 public:
     TString pol_event_filename;
     TString deadtime_filename;      // -d
+    TString weight_filename;        // -w
     TString output_filename;        // -o
 
 public:
