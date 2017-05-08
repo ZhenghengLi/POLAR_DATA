@@ -68,10 +68,10 @@ int main(int argc, char** argv) {
     TH2F* spec_count_map;
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            spec_hist[i][j] = new TH1F(Form("spec_hist%02d_%02d", i + 1, j + 1),
-                    Form("Spectrum of CH %02d_%02d", i + 1, j + 1), SPEC_BINS, 0, 4096);
+            spec_hist[i][j] = new TH1F(Form("spec_hist%02d_%02d", i + 1, j),
+                    Form("Spectrum of CH %02d_%02d", i + 1, j), SPEC_BINS, 0, 4096);
             spec_hist[i][j]->SetDirectory(NULL);
-            spec_func[i][j] = new TF1(Form("spec_func%02d_%02d", i + 1, j + 1),
+            spec_func[i][j] = new TF1(Form("spec_func%02d_%02d", i + 1, j),
                     "[0] + [1] * TMath::Erfc((x - [2] ) / TMath::Sqrt(2) / [3])", FUNC_MIN, FUNC_MAX);
             spec_func[i][j]->SetParName(2, "CE");
 			spec_func[i][j]->SetParLimits(2, FUNC_MIN, FUNC_MAX);
@@ -214,14 +214,24 @@ int main(int argc, char** argv) {
     }
 
     if (!options_mgr.ce_result_filename.IsNull()) {
+        gROOT->SetBatch(kTRUE);
+        gStyle->SetOptStat(11);
+        gStyle->SetOptFit(111);
         TFile* ce_result_file = new TFile(options_mgr.ce_result_filename.Data(), "recreate");
         for (int i = 0; i < 25; i++) {
+            ce_result_file->cd();
             adc_per_kev[i].Write(Form("adc_per_kev_ct_%02d", i + 1));
             gain_sigma[i].Write(Form("gain_sigma_ct_%02d", i + 1));
+            ce_result_file->mkdir(Form("spec_hist_ct_%02d", i + 1))->cd();
+            for (int j = 0; j < 64; j++) {
+                spec_hist[i][j]->Fit(spec_func[i][j], "RQ");
+                spec_hist[i][j]->Write();
+            }
         }
         ce_result_file->Close();
         delete ce_result_file;
         ce_result_file = NULL;
+        gROOT->SetBatch(kFALSE);
     }
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
