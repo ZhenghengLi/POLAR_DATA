@@ -213,26 +213,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (!options_mgr.ce_result_filename.IsNull()) {
-        gROOT->SetBatch(kTRUE);
-        gStyle->SetOptStat(11);
-        gStyle->SetOptFit(111);
-        TFile* ce_result_file = new TFile(options_mgr.ce_result_filename.Data(), "recreate");
-        for (int i = 0; i < 25; i++) {
-            ce_result_file->cd();
-            adc_per_kev[i].Write(Form("adc_per_kev_ct_%02d", i + 1));
-            gain_sigma[i].Write(Form("gain_sigma_ct_%02d", i + 1));
-            ce_result_file->mkdir(Form("spec_hist_ct_%02d", i + 1))->cd();
-            for (int j = 0; j < 64; j++) {
-                spec_hist[i][j]->Fit(spec_func[i][j], "RQ");
-                spec_hist[i][j]->Write();
-            }
-        }
-        ce_result_file->Close();
-        delete ce_result_file;
-        ce_result_file = NULL;
-        gROOT->SetBatch(kFALSE);
-    }
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             spec_count_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, spec_hist[i][j]->GetEntries());
@@ -246,6 +226,26 @@ int main(int argc, char** argv) {
         canvas_fitting.draw_na22_hitmap();
         rootapp->Run();
 
+    }
+
+    if (!options_mgr.ce_result_filename.IsNull()) {
+        gROOT->SetBatch(kTRUE);
+        TFile* ce_result_file = new TFile(options_mgr.ce_result_filename.Data(), "recreate");
+        for (int i = 0; i < 25; i++) {
+            ce_result_file->cd();
+            adc_per_kev[i].Write(Form("adc_per_kev_ct_%02d", i + 1));
+            gain_sigma[i].Write(Form("gain_sigma_ct_%02d", i + 1));
+            ce_result_file->mkdir(Form("spec_hist_ct_%02d", i + 1))->cd();
+            for (int j = 0; j < 64; j++) {
+                spec_hist[i][j]->Fit(spec_func[i][j], "RQ");
+                spec_hist[i][j]->Write();
+                spec_hist[i][j]->SetDirectory(NULL);
+            }
+        }
+        ce_result_file->Close();
+        delete ce_result_file;
+        ce_result_file = NULL;
+        gROOT->SetBatch(kFALSE);
     }
 
     return 0;
