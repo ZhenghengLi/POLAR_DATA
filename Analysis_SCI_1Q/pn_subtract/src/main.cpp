@@ -39,13 +39,11 @@ int main(int argc, char** argv) {
         return 1;
     }
     TNamed* m_level_num = static_cast<TNamed*>(pol_event_file->Get("m_level_num"));
-    if (m_level_num == NULL) {
-        cout << "cannot find TNamed m_level_num." << endl;
-        return 1;
-    }
-    if (TString(m_level_num->GetTitle()).Atoi() != 0) {
-        cout << "m_level_num is not 0." << endl;
-        return 1;
+    if (m_level_num != NULL) {
+        if (TString(m_level_num->GetTitle()).Atoi() != 0) {
+            cout << "m_level_num is not 0." << endl;
+            return 1;
+        }
     }
     TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
     if (t_pol_event_tree == NULL) {
