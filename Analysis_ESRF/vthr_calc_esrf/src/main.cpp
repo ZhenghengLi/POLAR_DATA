@@ -3,16 +3,16 @@
 #include "CooConv.hpp"
 
 // for energy
-#define VTHR_MEAN 10.0
-#define VTHR_SIGMA 5.0
-#define VTHR_MAX 60.0
-#define VTHR_MIN -15.0
+//#define VTHR_MEAN 10.0
+//#define VTHR_SIGMA 5.0
+//#define VTHR_MAX 60.0
+//#define VTHR_MIN -15.0
 
 // for adc
-//#define VTHR_MEAN 300.0
-//#define VTHR_SIGMA 2.0
-//#define VTHR_MAX 768.0
-//#define VTHR_MIN -128.0
+#define VTHR_MEAN 300.0
+#define VTHR_SIGMA 2.0
+#define VTHR_MAX 768.0
+#define VTHR_MIN -128.0
 
 using namespace std;
 
@@ -99,12 +99,12 @@ int main(int argc, char** argv) {
         }
         t_event_tree->GetEntry(i);
 
-//        if (t_event.type != 0x00FF) continue;
+        if (t_event.type != 0x00FF) continue;
 
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
- //           if (t_event.multiplicity[i] != 1) continue;
             for (int j = 0; j < 64; j++) {
+                if (t_event.trigger_bit[i][j] && t_event.multiplicity[i] < 2) continue;
                 all_spec[i][j]->Fill(t_event.energy_value[i][j]);
                 if (t_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_event.energy_value[i][j]);
