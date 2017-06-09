@@ -16,9 +16,9 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    double vthr_mean_0 = 500.0;
-    double vthr_sigma_0 = 30.0;
-    double vthr_max = 3072;
+    double vthr_mean_0 = 150.0;
+    double vthr_sigma_0 = 15.0;
+    double vthr_max = 1024;
     double vthr_min = -128.0;
 
     if (options_mgr.energy_flag) {
@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
     t_pol_event.deactive_all(t_pol_event_tree);
     t_pol_event.active(t_pol_event_tree, "time_aligned");
     t_pol_event.active(t_pol_event_tree, "is_ped");
+    t_pol_event.active(t_pol_event_tree, "type");
+    t_pol_event.active(t_pol_event_tree, "multiplicity");
     t_pol_event.active(t_pol_event_tree, "trigger_bit");
     t_pol_event.active(t_pol_event_tree, "energy_value");
     t_pol_event.active(t_pol_event_tree, "channel_status");
@@ -83,6 +85,7 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
 
         if (t_pol_event.is_ped) continue;
+        if (t_pol_event.type != 0x00FF) continue;
         // start bad event checking
         bool is_bad_event = false;
         for (int i = 0; i < 25; i++) {
@@ -98,6 +101,7 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
+                if (t_pol_event.trigger_bit[i][j] && t_pol_event.multiplicity[i] < 2) continue;
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
@@ -111,6 +115,14 @@ int main(int argc, char** argv) {
     pol_event_file->Close();
     delete pol_event_file;
     pol_event_file = NULL;
+
+    TH1F* tri_eff[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            tri_eff[i][j] = static_cast<TH1F*>(tri_spec[i][j]->Clone(Form("tri_eff_%02d_%02d", i + 1, j + 1)));
+            tri_eff[i][j]->SetTitle(Form("tri_eff_%02d_%02d", i + 1, j + 1));
+        }
+    }
 
     // write spec
     gROOT->SetBatch(kTRUE);
@@ -133,19 +145,21 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             canvas_spec[i]->cd(jtoc(j));
             canvas_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
-            tri_spec[i][j]->Divide(all_spec[i][j]);
-            for (int k = tri_spec[i][j]->GetNbinsX() - 1; k > 0; k--) {
-                if (tri_spec[i][j]->GetBinContent(k) < 0.4) {
-                    fun_spec[i][j]->SetParameter(0, tri_spec[i][j]->GetBinCenter(k));
+            tri_eff[i][j]->Divide(all_spec[i][j]);
+            for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
+                if (tri_eff[i][j]->GetBinContent(k) > 0.5) {
+                    fun_spec[i][j]->SetParameter(0, tri_eff[i][j]->GetBinCenter(k));
                     break;
                 }
             }
-            tri_spec[i][j]->Fit(fun_spec[i][j], "RQ");
+            tri_eff[i][j]->Fit(fun_spec[i][j], "RQ");
             vthr_adc_value[i](j) = fun_spec[i][j]->GetParameter(0);
             vthr_adc_value_err[i](j) = fun_spec[i][j]->GetParError(0);
             vthr_adc_sigma[i](j) = fun_spec[i][j]->GetParameter(1);
             vthr_adc_sigma_err[i](j) = fun_spec[i][j]->GetParError(1);
+            tri_eff[i][j]->Write();
             tri_spec[i][j]->Write();
+            all_spec[i][j]->Write();
         }
         output_file->cd();
         canvas_spec[i]->Write();
