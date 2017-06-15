@@ -6,10 +6,10 @@
 
 using namespace std;
 
-const string SW_NAME = "energy_recon_bank50";
+const string SW_NAME = "energy_recon";
 
 const string SW_VERSION = "v1.0.0";
 
-const string RELEASE_DATE = "2017 Apr 25";
+const string RELEASE_DATE = "2017 June 15";
 
 #endif
