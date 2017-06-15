@@ -67,10 +67,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -x <gain_vec_file.root> [-o <output_energy.root>]" << endl;
+    cout << "  " << SW_NAME << " <SCI_1Q.root> -g <gain_vec_file.root> [-o <output_energy.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -x <gain_vec.root>               gain vector file" << endl;
+    cout << "  -g <gain_vec.root>               gain vector file" << endl;
     cout << "  -o <output_energy.root>          energy reconstructed data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
