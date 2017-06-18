@@ -68,8 +68,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
-    if (deadtime_filename.IsNull()) return false;
     if (weight_filename.IsNull()) return false;
+    if (deadtime_filename.IsNull()) {
+        no_deadtime = true;
+    }
     if (output_filename.IsNull()) {
         output_filename = "output_angle.root";
     }
@@ -78,7 +80,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -d <deadtime_file.root> -w <weight_file.root> [-o <output_angle.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-d <deadtime_file.root>] -w <weight_file.root> [-o <output_angle.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -d <deadtime_file.root>          deadtime file" << endl;
@@ -107,6 +109,7 @@ void OptionsManager::init() {
     deadtime_filename.Clear();
     weight_filename.Clear();
     output_filename.Clear();
+    no_deadtime = false;
 
     version_flag_ = false;
 }

@@ -37,23 +37,27 @@ int main(int argc, char** argv) {
         Double_t event_time_1;
         Float_t  module_dead_ratio[25];
     } t_dead_ratio;
-    TFile* deadtime_file = new TFile(options_mgr.deadtime_filename.Data(), "read");
-    if (deadtime_file->IsZombie()) {
-        cout << "deadtime_file open failed." << endl;
-        return 1;
-    }
-    TTree* t_dead_ratio_tree = static_cast<TTree*>(deadtime_file->Get("t_dead_ratio"));
-    if (t_dead_ratio_tree == NULL) {
-        cout << "cannot find TTree t_dead_ratio" << endl;
-        return 1;
-    }
-    t_dead_ratio_tree->SetBranchAddress("event_time_1",         &t_dead_ratio.event_time_1        );
-    t_dead_ratio_tree->SetBranchAddress("module_dead_ratio",     t_dead_ratio.module_dead_ratio   );
-    if (t_dead_ratio_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
-        cout << "Entries is different between TTree t_dead_ratio and t_pol_event" << endl;
-        return 1;
-    } else {
-        t_pol_event_tree->AddFriend(t_dead_ratio_tree);
+    TFile* deadtime_file = NULL;
+    TTree* t_dead_ratio_tree = NULL;
+    if (!options_mgr.no_deadtime) {
+        deadtime_file = new TFile(options_mgr.deadtime_filename.Data(), "read");
+        if (deadtime_file->IsZombie()) {
+            cout << "deadtime_file open failed." << endl;
+            return 1;
+        }
+        t_dead_ratio_tree = static_cast<TTree*>(deadtime_file->Get("t_dead_ratio"));
+        if (t_dead_ratio_tree == NULL) {
+            cout << "cannot find TTree t_dead_ratio" << endl;
+            return 1;
+        }
+        t_dead_ratio_tree->SetBranchAddress("event_time_1",         &t_dead_ratio.event_time_1        );
+        t_dead_ratio_tree->SetBranchAddress("module_dead_ratio",     t_dead_ratio.module_dead_ratio   );
+        if (t_dead_ratio_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
+            cout << "Entries is different between TTree t_dead_ratio and t_pol_event" << endl;
+            return 1;
+        } else {
+            t_pol_event_tree->AddFriend(t_dead_ratio_tree);
+        }
     }
 
     // open weight file
@@ -282,11 +286,15 @@ int main(int argc, char** argv) {
         t_pol_angle.first_energy    = t_pol_event.energy_value[first_pos.i][first_pos.j];
         t_pol_angle.second_energy   = t_pol_event.energy_value[second_pos.i][second_pos.j];
         t_pol_angle.is_valid = true;
-        if (first_pos.i == second_pos.i) {
-            t_pol_angle.deadtime_weight = 1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i]);
+        if (options_mgr.no_deadtime) {
+            t_pol_angle.deadtime_weight = 1.0;
         } else {
-            t_pol_angle.deadtime_weight = (1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i])) *
-                (1 / (1 - t_dead_ratio.module_dead_ratio[second_pos.i]));
+            if (first_pos.i == second_pos.i) {
+                t_pol_angle.deadtime_weight = 1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i]);
+            } else {
+                t_pol_angle.deadtime_weight = (1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i])) *
+                    (1 / (1 - t_dead_ratio.module_dead_ratio[second_pos.i]));
+            }
         }
         t_pol_angle.efficiency_weight = t_pol_weight.ch_weight[first_pos.i][first_pos.j] * t_pol_weight.ch_weight[second_pos.i][second_pos.j];
         if (t_pol_weight.weight_is_bad) t_pol_angle.efficiency_weight = 0;
@@ -300,7 +308,10 @@ int main(int argc, char** argv) {
     t_pol_angle_file->Close();
 
     pol_event_file->Close();
-    deadtime_file->Close();
+    pol_weight_file->Close();
+    if (deadtime_file != NULL) {
+        deadtime_file->Close();
+    }
 
     return 0;
 }

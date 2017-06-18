@@ -17,6 +17,7 @@ public:
     TString deadtime_filename;      // -d
     TString weight_filename;        // -w
     TString output_filename;        // -o
+    bool    no_deadtime;
 
 public:
     OptionsManager();
