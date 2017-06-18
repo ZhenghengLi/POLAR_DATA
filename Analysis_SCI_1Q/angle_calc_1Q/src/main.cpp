@@ -104,9 +104,11 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "pkt_count");
     t_pol_event.active(t_pol_event_tree, "lost_count");
     t_pol_event.active(t_pol_event_tree, "dy12_too_high");
-    t_pol_event.active(t_pol_event_tree, "module_dead_ratio");
     t_pol_event.active(t_pol_event_tree, "ch_weight");
     t_pol_event.active(t_pol_event_tree, "weight_is_bad");
+    if (!options_mgr.no_deadtime) {
+        t_pol_event.active(t_pol_event_tree, "module_dead_ratio");
+    }
 
     // open angle file
     struct {
