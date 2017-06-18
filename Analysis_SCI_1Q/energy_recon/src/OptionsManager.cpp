@@ -39,6 +39,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'g':
                 if (idx < argc_par - 1) {
                     gain_vec_filename = argv_par[++idx];
+                    gain_hv_flag = false;
                     if (gain_vec_filename[0] == '-') {
                         return false;
                     }
@@ -106,7 +107,7 @@ void OptionsManager::init() {
     pol_event_filename.Clear();
     gain_vec_filename.Clear();
     gain_vs_hv_filename.Clear();
-    gain_hv_flag = true;
+    gain_hv_flag = false;
     output_filename.Clear();
 
     version_flag_ = false;
