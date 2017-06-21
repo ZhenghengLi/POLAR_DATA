@@ -25,8 +25,11 @@ bool Gain::read_gain_vec(const char* gain_vec_filename) {
     TMatrixF* tmp_mat;
     tmp_mat = static_cast<TMatrixF*>(gain_vec_file->Get("bad_calib_mat"));
     if (tmp_mat == NULL) {
-        cout << "cannot find TMatrixF bad_calib_mat." << endl;
-        return false;
+        for (int i = 0; i < 25; i++) {
+            for (int j = 0; j < 64; j++) {
+                bad_calib_mat(i, j) = 0;
+            }
+        }
     } else {
         bad_calib_mat = *tmp_mat;
     }
