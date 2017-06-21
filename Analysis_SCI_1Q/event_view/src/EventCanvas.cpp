@@ -97,7 +97,8 @@ void EventCanvas::draw_event() {
     }
 
     // fill event
-    int max_energy = 0;
+    double max_energy = 0;
+    double min_energy = 100000;
     for (int i = 0; i < 25; i++) {
         if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
@@ -106,6 +107,7 @@ void EventCanvas::draw_event() {
                 int cur_y = ijtoy(i, j) + ijtoy(i, j) / 8 + 1;
                 double cur_energy = t_pol_event_.energy_value[i][j];
                 if (cur_energy > max_energy) max_energy = cur_energy;
+                if (cur_energy < min_energy) min_energy = cur_energy;
                 energy_map_->SetBinContent(cur_x, cur_y, cur_energy);
             }
         }
@@ -125,6 +127,7 @@ void EventCanvas::draw_event() {
 
     h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
     h_stack_->SetMaximum(max_energy);
+    h_stack_->SetMinimum(min_energy);
     h_stack_->Draw("lego1");
     canvas_event_->Update();
 }
