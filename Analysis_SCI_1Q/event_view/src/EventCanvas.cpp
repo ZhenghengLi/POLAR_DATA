@@ -14,7 +14,7 @@ EventCanvas::EventCanvas() {
     trigger_map_->SetFillColor(kRed);
     energy_map_ = new TH2F("energy_map", "energy_map", 44, 0, 44, 44, 0, 44);
     energy_map_->SetDirectory(NULL);
-    energy_map_->SetFillColorAlpha(kBlue, 0.5);
+    energy_map_->SetFillColor(kGreen);
     h_stack_ = new THStack();
     h_stack_->Add(energy_map_);
     h_stack_->Add(trigger_map_);
@@ -42,13 +42,6 @@ bool EventCanvas::open(const char* filename, int start, int step) {
     }
 
     t_pol_event_.bind_pol_event_tree(t_pol_event_tree_);
-    t_pol_event_.deactive_all(t_pol_event_tree_);
-    t_pol_event_.active(t_pol_event_tree_, "trigger_bit");
-    t_pol_event_.active(t_pol_event_tree_, "energy_value");
-    t_pol_event_.active(t_pol_event_tree_, "channel_status");
-    t_pol_event_.active(t_pol_event_tree_, "time_aligned");
-    t_pol_event_.active(t_pol_event_tree_, "lost_count");
-    t_pol_event_.active(t_pol_event_tree_, "is_ped");
 
     return true;
 }
@@ -70,7 +63,7 @@ void EventCanvas::CloseWindow() {
 }
 
 void EventCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selected) {
-    if (event != kKeyPress)
+    if (event != kButton1Double)
         return;
     draw_event();
 }
@@ -80,7 +73,7 @@ void EventCanvas::draw_event() {
         return;
     canvas_event_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_event"));
     if (canvas_event_ == NULL) {
-        canvas_event_ = new TCanvas("canvas_event", "POLAR Event Viewer", 1000, 600);
+        canvas_event_ = new TCanvas("canvas_event", "POLAR Event Viewer", 1000, 1000);
         canvas_event_->Connect("Closed()", "EventCanvas", this, "CloseWindow()");
         canvas_event_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "EventCanvas",
                                  this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
@@ -104,15 +97,21 @@ void EventCanvas::draw_event() {
     }
 
     // fill event
+    int max_energy = 0;
     for (int i = 0; i < 25; i++) {
         if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
             if ((t_pol_event_.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) == 0) {
                 int cur_x = ijtox(i, j) + ijtox(i, j) / 8 + 1;
                 int cur_y = ijtoy(i, j) + ijtoy(i, j) / 8 + 1;
-                energy_map_->SetBinContent(cur_x, cur_y, t_pol_event_.energy_value[i][j]);
+                double cur_energy = t_pol_event_.energy_value[i][j];
+                if (cur_energy > max_energy) max_energy = cur_energy;
+                energy_map_->SetBinContent(cur_x, cur_y, cur_energy);
             }
         }
+    }
+    for (int i = 0; i < 25; i++) {
+        if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
             if (t_pol_event_.trigger_bit[i][j]) {
                 int cur_x = ijtox(i, j) + ijtox(i, j) / 8 + 1;
@@ -124,8 +123,9 @@ void EventCanvas::draw_event() {
         }
     }
 
+    h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
+    h_stack_->SetMaximum(max_energy);
     h_stack_->Draw("lego1");
-    canvas_event_->Modified();
-    // canvas_event_->Update();
+    canvas_event_->Update();
 }
 

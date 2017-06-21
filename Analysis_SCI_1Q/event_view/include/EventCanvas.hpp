@@ -34,7 +34,7 @@ private:
     TTree*   t_pol_event_tree_;
     POLEvent t_pol_event_;
     int      entry_step_;
-    int      entry_current_;
+    Long64_t entry_current_;
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
