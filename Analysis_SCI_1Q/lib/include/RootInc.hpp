@@ -30,5 +30,6 @@
 #include "TPaveText.h"
 #include "TProfile.h"
 #include "TKey.h"
+#include "THStack.h"
 
 #endif

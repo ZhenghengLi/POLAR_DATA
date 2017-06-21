@@ -13,7 +13,8 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/event_view
 
-$(DEST_BIN)/event_view: obj/main.o
+$(DEST_BIN)/event_view: obj/main.o obj/OptionsManager.o obj/EventCanvas.o obj/EventCanvas_Dict.o \
+	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
