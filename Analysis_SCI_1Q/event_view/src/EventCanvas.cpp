@@ -11,7 +11,7 @@ EventCanvas::EventCanvas() {
     t_pol_event_tree_ = NULL;
     trigger_map_ = new TH2F("trigger_map", "trigger_map", 44, 0, 44, 44, 0, 44);
     trigger_map_->SetDirectory(NULL);
-    trigger_map_->SetFillColor(kRed);
+    trigger_map_->SetFillColor(6);
     energy_map_ = new TH2F("energy_map", "energy_map", 44, 0, 44, 44, 0, 44);
     energy_map_->SetDirectory(NULL);
     energy_map_->SetFillColor(kGreen);
@@ -128,7 +128,7 @@ void EventCanvas::draw_event() {
     h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
     h_stack_->SetMaximum(max_energy);
     h_stack_->SetMinimum(min_energy);
-    h_stack_->Draw("lego1");
+    h_stack_->Draw("lego1 0");
     canvas_event_->Update();
 }
 
