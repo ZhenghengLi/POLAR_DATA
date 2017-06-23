@@ -9,21 +9,13 @@ using namespace std;
 EventCanvas::EventCanvas() {
     t_pol_event_file_ = NULL;
     t_pol_event_tree_ = NULL;
-    trigger_map_ = new TH2F("trigger_map", "trigger_map", 44, 0, 44, 44, 0, 44);
-    trigger_map_->SetDirectory(NULL);
-    trigger_map_->SetFillColor(6);
-    energy_map_ = new TH2F("energy_map", "energy_map", 44, 0, 44, 44, 0, 44);
-    energy_map_->SetDirectory(NULL);
-    energy_map_->SetFillColor(kGreen);
-    h_stack_ = new THStack();
-    h_stack_->Add(energy_map_);
-    h_stack_->Add(trigger_map_);
+    trigger_map_ = NULL;
+    energy_map_ = NULL;
+    h_stack_ = NULL;
 }
 
 EventCanvas::~EventCanvas() {
-    delete trigger_map_;
-    delete energy_map_;
-    delete h_stack_;
+
 }
 
 bool EventCanvas::open(const char* filename, int start, int step) {
@@ -79,7 +71,6 @@ void EventCanvas::draw_event() {
                                  this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
     }
     canvas_event_->cd();
-
     do {
         entry_current_ += entry_step_;
         if (entry_current_ >= t_pol_event_tree_->GetEntries()) {
@@ -88,13 +79,25 @@ void EventCanvas::draw_event() {
         t_pol_event_tree_->GetEntry(entry_current_);
     } while (t_pol_event_.is_ped || t_pol_event_.lost_count > 0);
 
-    // clear map
-    for (int x = 1; x <= 44; x++) {
-        for (int y = 1; y <= 44; y++) {
-            trigger_map_->SetBinContent(x, y, 0);
-            energy_map_->SetBinContent(x, y, 0);
-        }
+    // prepare histogram
+    if (trigger_map_ != NULL) {
+        delete trigger_map_;
+        trigger_map_ = NULL;
     }
+    if (energy_map_ != NULL) {
+        delete energy_map_;
+        energy_map_ = NULL;
+    }
+    if (h_stack_ != NULL) {
+        delete h_stack_;
+        h_stack_ = NULL;
+    }
+    trigger_map_ = new TH2F("trigger_map", "trigger_map", 44, 0, 44, 44, 0, 44);
+    trigger_map_->SetDirectory(NULL);
+    trigger_map_->SetFillColor(6);
+    energy_map_ = new TH2F("energy_map", "energy_map", 44, 0, 44, 44, 0, 44);
+    energy_map_->SetDirectory(NULL);
+    energy_map_->SetFillColor(kGreen);
 
     // fill event
     double max_energy = 0;
@@ -125,9 +128,10 @@ void EventCanvas::draw_event() {
         }
     }
 
+    h_stack_ = new THStack();
+    h_stack_->Add(energy_map_);
+    h_stack_->Add(trigger_map_);
     h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
-    h_stack_->SetMaximum(max_energy);
-    h_stack_->SetMinimum(min_energy);
     h_stack_->Draw("lego1 0");
     canvas_event_->Update();
 }
