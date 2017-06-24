@@ -13,7 +13,7 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 all: $(DEST_BIN)/event_select
 
-$(DEST_BIN)/event_select: obj/main.o obj/OptionsManager.o obj/EventFilter.o \
+$(DEST_BIN)/event_select: obj/main.o obj/OptionsManager.o \
 	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
