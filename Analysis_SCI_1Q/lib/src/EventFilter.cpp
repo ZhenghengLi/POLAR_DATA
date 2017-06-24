@@ -8,15 +8,6 @@ EventFilter::~EventFilter() {
 
 }
 
-UShort_t EventFilter::classify(const POLEvent& pol_event) {
-    UShort_t too_low_res = check_too_low_(pol_event);
-    UShort_t too_many_res = check_too_many_(pol_event);
-
-    UShort_t final_res = (too_low_res | too_many_res);
-
-    return final_res;
-}
-
 UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
     double trig_tot_sum = 0;
     int    trig_tot_n = 0;
@@ -76,4 +67,17 @@ UShort_t EventFilter::check_too_many_(const POLEvent& pol_event) {
         }
     }
     return 0;
+}
+
+UShort_t EventFilter::classify(const POLEvent& pol_event) {
+    UShort_t too_low_res = check_too_low_(pol_event);
+    UShort_t too_many_res = check_too_many_(pol_event);
+
+    UShort_t final_res = (too_low_res | too_many_res);
+
+    return final_res;
+}
+
+bool EventFilter::is_bad_event(const POLEvent& pol_event) {
+    return classify(pol_event);
 }

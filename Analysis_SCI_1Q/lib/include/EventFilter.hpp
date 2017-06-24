@@ -27,6 +27,8 @@ public:
 
     UShort_t classify(const POLEvent& pol_event);
 
+    bool is_bad_event(const POLEvent& pol_event);
+
 };
 
 #endif
