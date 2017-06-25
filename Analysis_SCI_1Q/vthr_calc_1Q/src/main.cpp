@@ -85,19 +85,6 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
 
         if (t_pol_event.is_ped) continue;
-        if (t_pol_event.type != 0x00FF) continue;
-        // start bad event checking
-        bool is_bad_event = false;
-        for (int i = 0; i < 25; i++) {
-            if (!t_pol_event.time_aligned[i]) continue;
-            if (t_pol_event.dy12_too_high[i]) {
-                is_bad_event = true;
-                break;
-            }
-        }
-        if (is_bad_event) continue;
-        // stop bad event checking
-
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {

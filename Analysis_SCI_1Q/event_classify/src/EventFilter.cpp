@@ -39,6 +39,10 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
         trig_mean = (trig_n > 0 ? trig_sum / trig_n : 0);
         nontrig_mean = (nontrig_n > 0 ? nontrig_sum / nontrig_n : 0);
 
+        if (trig_mean - nontrig_mean < too_low_cut_) {
+            return TOO_LOW;
+        }
+
         trig_tot_sum += trig_mean;
         trig_tot_n++;
         nontrig_tot_sum += nontrig_mean;

@@ -14,8 +14,8 @@ public:
 
 private:
     static const UShort_t too_low_cut_ = 100.0;
-    static const UShort_t too_many_cut_1_ = 27;
-    static const UShort_t too_many_cut_2_ = 54;
+    static const UShort_t too_many_cut_1_ = 15;
+    static const UShort_t too_many_cut_2_ = 35;
 
 private:
     UShort_t check_too_low_(const POLEvent& pol_event);

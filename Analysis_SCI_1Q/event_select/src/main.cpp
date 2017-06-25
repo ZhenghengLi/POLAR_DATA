@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     // do crosstalk correction
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "Doing crosstalk correcting ... " << endl;
+    cout << "Doing event selecting ... " << endl;
     cout << "[ " << flush;
     for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
         cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());

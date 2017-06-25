@@ -79,6 +79,14 @@ void EventCanvas::draw_event() {
         t_pol_event_tree_->GetEntry(entry_current_);
     } while (t_pol_event_.is_ped || t_pol_event_.lost_count > 0);
 
+    /////////////////////////////////////////////////
+
+    cout << endl;
+    cout << " ############# Event " << entry_current_ << " ###################" << endl;
+    cout << endl;
+
+    ////////////////////////////////////////////////
+
     // prepare histogram
     if (trigger_map_ != NULL) {
         delete trigger_map_;
@@ -99,6 +107,17 @@ void EventCanvas::draw_event() {
     energy_map_->SetDirectory(NULL);
     energy_map_->SetFillColor(kGreen);
 
+    //////////////////////////
+
+    double trig_adc_tot_sum = 0;
+    int    trig_tot_n = 0;
+    double trig_tot_mean = 0;
+    double nontrig_adc_tot_sum = 0;
+    int    nontrig_tot_n = 0;
+    double nontrig_tot_mean = 0;
+
+    //////////////////////////
+
     // fill event
     double max_energy = 0;
     double min_energy = 100000;
@@ -114,7 +133,45 @@ void EventCanvas::draw_event() {
                 energy_map_->SetBinContent(cur_x, cur_y, cur_energy);
             }
         }
+
+        /////////////////////////////////////////////
+
+        double trig_adc_sum = 0;
+        int    trig_n = 0;
+        double trig_mean = 0;
+        double nontrig_adc_sum = 0;
+        int    nontrig_n = 0;
+        double nontrig_mean = 0;
+        for (int j = 0; j < 64; j++) {
+            if (t_pol_event_.trigger_bit[i][j]) {
+                trig_adc_sum += t_pol_event_.energy_value[i][j];
+                trig_n++;
+            } else {
+                nontrig_adc_sum += t_pol_event_.energy_value[i][j];
+                nontrig_n++;
+            }
+        }
+        trig_mean = trig_adc_sum / trig_n;
+        nontrig_mean = nontrig_adc_sum / nontrig_n;
+        cout << "CT_" << i + 1 << ": " << trig_mean - nontrig_mean << "   " << t_pol_event_.multiplicity[i] << endl;
+
+        trig_adc_tot_sum += trig_mean;
+        trig_tot_n++;
+        nontrig_adc_tot_sum += nontrig_mean;
+        nontrig_tot_n++;
+
+        //////////////////////////////////////////////
+
     }
+
+    //////////////////////////////
+
+    trig_tot_mean = trig_adc_tot_sum / trig_tot_n;
+    nontrig_tot_mean = nontrig_adc_tot_sum / nontrig_tot_n;
+    cout << "TOTAL: " << trig_tot_mean - nontrig_tot_mean << "   " << t_pol_event_.trigger_n << endl;
+
+    //////////////////////////////
+
     for (int i = 0; i < 25; i++) {
         if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
