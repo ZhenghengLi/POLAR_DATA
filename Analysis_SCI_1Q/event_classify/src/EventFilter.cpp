@@ -24,7 +24,7 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
                 trig_sum += pol_event.energy_value[i][j];
                 trig_n++;
             } else {
-                if (pol_event.channel_status[i][j] == 0 && pol_event.energy_value[i][j] > 0) {
+                if (pol_event.channel_status[i][j] == 0 && pol_event.energy_value[i][j] > -30.0) {
                     nontrig_sum += pol_event.energy_value[i][j];
                     nontrig_n++;
                 }
