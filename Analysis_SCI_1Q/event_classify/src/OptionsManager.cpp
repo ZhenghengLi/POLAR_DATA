@@ -26,6 +26,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                 return false;
             char cur_option = cur_par_str[1];
             switch (cur_option) {
+            case 'P':
+                if (idx < argc_par - 1) {
+                    ped_temp_filename = argv_par[++idx];
+                    if (ped_temp_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'o':
                 if (idx < argc_par - 1) {
                     output_filename = argv_par[++idx];
@@ -48,6 +58,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
+    if (ped_temp_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_type.root";
     }
@@ -56,9 +67,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-o <output.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> -P <ped_vs_temp.root> [-o <output.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
+    cout << "  -P <ped_vs_temp.root>            parameters of pedestal vs temperature" << endl;
     cout << "  -o <output.root>                 pedestal subtracted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -80,6 +92,7 @@ void OptionsManager::print_options() {
 
 void OptionsManager::init() {
     pol_event_filename.Clear();
+    ped_temp_filename.Clear();
     output_filename.Clear();
 
     version_flag_ = false;

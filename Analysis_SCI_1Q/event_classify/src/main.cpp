@@ -38,6 +38,34 @@ int main(int argc, char** argv) {
     POLEvent t_pol_event;
     t_pol_event.bind_pol_event_tree(t_pol_event_tree);
 
+    // read pedestal vs temperature
+    TVectorF ped_const_vec[25];
+    TVectorF ped_slope_vec[25];
+    TFile* ped_temp_file = new TFile(options_mgr.ped_temp_filename.Data(), "read");
+    if (ped_temp_file->IsZombie()) {
+        cout << "ped_temp_file open failed: " << options_mgr.ped_temp_filename.Data() << endl;
+        return 1;
+    }
+    TVectorF* tmp_vec;
+    for (int i = 0; i < 25; i++) {
+        tmp_vec = static_cast<TVectorF*>(ped_temp_file->Get(Form("ped_const_vec_ct_%02d", i + 1)));
+        if (tmp_vec == NULL) {
+            cout << "cannot find TVectorF " << Form("ped_const_vec_ct_%02d", i + 1) << endl;
+            return 1;
+        } else {
+            ped_const_vec[i].ResizeTo(64);
+            ped_const_vec[i] = *tmp_vec;
+        }
+        tmp_vec = static_cast<TVectorF*>(ped_temp_file->Get(Form("ped_slope_vec_ct_%02d", i + 1)));
+        if (tmp_vec == NULL) {
+            cout << "cannot find TVectorF " << Form("ped_slope_vec_ct_%02d", i + 1) << endl;
+            return 1;
+        } else {
+            ped_slope_vec[i].ResizeTo(64);
+            ped_slope_vec[i] = *tmp_vec;
+        }
+    }
+
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
     if (output_file->IsZombie()) {
@@ -56,7 +84,6 @@ int main(int argc, char** argv) {
 
     EventFilter event_filter;
 
-
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "classifying events ... " << endl;
@@ -69,12 +96,30 @@ int main(int argc, char** argv) {
         }
         t_pol_event_tree->GetEntry(q);
 
+        // subtract pedestal
+        for (int i = 0; i < 25; i++) {
+            if (!t_pol_event.time_aligned[i]) continue;
+            if (t_pol_event.compress[i] == 3) continue;
+            if (i == 9) {
+               double temp_sum = 0;
+               for (int k = 0; k < 25; k++) {
+                   if (k == 9) continue;
+                   temp_sum += t_pol_event.fe_temp[k];
+               }
+               t_pol_event.fe_temp[9] = temp_sum / 24.0;
+            }
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.channel_status[i] == 0) {
+                    t_pol_event.energy_value[i][j] -= ped_const_vec[i](j) + ped_slope_vec[i](j) * t_pol_event.fe_temp[i];
+                }
+            }
+        }
+
         t_event_type.event_id_c   = t_pol_event.event_id;
         t_event_type.event_time_c = t_pol_event.event_time;
         t_event_type.event_type   = event_filter.classify(t_pol_event);
 
         t_event_type_tree->Fill();
-
 
     }
 

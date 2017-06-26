@@ -9,13 +9,6 @@ EventFilter::~EventFilter() {
 }
 
 UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
-    double trig_tot_sum = 0;
-    int    trig_tot_n = 0;
-    double trig_tot_mean = 0;
-    double nontrig_tot_sum = 0;
-    int    nontrig_tot_n = 0;
-    double nontrig_tot_mean = 0;
-
     for (int i = 0; i < 25; i++) {
         if (!pol_event.time_aligned[i]) continue;
 
@@ -31,8 +24,10 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
                 trig_sum += pol_event.energy_value[i][j];
                 trig_n++;
             } else {
-                nontrig_sum += pol_event.energy_value[i][j];
-                nontrig_n++;
+                if (pol_event.channel_status[i][j] == 0 && pol_event.energy_value[i][j] > 0) {
+                    nontrig_sum += pol_event.energy_value[i][j];
+                    nontrig_n++;
+                }
             }
         }
 
@@ -42,23 +37,9 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
         if (trig_mean - nontrig_mean < too_low_cut_) {
             return TOO_LOW;
         }
-
-        trig_tot_sum += trig_mean;
-        trig_tot_n++;
-        nontrig_tot_sum += nontrig_mean;
-        nontrig_tot_n++;
-
     }
 
-    trig_tot_mean = (trig_tot_n > 0 ? trig_tot_sum / trig_tot_n : 0);
-    nontrig_tot_mean = (nontrig_tot_n > 0 ? nontrig_tot_sum / nontrig_tot_n : 0);
-
-    if (trig_tot_mean - nontrig_tot_mean < too_low_cut_) {
-        return TOO_LOW;
-    } else {
-        return 0;
-    }
-
+    return 0;
 }
 
 UShort_t EventFilter::check_too_many_(const POLEvent& pol_event) {
