@@ -55,6 +55,8 @@ UShort_t EventFilter::check_too_many_(const POLEvent& pol_event) {
 }
 
 UShort_t EventFilter::classify(const POLEvent& pol_event) {
+    if (pol_event.is_ped) return 0;
+
     UShort_t too_low_res = check_too_low_(pol_event);
     UShort_t too_many_res = check_too_many_(pol_event);
 
