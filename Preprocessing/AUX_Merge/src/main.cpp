@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
         // reading and writting obox data
         for (Long64_t i = 0; i < t_hk_obox_tree_in->GetEntries(); i++) {
             t_hk_obox_tree_in->GetEntry(i);
-            if (t_hk_obox.obox_is_bad) continue;
+            if (t_hk_obox.obox_is_bad > 0) continue;
             met_obox = gps_to_met(t_hk_obox.abs_gps_week, t_hk_obox.abs_gps_second);
             if (obox_is_first) {
                 obox_is_first = false;
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
         // reading and writting ibox data
         for (Long64_t i = 0; i < t_hk_ibox_tree_in->GetEntries(); i++) {
             t_hk_ibox_tree_in->GetEntry(i);
-            if (t_hk_ibox.is_bad) continue;
+            if (t_hk_ibox.is_bad > 0) continue;
             met_ibox = gps_to_met(t_hk_ibox.abs_gps_week, t_hk_ibox.abs_gps_second);
             if (ibox_is_first) {
                 ibox_is_first = false;
