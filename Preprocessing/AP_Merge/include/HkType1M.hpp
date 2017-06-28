@@ -86,11 +86,11 @@ public:
     };
 
 public:
-    static void bind_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox);
-    static void bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox);
+    void bind_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox);
+    void bind_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox);
 
-    static void build_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox);
-    static void build_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox);
+    void build_hk_obox_tree(TTree* t_hk_obox_tree, Hk_Obox_T& t_hk_obox);
+    void build_hk_ibox_tree(TTree* t_hk_ibox_tree, Hk_Ibox_T& t_hk_ibox);
 };
 
 #endif
