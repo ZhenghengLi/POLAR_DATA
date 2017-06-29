@@ -3,6 +3,14 @@
 #include "CommonCanvas.hpp"
 #include "CooConv.hpp"
 
+// for ADC
+#define VTHR_VALUE_MAX 500
+#define VTHR_SIGMA_MAX 60
+
+// for energy
+//#define VTHR_VALUE_MAX 32
+//#define VTHR_SIGMA_MAX 16
+
 using namespace std;
 
 int main(int argc, char** argv) {
@@ -106,28 +114,28 @@ int main(int argc, char** argv) {
 
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);
-    TH1D* vthr_value_dist = new TH1D("vthr_value_dist", "Distribution of Threshold Value", 64, 0, 32);
+    TH1D* vthr_value_dist = new TH1D("vthr_value_dist", "Distribution of Threshold Value", 64, 0, VTHR_VALUE_MAX);
     vthr_value_dist->SetDirectory(NULL);
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             vthr_value_dist->Fill(vthr_adc_value_ct[i](j));
         }
     }
-    TF1* vthr_value_func = new TF1("vthr_value_func", "gaus(0)", 0, 50);
+    TF1* vthr_value_func = new TF1("vthr_value_func", "gaus(0)", 0, VTHR_VALUE_MAX);
     vthr_value_func->SetParameter(0, 1);
     vthr_value_func->SetParameter(1, vthr_value_dist->GetMean());
     vthr_value_func->SetParameter(2, vthr_value_dist->GetRMS() / 2);
     canvas.cd(3);
     vthr_value_dist->Fit(vthr_value_func, "RQ");
 
-    TH1D* vthr_sigma_dist = new TH1D("vthr_sigma_dist", "Distribution of Threshold Sigma", 64, 0, 16);
+    TH1D* vthr_sigma_dist = new TH1D("vthr_sigma_dist", "Distribution of Threshold Sigma", 64, 0, VTHR_SIGMA_MAX);
     vthr_sigma_dist->SetDirectory(NULL);
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             vthr_sigma_dist->Fill(vthr_adc_sigma_ct[i](j));
         }
     }
-    TF1* vthr_sigma_func = new TF1("vthr_sigma_func", "gaus(0)", 0, 50);
+    TF1* vthr_sigma_func = new TF1("vthr_sigma_func", "gaus(0)", 0, VTHR_SIGMA_MAX);
     vthr_sigma_func->SetParameter(0, 1);
     vthr_sigma_func->SetParameter(1, vthr_sigma_dist->GetMean());
     vthr_sigma_func->SetParameter(2, vthr_sigma_dist->GetRMS() / 2);
