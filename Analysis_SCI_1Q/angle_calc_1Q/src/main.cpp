@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "RootInc.hpp"
 #include "OptionsManager.hpp"
 #include "POLEvent.hpp"
@@ -16,6 +18,48 @@ int main(int argc, char** argv) {
             options_mgr.print_help();
         }
         return 2;
+    }
+
+    bool bar_mask[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            bar_mask[i][j] = false;
+        }
+    }
+    // read bar_mask
+    if (!options_mgr.bar_mask_filename.IsNull()) {
+        char line_buffer[100];
+        ifstream infile;
+        infile.open(options_mgr.bar_mask_filename.Data());
+        if (!infile.is_open()) {
+            cout << "bar_mask_file open failed." << endl;
+            return 1;
+        }
+        stringstream ss;
+        int ct_num;
+        int ch_idx;
+        while (true) {
+            infile.getline(line_buffer, 100);
+            if (infile.eof()) break;
+            if (string(line_buffer).find("#") != string::npos) {
+                continue;
+            } else {
+                ss.clear();
+                ss.str(line_buffer);
+                ss >> ct_num >> ch_idx;
+                if (ct_num < 1 || ct_num > 25) {
+                    cout << "ct_num out of range" << endl;
+                    return 1;
+                }
+                if (ch_idx < 0 || ch_idx > 63) {
+                    cout << "ch_idx out of range" << endl;
+                    return 1;
+                }
+                cout << "kill bar ct_" << ct_num << ", ch_" << ch_idx << endl;
+                bar_mask[ct_num - 1][ch_idx] = true;
+            }
+        }
+        infile.close();
     }
 
     // open pol_event_file
@@ -71,7 +115,6 @@ int main(int argc, char** argv) {
         Float_t  ch_weight[25][64];
         Float_t  mod_weight[25];
         Float_t  event_weight;
-        Bool_t   weight_is_bad;
     } t_pol_weight;
     TTree* t_pol_weight_tree = static_cast<TTree*>(pol_weight_file->Get("t_pol_weight"));
     if (t_pol_weight_tree == NULL) {
@@ -82,7 +125,6 @@ int main(int argc, char** argv) {
     t_pol_weight_tree->SetBranchAddress("ch_weight",         t_pol_weight.ch_weight        );
     t_pol_weight_tree->SetBranchAddress("mod_weight",        t_pol_weight.mod_weight       );
     t_pol_weight_tree->SetBranchAddress("event_weight",     &t_pol_weight.event_weight     );
-    t_pol_weight_tree->SetBranchAddress("weight_is_bad",    &t_pol_weight.weight_is_bad    );
     if (t_pol_weight_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
         cout << "Entries is different between TTree t_pol_weight and t_pol_event" << endl;
         return 1;
@@ -103,9 +145,7 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "is_ped");
     t_pol_event.active(t_pol_event_tree, "pkt_count");
     t_pol_event.active(t_pol_event_tree, "lost_count");
-    t_pol_event.active(t_pol_event_tree, "dy12_too_high");
     t_pol_event.active(t_pol_event_tree, "ch_weight");
-    t_pol_event.active(t_pol_event_tree, "weight_is_bad");
     if (!options_mgr.no_deadtime) {
         t_pol_event.active(t_pol_event_tree, "module_dead_ratio");
     }
@@ -121,8 +161,8 @@ int main(int argc, char** argv) {
         Float_t   second_energy;
         Bool_t    is_valid;
         Bool_t    is_na22;
-        Bool_t    is_cosmic;
         Bool_t    is_bad_calib;
+        Bool_t    with_badch;
         Float_t   deadtime_weight;
         Float_t   efficiency_weight;
     } t_pol_angle;
@@ -142,8 +182,8 @@ int main(int argc, char** argv) {
     t_pol_angle_tree->Branch("second_energy",     &t_pol_angle.second_energy,      "second_energy/F"     );
     t_pol_angle_tree->Branch("is_valid",          &t_pol_angle.is_valid,           "is_valid/O"          );
     t_pol_angle_tree->Branch("is_na22",           &t_pol_angle.is_na22,            "is_na22/O"           );
-    t_pol_angle_tree->Branch("is_cosmic",         &t_pol_angle.is_cosmic,          "is_cosmic/O"         );
     t_pol_angle_tree->Branch("is_bad_calib",      &t_pol_angle.is_bad_calib,       "is_bad_calib/O"      );
+    t_pol_angle_tree->Branch("with_badch",        &t_pol_angle.with_badch,         "with_badch/O"      );
     t_pol_angle_tree->Branch("deadtime_weight",   &t_pol_angle.deadtime_weight,    "deadtime_weight/F"   );
     t_pol_angle_tree->Branch("efficiency_weight", &t_pol_angle.efficiency_weight,  "efficiency_weight/F" );
 
@@ -184,7 +224,6 @@ int main(int argc, char** argv) {
         t_pol_angle.second_energy = -1;
         t_pol_angle.is_valid = false;
         t_pol_angle.is_na22 = false;
-        t_pol_angle.is_cosmic = false;
         t_pol_angle.deadtime_weight = 0;
         t_pol_angle.efficiency_weight = 0;
         // stop init angle
@@ -204,18 +243,6 @@ int main(int argc, char** argv) {
         if (na22_checker.check_na22_event(t_pol_event)) {
             t_pol_angle.is_na22 = true;
         }
-        // cosmic check
-        bool cur_is_cosmic = false;
-        if (t_pol_event.trigger_n > 50) cur_is_cosmic = true;
-        for (int i = 0; i < 25; i++) {
-            if (t_pol_event.time_aligned[i] && t_pol_event.dy12_too_high[i]) {
-                cur_is_cosmic = true;
-                break;
-            }
-        }
-        if (cur_is_cosmic) {
-            t_pol_angle.is_cosmic = true;
-        }
         // bad calib check
         bool cur_is_bad_calib = false;
         for (int i = 0; i < 25; i++) {
@@ -229,9 +256,21 @@ int main(int argc, char** argv) {
             }
             if (cur_is_bad_calib) break;
         }
-        if (cur_is_bad_calib) {
-            t_pol_angle.is_bad_calib = cur_is_bad_calib;
+        t_pol_angle.is_bad_calib = cur_is_bad_calib;
+        // bad channel check
+        bool cur_with_badch = false;
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.time_aligned[i]) {
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j] && bar_mask[i][j]) {
+                        cur_with_badch = true;
+                        break;
+                    }
+                }
+            }
+            if (cur_with_badch) break;
         }
+        t_pol_angle.with_badch = cur_with_badch;
 
         // start angle calculating
         priority_queue<Bar> bar_queue;
@@ -299,7 +338,6 @@ int main(int argc, char** argv) {
             }
         }
         t_pol_angle.efficiency_weight = t_pol_weight.ch_weight[first_pos.i][first_pos.j] * t_pol_weight.ch_weight[second_pos.i][second_pos.j];
-        if (t_pol_weight.weight_is_bad) t_pol_angle.efficiency_weight = 0;
         // save angle
         t_pol_angle_tree->Fill();
     }

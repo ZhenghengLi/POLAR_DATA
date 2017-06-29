@@ -56,6 +56,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'k':
+                if (idx < argc_par - 1) {
+                    bar_mask_filename = argv_par[++idx];
+                    if (bar_mask_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -80,11 +90,12 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-d <deadtime_file.root>] -w <weight_file.root> [-o <output_angle.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-d <deadtime_file.root>] -w <weight_file.root> [-k <bar_mask.txt>] [-o <output_angle.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -d <deadtime_file.root>          deadtime file" << endl;
     cout << "  -w <weight_file.root>            weight file" << endl;
+    cout << "  -k <bar_mask.txt>                a text file to store bad channels" << endl;
     cout << "  -o <output_xtalkcorr.root>       crosstalk corrected data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -108,6 +119,7 @@ void OptionsManager::init() {
     pol_event_filename.Clear();
     deadtime_filename.Clear();
     weight_filename.Clear();
+    bar_mask_filename.Clear();
     output_filename.Clear();
     no_deadtime = false;
 
