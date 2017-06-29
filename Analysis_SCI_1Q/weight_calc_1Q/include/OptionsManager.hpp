@@ -15,6 +15,7 @@ private:
 public:
     TString pol_event_filename;
     TString vthr_filename;          // -v
+    TString bar_mask_filename;      // -k
     TString output_filename;        // -o
 
 public:

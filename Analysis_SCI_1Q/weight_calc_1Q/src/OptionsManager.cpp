@@ -36,6 +36,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'k':
+                if (idx < argc_par - 1) {
+                    bar_mask_filename = argv_par[++idx];
+                    if (bar_mask_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'v':
                 if (idx < argc_par - 1) {
                     vthr_filename = argv_par[++idx];
@@ -67,9 +77,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -v <vthr_file.root> [-o <output_xtalkcorr.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> -v <vthr_file.root> [-k <bar_mask.txt>] [-o <output_xtalkcorr.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
+    cout << "  -k <bar_mask.txt>                text file to store the ID of bad channels" << endl;
     cout << "  -v <vthr_file.root>              energy threshold file" << endl;
     cout << "  -o <output_xtalkcorr.root>       crosstalk corrected data" << endl;
     cout << endl;
@@ -92,6 +103,7 @@ void OptionsManager::print_options() {
 
 void OptionsManager::init() {
     pol_event_filename.Clear();
+    bar_mask_filename.Clear();
     vthr_filename.Clear();
     output_filename.Clear();
 
