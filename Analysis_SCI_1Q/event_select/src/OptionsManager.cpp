@@ -46,6 +46,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'r':
+                reverse_flag = true;
+                break;
             default:
                 return false;
             }
@@ -67,11 +70,12 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> -f <event_type.root> [-o <output.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> -f <event_type.root> [-o <output.root>] [-r]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -f <event_type.root>             event type file" << endl;
     cout << "  -o <output.root>                 pedestal subtracted data" << endl;
+    cout << "  -r                               reversely select bad events" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -94,6 +98,7 @@ void OptionsManager::init() {
     pol_event_filename.Clear();
     event_type_filename.Clear();
     output_filename.Clear();
+    reverse_flag = false;
 
     version_flag_ = false;
 }

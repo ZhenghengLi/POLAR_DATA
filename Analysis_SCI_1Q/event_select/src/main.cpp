@@ -77,8 +77,14 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
         event_type_tree->GetEntry(q);
 
-        if (event_type < 1) {
-            t_pol_event_tree_new->Fill();
+        if (options_mgr.reverse_flag) {
+            if (event_type > 0) {
+                t_pol_event_tree_new->Fill();
+            }
+        } else {
+            if (event_type < 1) {
+                t_pol_event_tree_new->Fill();
+            }
         }
 
     }
