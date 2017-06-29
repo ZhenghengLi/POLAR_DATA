@@ -15,8 +15,8 @@ private:
 public:
     TString pol_event_filename;
     TString event_type_filename;    // -f
-    TString output_filename;        // -o
-    bool    reverse_flag;           // -r
+    TString output_good_filename;   // -o
+    TString output_bad_filename;    // -O
 
 public:
     OptionsManager();

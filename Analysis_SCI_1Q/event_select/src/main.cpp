@@ -56,12 +56,21 @@ int main(int argc, char** argv) {
     event_type_tree->SetBranchAddress("event_type", &event_type);
 
     // open output file
-    TFile* pol_event_file_sel = new TFile(options_mgr.output_filename.Data(), "recreate");
-    if (pol_event_file_sel->IsZombie()) {
-        cout << "pol_event_file_sel open failed: " << options_mgr.output_filename.Data() << endl;
+    TFile* pol_event_file_good = new TFile(options_mgr.output_good_filename.Data(), "recreate");
+    if (pol_event_file_good->IsZombie()) {
+        cout << "pol_event_file_sel open failed: " << options_mgr.output_good_filename.Data() << endl;
         return 1;
     }
-    TTree* t_pol_event_tree_new = t_pol_event_tree->CloneTree(0);
+    pol_event_file_good->cd();
+    TTree* t_pol_event_tree_good = t_pol_event_tree->CloneTree(0);
+
+    TFile* pol_event_file_bad = new TFile(options_mgr.output_good_filename.Data(), "recreate");
+    if (pol_event_file_good->IsZombie()) {
+        cout << "pol_event_file_sel open failed: " << options_mgr.output_good_filename.Data() << endl;
+        return 1;
+    }
+    pol_event_file_bad->cd();
+    TTree* t_pol_event_tree_bad = t_pol_event_tree->CloneTree(0);
 
     // do crosstalk correction
     int pre_percent = 0;
@@ -77,29 +86,26 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
         event_type_tree->GetEntry(q);
 
-        if (options_mgr.reverse_flag) {
-            if (event_type > 0) {
-                t_pol_event_tree_new->Fill();
-            }
+        if (event_type > 0) {
+            t_pol_event_tree_bad->Fill();
         } else {
-            if (event_type < 1) {
-                t_pol_event_tree_new->Fill();
-            }
+            t_pol_event_tree_good->Fill();
         }
 
     }
     cout << " DONE ]" << endl;
 
-    // write TTree
-    pol_event_file_sel->cd();
-    t_pol_event_tree_new->Write();
-
     cout << "writing meta information ... " << endl;
-    // write meta
-    TIter fileIter(pol_event_file->GetListOfKeys());
     TKey* key = NULL;
     TNamed* meta = NULL;
-    while ((key = static_cast<TKey*>(fileIter.Next())) != NULL) {
+
+    //// good
+    // write TTree
+    pol_event_file_good->cd();
+    t_pol_event_tree_good->Write();
+    // write meta
+    TIter fileIter_1(pol_event_file->GetListOfKeys());
+    while ((key = static_cast<TKey*>(fileIter_1.Next())) != NULL) {
         if (string(key->GetClassName()) != "TNamed") continue;
         if (string(key->GetName()) == "m_energy_unit") {
             meta = static_cast<TNamed*>(key->ReadObj());
@@ -112,11 +118,34 @@ int main(int argc, char** argv) {
             meta->Write();
         }
     }
-
     // close output file
-    pol_event_file_sel->Close();
-    delete pol_event_file_sel;
-    pol_event_file_sel = NULL;
+    pol_event_file_good->Close();
+    delete pol_event_file_good;
+    pol_event_file_good = NULL;
+
+    //// bad
+    // write TTree
+    pol_event_file_bad->cd();
+    t_pol_event_tree_bad->Write();
+    // write meta
+    TIter fileIter_2(pol_event_file->GetListOfKeys());
+    while ((key = static_cast<TKey*>(fileIter_2.Next())) != NULL) {
+        if (string(key->GetClassName()) != "TNamed") continue;
+        if (string(key->GetName()) == "m_energy_unit") {
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->Write();
+        } else if (string(key->GetName()) == "m_level_num") {
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->Write();
+        } else {
+            meta = static_cast<TNamed*>(key->ReadObj());
+            meta->Write();
+        }
+    }
+    // close output file
+    pol_event_file_good->Close();
+    delete pol_event_file_good;
+    pol_event_file_good = NULL;
 
     pol_event_file->Close();
     event_type_file->Close();
