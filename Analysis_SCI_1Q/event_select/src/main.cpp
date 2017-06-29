@@ -64,15 +64,15 @@ int main(int argc, char** argv) {
     pol_event_file_good->cd();
     TTree* t_pol_event_tree_good = t_pol_event_tree->CloneTree(0);
 
-    TFile* pol_event_file_bad = new TFile(options_mgr.output_good_filename.Data(), "recreate");
-    if (pol_event_file_good->IsZombie()) {
-        cout << "pol_event_file_sel open failed: " << options_mgr.output_good_filename.Data() << endl;
+    TFile* pol_event_file_bad = new TFile(options_mgr.output_bad_filename.Data(), "recreate");
+    if (pol_event_file_bad->IsZombie()) {
+        cout << "pol_event_file_sel open failed: " << options_mgr.output_bad_filename.Data() << endl;
         return 1;
     }
     pol_event_file_bad->cd();
     TTree* t_pol_event_tree_bad = t_pol_event_tree->CloneTree(0);
 
-    // do crosstalk correction
+    // do event selecting
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "Doing event selecting ... " << endl;
