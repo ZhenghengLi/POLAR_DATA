@@ -23,15 +23,6 @@ int main(int argc, char** argv) {
         cout << "pol_event_file open failed: " << options_mgr.pol_event_filename.Data() << endl;
         return 1;
     }
-    // TNamed* m_level_num = static_cast<TNamed*>(pol_event_file->Get("m_level_num"));
-    // if (m_level_num == NULL) {
-    //     cout << "cannot find TNamed m_level_num." << endl;
-    //     return 1;
-    // }
-    // if (TString(m_level_num->GetTitle()).Atoi() != 0) {
-    //     cout << "m_level_num is not 0." << endl;
-    //     return 1;
-    // }
     TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
     if (t_pol_event_tree == NULL) {
         cout << "cannot find TTree t_pol_event." << endl;
@@ -41,10 +32,7 @@ int main(int argc, char** argv) {
     t_pol_event.bind_pol_event_tree(t_pol_event_tree);
     t_pol_event.deactive_all(t_pol_event_tree);
     t_pol_event.active(t_pol_event_tree, "event_time");
-    t_pol_event.active(t_pol_event_tree, "is_ped");
-    t_pol_event.active(t_pol_event_tree, "time_aligned");
-    t_pol_event.active(t_pol_event_tree, "fe_time_wait");
-    t_pol_event.active(t_pol_event_tree, "fe_dead_ratio");
+
     cout << options_mgr.pol_event_filename.Data() << endl;
     Long64_t begin_entry = 0;
     Long64_t end_entry = t_pol_event_tree->GetEntries();
@@ -56,45 +44,54 @@ int main(int argc, char** argv) {
          << " { " << begin_time << "[" << begin_entry << "] => "
          << end_time << "[" << end_entry - 1 << "] }" << endl;
 
-    // prepare histogram
-    int nbins = static_cast<int>((end_time - begin_time) / options_mgr.binw);
+    // read deadtime ratio histogram
+    cout << "reading deadtime ratio histogram ..." << endl;
     TH1D* dead_ratio_hist[25];
-    for (int i = 0; i < 25; i++) {
-        dead_ratio_hist[i] = new TH1D(Form("dead_ratio_hist_CT_%02d", i + 1),
-                Form("dead_ratio_hist_CT_%02d", i + 1), nbins, begin_time, end_time);
-        dead_ratio_hist[i]->SetDirectory(NULL);
+    TFile* deadtime_ratio_file = new TFile(options_mgr.deadtime_ratio_filename.Data(), "read");
+    if (deadtime_ratio_file->IsZombie()) {
+        cout << "deadtime ratio file open failed: " << options_mgr.deadtime_ratio_filename.Data() << endl;
+        return 1;
     }
-    // collecting pedestal event data
-    int pre_percent = 0;
-    int cur_percent = 0;
-    cout << "reading data ... " << endl;
-    cout << "[ " << flush;
-    for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
-        cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());
-        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
-            pre_percent = cur_percent;
-            cout << "#" << flush;
-        }
-        t_pol_event_tree->GetEntry(q);
-        if (t_pol_event.is_ped) continue;
-
-        for (int i = 0; i < 25; i++) {
-            if (t_pol_event.time_aligned[i]) {
-                dead_ratio_hist[i]->Fill(t_pol_event.event_time, t_pol_event.fe_time_wait[i] * t_pol_event.fe_dead_ratio[i]);
-            }
-        }
-
-    }
-    cout << " DONE ]" << endl;
-
-    // calculate dead ratio
     for (int i = 0; i < 25; i++) {
-        dead_ratio_hist[i]->Scale(1, "width");
+        dead_ratio_hist[i] = static_cast<TH1D*>(deadtime_ratio_file->Get(Form("dead_ratio_hist_CT_%02d", i + 1)));
+        if (dead_ratio_hist[i] == NULL) {
+            cout << "cannot find dead_ratio_hist" << endl;
+            return 1;
+        }
+    }
+    int hist_begin_time = 0;
+    int hist_end_time = 0;
+    double hist_binsize = 0;
+    TNamed* tmp_tnamed;
+    tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("begin_time"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed begin_time" << endl;
+        return 1;
+    } else {
+        hist_begin_time = TString(tmp_tnamed->GetTitle()).Atoi();
+    }
+    tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("end_time"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed end_time" << endl;
+        return 1;
+    } else {
+        hist_end_time = TString(tmp_tnamed->GetTitle()).Atoi();
+    }
+    tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("binsize"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed binsize" << endl;
+        return 1;
+    } else {
+        hist_binsize = TString(tmp_tnamed->GetTitle()).Atof();
+    }
+    if (hist_begin_time < begin_time || hist_end_time > end_time) {
+        cout << "the deadtime_ratio file does not match" << endl;
+        return 1;
     }
 
     // open dead_ratio_file
     struct {
-        Double_t event_time_1;
+        Double_t event_time_d;
         Float_t  module_dead_ratio[25];
     } t_dead_ratio;
     TFile* deadtime_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -103,11 +100,11 @@ int main(int argc, char** argv) {
         return 1;
     }
     TTree* t_dead_ratio_tree = new TTree("t_dead_ratio", "deadtime ratio calculated by a larger bin size");
-    t_dead_ratio_tree->Branch("event_time_1",         &t_dead_ratio.event_time_1,        "event_time_1/D"            );
+    t_dead_ratio_tree->Branch("event_time_d",         &t_dead_ratio.event_time_d,        "event_time_d/D"            );
     t_dead_ratio_tree->Branch("module_dead_ratio",     t_dead_ratio.module_dead_ratio,   "module_dead_ratio[25]/F"   );
 
-    pre_percent = 0;
-    cur_percent = 0;
+    int pre_percent = 0;
+    int cur_percent = 0;
     cout << "writing deadtime ..." << endl;
     cout << "[ " << flush;
     for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
@@ -117,7 +114,7 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
-        t_dead_ratio.event_time_1 = t_pol_event.event_time;
+        t_dead_ratio.event_time_d = t_pol_event.event_time;
         for (int i = 0; i < 25; i++) {
             t_dead_ratio.module_dead_ratio[i] = dead_ratio_hist[i]->Interpolate(t_pol_event.event_time);
         }
@@ -127,7 +124,7 @@ int main(int argc, char** argv) {
 
     deadtime_file->cd();
     t_dead_ratio_tree->Write();
-    TNamed("binsize", Form("%6.3f second", options_mgr.binw)).Write();
+    TNamed("binsize", Form("%f", hist_binsize)).Write();
     deadtime_file->Close();
 
     pol_event_file->Close();

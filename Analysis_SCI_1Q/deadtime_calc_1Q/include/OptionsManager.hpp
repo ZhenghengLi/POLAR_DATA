@@ -14,8 +14,8 @@ private:
 
 public:
     TString pol_event_filename;
-    double  binw;                   // -w
-    TString output_filename;        // -o
+    TString deadtime_ratio_filename;   // -d
+    TString output_filename;           // -o
 
 public:
     OptionsManager();

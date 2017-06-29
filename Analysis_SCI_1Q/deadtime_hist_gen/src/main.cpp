@@ -41,7 +41,6 @@ int main(int argc, char** argv) {
     t_pol_event.bind_pol_event_tree(t_pol_event_tree);
     t_pol_event.deactive_all(t_pol_event_tree);
     t_pol_event.active(t_pol_event_tree, "event_time");
-    t_pol_event.active(t_pol_event_tree, "is_ped");
     t_pol_event.active(t_pol_event_tree, "time_aligned");
     t_pol_event.active(t_pol_event_tree, "fe_time_wait");
     t_pol_event.active(t_pol_event_tree, "fe_dead_ratio");
@@ -76,7 +75,6 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
-        if (t_pol_event.is_ped) continue;
 
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.time_aligned[i]) {
@@ -104,7 +102,9 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         dead_ratio_hist[i]->Write();
     }
-    TNamed("binsize", Form("%6.3f second", options_mgr.binw)).Write();
+    TNamed("begin_time", Form("%d", begin_time)).Write();
+    TNamed("end_time", Form("%d", end_time)).Write();
+    TNamed("binsize", Form("%f", options_mgr.binw)).Write();
     deadtime_file->Close();
 
     pol_event_file->Close();

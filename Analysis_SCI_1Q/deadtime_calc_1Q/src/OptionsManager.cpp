@@ -36,13 +36,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
-            case 'w':
+            case 'd':
                 if (idx < argc_par - 1) {
-                    TString tmp_arg = argv_par[++idx];
-                    if (tmp_arg[0] == '-') {
+                    deadtime_ratio_filename = argv_par[++idx];
+                    if (deadtime_ratio_filename[0] == '-') {
                         return false;
-                    } else {
-                        binw = tmp_arg.Atof();
                     }
                 } else {
                     return false;
@@ -60,6 +58,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
+    if (deadtime_ratio_filename.IsNull()) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_deadtime.root";
     }
@@ -68,11 +67,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-w <binw>] [-o <output_deadtime.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> -d <deadtime_ratio.root>  [-o <output_deadtime.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
+    cout << "  -d <deadtime_ratio.root>         histogram of deadtime ratio" << endl;
     cout << "  -o <output_deadtime.root>        deadtime data" << endl;
-    cout << "  -w <binw>                        bin width" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -93,8 +92,8 @@ void OptionsManager::print_options() {
 
 void OptionsManager::init() {
     pol_event_filename.Clear();
+    deadtime_ratio_filename.Clear();
     output_filename.Clear();
-    binw = 0.2;
 
     version_flag_ = false;
 }
