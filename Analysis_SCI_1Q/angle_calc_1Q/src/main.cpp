@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 
     // open deadtime_file
     struct {
-        Double_t event_time_1;
+        Double_t event_time_d;
         Float_t  module_dead_ratio[25];
     } t_dead_ratio;
     TFile* deadtime_file = NULL;
@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
             cout << "cannot find TTree t_dead_ratio" << endl;
             return 1;
         }
-        t_dead_ratio_tree->SetBranchAddress("event_time_1",         &t_dead_ratio.event_time_1        );
+        t_dead_ratio_tree->SetBranchAddress("event_time_d",         &t_dead_ratio.event_time_d        );
         t_dead_ratio_tree->SetBranchAddress("module_dead_ratio",     t_dead_ratio.module_dead_ratio   );
         if (t_dead_ratio_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
             cout << "Entries is different between TTree t_dead_ratio and t_pol_event" << endl;
