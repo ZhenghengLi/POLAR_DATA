@@ -143,9 +143,9 @@ int main(int argc, char** argv) {
         }
     }
     // close output file
-    pol_event_file_good->Close();
-    delete pol_event_file_good;
-    pol_event_file_good = NULL;
+    pol_event_file_bad->Close();
+    delete pol_event_file_bad;
+    pol_event_file_bad = NULL;
 
     pol_event_file->Close();
     event_type_file->Close();
