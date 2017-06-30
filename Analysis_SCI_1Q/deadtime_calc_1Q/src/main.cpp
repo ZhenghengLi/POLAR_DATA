@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     } else {
         hist_binsize = TString(tmp_tnamed->GetTitle()).Atof();
     }
-    if (hist_begin_time < begin_time || hist_end_time > end_time) {
+    if (hist_begin_time > begin_time || hist_end_time < end_time) {
         cout << "the deadtime_ratio file does not match" << endl;
         return 1;
     }
