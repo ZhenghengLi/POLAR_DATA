@@ -3,6 +3,7 @@
 #include "OptionsManager.hpp"
 #include "POLEvent.hpp"
 #include "EventFilter.hpp"
+#include "Na22Check.hpp"
 
 using namespace std;
 
@@ -76,13 +77,16 @@ int main(int argc, char** argv) {
         Long64_t event_id_c;
         Double_t event_time_c;
         UShort_t event_type;
+        Bool_t   is_na22;
     } t_event_type;
     TTree* t_event_type_tree = new TTree("t_event_type", "Event Type");
     t_event_type_tree->Branch("event_id_c",    &t_event_type.event_id_c,   "event_id_c/L"   );
     t_event_type_tree->Branch("event_time_c",  &t_event_type.event_time_c, "event_time_c/D" );
     t_event_type_tree->Branch("event_type",    &t_event_type.event_type,   "event_type/s"   );
+    t_event_type_tree->Branch("is_na22",       &t_event_type.is_na22,      "is_na22/O"      );
 
     EventFilter event_filter;
+    Na22Check   na22_checker;
 
     int pre_percent = 0;
     int cur_percent = 0;
@@ -118,6 +122,11 @@ int main(int argc, char** argv) {
         t_event_type.event_id_c   = t_pol_event.event_id;
         t_event_type.event_time_c = t_pol_event.event_time;
         t_event_type.event_type   = event_filter.classify(t_pol_event);
+
+        t_event_type.is_na22 = false;
+        if (t_event_type.event_type < 1 && na22_checker.check_na22_event(t_pol_event)) {
+            t_event_type.is_na22 = true;
+        }
 
         t_event_type_tree->Fill();
 
