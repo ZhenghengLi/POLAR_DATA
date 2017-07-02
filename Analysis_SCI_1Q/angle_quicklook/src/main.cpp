@@ -59,6 +59,7 @@ int main(int argc, char** argv) {
 
     TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
     CommonCanvas canvas;
+    gStyle->SetOptStat(0);
 
     // angle_hit_map
     TLine* line_h[4];
@@ -85,7 +86,7 @@ int main(int argc, char** argv) {
     angle_hist->SetDirectory(NULL);
 
     // distance_hist
-    TH1D* distance_hist = new TH1D("distance_hist", "Distance Distribution", 200, 0, 400);
+    TH1D* distance_hist = new TH1D("distance_hist", "Distance Distribution", 200, 0, 300);
     distance_hist->SetDirectory(NULL);
 
     // energy_ratio_hist
@@ -111,7 +112,7 @@ int main(int argc, char** argv) {
         double cur_weight = t_pol_angle.efficiency_weight * t_pol_angle.deadtime_weight;
         angle_hist->Fill(t_pol_angle.rand_angle, cur_weight);
         distance_hist->Fill(t_pol_angle.rand_distance, cur_weight);
-        energy_ratio_hist->Fill(t_pol_angle.second_energy / t_pol_angle.first_energy);
+        energy_ratio_hist->Fill(t_pol_angle.second_energy / t_pol_angle.first_energy, cur_weight);
 
         int first_x = ijtox(t_pol_angle.first_ij[0], t_pol_angle.first_ij[1]) + 1;
         int first_y = ijtoy(t_pol_angle.first_ij[0], t_pol_angle.first_ij[1]) + 1;
@@ -131,13 +132,10 @@ int main(int argc, char** argv) {
 
     // angle hist
     canvas.cd(1);
-    gStyle->SetOptStat(11);
-    gStyle->SetOptFit(111);
     angle_hist->DrawCopy("eh");
 
     // angle hit map
     canvas.cd(2);
-    gStyle->SetOptStat(0);
     canvas.get_canvas()->GetPad(1)->SetGrid();
     angle_hit_map->DrawCopy("COLZ");
     for (int i = 0; i < 4; i++) {
@@ -147,14 +145,10 @@ int main(int argc, char** argv) {
 
     // distance hist
     canvas.cd(3);
-    gStyle->SetOptStat(11);
-    gStyle->SetOptFit(111);
     distance_hist->DrawCopy("eh");
 
     // energy ratio hist
     canvas.cd(4);
-    gStyle->SetOptStat(11);
-    gStyle->SetOptFit(111);
     energy_ratio_hist->DrawCopy("eh");
 
     rootapp->Run();
