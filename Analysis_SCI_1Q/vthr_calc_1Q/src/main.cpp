@@ -23,8 +23,8 @@ int main(int argc, char** argv) {
 
     if (options_mgr.energy_flag) {
         vthr_mean_0 = 5.0;
-        vthr_sigma_0 = 1.0;
-        vthr_max = 120.0;
+        vthr_sigma_0 = 10.0;
+        vthr_max = 60.0;
         vthr_min = -15.0;
     }
 
