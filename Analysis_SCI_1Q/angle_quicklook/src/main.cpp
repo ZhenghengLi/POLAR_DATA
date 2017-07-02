@@ -119,9 +119,9 @@ int main(int argc, char** argv) {
         int second_y = ijtoy(t_pol_angle.second_ij[0], t_pol_angle.second_ij[1]) + 1;
 
         double first_content = angle_hit_map->GetBinContent(first_x, first_y);
-        angle_hit_map->SetBinContent(first_x, first_y, first_content + 1, cur_weight);
+        angle_hit_map->SetBinContent(first_x, first_y, first_content + cur_weight);
         double second_content = angle_hit_map->GetBinContent(second_x, second_y);
-        angle_hit_map->SetBinContent(second_x, second_y, second_content + 1, cur_weight);
+        angle_hit_map->SetBinContent(second_x, second_y, second_content + cur_weight);
 
     }
     cout << " DONE ]" << endl;
