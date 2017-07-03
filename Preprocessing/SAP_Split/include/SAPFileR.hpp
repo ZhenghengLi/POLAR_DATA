@@ -9,8 +9,8 @@
 #include "RootInc.hpp"
 #include "SAPType.hpp"
 
-#define TIME_SPAN_MIN 60
-#define TIME_DIFF_MIN 30
+#define TIME_SPAN_MIN 0.25
+#define TIME_DIFF_MIN 0.5
 
 using namespace std;
 using boost::regex;
