@@ -140,9 +140,11 @@ int main(int argc, char** argv) {
     delete angle_file;
     angle_file = NULL;
 
-    cout << "duration time   : " << last_time - first_time << endl;
-    cout << "integration     : " << angle_hist->Integral() << endl;
-    cout << "rate (counts/s) : " << angle_hist->Integral() / (last_time - first_time) << endl;
+    cout << endl;
+    cout << "duration time   : " << static_cast<int>(last_time - first_time) << endl;
+    cout << "integration     : " << static_cast<int>(angle_hist->Integral()) << endl;
+    cout << "rate (counts/s) : " << static_cast<int>(angle_hist->Integral() / (last_time - first_time)) << endl;
+    cout << endl;
 
     // angle hist
     canvas.cd(1);
