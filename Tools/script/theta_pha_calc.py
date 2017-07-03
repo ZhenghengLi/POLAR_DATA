@@ -8,10 +8,6 @@ parser.add_argument('-Z', dest = 'z_radec', required=True, help = '"RA(h),DEC(de
 parser.add_argument('-X', dest = 'x_radec', required=True, help = '"RA(h),DEC(deg) of POLAR X axis"')
 args = parser.parse_args()
 
-print args.grb_radec
-print args.z_radec
-print args.x_radec
-
 grb_radec_vec = [float(x) for x in args.grb_radec.split(',')]
 z_radec_vec   = [float(x) for x in args.z_radec.split(',')]
 x_radec_vec   = [float(x) for x in args.x_radec.split(',')]
