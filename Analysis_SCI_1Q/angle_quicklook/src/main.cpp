@@ -93,6 +93,10 @@ int main(int argc, char** argv) {
     TH1D* energy_ratio_hist = new TH1D("energy_ratio_hist", "Energy Ratio Distribution", 200, 0, 1);
     energy_ratio_hist->SetDirectory(NULL);
 
+    bool is_first = true;
+    double first_time = 0;
+    double last_time = 0;
+
     // reading angle data
     int pre_percent = 0;
     int cur_percent = 0;
@@ -105,6 +109,12 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_angle_tree->GetEntry(q);
+
+        if (is_first) {
+            first_time = t_pol_angle.event_time;
+            is_first = false;
+        }
+        last_time = t_pol_angle.event_time;
 
         if (t_pol_angle.is_na22) continue;
         if (!t_pol_angle.is_valid) continue;
@@ -130,13 +140,18 @@ int main(int argc, char** argv) {
     delete angle_file;
     angle_file = NULL;
 
+    cout << "duration time   : " << last_time - first_time << endl;
+    cout << "integration     : " << angle_hist->Integral() << endl;
+    cout << "rate (counts/s) : " << angle_hist->Integral() / (last_time - first_time) << endl;
+
     // angle hist
     canvas.cd(1);
+    canvas.get_canvas()->GetPad(1)->SetGrid();
     angle_hist->DrawCopy("eh");
 
     // angle hit map
     canvas.cd(2);
-    canvas.get_canvas()->GetPad(1)->SetGrid();
+    canvas.get_canvas()->GetPad(2)->SetGrid();
     angle_hit_map->DrawCopy("COLZ");
     for (int i = 0; i < 4; i++) {
         line_h[i]->Draw();
