@@ -47,6 +47,7 @@ pha_y = np.dot(vec_s, vec_y)
 
 theta = rad_to_deg(np.arccos(cos_theta))
 pha   = rad_to_deg(np.arctan2(pha_y, pha_x))
+if pha < 0: pha += 360.0
 
 print "theta: " + str(theta)
 print "pha:   " + str(pha)
