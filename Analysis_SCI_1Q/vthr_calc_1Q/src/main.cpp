@@ -108,6 +108,13 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             tri_eff[i][j] = static_cast<TH1F*>(tri_spec[i][j]->Clone(Form("tri_eff_%02d_%02d", i + 1, j + 1)));
             tri_eff[i][j]->SetTitle(Form("tri_eff_%02d_%02d", i + 1, j + 1));
+            for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
+                if (tri_eff[i][j]->GetBinCenter(k) < 0) {
+                    tri_eff[i][j]->SetBinContent(k, 0);
+                } else {
+                    break;
+                }
+            }
         }
     }
 
