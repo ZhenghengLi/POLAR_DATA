@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
     double vthr_min = -128.0;
 
     if (options_mgr.energy_flag) {
-        vthr_mean_0 = 5.0;
-        vthr_sigma_0 = 10.0;
+        vthr_mean_0 = 10.0;
+        vthr_sigma_0 = 30.0;
         vthr_max = 60.0;
         vthr_min = -15.0;
     }
