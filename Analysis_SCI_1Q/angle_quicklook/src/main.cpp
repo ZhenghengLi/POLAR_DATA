@@ -146,6 +146,24 @@ int main(int argc, char** argv) {
     cout << "rate (counts/s) : " << static_cast<int>(angle_hist->Integral() / (last_time - first_time)) << endl;
     cout << endl;
 
+    if (!options_mgr.output_filename.IsNull()) {
+        cout << "saving modulation curve ..." << endl;
+        TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
+        if (output_file->IsZombie()) {
+            cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
+            return 1;
+        }
+        output_file->cd();
+        TH1D* angle_hist_norm = static_cast<TH1D*>(angle_hist->Clone("angle_hist_norm"));
+        double scale = 1.0 / angle_hist_norm->Integral();
+        angle_hist_norm->Scale(scale);
+        angle_hist_norm->Write();
+        TNamed("nbins", Form("%d", options_mgr.number_of_bins)).Write();
+        TNamed("total", Form("%d", static_cast<int>(1.0 / scale))).Write();
+        output_file->Close();
+        delete output_file;
+    }
+
     // angle hist
     canvas.cd(1);
     canvas.get_canvas()->GetPad(1)->SetGrid();

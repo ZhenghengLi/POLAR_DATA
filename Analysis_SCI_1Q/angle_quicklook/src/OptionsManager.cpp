@@ -38,6 +38,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'o':
+                if (idx < argc_par - 1) {
+                    output_filename = argv_par[++idx];
+                    if (output_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -56,10 +66,11 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<angle_file.root> [-n <nbins>]" << endl;
+    cout << "  " << SW_NAME << "<angle_file.root> [-n <nbins>] [-o <output.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -o <nbins>                       number of bins" << endl;
+    cout << "  -n <nbins>                       number of bins" << endl;
+    cout << "  -o <output.root>                 file to store modulation curve" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -81,6 +92,7 @@ void OptionsManager::print_options() {
 void OptionsManager::init() {
     angle_filename.Clear();
     number_of_bins = 60;
+    output_filename.Clear();
 
     version_flag_ = false;
 }

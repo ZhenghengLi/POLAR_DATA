@@ -15,6 +15,7 @@ private:
 public:
     TString angle_filename;
     int     number_of_bins;   // -n
+    TString output_filename;  // -o
 
 public:
     OptionsManager();
