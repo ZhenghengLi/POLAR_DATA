@@ -84,6 +84,7 @@ int main(int argc, char** argv) {
     // angle_hist
     TH1D* angle_hist = new TH1D("angle_hist", "Angle Distribution", options_mgr.number_of_bins, 0, 360);
     angle_hist->SetDirectory(NULL);
+    angle_hist->SetMinimum(0);
 
     // distance_hist
     TH1D* distance_hist = new TH1D("distance_hist", "Distance Distribution", 200, 0, 300);
@@ -159,6 +160,7 @@ int main(int argc, char** argv) {
         TH1D* angle_hist_norm = static_cast<TH1D*>(angle_hist->Clone("angle_hist_norm"));
         double scale = 1.0 / angle_hist_norm->Integral();
         angle_hist_norm->Scale(scale);
+        angle_hist->Write();
         angle_hist_norm->Write();
         TNamed("nbins", Form("%d", options_mgr.number_of_bins)).Write();
         TNamed("total", Form("%d", static_cast<int>(1.0 / scale))).Write();
