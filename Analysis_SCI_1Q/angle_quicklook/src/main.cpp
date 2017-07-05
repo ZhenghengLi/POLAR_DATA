@@ -144,9 +144,9 @@ int main(int argc, char** argv) {
     cout << endl;
     double duration_time = last_time - first_time;
     double integration = angle_hist->Integral();
-    cout << "duration time   : " << static_cast<int>(duration_time) << endl;
-    cout << "integration     : " << static_cast<int>(integration) << endl;
-    cout << "rate (counts/s) : " << static_cast<int>(integration / duration_time) << endl;
+    cout << "duration time   : " << duration_time << endl;
+    cout << "integration     : " << integration << endl;
+    cout << "rate (counts/s) : " << integration / duration_time << endl;
     cout << endl;
 
     if (!options_mgr.output_filename.IsNull()) {
