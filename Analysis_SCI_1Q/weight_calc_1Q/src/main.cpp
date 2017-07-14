@@ -152,8 +152,9 @@ int main(int argc, char** argv) {
          << " { " << begin_time << "[" << begin_entry << "] => "
          << end_time << "[" << end_entry - 1 << "] }" << endl;
 
-    // calculate angle
+    // calculate weight
     double min_eff = 0.1;
+    double max_weight = 100.0;
     double tmp_mod_weight;
     double tmp_event_pol_weight;
     int cur_percent = 0;
@@ -196,7 +197,7 @@ int main(int argc, char** argv) {
                     sum_ch++;
                 }
             }
-            if (sum_ch > 0) {
+            if (sum_ch > 0 && tmp_mod_weight < max_weight) {
                 t_pol_weight.mod_weight[i] = tmp_mod_weight;
                 tmp_event_pol_weight *= tmp_mod_weight;
                 sum_mod++;
@@ -204,7 +205,7 @@ int main(int argc, char** argv) {
                 t_pol_weight.mod_weight[i] = 0.0;
             }
         }
-        if (sum_mod > 0) {
+        if (sum_mod > 0 && tmp_event_pol_weight < max_weight) {
             t_pol_weight.event_weight = tmp_event_pol_weight;
         } else {
             t_pol_weight.event_weight = 0.0;
