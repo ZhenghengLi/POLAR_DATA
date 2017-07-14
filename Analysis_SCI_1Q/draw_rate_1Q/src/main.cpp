@@ -143,6 +143,36 @@ int main(int argc, char** argv) {
 
     RateCanvas rate_canvas(begin_time, options_mgr.min_signif);
 
+    // open weight file
+    TFile* pol_weight_file = NULL;
+    TTree* t_pol_weight_tree = NULL;
+    struct {
+        Double_t event_time_2;
+        Float_t  ch_weight[25][64];
+        Float_t  mod_weight[25];
+        Float_t  event_weight;
+    } t_pol_weight;
+    if (!options_mgr.weight_filename.IsNull()) {
+        pol_weight_file = new TFile(options_mgr.weight_filename.Data(), "read");
+        if (pol_weight_file->IsZombie()) {
+            cout << "pol_weight_file open failed." << endl;
+            return 1;
+        }
+        t_pol_weight_tree = static_cast<TTree*>(pol_weight_file->Get("t_pol_weight"));
+        if (t_pol_weight_tree == NULL) {
+            cout << "cannot find TTree t_pol_weight" << endl;
+            return 1;
+        }
+        t_pol_weight_tree->SetBranchAddress("event_time_2",     &t_pol_weight.event_time_2     );
+        t_pol_weight_tree->SetBranchAddress("ch_weight",         t_pol_weight.ch_weight        );
+        t_pol_weight_tree->SetBranchAddress("mod_weight",        t_pol_weight.mod_weight       );
+        t_pol_weight_tree->SetBranchAddress("event_weight",     &t_pol_weight.event_weight     );
+        if (t_pol_weight_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
+            cout << "Entries is different between TTree t_pol_weight and t_pol_event" << endl;
+            return 1;
+        }
+    }
+
     // prepare histogram
     char name[50];
     char title[100];
@@ -209,6 +239,9 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
+        if (!options_mgr.weight_filename.IsNull()) {
+            t_pol_weight_tree->GetEntry(q);
+        }
 
         if (t_pol_event.trigger_n < options_mgr.min_bars || t_pol_event.trigger_n > options_mgr.max_bars) {
             continue;
@@ -236,10 +269,18 @@ int main(int argc, char** argv) {
         if (is_bad_event) {
             continue;
         }
-        trigger_hist->Fill(cur_second);
+        if (options_mgr.weight_filename.IsNull()) {
+            trigger_hist->Fill(cur_second, 1.0);
+        } else {
+            trigger_hist->Fill(cur_second, t_pol_weight.event_weight);
+        }
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.trig_accepted[i]) {
-                modules_hist[i]->Fill(cur_second);
+                if (options_mgr.weight_filename.IsNull()) {
+                    modules_hist[i]->Fill(cur_second, 1.0);
+                } else {
+                    modules_hist[i]->Fill(cur_second, t_pol_weight.mod_weight[i]);
+                }
             }
         }
         if (options_mgr.tout1_flag) {
@@ -249,7 +290,11 @@ int main(int argc, char** argv) {
                 for (int j = 0; j < 64; j++) {
                     if (t_pol_event.trigger_bit[i][j]) {
                         double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1);
-                        ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content + 1);
+                        if (options_mgr.weight_filename.IsNull()) {
+                            ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content + 1);
+                        } else {
+                            ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content + t_pol_weight.ch_weight[i][j]);
+                        }
                     }
                 }
             }
@@ -265,6 +310,11 @@ int main(int argc, char** argv) {
     pol_event_file->Close();
     delete pol_event_file;
     pol_event_file = NULL;
+    if (!options_mgr.weight_filename.IsNull()) {
+        pol_weight_file->Close();
+        delete pol_weight_file;
+        pol_weight_file = NULL;
+    }
 
     // calculate rate for event rate
     for (int b = 1; b <= trigger_hist->GetNbinsX(); b++) {

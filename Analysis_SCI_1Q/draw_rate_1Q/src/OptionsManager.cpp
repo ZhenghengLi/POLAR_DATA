@@ -84,6 +84,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'W':
+                if (idx < argc_par - 1) {
+                    weight_filename = argv_par[++idx];
+                    if (weight_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'm':
                 tout1_flag = true;
                 break;
@@ -188,7 +198,7 @@ void OptionsManager::print_help() {
     cout << "  ";
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << " [-k <bar_mask.cfg] [-n <niter>] [-s <min_signif>]" << endl;
+    cout << "[-W <weight.root>] [-k <bar_mask.cfg>] [-n <niter>] [-s <min_signif>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -200,6 +210,7 @@ void OptionsManager::print_help() {
     cout << "  -o                               output rate hist to a root file" << endl;
     cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
     cout << "  -z <max_bars>                    maximum number of bars to cut, default is 1600" << endl;
+    cout << "  -W weight.root                   weight file" << endl;
     cout << "  -k <bar_mask.cfg>                file that contains a list of hot bars" << endl;
     cout << "  -n <niter>                       numberIterations for background calculation" << endl;
     cout << "  -s <min_signif>                  min significance level for T0 calculation" << endl;
@@ -233,6 +244,7 @@ void OptionsManager::init() {
     bar_mask_filename.Clear();
     niter = -1;
     min_signif = -1;
+    weight_filename.Clear();
 
     version_flag_ = false;
 }

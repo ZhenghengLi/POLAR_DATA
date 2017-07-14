@@ -25,6 +25,7 @@ public:
     TString bar_mask_filename;
     int     niter;
     double  min_signif;
+    TString weight_filename;
 
 public:
     OptionsManager();
