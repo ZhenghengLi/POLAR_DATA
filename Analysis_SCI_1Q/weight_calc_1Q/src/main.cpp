@@ -67,6 +67,11 @@ int main(int argc, char** argv) {
         cout << "pol_event_file open failed: " << options_mgr.pol_event_filename.Data() << endl;
         return 1;
     }
+    string energy_unit = "unknown";
+    TNamed* m_energy_unit = static_cast<TNamed*>(pol_event_file->Get("m_energy_unit"));
+    if (m_energy_unit != NULL) {
+        energy_unit = m_energy_unit->GetTitle();
+    }
     TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
     if (t_pol_event_tree == NULL) {
         cout << "cannot find TTree t_pol_event." << endl;
@@ -123,7 +128,7 @@ int main(int argc, char** argv) {
             vthr_value[n++] = vthr_adc_value_CT_[i](j);
         }
     }
-    cut_value = TMath::Median(n, vthr_value);
+    cut_value = (options_mgr.cut_value > 0 ? options_mgr.cut_value : TMath::Median(n, vthr_value));
     cout << "vthr cut_value = " << cut_value << endl;
 
     // open weight file
@@ -153,7 +158,7 @@ int main(int argc, char** argv) {
          << end_time << "[" << end_entry - 1 << "] }" << endl;
 
     // calculate weight
-    double min_eff = 0.1;
+    double min_eff = 0.2;
     double max_weight = 100.0;
     double tmp_mod_weight;
     double tmp_event_pol_weight;
@@ -217,6 +222,8 @@ int main(int argc, char** argv) {
 
     pol_weight_file->cd();
     t_pol_weight_tree->Write();
+    TNamed("cut_value", Form("%f", cut_value)).Write();
+    TNamed("energy_unit", energy_unit.c_str()).Write();
     pol_weight_file->Close();
 
     pol_event_file->Close();

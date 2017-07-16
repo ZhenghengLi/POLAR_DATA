@@ -6,7 +6,7 @@
 
 using namespace std;
 
-const string SW_NAME = "xtalk_correct";
+const string SW_NAME = "weight_calc_1Q";
 
 const string SW_VERSION = "v1.0.0";
 
