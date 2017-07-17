@@ -3,6 +3,7 @@
 #include <cmath>
 #include <ctime>
 #include <cstdio>
+#include <fstream>
 
 using namespace std;
 
@@ -12,6 +13,7 @@ EventCanvas::EventCanvas() {
     trigger_map_ = NULL;
     energy_map_ = NULL;
     h_stack_ = NULL;
+    queue_flag_ = false;
 }
 
 EventCanvas::~EventCanvas() {
@@ -71,13 +73,21 @@ void EventCanvas::draw_event() {
                                  this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
     }
     canvas_event_->cd();
-    do {
-        entry_current_ += entry_step_;
-        if (entry_current_ >= t_pol_event_tree_->GetEntries()) {
-            return;
-        }
+    if (queue_flag_) {
+        if (entry_queue_.empty()) return;
+        entry_current_ = entry_queue_.front();
+        entry_queue_.pop();
+        if (entry_current_ >= t_pol_event_tree_->GetEntries()) return;
         t_pol_event_tree_->GetEntry(entry_current_);
-    } while (t_pol_event_.is_ped || t_pol_event_.lost_count > 0);
+    } else {
+        do {
+            entry_current_ += entry_step_;
+            if (entry_current_ >= t_pol_event_tree_->GetEntries()) {
+                return;
+            }
+            t_pol_event_tree_->GetEntry(entry_current_);
+        } while (t_pol_event_.is_ped || t_pol_event_.lost_count > 0);
+    }
 
     /////////////////////////////////////////////////
 
@@ -191,5 +201,24 @@ void EventCanvas::draw_event() {
     h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
     h_stack_->Draw("lego1 0");
     canvas_event_->Update();
+}
+
+bool EventCanvas::read_entry_queue(const char* filename) {
+    ifstream infile;
+    infile.open(filename);
+    if (!infile.is_open()) return false;
+    long int entry_idx;
+    while(true) {
+        infile >> entry_idx;
+        if (entry_idx < 0) continue;
+        entry_queue_.push(entry_idx);
+    }
+    infile.close();
+    if (entry_queue_.empty()) {
+        return false;
+    } else {
+        queue_flag_ = true;
+        return true;
+    }
 }
 

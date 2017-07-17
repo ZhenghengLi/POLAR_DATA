@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <queue>
 #include <cmath>
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
 #include "RootInc.hpp"
@@ -35,6 +36,8 @@ private:
     POLEvent t_pol_event_;
     int      entry_step_;
     Long64_t entry_current_;
+    bool            queue_flag_;
+    queue<Long64_t> entry_queue_;
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
@@ -44,6 +47,7 @@ public:
     bool open(const char* filename, int start, int step);
     void close();
     void draw_event();
+    bool read_entry_queue(const char* filename);
 #endif /* __ROOTCLING__ || __CINT __ */
 
 };

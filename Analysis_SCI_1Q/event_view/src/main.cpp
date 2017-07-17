@@ -18,6 +18,12 @@ int main(int argc, char** argv) {
 
     TApplication* rootapp = new TApplication("POLAR", NULL, NULL);
     EventCanvas event_canvas;
+    if (!options_mgr.entry_list_filename.IsNull()) {
+        if (!event_canvas.read_entry_queue(options_mgr.entry_list_filename.Data())) {
+            cout << "entry list file reading failed: " << options_mgr.entry_list_filename.Data() << endl;
+            return 1;
+        }
+    }
 
     if (event_canvas.open(options_mgr.pol_event_filename.Data(), options_mgr.start, options_mgr.step)) {
         event_canvas.draw_event();

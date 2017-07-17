@@ -14,8 +14,9 @@ private:
 
 public:
     TString pol_event_filename;
-    int     start;       // -a
-    int     step;        // -n
+    int     start;                 // -a
+    int     step;                  // -n
+    TString entry_list_filename;   // -l
 
 public:
     OptionsManager();

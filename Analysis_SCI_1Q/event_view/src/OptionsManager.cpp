@@ -50,6 +50,16 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'l':
+                if (idx < argc_par - 1) {
+                    entry_list_filename = argv_par[++idx];
+                    if (entry_list_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -70,12 +80,13 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-	cout << "  " << SW_NAME << " <SCI_1Q.root> [-a <start>] [-n <step>]" << endl;
+	cout << "  " << SW_NAME << " <SCI_1Q.root> [[-a <start>] [-n <step>]] | [-l <list_file.txt>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -a start                         start entry" << endl;
     cout << "  -n step                          iteration step" << endl;
+    cout << "  -l list_file.txt                 entry list file" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -98,6 +109,7 @@ void OptionsManager::init() {
     pol_event_filename.Clear();
     start = 0;
     step = 1;
+    entry_list_filename.Clear();
 
     version_flag_ = false;
 }
