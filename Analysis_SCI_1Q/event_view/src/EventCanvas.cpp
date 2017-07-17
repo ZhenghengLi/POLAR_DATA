@@ -210,6 +210,7 @@ bool EventCanvas::read_entry_queue(const char* filename) {
     long int entry_idx;
     while(true) {
         infile >> entry_idx;
+        if (infile.eof()) break;
         if (entry_idx < 0) continue;
         entry_queue_.push(entry_idx);
     }
