@@ -258,21 +258,17 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         double time_peak = (x_T0 > 0 ? start_met_time_ + x_peak + x_T0 : start_met_time_ + x_peak);
         canvas_trigger_subbkg_->cd(2);
         pavetext_ = new TPaveText(0.1, 0.1, 0.9, 1);
-        pavetext_->AddText(0.0, 0.9, Form("GRB_T0GPS: %d:%.3f [%s]",
-                    static_cast<int>(time_T0 / 604800),
-                    fmod(time_T0, 604800),
+        pavetext_->AddText(0.0, 0.9, Form("GRB_T0MET: %.3f [%s]",
+                    time_T0,
                     met_to_utc_str_(time_T0).c_str()));
-        pavetext_->AddText(0.0, 0.77 , Form("T90_START: %d:%.3f [%s]",
-                    static_cast<int>(time_t90_start / 604800),
-                    fmod(time_t90_start, 604800),
+        pavetext_->AddText(0.0, 0.77 , Form("T90_START: %.3f [%s]",
+                    time_t90_start,
                     met_to_utc_str_(time_t90_start).c_str()));
-        pavetext_->AddText(0.0, 0.64, Form("T90_STOP: %d:%.3f [%s]",
-                    static_cast<int>(time_t90_stop / 604800),
-                    fmod(time_t90_stop, 604800),
+        pavetext_->AddText(0.0, 0.64, Form("T90_STOP: %.3f [%s]",
+                    time_t90_stop,
                     met_to_utc_str_(time_t90_stop).c_str()));
-        pavetext_->AddText(0.0, 0.51, Form("PEAK_TIME: %d:%.3f [%s]",
-                    static_cast<int>(time_peak / 604800),
-                    fmod(time_peak, 604800),
+        pavetext_->AddText(0.0, 0.51, Form("PEAK_TIME: %.3f [%s]",
+                    time_peak,
                     met_to_utc_str_(time_peak).c_str()));
         pavetext_->AddText(0.0, 0.38, Form("PEAK_RATE: %d cnts/sec",
                     static_cast<int>(rate_peak)));
@@ -292,7 +288,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         select_count_++;
         double tmp_met_time = start_met_time_ + x;
         cout << " - " << setw(2) << select_count_ << " -> "
-             << Form("%10.2f", tmp_met_time) << endl;
+             << Form("%10.2f", tmp_met_time) << " [" << met_to_utc_str_(tmp_met_time) << "]"<< endl;
         canvas_trigger_->cd();
         select_x_[line_cnt_] = x;
         line_obj_[line_cnt_] = new TLine(x, 0, x, y_max);
