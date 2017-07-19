@@ -288,7 +288,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         select_count_++;
         double tmp_met_time = start_met_time_ + x;
         cout << " - " << setw(2) << select_count_ << " -> "
-             << Form("%10.2f", tmp_met_time) << " [" << met_to_utc_str_(tmp_met_time) << "]"<< endl;
+             << Form("%12.3f", tmp_met_time) << " [" << met_to_utc_str_(tmp_met_time) << "]"<< endl;
         canvas_trigger_->cd();
         select_x_[line_cnt_] = x;
         line_obj_[line_cnt_] = new TLine(x, 0, x, y_max);
