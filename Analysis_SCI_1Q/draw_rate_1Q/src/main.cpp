@@ -201,35 +201,35 @@ int main(int argc, char** argv) {
     TH1D* earth_theta_hist = new TH1D("earth_theta", "Theta of Earth",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     earth_theta_hist->SetDirectory(NULL);
-    earth_theta_hist->SetMinimum(0);
-    earth_theta_hist->SetMaximum(180);
+    earth_theta_hist->SetMinimum(-10);
+    earth_theta_hist->SetMaximum(190);
     TH1D* earth_pha_hist = new TH1D("earth_pha", "Pha of Earth",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     earth_pha_hist->SetDirectory(NULL);
-    earth_pha_hist->SetMinimum(0);
-    earth_pha_hist->SetMaximum(360);
+    earth_pha_hist->SetMinimum(-10);
+    earth_pha_hist->SetMaximum(370);
     // theta and pha of sun
     TH1D* sun_theta_hist = new TH1D("sun_theta", "Theta of Sun",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     sun_theta_hist->SetDirectory(NULL);
-    sun_theta_hist->SetMinimum(0);
-    sun_theta_hist->SetMaximum(180);
+    sun_theta_hist->SetMinimum(-10);
+    sun_theta_hist->SetMaximum(190);
     TH1D* sun_pha_hist = new TH1D("sun_pha", "Pha of Sun",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     sun_pha_hist->SetDirectory(NULL);
-    sun_pha_hist->SetMinimum(0);
-    sun_pha_hist->SetMaximum(360);
+    sun_pha_hist->SetMinimum(-10);
+    sun_pha_hist->SetMaximum(370);
     // theta and pha of GRB
     TH1D* grb_theta_hist = new TH1D("grb_theta", "Theta of Object",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     grb_theta_hist->SetDirectory(NULL);
-    grb_theta_hist->SetMinimum(0);
-    grb_theta_hist->SetMaximum(180);
+    grb_theta_hist->SetMinimum(-10);
+    grb_theta_hist->SetMaximum(190);
     TH1D* grb_pha_hist = new TH1D("grb_pha", "Pha of Object",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     grb_pha_hist->SetDirectory(NULL);
-    grb_pha_hist->SetMinimum(0);
-    grb_pha_hist->SetMaximum(360);
+    grb_pha_hist->SetMinimum(-10);
+    grb_pha_hist->SetMaximum(370);
     TH1D* count_hist = new TH1D("count_hist", "count_hist",
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     count_hist->SetDirectory(NULL);

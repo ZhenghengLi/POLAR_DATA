@@ -53,11 +53,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'R':
                 if (idx < argc_par - 1) {
                     TString tmp_arg = argv_par[++idx];
-                    if (tmp_arg[0] == '-') {
-                        return false;
-                    } else {
-                        grb_ra = tmp_arg.Atof();
-                    }
+                    grb_ra = tmp_arg.Atof();
                 } else {
                     return false;
                 }
@@ -65,11 +61,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'D':
                 if (idx < argc_par - 1) {
                     TString tmp_arg = argv_par[++idx];
-                    if (tmp_arg[0] == '-') {
-                        return false;
-                    } else {
-                        grb_dec = tmp_arg.Atof();
-                    }
+                    grb_dec = tmp_arg.Atof();
                 } else {
                     return false;
                 }
