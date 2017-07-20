@@ -278,8 +278,8 @@ void OptionsManager::init() {
     niter = -1;
     min_signif = -1;
     weight_filename.Clear();
-    grb_ra = 0;
-    grb_dec = 0;
+    grb_ra = 5.575547;     // RA  of Crab Pulsar
+    grb_dec = 22.0144722;  // DEC of Crab Pulsar
 
     version_flag_ = false;
 }

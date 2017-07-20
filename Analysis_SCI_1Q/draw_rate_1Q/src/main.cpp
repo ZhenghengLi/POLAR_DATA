@@ -219,12 +219,12 @@ int main(int argc, char** argv) {
     sun_pha_hist->SetMinimum(0);
     sun_pha_hist->SetMaximum(360);
     // theta and pha of GRB
-    TH1D* grb_theta_hist = new TH1D("grb_theta", "Theta of GRB",
+    TH1D* grb_theta_hist = new TH1D("grb_theta", "Theta of Object",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     grb_theta_hist->SetDirectory(NULL);
     grb_theta_hist->SetMinimum(0);
     grb_theta_hist->SetMaximum(180);
-    TH1D* grb_pha_hist = new TH1D("grb_pha", "Pha of GRB",
+    TH1D* grb_pha_hist = new TH1D("grb_pha", "Pha of Object",
             nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
     grb_pha_hist->SetDirectory(NULL);
     grb_pha_hist->SetMinimum(0);
