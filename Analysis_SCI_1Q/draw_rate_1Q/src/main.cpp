@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
         }
     }
     t_pol_event.active(t_pol_event_tree, "event_time");
+    t_pol_event.active(t_pol_event_tree, "is_ped");
     t_pol_event.active(t_pol_event_tree, "trigger_bit");
     t_pol_event.active(t_pol_event_tree, "time_aligned");
     t_pol_event.active(t_pol_event_tree, "raw_rate");
@@ -293,6 +294,7 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
+        if (t_pol_event.is_ped) continue;
         if (!options_mgr.weight_filename.IsNull()) {
             t_pol_weight_tree->GetEntry(q);
         }
@@ -449,7 +451,7 @@ int main(int argc, char** argv) {
     int bin_idx = 0;
     while (bin_idx < trigger_hist_fix->GetNbinsX()) {
         bin_idx++;
-        if (trigger_hist_fix->GetBinContent(bin_idx) > 2) continue;
+        if (trigger_hist_fix->GetBinContent(bin_idx) > 1) continue;
         // find the first bin before saa
         int bin_idx_left = bin_idx;
         int pre_count = 0;
@@ -507,7 +509,7 @@ int main(int argc, char** argv) {
     TH1D* trigger_hist_bkg = static_cast<TH1D*>(t_spec.Background(trigger_hist_fix, options_mgr.niter));
     // correct bkg
     for (int i = 1; i <= trigger_hist->GetNbinsX(); i++) {
-        if (trigger_hist->GetBinContent(i) < 3) {
+        if (trigger_hist->GetBinContent(i) < 2) {
             trigger_hist_bkg->SetBinContent(i, 0);
         }
     }
