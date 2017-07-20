@@ -26,6 +26,8 @@ public:
     int     niter;
     double  min_signif;
     TString weight_filename;
+    double  grb_ra;
+    double  grb_dec;
 
 public:
     OptionsManager();

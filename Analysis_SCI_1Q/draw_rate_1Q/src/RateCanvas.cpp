@@ -61,6 +61,27 @@ void RateCanvas::cd_ch_map(int i) {
 	canvas_ch_map_->cd(i);
 }
 
+void RateCanvas::cd_theta_pha(int i) {
+    canvas_theta_pha_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_theta_pha"));
+    if (canvas_theta_pha_ == NULL) {
+        canvas_theta_pha_ = new TCanvas("canvas_theta_pha", "Theta and Pha angle of Objects", 1200, 900);
+        canvas_theta_pha_->Divide(2, 3);
+        canvas_theta_pha_->ToggleEventStatus();
+        canvas_theta_pha_->SetCrosshair();
+    }
+    canvas_theta_pha_->cd(i);
+}
+
+void RateCanvas::cd_pos_map() {
+    canvas_pos_map_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_pos_map"));
+    if (canvas_pos_map_ == NULL) {
+        canvas_pos_map_ = new TCanvas("canvas_pos_map", "Position Rate Map", 1000, 600);
+        canvas_pos_map_->ToggleEventStatus();
+        canvas_pos_map_->SetCrosshair();
+    }
+    canvas_pos_map_->cd();
+}
+
 void RateCanvas::draw_trigger_hist(TH1D* trigger_hist) {
     if (cur_trigger_hist_ != NULL)
         return;

@@ -6,6 +6,7 @@
 #include "POLEvent.hpp"
 #include "RateCanvas.hpp"
 #include "CooConv.hpp"
+#include "PosConv.hpp"
 
 using namespace std;
 
@@ -123,6 +124,12 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "trigger_n");
     t_pol_event.active(t_pol_event_tree, "type");
     t_pol_event.active(t_pol_event_tree, "trig_accepted");
+    t_pol_event.active(t_pol_event_tree, "ppd_interval");
+    t_pol_event.active(t_pol_event_tree, "wgs84_xyz");
+    t_pol_event.active(t_pol_event_tree, "det_z_radec");
+    t_pol_event.active(t_pol_event_tree, "det_x_radec");
+    t_pol_event.active(t_pol_event_tree, "earth_radec");
+    t_pol_event.active(t_pol_event_tree, "sun_radec");
     t_pol_event_tree->GetEntry(begin_entry);
     int begin_time = static_cast<int>(t_pol_event.event_time);
     t_pol_event_tree->GetEntry(end_entry - 1);
@@ -188,6 +195,49 @@ int main(int argc, char** argv) {
     trigger_hist->SetMinimum(0);
     trigger_hist->GetXaxis()->SetTitle("T-T0 (s)");
     trigger_hist->GetYaxis()->SetTitle("Rate (trigger/s)");
+
+    // theta and pha of earth
+    TH1D* earth_theta_hist = new TH1D("earth_theta", "Theta of Earth",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    earth_theta_hist->SetDirectory(NULL);
+    earth_theta_hist->SetMinimum(0);
+    earth_theta_hist->SetMaximum(180);
+    TH1D* earth_pha_hist = new TH1D("earth_pha", "Pha of Earth",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    earth_pha_hist->SetDirectory(NULL);
+    earth_pha_hist->SetMinimum(0);
+    earth_pha_hist->SetMaximum(360);
+    // theta and pha of sun
+    TH1D* sun_theta_hist = new TH1D("sun_theta", "Theta of Sun",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    sun_theta_hist->SetDirectory(NULL);
+    sun_theta_hist->SetMinimum(0);
+    sun_theta_hist->SetMaximum(180);
+    TH1D* sun_pha_hist = new TH1D("sun_pha", "Pha of Sun",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    sun_pha_hist->SetDirectory(NULL);
+    sun_pha_hist->SetMinimum(0);
+    sun_pha_hist->SetMaximum(360);
+    // theta and pha of GRB
+    TH1D* grb_theta_hist = new TH1D("grb_theta", "Theta of GRB",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    grb_theta_hist->SetDirectory(NULL);
+    grb_theta_hist->SetMinimum(0);
+    grb_theta_hist->SetMaximum(180);
+    TH1D* grb_pha_hist = new TH1D("grb_pha", "Pha of GRB",
+            nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    grb_pha_hist->SetDirectory(NULL);
+    grb_pha_hist->SetMinimum(0);
+    grb_pha_hist->SetMaximum(360);
+    TH1D* count_hist = new TH1D("count_hist", "count_hist",
+                                   nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+    count_hist->SetDirectory(NULL);
+    // latlon
+    TH2D* latlon_map_hist = new TH2D("latlon_map", "Latitude and Longitude", 360, -180, 180, 180, -90, 90);
+    latlon_map_hist->SetDirectory(NULL);
+    TH2D* lltime_map_hist = new TH2D("lltime_map", "LatLon Time", 360, -180, 180, 180, -90, 90);
+    lltime_map_hist->SetDirectory(NULL);
+
     TH1D* modules_hist[25];
     TH1D* modules_hist_tout1[25];
     for (int i = 0; i < 25; i++) {
@@ -227,6 +277,10 @@ int main(int argc, char** argv) {
     double pre_second = 0;
     double cur_second = 0;
     double total_valid_second = 0;
+
+    bool is_first = true;
+    double pre_time = 0;
+    double cur_time = 0;
 
     int pre_percent = 0;
     int cur_percent = 0;
@@ -269,11 +323,53 @@ int main(int argc, char** argv) {
         if (is_bad_event) {
             continue;
         }
-        if (options_mgr.weight_filename.IsNull()) {
-            trigger_hist->Fill(cur_second, 1.0);
+
+        double cur_weight = 1.0;
+        if (!options_mgr.weight_filename.IsNull()) cur_weight = t_pol_weight.event_weight;
+        trigger_hist->Fill(cur_second, cur_weight);
+
+        // fill angle and position
+        earth_theta_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    t_pol_event.earth_radec[0], t_pol_event.earth_radec[1]));
+        earth_pha_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    t_pol_event.earth_radec[0], t_pol_event.earth_radec[1]));
+        sun_theta_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    t_pol_event.sun_radec[0], t_pol_event.sun_radec[1]));
+        sun_pha_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    t_pol_event.sun_radec[0], t_pol_event.sun_radec[1]));
+        grb_theta_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    options_mgr.grb_ra, options_mgr.grb_dec));
+        grb_pha_hist->Fill(cur_second, radec_to_theta(
+                    t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
+                    t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
+                    options_mgr.grb_ra, options_mgr.grb_dec));
+        count_hist->Fill(cur_second);
+        latlon_map_hist->Fill(
+                wgs84_to_longitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]),
+                wgs84_to_latitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]),
+                cur_weight);
+        if (is_first) {
+            is_first = false;
+            pre_time = cur_second;
         } else {
-            trigger_hist->Fill(cur_second, t_pol_weight.event_weight);
+            cur_time = cur_second;
+            lltime_map_hist->Fill(
+                    wgs84_to_longitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]),
+                    wgs84_to_latitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]),
+                    cur_time - pre_time);
+            pre_time = cur_time;
         }
+
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.trig_accepted[i]) {
                 if (options_mgr.weight_filename.IsNull()) {
@@ -316,6 +412,27 @@ int main(int argc, char** argv) {
         pol_weight_file = NULL;
     }
 
+    // calculate angle and position rate
+    for (int i = 1; i <= count_hist->GetNbinsX(); i++) {
+        double cur_count = count_hist->GetBinContent(i);
+        if (cur_count > 0) {
+            earth_theta_hist->SetBinContent(i, earth_theta_hist->GetBinContent(i) / cur_count);
+            earth_pha_hist->SetBinContent(i, earth_pha_hist->GetBinContent(i) / cur_count);
+            sun_theta_hist->SetBinContent(i, sun_theta_hist->GetBinContent(i) / cur_count);
+            sun_pha_hist->SetBinContent(i, sun_pha_hist->GetBinContent(i) / cur_count);
+            grb_theta_hist->SetBinContent(i, grb_theta_hist->GetBinContent(i) / cur_count);
+            grb_pha_hist->SetBinContent(i, grb_pha_hist->GetBinContent(i) / cur_count);
+        }
+    }
+    for (int x = 1; x <= lltime_map_hist->GetNbinsX(); x++) {
+        for (int y = 1; y <= lltime_map_hist->GetNbinsY(); y++) {
+            double cur_timeint = lltime_map_hist->GetBinContent(x, y);
+            if (cur_timeint > 0) {
+                latlon_map_hist->SetBinContent(x, y, latlon_map_hist->GetBinContent(x, y) / cur_timeint);
+            }
+        }
+    }
+
     // calculate rate for event rate
     for (int b = 1; b <= trigger_hist->GetNbinsX(); b++) {
         trigger_hist->SetBinContent(b, trigger_hist->GetBinContent(b) / trigger_hist->GetBinWidth(b));
@@ -324,11 +441,15 @@ int main(int argc, char** argv) {
 
     // calculate background
     TH1D* trigger_hist_fix = static_cast<TH1D*>(trigger_hist->Clone("trigger_hist_fix"));
+    // fix begin and end
+    trigger_hist_fix->SetBinContent(1, trigger_hist_fix->GetBinContent(2));
+    int total_bins = trigger_hist_fix->GetNbinsX();
+    trigger_hist_fix->SetBinContent(total_bins, trigger_hist_fix->GetBinContent(total_bins - 1));
     // fill saa gap
     int bin_idx = 0;
     while (bin_idx < trigger_hist_fix->GetNbinsX()) {
         bin_idx++;
-        if (trigger_hist_fix->GetBinContent(bin_idx) > 0) continue;
+        if (trigger_hist_fix->GetBinContent(bin_idx) > 2) continue;
         // find the first bin before saa
         int bin_idx_left = bin_idx;
         int pre_count = 0;
@@ -386,7 +507,7 @@ int main(int argc, char** argv) {
     TH1D* trigger_hist_bkg = static_cast<TH1D*>(t_spec.Background(trigger_hist_fix, options_mgr.niter));
     // correct bkg
     for (int i = 1; i <= trigger_hist->GetNbinsX(); i++) {
-        if (trigger_hist->GetBinContent(i) == 0) {
+        if (trigger_hist->GetBinContent(i) < 3) {
             trigger_hist_bkg->SetBinContent(i, 0);
         }
     }
@@ -484,6 +605,22 @@ int main(int argc, char** argv) {
 
     rate_canvas.draw_trigger_hist(trigger_hist);
     rate_canvas.draw_trigger_hist_bkg(trigger_hist_bkg);
+
+    rate_canvas.cd_pos_map();
+    latlon_map_hist->Draw("colz");
+
+    rate_canvas.cd_theta_pha(1);
+    earth_theta_hist->Draw("h");
+    rate_canvas.cd_theta_pha(2);
+    earth_pha_hist->Draw("h");
+    rate_canvas.cd_theta_pha(3);
+    sun_theta_hist->Draw("h");
+    rate_canvas.cd_theta_pha(4);
+    sun_pha_hist->Draw("h");
+    rate_canvas.cd_theta_pha(5);
+    grb_theta_hist->Draw("h");
+    rate_canvas.cd_theta_pha(6);
+    grb_pha_hist->Draw("h");
 
     rootapp->Run();
 

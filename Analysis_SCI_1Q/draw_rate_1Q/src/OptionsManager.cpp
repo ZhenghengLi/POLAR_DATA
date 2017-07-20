@@ -50,6 +50,30 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'R':
+                if (idx < argc_par - 1) {
+                    TString tmp_arg = argv_par[++idx];
+                    if (tmp_arg[0] == '-') {
+                        return false;
+                    } else {
+                        grb_ra = tmp_arg.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            case 'D':
+                if (idx < argc_par - 1) {
+                    TString tmp_arg = argv_par[++idx];
+                    if (tmp_arg[0] == '-') {
+                        return false;
+                    } else {
+                        grb_dec = tmp_arg.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'w':
                 if (idx < argc_par - 1) {
                     TString tmp_string = argv_par[++idx];
@@ -176,6 +200,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         return false;
     if (max_bars > 1600)
         return false;
+    if (grb_ra < 0 || grb_ra >= 24 || grb_dec < -90 || grb_dec >= 90) {
+        cout << "radec of GRB is out of range: RA(0 ~ 24), DEC(-90 ~ 90)" << endl;
+        return false;
+    }
     if (binwidth <= 0)
         binwidth = 1.0;
     if (phase != 0 && phase != 1 && phase != 2 && phase != 3) {
@@ -199,6 +227,9 @@ void OptionsManager::print_help() {
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
     cout << "[-W <weight.root>] [-k <bar_mask.cfg>] [-n <niter>] [-s <min_signif>]" << endl;
+    for (size_t i = 0; i < SW_NAME.length(); i++)
+        cout << " ";
+    cout << "[-R <grb_ra> -D <grb_dec>]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -214,6 +245,8 @@ void OptionsManager::print_help() {
     cout << "  -k <bar_mask.cfg>                file that contains a list of hot bars" << endl;
     cout << "  -n <niter>                       numberIterations for background calculation" << endl;
     cout << "  -s <min_signif>                  min significance level for T0 calculation" << endl;
+    cout << "  -R <grb_ra>                      RA(hour) of GRB" << endl;
+    cout << "  -D <grb_dec>                     DEC(degree) of GRB" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -245,6 +278,8 @@ void OptionsManager::init() {
     niter = -1;
     min_signif = -1;
     weight_filename.Clear();
+    grb_ra = 0;
+    grb_dec = 0;
 
     version_flag_ = false;
 }

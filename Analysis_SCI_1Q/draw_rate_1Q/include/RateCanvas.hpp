@@ -32,6 +32,8 @@ private:
     TCanvas* canvas_modules_tout1_;
 	TCanvas* canvas_ch_map_;
     TCanvas* canvas_trigger_subbkg_;
+    TCanvas* canvas_theta_pha_;
+    TCanvas* canvas_pos_map_;
     TH1D*    cur_trigger_hist_;
     TH1D*    cur_trigger_hist_bkg_;
     TH1D*    cur_trigger_hist_subbkg_;
@@ -59,6 +61,8 @@ public:
     void cd_modules(int i);
     void cd_modules_tout1(int i);
 	void cd_ch_map(int i);
+    void cd_theta_pha(int i);
+    void cd_pos_map();
     void draw_trigger_hist(TH1D* trigger_hist);
     void draw_trigger_hist_bkg(TH1D* trigger_hist_bkg);
 #endif /* __ROOTCLING__ || __CINT __ */
