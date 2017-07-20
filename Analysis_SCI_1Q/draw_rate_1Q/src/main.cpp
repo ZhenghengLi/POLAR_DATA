@@ -333,7 +333,7 @@ int main(int argc, char** argv) {
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     t_pol_event.earth_radec[0], t_pol_event.earth_radec[1]));
-        earth_pha_hist->Fill(cur_second, radec_to_theta(
+        earth_pha_hist->Fill(cur_second, radec_to_pha(
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     t_pol_event.earth_radec[0], t_pol_event.earth_radec[1]));
@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     t_pol_event.sun_radec[0], t_pol_event.sun_radec[1]));
-        sun_pha_hist->Fill(cur_second, radec_to_theta(
+        sun_pha_hist->Fill(cur_second, radec_to_pha(
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     t_pol_event.sun_radec[0], t_pol_event.sun_radec[1]));
@@ -349,7 +349,7 @@ int main(int argc, char** argv) {
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     options_mgr.grb_ra, options_mgr.grb_dec));
-        grb_pha_hist->Fill(cur_second, radec_to_theta(
+        grb_pha_hist->Fill(cur_second, radec_to_pha(
                     t_pol_event.det_z_radec[0], t_pol_event.det_z_radec[1],
                     t_pol_event.det_x_radec[0], t_pol_event.det_x_radec[1],
                     options_mgr.grb_ra, options_mgr.grb_dec));
