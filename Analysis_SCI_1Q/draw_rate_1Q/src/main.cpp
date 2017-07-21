@@ -387,11 +387,11 @@ int main(int argc, char** argv) {
                 modules_hist_tout1[i]->Fill(cur_second, t_pol_event.raw_rate[i]);
                 for (int j = 0; j < 64; j++) {
                     if (t_pol_event.trigger_bit[i][j]) {
-                        double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1);
+                        double cur_bin_content = ch_rate_map->GetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1);
                         if (options_mgr.weight_filename.IsNull()) {
-                            ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content + 1);
+                            ch_rate_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, cur_bin_content + 1);
                         } else {
-                            ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content + t_pol_weight.ch_weight[i][j]);
+                            ch_rate_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, cur_bin_content + t_pol_weight.ch_weight[i][j]);
                         }
                     }
                 }
@@ -585,8 +585,8 @@ int main(int argc, char** argv) {
         }
         for (int i = 0; i < 25; i++) {
             for (int j = 0; j < 64; j++) {
-                double cur_bin_content = ch_rate_map->GetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1);
-                ch_rate_map->SetBinContent(ijtoxb(i, j) + 1, ijtoyb(i, j) + 1, cur_bin_content / total_valid_second);
+                double cur_bin_content = ch_rate_map->GetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1);
+                ch_rate_map->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, cur_bin_content / total_valid_second);
             }
         }
         rate_canvas.cd_ch_map(1);
