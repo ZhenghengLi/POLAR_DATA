@@ -113,6 +113,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
             case 'm':
                 tout1_flag = true;
                 break;
+            case 'A':
+                align_hist = false;
+                break;
             case 'z':
                 if (idx < argc_par - 1) {
                     TString tmp_string = argv_par[++idx];
@@ -221,7 +224,7 @@ void OptionsManager::print_help() {
     cout << "[-W <weight.root>] [-k <bar_mask.cfg>] [-n <niter>] [-s <min_signif>]" << endl;
     for (size_t i = 0; i < SW_NAME.length(); i++)
         cout << " ";
-    cout << "[-R <grb_ra> -D <grb_dec>]" << endl;
+    cout << "[-R <grb_ra>] [-D <grb_dec>] [-A]" << endl;
     cout << "  ";
     cout << endl;
     cout << "Options:" << endl;
@@ -230,7 +233,7 @@ void OptionsManager::print_help() {
     cout << "  -w binwidth                      bin width of seconds" << endl;
     cout << "  -j phase                         phase shift, must be 0, 1, 2 or 3" << endl;
     cout << "  -m                               draw tout1 rate of 25 modules" << endl;
-    cout << "  -o                               output rate hist to a root file" << endl;
+    cout << "  -o <filename.root>               output rate hist to a root file" << endl;
     cout << "  -y <min_bars>                    minimum number of bars to cut, default is 0" << endl;
     cout << "  -z <max_bars>                    maximum number of bars to cut, default is 1600" << endl;
     cout << "  -W weight.root                   weight file" << endl;
@@ -239,6 +242,7 @@ void OptionsManager::print_help() {
     cout << "  -s <min_signif>                  min significance level for T0 calculation" << endl;
     cout << "  -R <grb_ra>                      RA(hour) of GRB" << endl;
     cout << "  -D <grb_dec>                     DEC(degree) of GRB" << endl;
+    cout << "  -A                               Disable histogram alignment." << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -272,6 +276,7 @@ void OptionsManager::init() {
     weight_filename.Clear();
     grb_ra = 5.575547;     // RA  of Crab Pulsar
     grb_dec = 22.0144722;  // DEC of Crab Pulsar
+    align_hist = true;
 
     version_flag_ = false;
 }

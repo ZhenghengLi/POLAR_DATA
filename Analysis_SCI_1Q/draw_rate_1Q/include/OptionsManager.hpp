@@ -28,6 +28,7 @@ public:
     TString weight_filename;
     double  grb_ra;
     double  grb_dec;
+    bool    align_hist;
 
 public:
     OptionsManager();

@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
                                    nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
         modules_hist[i]->SetDirectory(NULL);
         modules_hist[i]->SetLineColor(kGreen);
-        modules_hist[i]->SetMinimum(0);
+        if (options_mgr.align_hist) modules_hist[i]->SetMinimum(0);
         modules_hist[i]->GetXaxis()->SetTitle("T-T0 (s)");
         modules_hist[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
 
@@ -259,7 +259,7 @@ int main(int argc, char** argv) {
             channel_hist[i][j] = new TH1D(name, title,
                                           nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
             channel_hist[i][j]->SetDirectory(NULL);
-            channel_hist[i][j]->SetMinimum(0);
+            if (options_mgr.align_hist) channel_hist[i][j]->SetMinimum(0);
             channel_hist[i][j]->GetXaxis()->SetTitle("T-T0 (s)");
             channel_hist[i][j]->GetYaxis()->SetTitle("Rate (trigger/s)");
         }
@@ -599,7 +599,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         modules_hist[i]->SetMaximum(y_max * 1.1);
         for (int j = 0; j < 64; j++) {
-            channel_hist[i][j]->SetMaximum(ch_y_max * 1.1);
+            if (options_mgr.align_hist) channel_hist[i][j]->SetMaximum(ch_y_max * 1.1);
         }
     }
     rate_canvas.set_ch_hist(channel_hist);
@@ -616,7 +616,7 @@ int main(int argc, char** argv) {
             }
         }
         for (int i = 0; i < 25; i++) {
-            modules_hist_tout1[i]->SetMaximum(y_max * 1.1);
+            if (options_mgr.align_hist) modules_hist_tout1[i]->SetMaximum(y_max * 1.1);
         }
         for (int i = 0; i < 25; i++) {
             rate_canvas.cd_modules_tout1(i);
