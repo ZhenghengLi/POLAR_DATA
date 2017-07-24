@@ -241,6 +241,7 @@ int main(int argc, char** argv) {
 
     TH1D* modules_hist[25];
     TH1D* modules_hist_tout1[25];
+    TH1D* channel_hist[25][64];
     for (int i = 0; i < 25; i++) {
         sprintf(name, "module_hist_%02d", i + 1);
         sprintf(title, "module CT_%02d: { %s }", i + 1, met_time_span.c_str());
@@ -251,6 +252,18 @@ int main(int argc, char** argv) {
         modules_hist[i]->SetMinimum(0);
         modules_hist[i]->GetXaxis()->SetTitle("T-T0 (s)");
         modules_hist[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
+
+        for (int j = 0; j < 64; j++) {
+            sprintf(name, "channel_hist_%02d_%02d", i + 1, j);
+            sprintf(title, "Channel Rate of CT_%02d_%02d", i + 1, j);
+            channel_hist[i][j] = new TH1D(name, title,
+                                          nbins, 0 + options_mgr.phase * options_mgr.binwidth / 4, met_time_length + options_mgr.phase * options_mgr.binwidth / 4);
+            channel_hist[i][j]->SetDirectory(NULL);
+            channel_hist[i][j]->SetMinimum(0);
+            channel_hist[i][j]->GetXaxis()->SetTitle("T-T0 (s)");
+            channel_hist[i][j]->GetYaxis()->SetTitle("Rate (trigger/s)");
+        }
+
         if (!options_mgr.tout1_flag) {
             continue;
         }
@@ -263,6 +276,7 @@ int main(int argc, char** argv) {
         modules_hist_tout1[i]->SetMinimum(0);
         modules_hist_tout1[i]->GetXaxis()->SetTitle("T-T0 (s)");
         modules_hist_tout1[i]->GetYaxis()->SetTitle("Rate (trigger/s)");
+
     }
     TH2D* ch_rate_map = new TH2D("ch_rate_map", "Mean rate of 1600 channels (view from back)", 40, 0, 40, 40, 0, 40);
     ch_rate_map->SetDirectory(NULL);
@@ -378,6 +392,15 @@ int main(int argc, char** argv) {
                     modules_hist[i]->Fill(cur_second, 1.0);
                 } else {
                     modules_hist[i]->Fill(cur_second, t_pol_weight.mod_weight[i]);
+                }
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j]) {
+                        if (options_mgr.weight_filename.IsNull()) {
+                            channel_hist[i][j]->Fill(cur_second, 1.0);
+                        } else {
+                            channel_hist[i][j]->Fill(cur_second, t_pol_weight.ch_weight[i][j]);
+                        }
+                    }
                 }
             }
         }
@@ -536,9 +559,15 @@ int main(int argc, char** argv) {
         if (outfile->IsZombie()) {
             cout << "ERROR: output file open failed: " << options_mgr.output_filename.Data() << endl;
         } else {
+            outfile->cd();
             trigger_hist->Write();
             for (int i = 0; i < 25; i++) {
+                outfile->cd();
                 modules_hist[i]->Write();
+                outfile->mkdir(Form("channel_hist_%02d", i + 1))->cd();
+                for (int j = 0; j < 64; j++) {
+                    channel_hist[i][j]->Write();
+                }
             }
             if (options_mgr.tout1_flag) {
                 for (int i = 0; i < 25; i++) {
@@ -556,14 +585,24 @@ int main(int argc, char** argv) {
     cout << " - drawing ... " << endl;
     gStyle->SetOptStat(0);
     double y_max = 0;
+    double ch_y_max = 0;
     for (int i = 0; i < 25; i++) {
         if (modules_hist[i]->GetMaximum() > y_max) {
             y_max = modules_hist[i]->GetMaximum();
         }
+        for (int j = 0; j < 64; j++) {
+            if (channel_hist[i][j]->GetMaximum() > ch_y_max) {
+                ch_y_max = channel_hist[i][j]->GetMaximum();
+            }
+        }
     }
     for (int i = 0; i < 25; i++) {
         modules_hist[i]->SetMaximum(y_max * 1.1);
+        for (int j = 0; j < 64; j++) {
+            channel_hist[i][j]->SetMaximum(ch_y_max * 1.1);
+        }
     }
+    rate_canvas.set_ch_hist(channel_hist);
     for (int i = 0; i < 25; i++) {
         rate_canvas.cd_modules(i);
         modules_hist[i]->Draw("EH");

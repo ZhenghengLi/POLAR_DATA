@@ -24,6 +24,10 @@ public: // slots
                                Int_t px,
                                Int_t py,
                                TObject* selected);
+    virtual void ProcessAction_ch(Int_t event,
+                                  Int_t px,
+                                  Int_t py,
+                                  TObject* selected);
 
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
@@ -34,6 +38,7 @@ private:
     TCanvas* canvas_trigger_subbkg_;
     TCanvas* canvas_theta_pha_;
     TCanvas* canvas_pos_map_;
+    TCanvas* canvas_channel_;
     TH1D*    cur_trigger_hist_;
     TH1D*    cur_trigger_hist_bkg_;
     TH1D*    cur_trigger_hist_subbkg_;
@@ -49,9 +54,11 @@ private:
     TLine*   line_peak_;
     TLine*   line_T0_;
     TPaveText* pavetext_;
-    bool     keypressed;
+    bool     keypressed_;
+    TH1D*    ch_hist_[25][64];
     // function
     string met_to_utc_str_(double gps_time);
+    void draw_channel_rate_(int ct_num);
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:
@@ -65,6 +72,7 @@ public:
     void cd_pos_map();
     void draw_trigger_hist(TH1D* trigger_hist);
     void draw_trigger_hist_bkg(TH1D* trigger_hist_bkg);
+    void set_ch_hist(TH1D* ch_hist_par[25][64]);
 #endif /* __ROOTCLING__ || __CINT __ */
 
 };

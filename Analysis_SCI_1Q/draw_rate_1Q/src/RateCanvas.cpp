@@ -23,7 +23,13 @@ RateCanvas::RateCanvas(double met_time, double min_s) {
     line_peak_ = NULL;
     line_T0_ = NULL;
     pavetext_ = NULL;
-    keypressed = false;
+    keypressed_ = false;
+
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ch_hist_[i][j] = NULL;
+        }
+    }
 }
 
 RateCanvas::~RateCanvas() {
@@ -33,9 +39,11 @@ RateCanvas::~RateCanvas() {
 void RateCanvas::cd_modules(int i) {
     canvas_modules_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_modules"));
     if (canvas_modules_ == NULL) {
-        canvas_modules_ = new TCanvas("canvas_modules", "rate of 25 modules", 1500, 1000);
+        canvas_modules_ = new TCanvas("canvas_modules", "rate of 25 modules", 1000, 800);
         canvas_modules_->ToggleEventStatus();
         canvas_modules_->Divide(5, 5);
+        canvas_modules_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "RateCanvas",
+                                 this, "ProcessAction_ch(Int_t, Int_t, Int_t, TObject*)");
     }
     canvas_modules_->cd(itoc(i));
 }
@@ -43,7 +51,7 @@ void RateCanvas::cd_modules(int i) {
 void RateCanvas::cd_modules_tout1(int i) {
     canvas_modules_tout1_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_modules_tout1"));
     if (canvas_modules_tout1_ == NULL) {
-        canvas_modules_tout1_ = new TCanvas("canvas_modules_tout1", "tout1 rate of 25 modules", 1500, 1000);
+        canvas_modules_tout1_ = new TCanvas("canvas_modules_tout1", "tout1 rate of 25 modules", 1000, 800);
         canvas_modules_tout1_->ToggleEventStatus();
         canvas_modules_tout1_->Divide(5, 5);
     }
@@ -150,7 +158,7 @@ void RateCanvas::CloseLC() {
         delete pavetext_;
         pavetext_ = NULL;
     }
-    keypressed = false;
+    keypressed_ = false;
     canvas_trigger_->Update();
 }
 
@@ -167,7 +175,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
 
     if (event == kKeyPress) {  // fitting, calculate T90
         if (line_cnt_ < 2) return;
-        if (keypressed) return;
+        if (keypressed_) return;
         // start todo
         cout << "Subtracting background ..." << endl;
         if (select_x_[0] > select_x_[1]) {
@@ -301,7 +309,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         pavetext_->Draw();
 
         // stop todo
-        keypressed = true;
+        keypressed_ = true;
     } else if (event == kButton1Down) {  // select
         double x = static_cast<double>(canvas_trigger_->AbsPixeltoX(px));
         if (x < x_min || x > x_max) return;
@@ -318,7 +326,7 @@ void RateCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selecte
         line_cnt_++;
         canvas_trigger_->Update();
     } else if (event == kButton1Double) {  // clear
-        if (keypressed) return;
+        if (keypressed_) return;
         line_cnt_ = 0;
         for (int i = 0; i < 2; i++) {
             if (line_obj_[i] != NULL) {
@@ -357,4 +365,44 @@ string RateCanvas::met_to_utc_str_(double met_time) {
         sprintf(str_result, "%s.%d UTC", str_buffer, unixtime_millsecond);
     }
     return string(str_result);
+}
+
+void RateCanvas::ProcessAction_ch(Int_t event, Int_t px, Int_t py, TObject* selected) {
+    if (event != kButton1Down) return;
+
+    int step_x = canvas_modules_->GetWindowWidth() / 5;
+    int step_y = canvas_modules_->GetWindowHeight() / 5;
+
+    int grid_x = px / step_x;
+    int grid_y = py / step_y;
+    int ct_num = grid_x * 5 + grid_y + 1;
+
+    draw_channel_rate_(ct_num);
+
+}
+
+void RateCanvas::set_ch_hist(TH1D* ch_hist_par[25][64]) {
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            ch_hist_[i][j] = ch_hist_par[i][j];
+        }
+    }
+}
+
+void RateCanvas::draw_channel_rate_(int ct_num) {
+    if (ct_num < 1 || ct_num > 25) return;
+    int ct_idx = ct_num - 1;
+    canvas_channel_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_channel"));
+    if (canvas_channel_ == NULL) {
+        canvas_channel_ = new TCanvas("canvas_channel", Form("Channel Rate of CT_%02d", ct_num), 1000, 800);
+        canvas_channel_->ToggleEventStatus();
+        canvas_channel_->Divide(8, 8);
+    }
+    for (int j = 0; j < 64; j++) {
+        if (ch_hist_[ct_idx][j] == NULL) return;
+        canvas_channel_->cd(jtoc(j));
+        ch_hist_[ct_idx][j]->Draw("eh");
+    }
+    canvas_channel_->SetTitle(Form("Channel Rate of CT_%02d", ct_num));
+    canvas_channel_->Update();
 }
