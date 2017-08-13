@@ -36,6 +36,9 @@ bool Gain::read_gain_vec(const char* gain_vec_filename) {
     TVectorF* tmp_vec;
     for (int i = 0; i < 25; i++) {
         tmp_vec = static_cast<TVectorF*>(gain_vec_file->Get(Form("adc_per_kev_ct_%02d", i + 1)));
+        if (tmp_vec == NULL) { // for old format
+            tmp_vec = static_cast<TVectorF*>(gain_vec_file->Get(Form("adc_per_kev_vec_ct_%02d", i + 1)));
+        }
         if (tmp_vec == NULL) {
             cout << "cannot find TVectorF " << Form("adc_per_kev_ct_%02d", i + 1) << endl;
             return false;
