@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
     if (options_mgr.energy_flag) {
         vthr_mean_0 = 10.0;
-        vthr_sigma_0 = 30.0;
+        vthr_sigma_0 = 5.0;
         vthr_max = 60.0;
         vthr_min = -15.0;
     }
@@ -88,8 +88,9 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
-                if (t_pol_event.trigger_bit[i][j] && t_pol_event.multiplicity[i] < 2) continue;
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
+                if (t_pol_event.trigger_bit[i][j] && t_pol_event.multiplicity[i] < 2) continue;
+                if (t_pol_event.multiplicity[i] > 4) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
