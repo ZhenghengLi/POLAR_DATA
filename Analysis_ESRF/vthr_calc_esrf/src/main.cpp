@@ -3,14 +3,14 @@
 #include "CooConv.hpp"
 
 // for energy
-//#define VTHR_MEAN 10.0
-//#define VTHR_SIGMA 5.0
-//#define VTHR_MAX 60.0
-//#define VTHR_MIN -15.0
+// #define VTHR_MEAN 10.0
+// #define VTHR_SIGMA 5.0
+// #define VTHR_MAX 60.0
+// #define VTHR_MIN -15.0
 
 // for adc
-#define VTHR_MEAN 300.0
-#define VTHR_SIGMA 2.0
+#define VTHR_MEAN 100.0
+#define VTHR_SIGMA 50.0
 #define VTHR_MAX 768.0
 #define VTHR_MIN -128.0
 
@@ -104,7 +104,8 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
-                if (t_event.trigger_bit[i][j] && t_event.multiplicity[i] < 2) continue;
+                if (t_event.multiplicity[i] - t_event.trigger_bit[i][j] < 2) continue;
+                if (t_event.multiplicity[i] > 4) continue;
                 all_spec[i][j]->Fill(t_event.energy_value[i][j]);
                 if (t_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_event.energy_value[i][j]);
@@ -117,6 +118,21 @@ int main(int argc, char** argv) {
     t_file_in->Close();
     delete t_file_in;
     t_file_in = NULL;
+
+    TH1F* tri_eff[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j < 64; j++) {
+            tri_eff[i][j] = static_cast<TH1F*>(tri_spec[i][j]->Clone(Form("tri_eff_%02d_%02d", i + 1, j + 1)));
+            tri_eff[i][j]->SetTitle(Form("tri_eff_%02d_%02d", i + 1, j + 1));
+            for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
+                if (tri_eff[i][j]->GetBinCenter(k) < 0) {
+                    tri_eff[i][j]->SetBinContent(k, 0);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
 
     // write spec
     gROOT->SetBatch(kTRUE);
@@ -139,19 +155,21 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             canvas_spec[i]->cd(jtoc(j));
             canvas_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
-            tri_spec[i][j]->Divide(all_spec[i][j]);
-            for (int k = tri_spec[i][j]->GetNbinsX() - 1; k > 0; k--) {
-                if (tri_spec[i][j]->GetBinContent(k) < 0.4) {
-                    fun_spec[i][j]->SetParameter(0, tri_spec[i][j]->GetBinCenter(k));
+            tri_eff[i][j]->Divide(all_spec[i][j]);
+            for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
+                if (tri_eff[i][j]->GetBinContent(k) > 0.5) {
+                    fun_spec[i][j]->SetParameter(0, tri_eff[i][j]->GetBinCenter(k));
                     break;
                 }
             }
-            tri_spec[i][j]->Fit(fun_spec[i][j], "RQ");
+            tri_eff[i][j]->Fit(fun_spec[i][j], "RQ");
             vthr_adc_value[i](j) = fun_spec[i][j]->GetParameter(0);
             vthr_adc_value_err[i](j) = fun_spec[i][j]->GetParError(0);
             vthr_adc_sigma[i](j) = fun_spec[i][j]->GetParameter(1);
             vthr_adc_sigma_err[i](j) = fun_spec[i][j]->GetParError(1);
+            tri_eff[i][j]->Write();
             tri_spec[i][j]->Write();
+            all_spec[i][j]->Write();
         }
         t_file_out->cd();
         canvas_spec[i]->Write();
