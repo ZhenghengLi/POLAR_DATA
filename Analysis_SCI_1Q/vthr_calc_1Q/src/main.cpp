@@ -90,7 +90,6 @@ int main(int argc, char** argv) {
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
                 if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
-                if (t_pol_event.multiplicity[i] > 4) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);

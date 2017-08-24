@@ -105,7 +105,6 @@ int main(int argc, char** argv) {
             if (!t_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_event.multiplicity[i] - t_event.trigger_bit[i][j] < 2) continue;
-                if (t_event.multiplicity[i] > 4) continue;
                 all_spec[i][j]->Fill(t_event.energy_value[i][j]);
                 if (t_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_event.energy_value[i][j]);

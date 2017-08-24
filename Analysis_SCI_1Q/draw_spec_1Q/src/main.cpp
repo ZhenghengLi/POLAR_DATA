@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "trigger_bit");
     t_pol_event.active(t_pol_event_tree, "energy_value");
     t_pol_event.active(t_pol_event_tree, "channel_status");
+    t_pol_event.active(t_pol_event_tree, "multiplicity");
     t_pol_event_tree->GetEntry(begin_entry);
     int begin_time = static_cast<int>(t_pol_event.event_time);
     t_pol_event_tree->GetEntry(end_entry - 1);
@@ -125,6 +126,7 @@ int main(int argc, char** argv) {
             mod_count[i]++;
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
+                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
