@@ -102,6 +102,12 @@ int main(int argc, char** argv) {
     pol_event_file_energy->cd();
     t_pol_event_tree_new->Write();
 
+    TTree* t_raw_energy_tree = static_cast<TTree*>(pol_event_file->Get("t_raw_energy"));
+    if (t_raw_energy_tree != NULL) {
+        cout << "found TTree t_raw_energy, then copying it ..." << endl;
+        t_raw_energy_tree->CloneTree()->Write();
+    }
+
     cout << "writing meta information ... " << endl;
     // write meta
     TIter fileIter(pol_event_file->GetListOfKeys());
