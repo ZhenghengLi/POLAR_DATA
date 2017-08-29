@@ -9,7 +9,6 @@
 #include "TCanvas.h"
 #include "TApplication.h"
 #include "TROOT.h"
-#include "TBranch.h"
 #include "TMath.h"
 #include "TStyle.h"
 #include "TGraph.h"
@@ -26,9 +25,11 @@
 #include "TTimeStamp.h"
 #include "TSystem.h"
 #include "TLegend.h"
-#include "TKey.h"
-#include "TList.h"
-#include "TIterator.h"
+#include "TSpectrum.h"
+#include "TH1.h"
+#include "TPaveText.h"
 #include "TProfile.h"
+#include "TKey.h"
+#include "THStack.h"
 
 #endif
