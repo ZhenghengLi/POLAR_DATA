@@ -70,7 +70,7 @@ void SpectrumCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* sel
 void SpectrumCanvas::draw_count_map() {
     canvas_count_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_count"));
     if (canvas_count_ == NULL) {
-        canvas_count_ = new TCanvas("canvas_count", "total trigger counts of 25 modules", 600, 600);
+        canvas_count_ = new TCanvas("canvas_count", "total trigger counts of 25 modules", 1200, 600);
         canvas_count_->Divide(2, 1);
         canvas_count_->Connect("Closed()", "SpectrumCanvas", this, "CloseWindow()");
         canvas_count_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "SpectrumCanvas",
