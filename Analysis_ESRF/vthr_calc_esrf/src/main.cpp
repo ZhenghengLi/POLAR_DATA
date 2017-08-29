@@ -3,16 +3,16 @@
 #include "CooConv.hpp"
 
 // for energy
-// #define VTHR_MEAN 10.0
-// #define VTHR_SIGMA 5.0
-// #define VTHR_MAX 60.0
-// #define VTHR_MIN -15.0
+#define VTHR_MEAN 10.0
+#define VTHR_SIGMA 5.0
+#define VTHR_MAX 60.0
+#define VTHR_MIN -15.0
 
 // for adc
-#define VTHR_MEAN 100.0
-#define VTHR_SIGMA 50.0
-#define VTHR_MAX 768.0
-#define VTHR_MIN -128.0
+// #define VTHR_MEAN 100.0
+// #define VTHR_SIGMA 50.0
+// #define VTHR_MAX 768.0
+// #define VTHR_MIN -128.0
 
 using namespace std;
 

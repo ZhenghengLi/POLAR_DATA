@@ -199,10 +199,10 @@ int main(int argc, char** argv) {
         is_bad_event = false;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
-            if (i == 1 || i == 7 || i == 8 || i == 3) {
-                is_bad_event = true;
-                break;
-            }
+            // if (i == 1 || i == 7 || i == 3) {
+            //     is_bad_event = true;
+            //     break;
+            // }
             for (int j = 0; j < 64; j++) {
                 if (t_event.trigger_bit[i][j] && t_event.channel_status[i][j] > 0) {
                    is_bad_event = true;

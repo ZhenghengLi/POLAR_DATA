@@ -65,24 +65,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // calculate cut_value;
-    double vthr_value[1600];
-    double cut_value = 0;
-    int n = 0;
-    for (int i = 0; i < 25; i++) {
-        if (i == 1 || i == 7 || i == 8 || i == 3) {
-            continue;
-        }
-        for (int j = 0; j < 64; j++) {
-            if (i == 5 && j == 13) continue;
-            if (i == 5 && j == 5 ) continue;
-            if (i == 5 && j == 12) continue;
-            if (i == 5 && j == 4 ) continue;
-            vthr_value[n++] = vthr_adc_value_CT_[i](j);
-        }
-    }
-    cut_value = TMath::Median(n, vthr_value);
-
     // open weight file
     TFile* weight_file = new TFile(weight_filename.c_str(), "recreate");
     if (weight_file->IsZombie()) {
@@ -134,7 +116,7 @@ int main(int argc, char** argv) {
                 continue;
             }
             // kill bad modules
-            if (i == 1 || i == 3 || i == 7) {
+            if (i == 1 || i == 3 || i == 8 || i == 7) {
                 t_weight.weight_is_bad = true;
                 break;
             }
@@ -162,7 +144,7 @@ int main(int argc, char** argv) {
             for (int j = 0; j < 64; j++) {
                 if (!t_event.trigger_bit[i][j]) continue;
                 double ch_eff = eff_fun_CT_[i][j]->Eval(t_event.energy_value[i][j]);
-                if (ch_eff < min_eff || t_event.energy_value[i][j] < cut_value) {
+                if (ch_eff < min_eff) {
                     t_weight.ch_weight[i][j] = 0.0;
                 } else {
                     t_weight.ch_weight[i][j] = 1.0 / ch_eff;
