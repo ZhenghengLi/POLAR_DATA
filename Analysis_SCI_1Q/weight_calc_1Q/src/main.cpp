@@ -173,7 +173,7 @@ int main(int argc, char** argv) {
         bool is_bad = false;
         for (int i = 0; i < 25; i++) {
             if (t_pol_event.time_aligned[i]) {
-                if (i == 1 || i == 7 || i == 8 || i == 3) {
+                if (i == 1 || i == 7 || i == 8 || i == 3) { // need to change according to real data
                     is_bad = true;
                 }
                 for (int j = 0; j < 64; j++) {

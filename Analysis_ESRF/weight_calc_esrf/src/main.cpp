@@ -76,17 +76,16 @@ int main(int argc, char** argv) {
         Float_t  ch_weight[25][64];
         Float_t  mod_weight[25];
         Float_t  event_weight;
-        Bool_t   weight_is_bad;
     } t_weight;
     TTree* t_weight_tree = new TTree("t_weight", "weight in channel, module and event level");
     t_weight_tree->Branch("ct_time_second_4", &t_weight.ct_time_second_4, "ct_time_second_4/D"     );
     t_weight_tree->Branch("ch_weight",         t_weight.ch_weight,        "ch_weight[25][64]/F"    );
     t_weight_tree->Branch("mod_weight",        t_weight.mod_weight,       "mod_weight[25]/F"       );
     t_weight_tree->Branch("event_weight",     &t_weight.event_weight,     "event_weight/F"         );
-    t_weight_tree->Branch("weight_is_bad",    &t_weight.weight_is_bad,    "weight_is_bad/O"        );
 
     // calculate weight
     double min_eff = 0.1;
+    double max_weight = 100.0;
     double tmp_mod_weight;
     double tmp_event_weight;
     int pre_percent = 0;
@@ -101,43 +100,39 @@ int main(int argc, char** argv) {
         }
         t_event_tree->GetEntry(q);
         t_weight.ct_time_second_4 = t_event.ct_time_second;
-        t_weight.event_weight = -1;
+        t_weight.event_weight = 0;
         for (int i = 0; i < 25; i++) {
-            t_weight.mod_weight[i] = -1;
+            t_weight.mod_weight[i] = 0;
             for (int j = 0; j < 64; j++) {
-                t_weight.ch_weight[i][j] = -1;
+                t_weight.ch_weight[i][j] = 0;
             }
         }
-        t_weight.weight_is_bad = false;
+
+        bool is_bad = false;
+        for (int i = 0; i < 25; i++) {
+            if (t_event.time_aligned[i]) {
+                if (i == 1 || i == 7 || i == 8 || i == 3) { // need to change according to real data
+                    is_bad = true;
+                }
+                for (int j = 0; j < 64; j++) {
+                    if (i == 5 && t_event.trigger_bit[i][j]) {
+                        if (j == 13 || j == 5 || j == 12 || j == 4) {
+                            is_bad = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (is_bad) {
+            t_weight_tree->Fill();
+            continue;
+        }
+
         tmp_event_weight = 1.0;
         int sum_mod = 0;
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) {
                 continue;
-            }
-            // kill bad modules
-            if (i == 1 || i == 3 || i == 8 || i == 7) {
-                t_weight.weight_is_bad = true;
-                break;
-            }
-            // kill bad channels
-            for (int j = 0; j < 64; j++) {
-                if (t_event.trigger_bit[i][j] && i == 5 && j == 13) {
-                    t_weight.weight_is_bad = true;
-                    break;
-                }
-                if (t_event.trigger_bit[i][j] && i == 5 && j == 5 ) {
-                    t_weight.weight_is_bad = true;
-                    break;
-                }
-                if (t_event.trigger_bit[i][j] && i == 5 && j == 12) {
-                    t_weight.weight_is_bad = true;
-                    break;
-                }
-                if (t_event.trigger_bit[i][j] && i == 5 && j == 4 ) {
-                    t_weight.weight_is_bad = true;
-                    break;
-                }
             }
             tmp_mod_weight = 1.0;
             int sum_ch = 0;
@@ -152,7 +147,7 @@ int main(int argc, char** argv) {
                     sum_ch++;
                 }
             }
-            if (sum_ch > 0) {
+            if (sum_ch > 0 && tmp_mod_weight < max_weight) {
                 t_weight.mod_weight[i] = tmp_mod_weight;
                 tmp_event_weight *= tmp_mod_weight;
                 sum_mod++;
@@ -160,7 +155,7 @@ int main(int argc, char** argv) {
                 t_weight.mod_weight[i] = 0.0;
             }
         }
-        if (sum_mod > 0) {
+        if (sum_mod > 0 && tmp_event_weight < max_weight) {
             t_weight.event_weight = tmp_event_weight;
         } else {
             t_weight.event_weight = 0.0;
