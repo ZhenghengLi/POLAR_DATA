@@ -60,8 +60,8 @@ void SpectrumCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* sel
     if (canvas_count_ == NULL)
         return;
     if (TString(selected->GetName()) == "mod_count_hist") {
-        int x = static_cast<int>(canvas_count_->AbsPixeltoX(px));
-        int y = static_cast<int>(canvas_count_->AbsPixeltoY(py));
+        int x = static_cast<int>(canvas_count_->GetPad(1)->AbsPixeltoX(px));
+        int y = static_cast<int>(canvas_count_->GetPad(1)->AbsPixeltoY(py));
         int ct_num = x * 5 + 5 - y;
         draw_spec_(ct_num);
     }
