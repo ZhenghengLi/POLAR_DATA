@@ -56,18 +56,6 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
-            case 'V':
-                if (idx < argc_par - 1) {
-                    TString tmp_arg = argv_par[++idx];
-                    if (tmp_arg[0] == '-') {
-                        return false;
-                    } else {
-                        cut_value = tmp_arg.Atof();
-                    }
-                } else {
-                    return false;
-                }
-                break;
             default:
                 return false;
             }
@@ -94,7 +82,6 @@ void OptionsManager::print_help() {
     cout << "Options:" << endl;
     cout << "  -k <bar_mask.txt>                text file to store the ID of bad channels" << endl;
     cout << "  -v <vthr_file.root>              energy threshold file" << endl;
-    cout << "  -V <cut_value>                   cut_value" << endl;
     cout << "  -o <output_weight.root>          weight file" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -119,7 +106,6 @@ void OptionsManager::init() {
     bar_mask_filename.Clear();
     vthr_filename.Clear();
     output_filename.Clear();
-    cut_value = -1;
 
     version_flag_ = false;
 }

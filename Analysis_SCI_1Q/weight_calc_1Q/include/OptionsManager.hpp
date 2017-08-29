@@ -17,7 +17,6 @@ public:
     TString vthr_filename;          // -v
     TString bar_mask_filename;      // -k
     TString output_filename;        // -o
-    double  cut_value;              // -V
 
 public:
     OptionsManager();

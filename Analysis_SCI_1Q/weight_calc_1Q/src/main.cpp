@@ -118,19 +118,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // calculate cut_value;
-    double vthr_value[1600];
-    double cut_value = 0;
-    int n = 0;
-    for (int i = 0; i < 25; i++) {
-        for (int j = 0; j < 64; j++) {
-            if (bar_mask[i][j]) continue;
-            vthr_value[n++] = vthr_adc_value_CT_[i](j);
-        }
-    }
-    cut_value = (options_mgr.cut_value > 0 ? options_mgr.cut_value : TMath::Median(n, vthr_value));
-    cout << "vthr cut_value = " << cut_value << endl;
-
     // open weight file
     TFile* pol_weight_file = new TFile(options_mgr.output_filename.Data(), "recreate");
     if (pol_weight_file->IsZombie()) {
@@ -158,7 +145,7 @@ int main(int argc, char** argv) {
          << end_time << "[" << end_entry - 1 << "] }" << endl;
 
     // calculate weight
-    double min_eff = 0.2;
+    double min_eff = 0.1;
     double max_weight = 100.0;
     double tmp_mod_weight;
     double tmp_event_pol_weight;
@@ -182,6 +169,27 @@ int main(int argc, char** argv) {
                 t_pol_weight.ch_weight[i][j] = 0;
             }
         }
+
+        bool is_bad = false;
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.time_aligned[i]) {
+                if (i == 1 || i == 7 || i == 8 || i == 3) {
+                    is_bad = true;
+                }
+                for (int j = 0; j < 64; j++) {
+                    if (i == 5 && t_pol_event.trigger_bit[i][j]) {
+                        if (j == 13 || j == 5 || j == 12 || j == 4) {
+                            is_bad = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (is_bad) {
+            t_pol_weight_tree->Fill();
+            continue;
+        }
+
         tmp_event_pol_weight = 1.0;
         int sum_mod = 0;
         for (int i = 0; i < 25; i++) {
@@ -194,7 +202,7 @@ int main(int argc, char** argv) {
                 if (!t_pol_event.trigger_bit[i][j]) continue;
                 if (t_pol_event.trigger_bit[i][j] && bar_mask[i][j]) continue;
                 double ch_eff = eff_fun_CT_[i][j]->Eval(t_pol_event.energy_value[i][j]);
-                if (ch_eff < min_eff || t_pol_event.energy_value[i][j] < cut_value) {
+                if (ch_eff < min_eff) {
                     t_pol_weight.ch_weight[i][j] = 0.0;
                 } else {
                     t_pol_weight.ch_weight[i][j] = 1.0 / ch_eff;
@@ -222,7 +230,6 @@ int main(int argc, char** argv) {
 
     pol_weight_file->cd();
     t_pol_weight_tree->Write();
-    TNamed("cut_value", Form("%f", cut_value)).Write();
     TNamed("energy_unit", energy_unit.c_str()).Write();
     pol_weight_file->Close();
 
