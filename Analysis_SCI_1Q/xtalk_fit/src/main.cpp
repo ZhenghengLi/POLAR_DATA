@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
             } else {
                 xtalk_hist[jx][jy]->Fit(xtalk_line[jx][jy], "RQN");
                 xtalk_matrix(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
-                        xtalk_line[jx][jy]->GetParameter(0) : 0.0001 * gRandom->Rndm());
+                        xtalk_line[jx][jy]->GetParameter(0) : 0.000001 * gRandom->Rndm());
                 xtalk_matrix_err(jy, jx) = (xtalk_line[jx][jy]->GetParameter(0) > 0 ?
                         xtalk_line[jx][jy]->GetParError(0) : 0);
             }
