@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/angle_calc_esrf
+all: $(DEST_BIN)/angle_calc_esrf_m2
 
-$(DEST_BIN)/angle_calc_esrf: obj/main.o
+$(DEST_BIN)/angle_calc_esrf_m2: obj/main.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
 obj/%.o: src/%.cpp
