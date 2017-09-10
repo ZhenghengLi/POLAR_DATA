@@ -34,12 +34,17 @@ bool Na22Check::check_na22_event(const POLEvent& t_pol_event) {
     bool found_not_adjacent = false;
     bool is_bad_event = false;
 
+    if (t_pol_event.is_ped) is_bad_event = true;
+    if (t_pol_event.pkt_count > 25) is_bad_event = true;
+    if (t_pol_event.lost_count > 0) is_bad_event = true;
+
     Bar first_bar;
     Pos first_pos;
     Bar second_bar;
     Pos second_pos;
     priority_queue<Bar> bar_queue;
     for (int i = 0; i < 25; i++) {
+        if (is_bad_event) break;
         if (!t_pol_event.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
             if (t_pol_event.trigger_bit[i][j] && (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT)) {
@@ -53,7 +58,6 @@ bool Na22Check::check_na22_event(const POLEvent& t_pol_event) {
                 bar_queue.push(Bar(t_pol_event.energy_value[i][j], i, j));
             }
         }
-        if (is_bad_event) break;
     }
     if (!is_bad_event && !bar_queue.empty()) {
         first_bar = bar_queue.top();

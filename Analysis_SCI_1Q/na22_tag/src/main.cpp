@@ -85,9 +85,6 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_pol_event_tree->GetEntry(q);
-        if (t_pol_event.is_ped) continue;
-        if (t_pol_event.pkt_count > 25) continue;
-        if (t_pol_event.lost_count > 0) continue;
 
         t_na22_flag.event_time = t_pol_event.event_time;
         t_na22_flag.is_na22 = na22_checker.check_na22_event(t_pol_event);
