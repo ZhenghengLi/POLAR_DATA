@@ -130,6 +130,10 @@ int main(int argc, char** argv) {
     cout << "Fitting compton edge ..." << endl;
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
+            if (spec_hist[i][j]->GetEntries() < 100) {
+                cout << "too low statistic: " << Form("CT_%02d_Bar_%02d", i + 1, j) << endl;
+                continue;
+            }
             // fit 1 => 1700 500
 			spec_func[i][j]->SetParLimits(0, 0, spec_hist[i][j]->GetEntries());
             spec_func[i][j]->SetParameters(5, 50, 1700, 500);
