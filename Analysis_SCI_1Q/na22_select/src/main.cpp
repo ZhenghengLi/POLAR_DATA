@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
     // collecting Na22 event data
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "colecting Na22 event data ... " << endl;
+    cout << "selecting Na22 event data ... " << endl;
     cout << "[ " << flush;
     for (Long64_t q = begin_entry; q < end_entry; q++) {
         cur_percent = static_cast<int>(q * 100.0 / (end_entry - begin_entry));

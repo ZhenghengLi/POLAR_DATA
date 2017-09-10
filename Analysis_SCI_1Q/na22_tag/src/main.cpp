@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     Na22Check na22_checker;
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "colecting Na22 event data ... " << endl;
+    cout << "tagging Na22 event ... " << endl;
     cout << "[ " << flush;
     for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
         cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());
