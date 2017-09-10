@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
         Float_t  distance;
     } t_na22_flag;
     TTree* t_na22_flag_tree;
-    TFile* na22_flag_file = new TFile(options_mgr.na22_flag_filename.Data(), "update");
+    TFile* na22_flag_file = new TFile(options_mgr.na22_flag_filename.Data(), "recreate");
     if (na22_flag_file->IsZombie()) {
         cout << "na22_flag_file open failed." << endl;
         return 1;
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     t_na22_flag_tree->Branch("angle",          &t_na22_flag.angle,           "angle/F"            );
     t_na22_flag_tree->Branch("distance",       &t_na22_flag.distance,        "distance/F"         );
 
-    // collecting Na22 event data
+    // collecting Na22 event flag
     Na22Check na22_checker;
     int pre_percent = 0;
     int cur_percent = 0;
