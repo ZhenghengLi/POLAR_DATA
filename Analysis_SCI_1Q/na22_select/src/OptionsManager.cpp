@@ -94,7 +94,7 @@ void OptionsManager::print_help() {
     cout << "  " << SW_NAME << "<SCI_1Q.root> -t <na22_flag.root> [-B <begin_met>] [-E <end_met>] [-F <na22_data.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << " -t <na22_flag.root>               Na22 event flag file" << endl;
+    cout << "  -t <na22_flag.root>              Na22 event flag file" << endl;
     cout << "  -B <begin_met>                   begin MET time" << endl;
     cout << "  -E <end_met>                     end MET time" << endl;
     cout << "  -F <na22_data.root>              root file to collect Na22 event data" << endl;
