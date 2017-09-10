@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
         t_na22_flag.first_ij[0] = na22_checker.cur_first_ij[0];
         t_na22_flag.first_ij[1] = na22_checker.cur_first_ij[1];
         t_na22_flag.second_ij[0] = na22_checker.cur_second_ij[0];
-        t_na22_flag.second_ij[0] = na22_checker.cur_second_ij[1];
+        t_na22_flag.second_ij[1] = na22_checker.cur_second_ij[1];
         t_na22_flag.source_id = na22_checker.cur_source_id;
         t_na22_flag.angle = na22_checker.cur_angle;
         t_na22_flag.distance = na22_checker.cur_distance;
