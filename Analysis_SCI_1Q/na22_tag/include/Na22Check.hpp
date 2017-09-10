@@ -23,8 +23,8 @@ public:
     int cur_first_ij[2];
     int cur_second_ij[2];
     int cur_source_id;
-    int cur_angle;
-    int cur_distance;
+    double cur_angle;
+    double cur_distance;
 
 public:
     Na22Check();

@@ -94,7 +94,7 @@ bool Na22Check::check_na22_event(const POLEvent& t_pol_event) {
         }
 
         cur_source_id = largest_index;
-        cur_angle = largest_angle;
+        cur_angle = largest_angle / 3.1415927 * 180.0;
         cur_distance = src_distance[largest_index];
 
         if (largest_angle < angle_min_) {
