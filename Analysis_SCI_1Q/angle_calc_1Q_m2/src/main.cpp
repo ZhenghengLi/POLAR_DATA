@@ -355,7 +355,9 @@ int main(int argc, char** argv) {
     t_pol_angle_file->Close();
 
     pol_event_file->Close();
-    pol_weight_file->Close();
+    if ( pol_weight_file != NULL) {
+        pol_weight_file->Close();
+    }
     if (deadtime_file != NULL) {
         deadtime_file->Close();
     }
