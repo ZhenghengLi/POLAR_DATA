@@ -78,7 +78,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
         }
     }
     if (pol_event_filename.IsNull()) return false;
-    if (weight_filename.IsNull()) return false;
+    if (weight_filename.IsNull()) {
+        no_weight = true;
+    }
     if (deadtime_filename.IsNull()) {
         no_deadtime = true;
     }
@@ -122,6 +124,7 @@ void OptionsManager::init() {
     bar_mask_filename.Clear();
     output_filename.Clear();
     no_deadtime = false;
+    no_weight = false;
 
     version_flag_ = false;
 }

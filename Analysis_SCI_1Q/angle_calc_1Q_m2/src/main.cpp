@@ -105,31 +105,35 @@ int main(int argc, char** argv) {
     }
 
     // open weight file
-    TFile* pol_weight_file = new TFile(options_mgr.weight_filename.Data(), "read");
-    if (pol_weight_file->IsZombie()) {
-        cout << "pol_weight_file open failed." << endl;
-        return 1;
-    }
     struct {
         Double_t event_time_2;
         Float_t  ch_weight[25][64];
         Float_t  mod_weight[25];
         Float_t  event_weight;
     } t_pol_weight;
-    TTree* t_pol_weight_tree = static_cast<TTree*>(pol_weight_file->Get("t_pol_weight"));
-    if (t_pol_weight_tree == NULL) {
-        cout << "cannot find TTree t_pol_weight" << endl;
-        return 1;
-    }
-    t_pol_weight_tree->SetBranchAddress("event_time_2",     &t_pol_weight.event_time_2     );
-    t_pol_weight_tree->SetBranchAddress("ch_weight",         t_pol_weight.ch_weight        );
-    t_pol_weight_tree->SetBranchAddress("mod_weight",        t_pol_weight.mod_weight       );
-    t_pol_weight_tree->SetBranchAddress("event_weight",     &t_pol_weight.event_weight     );
-    if (t_pol_weight_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
-        cout << "Entries is different between TTree t_pol_weight and t_pol_event" << endl;
-        return 1;
-    } else {
-        t_pol_event_tree->AddFriend(t_pol_weight_tree);
+    TFile* pol_weight_file = NULL;
+    TTree* t_pol_weight_tree = NULL;
+    if (!options_mgr.no_weight) {
+        pol_weight_file = new TFile(options_mgr.weight_filename.Data(), "read");
+        if (pol_weight_file->IsZombie()) {
+            cout << "pol_weight_file open failed." << endl;
+            return 1;
+        }
+        t_pol_weight_tree = static_cast<TTree*>(pol_weight_file->Get("t_pol_weight"));
+        if (t_pol_weight_tree == NULL) {
+            cout << "cannot find TTree t_pol_weight" << endl;
+            return 1;
+        }
+        t_pol_weight_tree->SetBranchAddress("event_time_2",     &t_pol_weight.event_time_2     );
+        t_pol_weight_tree->SetBranchAddress("ch_weight",         t_pol_weight.ch_weight        );
+        t_pol_weight_tree->SetBranchAddress("mod_weight",        t_pol_weight.mod_weight       );
+        t_pol_weight_tree->SetBranchAddress("event_weight",     &t_pol_weight.event_weight     );
+        if (t_pol_weight_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
+            cout << "Entries is different between TTree t_pol_weight and t_pol_event" << endl;
+            return 1;
+        } else {
+            t_pol_event_tree->AddFriend(t_pol_weight_tree);
+        }
     }
 
     t_pol_event.deactive_all(t_pol_event_tree);
@@ -145,7 +149,9 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "is_ped");
     t_pol_event.active(t_pol_event_tree, "pkt_count");
     t_pol_event.active(t_pol_event_tree, "lost_count");
-    t_pol_event.active(t_pol_event_tree, "ch_weight");
+    if (!options_mgr.no_weight) {
+        t_pol_event.active(t_pol_event_tree, "ch_weight");
+    }
     if (!options_mgr.no_deadtime) {
         t_pol_event.active(t_pol_event_tree, "module_dead_ratio");
     }
@@ -334,7 +340,11 @@ int main(int argc, char** argv) {
                     (1 / (1 - t_dead_ratio.module_dead_ratio[second_pos.i]));
             }
         }
-        t_pol_angle.efficiency_weight = t_pol_weight.ch_weight[first_pos.i][first_pos.j] * t_pol_weight.ch_weight[second_pos.i][second_pos.j];
+        if (options_mgr.no_weight) {
+            t_pol_angle.efficiency_weight = 1.0;
+        } else {
+            t_pol_angle.efficiency_weight = t_pol_weight.ch_weight[first_pos.i][first_pos.j] * t_pol_weight.ch_weight[second_pos.i][second_pos.j];
+        }
         // save angle
         t_pol_angle_tree->Fill();
     }

@@ -19,6 +19,7 @@ public:
     TString output_filename;        // -o
     TString bar_mask_filename;      // -k
     bool    no_deadtime;
+    bool    no_weight;
 
 public:
     OptionsManager();
