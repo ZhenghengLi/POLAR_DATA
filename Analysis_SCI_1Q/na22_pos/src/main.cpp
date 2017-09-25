@@ -115,7 +115,15 @@ int main(int argc, char** argv) {
         t_na22_flag_tree->SetBranchAddress("angle",         &t_na22_flag.angle        );
         t_na22_flag_tree->SetBranchAddress("distance",      &t_na22_flag.distance     );
 
+        int pre_percent = 0;
+        int cur_percent = 0;
+        cout << "[ " << flush;
         for (Long64_t e = 0; e < t_na22_flag_tree->GetEntries(); e++) {
+            cur_percent = static_cast<int>(q * 100.0 / t_na22_flag_tree->GetEntries());
+            if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+                pre_percent = cur_percent;
+                cout << "#" << flush;
+            }
             t_na22_flag_tree->GetEntry(e);
             if (t_na22_flag.is_na22) {
                 first_pos.randomize(t_na22_flag.first_ij[0], t_na22_flag.first_ij[1]);
@@ -123,6 +131,7 @@ int main(int argc, char** argv) {
                 line_vec.push_back(Line(first_pos.abs_x, first_pos.abs_y, second_pos.abs_x, second_pos.abs_y));
             }
         }
+        cout << " DONE ]" << endl;
 
         delete na22_flag_file;
         na22_flag_file = NULL;
