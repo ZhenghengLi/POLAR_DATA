@@ -8,6 +8,7 @@
 using namespace std;
 
 struct Line {
+    Line() {  }
     Line(double x1_par, double y1_par, double x2_par, double y2_par) {
         x1 = x1_par;
         y1 = y1_par;
@@ -42,7 +43,7 @@ struct CrossPoint {
     double y;
 };
 
-CrossPoint calc_crosspoint (const Line& line1, const Line& line2) {
+CrossPoint calc_crosspoint(Line line1, Line line2) {
     double A1 = line1.y2 - line1.y1;
     double B1 = line1.x1 - line1.x2;
     double C1 = line1.x1 * line1.y2 - line1.x2 * line1.y1;
@@ -97,6 +98,7 @@ int main(int argc, char** argv) {
     Pos second_pos;
 
     for (int q = 2; q < argc; q++) {
+        cout << argv[q] << " ..." << endl;
         na22_flag_file = new TFile(argv[q], "read");
         if (na22_flag_file->IsZombie()) {
             cout << "na22_flag_file open failed." << endl;
@@ -112,6 +114,7 @@ int main(int argc, char** argv) {
         t_na22_flag_tree->SetBranchAddress("is_na22",       &t_na22_flag.is_na22      );
         t_na22_flag_tree->SetBranchAddress("first_ij",       t_na22_flag.first_ij     );
         t_na22_flag_tree->SetBranchAddress("second_ij",      t_na22_flag.second_ij    );
+        t_na22_flag_tree->SetBranchAddress("source_id",     &t_na22_flag.source_id    );
         t_na22_flag_tree->SetBranchAddress("angle",         &t_na22_flag.angle        );
         t_na22_flag_tree->SetBranchAddress("distance",      &t_na22_flag.distance     );
 
@@ -119,13 +122,13 @@ int main(int argc, char** argv) {
         int cur_percent = 0;
         cout << "[ " << flush;
         for (Long64_t e = 0; e < t_na22_flag_tree->GetEntries(); e++) {
-            cur_percent = static_cast<int>(q * 100.0 / t_na22_flag_tree->GetEntries());
+            cur_percent = static_cast<int>(e * 100.0 / t_na22_flag_tree->GetEntries());
             if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
                 pre_percent = cur_percent;
                 cout << "#" << flush;
             }
             t_na22_flag_tree->GetEntry(e);
-            if (t_na22_flag.is_na22) {
+            if (t_na22_flag.is_na22 && t_na22_flag.source_id == target_source_id) {
                 first_pos.randomize(t_na22_flag.first_ij[0], t_na22_flag.first_ij[1]);
                 second_pos.randomize(t_na22_flag.second_ij[0], t_na22_flag.second_ij[1]);
                 line_vec.push_back(Line(first_pos.abs_x, first_pos.abs_y, second_pos.abs_x, second_pos.abs_y));
@@ -139,22 +142,30 @@ int main(int argc, char** argv) {
 
     }
 
+    cout << "total line numbers is " << line_vec.size() << endl;
+
+    TRandom3 rand(0);
+
     TH2F* na22_pos_map = new TH2F("na22_pos_map", "na22_pos_map", 300, 0, 300, 300, 0, 300);
     na22_pos_map->SetDirectory(NULL);
     for (size_t i = 0; i < line_vec.size(); i++) {
         Line lineA = line_vec[i];
-        for (size_t j = i + 1; j < line_vec.size(); i++) {
-            Line lineB = line_vec[j];
-            if (lineA.angle_to(lineB) < 10) continue;
-            CrossPoint cross_point = calc_crosspoint(lineA, lineB);
-            na22_pos_map->Fill(cross_point.x, cross_point.y);
-        }
+        Line lineB;
+        do {
+            int j = rand.Rndm() * (line_vec.size() - 1);
+            lineB = line_vec[j];
+        } while(lineA.angle_to(lineB) < 30);
+        CrossPoint cross_point = calc_crosspoint(lineA, lineB);
+        na22_pos_map->Fill(cross_point.x, cross_point.y);
     }
 
-    gStyle->SetOptStat(0);
+    cout << " ====== Position of Source " << target_source_id << " ===================" << endl;
+    cout << " X = " << na22_pos_map->GetMean(1) << endl;
+    cout << " Y = " << na22_pos_map->GetMean(2) << endl;
+
     CommonCanvas canvas;
     canvas.cd();
-    na22_pos_map->Draw("lego2");
+    na22_pos_map->Draw("colz");
 
     rootapp->Run();
 
