@@ -1,8 +1,8 @@
 #include "Na22Check.hpp"
 
 Na22Check::Na22Check() {
-    angle_min_ = (135.0 / 180.0 * 3.1415926);
-    distance_max_ = (5.0 * BarD);
+    angle_min_ = (150.0 / 180.0 * 3.1415926);
+    distance_max_ = (1.4 * BarD);
 }
 
 Na22Check::~Na22Check() {

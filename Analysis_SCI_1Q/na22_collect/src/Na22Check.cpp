@@ -2,7 +2,7 @@
 
 Na22Check::Na22Check() {
     angle_min_ = (150.0 / 180.0 * 3.1415926);
-    distance_max_ = (1.3 * BarD);
+    distance_max_ = (1.4 * BarD);
 }
 
 Na22Check::~Na22Check() {
