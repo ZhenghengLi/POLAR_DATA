@@ -10,10 +10,10 @@ const double SrcL = 1.500;
 const double SrcP = 0.800;
 
 const double SourcePos[4][2] = {
-    { 3 * ModD + 7 * BarD + 1 * BarW + CarG + SrcP, 3 * ModD + 7 * BarD + 1 * BarW + CarG - SrcL },
-    { 1 * ModD + 0 * BarD + 0 * BarW - CarG - SrcP, 3 * ModD + 7 * BarD + 1 * BarW + CarG + SrcP },
-    { 1 * ModD + 0 * BarD + 0 * BarW - CarG - SrcP, 1 * ModD + 0 * BarD + 0 * BarW - CarG + SrcL },
-    { 3 * ModD + 7 * BarD + 1 * BarW + CarG - SrcL, 1 * ModD + 0 * BarD + 0 * BarW - CarG - SrcP }
+    { 231.1, 229.6 },
+    {  57.4, 230.8 },
+    {  57.3,  61.7 },
+    { 229.3,  57.3 }
 };
 
 #endif
