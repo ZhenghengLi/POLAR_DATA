@@ -35,9 +35,15 @@ struct Line {
 };
 
 struct CrossPoint {
+    CrossPoint() {}
     CrossPoint(double x_par, double y_par) {
         x = x_par;
         y = y_par;
+    }
+    double distance_to(const CrossPoint& otherPoint) {
+        double dx = x - otherPoint.x;
+        double dy = y - otherPoint.y;
+        return TMath::Sqrt(dx * dx + dy * dy);
     }
     double x;
     double y;
@@ -93,7 +99,7 @@ int main(int argc, char** argv) {
     TTree* t_na22_flag_tree = NULL;
     TFile* na22_flag_file = NULL;
 
-    vector<Line> line_vec;
+    vector<Line> line_vec[4];
     Pos first_pos;
     Pos second_pos;
 
@@ -128,10 +134,10 @@ int main(int argc, char** argv) {
                 cout << "#" << flush;
             }
             t_na22_flag_tree->GetEntry(e);
-            if (t_na22_flag.is_na22 && t_na22_flag.source_id == target_source_id) {
+            if (t_na22_flag.is_na22) {
                 first_pos.randomize(t_na22_flag.first_ij[0], t_na22_flag.first_ij[1]);
                 second_pos.randomize(t_na22_flag.second_ij[0], t_na22_flag.second_ij[1]);
-                line_vec.push_back(Line(first_pos.abs_x, first_pos.abs_y, second_pos.abs_x, second_pos.abs_y));
+                line_vec[t_na22_flag.source_id].push_back(Line(first_pos.abs_x, first_pos.abs_y, second_pos.abs_x, second_pos.abs_y));
             }
         }
         cout << " DONE ]" << endl;
@@ -142,21 +148,45 @@ int main(int argc, char** argv) {
 
     }
 
-    cout << "total line numbers is " << line_vec.size() << endl;
+    // cout << "total line numbers is " << line_vec.size() << endl;
+
+    CrossPoint source_point[4];
+    source_point[0] = CrossPoint(231.019, 229.347);
+    source_point[1] = CrossPoint(57.465, 230.731);
+    source_point[2] = CrossPoint(57.560, 61.357);
+    source_point[3] = CrossPoint(229.097, 57.457);
 
     TRandom3 rand(0);
 
-    TH2F* na22_pos_map = new TH2F("na22_pos_map", "na22_pos_map", 300, 0, 300, 300, 0, 300);
+    TH2F* na22_pos_map = new TH2F("na22_pos_map", "na22_pos_map", 1200, 0, 300, 1200, 0, 300);
     na22_pos_map->SetDirectory(NULL);
-    for (size_t i = 0; i < line_vec.size(); i++) {
-        Line lineA = line_vec[i];
+//    for (int k = 0; k < 4; k++) {
+//        for (size_t i = 0; i < line_vec[k].size(); i++) {
+//            Line lineA = line_vec[k][i];
+//            Line lineB;
+//            do {
+//                int j = rand.Rndm() * (line_vec[k].size() - 1);
+//                lineB = line_vec[k][j];
+//            } while(lineA.angle_to(lineB) < 30);
+//            CrossPoint cross_point = calc_crosspoint(lineA, lineB);
+//            if (cross_point.distance_to(source_point[k]) < 15) {
+//                na22_pos_map->Fill(cross_point.x, cross_point.y);
+//            }
+//        }
+//    }
+
+    int k = target_source_id;
+    for (size_t i = 0; i < line_vec[k].size(); i++) {
+        Line lineA = line_vec[k][i];
         Line lineB;
         do {
-            int j = rand.Rndm() * (line_vec.size() - 1);
-            lineB = line_vec[j];
+            int j = rand.Rndm() * (line_vec[k].size() - 1);
+            lineB = line_vec[k][j];
         } while(lineA.angle_to(lineB) < 30);
         CrossPoint cross_point = calc_crosspoint(lineA, lineB);
-        na22_pos_map->Fill(cross_point.x, cross_point.y);
+        if (cross_point.distance_to(source_point[k]) < 1500) {
+            na22_pos_map->Fill(cross_point.x, cross_point.y);
+        }
     }
 
     cout << " ====== Position of Source " << target_source_id << " ===================" << endl;
@@ -164,8 +194,17 @@ int main(int argc, char** argv) {
     cout << " Y = " << na22_pos_map->GetMean(2) << endl;
 
     CommonCanvas canvas;
-    canvas.cd();
-    na22_pos_map->Draw("colz");
+    canvas.cd(1);
+    na22_pos_map->DrawCopy("colz");
+    canvas.cd(2);
+    na22_pos_map->DrawCopy("lego2");
+    canvas.cd(3);
+    TH1D* project_x = na22_pos_map->ProjectionX();
+    project_x->DrawCopy();
+    canvas.cd(4);
+    TH1D* project_y = na22_pos_map->ProjectionY();
+    project_y->DrawCopy();
+
 
     rootapp->Run();
 

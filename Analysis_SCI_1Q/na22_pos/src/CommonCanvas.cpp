@@ -19,12 +19,13 @@ void CommonCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* selec
 
 }
 
-void CommonCanvas::cd() {
+void CommonCanvas::cd(int i) {
 	canvas_ = static_cast<TCanvas*>(gROOT->FindObject("canvas"));
 	if (canvas_ == NULL) {
 		canvas_ = new TCanvas("canvas", "canvas", 900, 900);
+        canvas_->Divide(2, 2);
 		canvas_->Connect("Closed()", "CommonCanvas", this, "CloseWindow()");
 	}
-	canvas_->cd();
+	canvas_->cd(i);
 }
 

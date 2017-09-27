@@ -32,7 +32,7 @@ public:
     CommonCanvas();
     virtual ~CommonCanvas();
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
-	void cd();
+	void cd(int i);
     TCanvas* get_canvas() { return canvas_; }
 #endif /* __ROOTCLING__ || __CINT __ */
 
