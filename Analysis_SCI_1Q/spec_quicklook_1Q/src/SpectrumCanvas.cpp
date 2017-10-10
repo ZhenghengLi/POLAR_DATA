@@ -36,7 +36,7 @@ void SpectrumCanvas::set_count_map(int mod_count[25], int bar_count[25][64]) {
         int y = 5 - i % 5;
         mod_count_map_->SetBinContent(x, y, mod_count[i]);
         for (int j = 0; j < 64; j++) {
-            bar_count_map_->SetBinContent(ijtox(i, j), ijtoy(i, j), bar_count[i][j]);
+            bar_count_map_->SetBinContent(ijtox(i, j) + 1, ijtoy(i, j) + 1, bar_count[i][j]);
         }
     }
 }
