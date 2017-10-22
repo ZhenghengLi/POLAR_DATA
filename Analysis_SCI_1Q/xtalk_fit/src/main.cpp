@@ -121,6 +121,17 @@ int main(int argc, char** argv) {
         }
     }
     xtalk_matrix_inv = xtalk_matrix;
+    // begin protection for bad channels
+    int i = options_mgr.ct_num - 1;
+    if (i == 1 || i == 4 || i == 5 || i == 7 || i == 21) {
+        for (int j = 0; j < 64; j++) {
+            if (j != 23 && j != 15 && j != 14 && j != 22 && j != 30 && j != 31) {
+                xtalk_matrix(23, j) = 0.000001 * gRandom->Rndm();
+                xtalk_matrix_err(23, j) = 0;
+            }
+        }
+    }
+    // end protection for bad channels
     xtalk_matrix_inv.Invert();
 
     // save result

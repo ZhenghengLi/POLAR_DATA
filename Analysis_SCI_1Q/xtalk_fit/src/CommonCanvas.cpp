@@ -92,6 +92,7 @@ void CommonCanvas::draw_xtalk_matrix() {
 }
 
 void CommonCanvas::draw_xtalk_fitting(int jx, int jy) {
+    if (jx == jy) return;
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);
     canvas_xtalk_fitting_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_xtalk_fitting_"));

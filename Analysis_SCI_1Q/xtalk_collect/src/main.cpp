@@ -133,30 +133,32 @@ int main(int argc, char** argv) {
             for (int jx = 0; jx < 64; jx++) {
                 if (t_pol_event.channel_status[i][jx] > 0) continue;
                 if (!t_pol_event.trigger_bit[i][jx]) continue;
+                if (t_pol_event.energy_value[i][jx] < 1000) continue;
                 for (int jy = 0; jy < 64; jy++) {
                     if (t_pol_event.channel_status[i][jy] > 0) continue;
-                    if ((jx + 1 != jy && jx + 1 <= 63 && t_pol_event.trigger_bit[i][jx + 1]) ||
-                        (jx - 1 != jy && jx - 1 >= 0  && t_pol_event.trigger_bit[i][jx - 1]) ||
-                        (jx + 7 != jy && jx + 7 <= 63 && t_pol_event.trigger_bit[i][jx + 7]) ||
-                        (jx + 8 != jy && jx + 8 <= 63 && t_pol_event.trigger_bit[i][jx + 8]) ||
-                        (jx + 9 != jy && jx + 9 <= 63 && t_pol_event.trigger_bit[i][jx + 9]) ||
-                        (jx - 7 != jy && jx - 7 >= 0  && t_pol_event.trigger_bit[i][jx - 7]) ||
-                        (jx - 8 != jy && jx - 8 >= 0  && t_pol_event.trigger_bit[i][jx - 8]) ||
-                        (jx - 9 != jy && jx - 9 >= 0  && t_pol_event.trigger_bit[i][jx - 9]))
-                        continue;
-                    if ((jy + 1 != jx && jy + 1 <= 63 && t_pol_event.trigger_bit[i][jy + 1]) ||
-                        (jy - 1 != jx && jy - 1 >= 0  && t_pol_event.trigger_bit[i][jy - 1]) ||
-                        (jy + 7 != jx && jy + 7 <= 63 && t_pol_event.trigger_bit[i][jy + 7]) ||
-                        (jy + 8 != jx && jy + 8 <= 63 && t_pol_event.trigger_bit[i][jy + 8]) ||
-                        (jy + 9 != jx && jy + 9 <= 63 && t_pol_event.trigger_bit[i][jy + 9]) ||
-                        (jy - 7 != jx && jy - 7 >= 0  && t_pol_event.trigger_bit[i][jy - 7]) ||
-                        (jy - 8 != jx && jy - 8 >= 0  && t_pol_event.trigger_bit[i][jy - 8]) ||
-                        (jy - 9 != jx && jy - 9 >= 0  && t_pol_event.trigger_bit[i][jy - 9]))
-                        continue;
-                    if (jy != jx + 1 && jy != jx - 1 && jy != jx + 7 && jy != jx + 8 &&
-                        jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
-                        t_pol_event.trigger_bit[i][jy])
-                        continue;
+                    if (jx == jy) continue;
+                    // if ((jx + 1 != jy && jx + 1 <= 63 && t_pol_event.trigger_bit[i][jx + 1]) ||
+                    //     (jx - 1 != jy && jx - 1 >= 0  && t_pol_event.trigger_bit[i][jx - 1]) ||
+                    //     (jx + 7 != jy && jx + 7 <= 63 && t_pol_event.trigger_bit[i][jx + 7]) ||
+                    //     (jx + 8 != jy && jx + 8 <= 63 && t_pol_event.trigger_bit[i][jx + 8]) ||
+                    //     (jx + 9 != jy && jx + 9 <= 63 && t_pol_event.trigger_bit[i][jx + 9]) ||
+                    //     (jx - 7 != jy && jx - 7 >= 0  && t_pol_event.trigger_bit[i][jx - 7]) ||
+                    //     (jx - 8 != jy && jx - 8 >= 0  && t_pol_event.trigger_bit[i][jx - 8]) ||
+                    //     (jx - 9 != jy && jx - 9 >= 0  && t_pol_event.trigger_bit[i][jx - 9]))
+                    //     continue;
+                    // if ((jy + 1 != jx && jy + 1 <= 63 && t_pol_event.trigger_bit[i][jy + 1]) ||
+                    //     (jy - 1 != jx && jy - 1 >= 0  && t_pol_event.trigger_bit[i][jy - 1]) ||
+                    //     (jy + 7 != jx && jy + 7 <= 63 && t_pol_event.trigger_bit[i][jy + 7]) ||
+                    //     (jy + 8 != jx && jy + 8 <= 63 && t_pol_event.trigger_bit[i][jy + 8]) ||
+                    //     (jy + 9 != jx && jy + 9 <= 63 && t_pol_event.trigger_bit[i][jy + 9]) ||
+                    //     (jy - 7 != jx && jy - 7 >= 0  && t_pol_event.trigger_bit[i][jy - 7]) ||
+                    //     (jy - 8 != jx && jy - 8 >= 0  && t_pol_event.trigger_bit[i][jy - 8]) ||
+                    //     (jy - 9 != jx && jy - 9 >= 0  && t_pol_event.trigger_bit[i][jy - 9]))
+                    //     continue;
+                    // if (jy != jx + 1 && jy != jx - 1 && jy != jx + 7 && jy != jx + 8 &&
+                    //     jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
+                    //     t_pol_event.trigger_bit[i][jy])
+                    //     continue;
                     if (t_pol_event.energy_value[i][jy] / t_pol_event.energy_value[i][jx] > 0.5)
                         continue;
                     t_xtalk_data[i].event_time = t_pol_event.event_time;
