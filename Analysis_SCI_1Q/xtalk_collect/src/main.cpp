@@ -132,8 +132,18 @@ int main(int argc, char** argv) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int jx = 0; jx < 64; jx++) {
                 if (t_pol_event.channel_status[i][jx] > 0) continue;
-                if (!t_pol_event.trigger_bit[i][jx]) continue;
-                if (t_pol_event.energy_value[i][jx] < 1000) continue;
+                // if (!t_pol_event.trigger_bit[i][jx]) continue;
+                // if (t_pol_event.energy_value[i][jx] < 1000) continue;
+                // check if the ADC of jx is the maximum one
+                bool is_max = true;
+                for (int j = 0; j < 64; j++) {
+                    if (j == jx) continue;
+                    if (t_pol_event.energy_value[i][j] > t_pol_event.energy_value[i][jx]) {
+                        is_max = false;
+                        break;
+                    }
+                }
+                if (!is_max) continue;
                 for (int jy = 0; jy < 64; jy++) {
                     if (t_pol_event.channel_status[i][jy] > 0) continue;
                     if (jx == jy) continue;
@@ -159,8 +169,8 @@ int main(int argc, char** argv) {
                     //     jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
                     //     t_pol_event.trigger_bit[i][jy])
                     //     continue;
-                    if (t_pol_event.energy_value[i][jy] / t_pol_event.energy_value[i][jx] > 0.5)
-                        continue;
+                    // if (t_pol_event.energy_value[i][jy] / t_pol_event.energy_value[i][jx] > 0.5)
+                    //     continue;
                     t_xtalk_data[i].event_time = t_pol_event.event_time;
                     t_xtalk_data[i].jx = jx;
                     t_xtalk_data[i].x  = t_pol_event.energy_value[i][jx];
