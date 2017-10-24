@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
                                            Form("Crosstalk of %02d => %02d", jx + 1, jy + 1),
                                            256, 0, 4096, 128, -128, 1536);
             xtalk_hist[jx][jy]->SetDirectory(NULL);
-            xtalk_hist[jx][jy]->SetMarkerColor(9);
-            xtalk_hist[jx][jy]->SetMarkerStyle(31);
+            // xtalk_hist[jx][jy]->SetMarkerColor(9);
+            // xtalk_hist[jx][jy]->SetMarkerStyle(31);
             xtalk_line[jx][jy] = new TF1(Form("xtalk_line%02d_%02d", jx + 1, jy + 1),
                                           "[0] * x", 0, 4096);
             xtalk_line[jx][jy]->SetParameter(0, 0.1);

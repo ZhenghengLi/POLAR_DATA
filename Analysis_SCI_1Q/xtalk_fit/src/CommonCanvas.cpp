@@ -103,6 +103,7 @@ void CommonCanvas::draw_xtalk_fitting(int jx, int jy) {
     canvas_xtalk_fitting_->SetTitle(Form("Crosstalk fitting of CT_%02d_%02d => CT_%02d_%02d",
                 ct_num_, jx + 1, ct_num_, jy + 1));
     canvas_xtalk_fitting_->cd();
+    xtalk_hist_[jx][jy]->Draw("colz");
     xtalk_hist_[jx][jy]->Fit(xtalk_line_[jx][jy], "RQ");
     canvas_xtalk_fitting_->Update();
 }
