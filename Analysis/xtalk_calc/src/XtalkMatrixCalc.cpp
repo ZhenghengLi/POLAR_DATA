@@ -109,46 +109,52 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
         int idx = sciIter.t_modules.ct_num - 1;
         // select crosstalk data
         for (int jx = 0; jx < 64; jx++) {
-            if (!sciIter.t_modules.trigger_bit[jx])
-                continue;
-            for (int jy = 0; jy < 64; jy++) {
-                if ((jx + 1 != jy && jx + 1 <= 63 && sciIter.t_modules.trigger_bit[jx + 1]) ||
-                    (jx - 1 != jy && jx - 1 >= 0  && sciIter.t_modules.trigger_bit[jx - 1]) ||
-                    (jx + 7 != jy && jx + 7 <= 63 && sciIter.t_modules.trigger_bit[jx + 7]) ||
-                    (jx + 8 != jy && jx + 8 <= 63 && sciIter.t_modules.trigger_bit[jx + 8]) ||
-                    (jx + 9 != jy && jx + 9 <= 63 && sciIter.t_modules.trigger_bit[jx + 9]) ||
-                    (jx - 7 != jy && jx - 7 >= 0  && sciIter.t_modules.trigger_bit[jx - 7]) ||
-                    (jx - 8 != jy && jx - 8 >= 0  && sciIter.t_modules.trigger_bit[jx - 8]) ||
-                    (jx - 9 != jy && jx - 9 >= 0  && sciIter.t_modules.trigger_bit[jx - 9]))
-                    continue;
-                if ((jy + 1 != jx && jy + 1 <= 63 && sciIter.t_modules.trigger_bit[jy + 1]) ||
-                    (jy - 1 != jx && jy - 1 >= 0  && sciIter.t_modules.trigger_bit[jy - 1]) ||
-                    (jy + 7 != jx && jy + 7 <= 63 && sciIter.t_modules.trigger_bit[jy + 7]) ||
-                    (jy + 8 != jx && jy + 8 <= 63 && sciIter.t_modules.trigger_bit[jy + 8]) ||
-                    (jy + 9 != jx && jy + 9 <= 63 && sciIter.t_modules.trigger_bit[jy + 9]) ||
-                    (jy - 7 != jx && jy - 7 >= 0  && sciIter.t_modules.trigger_bit[jy - 7]) ||
-                    (jy - 8 != jx && jy - 8 >= 0  && sciIter.t_modules.trigger_bit[jy - 8]) ||
-                    (jy - 9 != jx && jy - 9 >= 0  && sciIter.t_modules.trigger_bit[jy - 9]))
-                    continue;
-                if (jy != jx + 1 && jy != jx - 1 && jy != jx + 7 && jy != jx + 8 &&
-                    jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
-                    sciIter.t_modules.trigger_bit[jy])
-                    continue;
-                if (energy_adc_vector_(jy) < 4096 && energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
-                    continue;
-                if (energy_adc_vector_(jy) < 4096) {
-                    xtalk_data_file.t_xtalk_data[idx].jx = jx;
-                    xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
-                    xtalk_data_file.t_xtalk_data[idx].jy = jy;
-                    xtalk_data_file.t_xtalk_data[idx].y  = energy_adc_vector_(jy);
-                    xtalk_data_file.mod_fill(idx);
-                } else {
-                    xtalk_data_file.t_xtalk_data[idx].jx = jx;
-                    xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
-                    xtalk_data_file.t_xtalk_data[idx].jy = jy;
-                    xtalk_data_file.t_xtalk_data[idx].y = gRandom->Uniform(-1,1);
-                    xtalk_data_file.mod_fill(idx);
+            // if (!sciIter.t_modules.trigger_bit[jx])
+            //     continue;
+            // if (energy_adc_vector_(jx) < 1000) continue;
+            if (energy_adc_vector_(jx) > 4095) continue;
+            bool is_max = true;
+            for (int j = 0; j < 64; j++) {
+                if (j == jx) continue;
+                if (energy_adc_vector_(j) > energy_adc_vector_(jx)) {
+                    is_max = false;
+                    break;
                 }
+            }
+            if (!is_max) continue;
+            for (int jy = 0; jy < 64; jy++) {
+                if (jy == jx) continue;
+                if (energy_adc_vector_(jy) > 4095) continue;
+                // if ((jx + 1 != jy && jx + 1 <= 63 && sciIter.t_modules.trigger_bit[jx + 1]) ||
+                //     (jx - 1 != jy && jx - 1 >= 0  && sciIter.t_modules.trigger_bit[jx - 1]) ||
+                //     (jx + 7 != jy && jx + 7 <= 63 && sciIter.t_modules.trigger_bit[jx + 7]) ||
+                //     (jx + 8 != jy && jx + 8 <= 63 && sciIter.t_modules.trigger_bit[jx + 8]) ||
+                //     (jx + 9 != jy && jx + 9 <= 63 && sciIter.t_modules.trigger_bit[jx + 9]) ||
+                //     (jx - 7 != jy && jx - 7 >= 0  && sciIter.t_modules.trigger_bit[jx - 7]) ||
+                //     (jx - 8 != jy && jx - 8 >= 0  && sciIter.t_modules.trigger_bit[jx - 8]) ||
+                //     (jx - 9 != jy && jx - 9 >= 0  && sciIter.t_modules.trigger_bit[jx - 9]))
+                //     continue;
+                // if ((jy + 1 != jx && jy + 1 <= 63 && sciIter.t_modules.trigger_bit[jy + 1]) ||
+                //     (jy - 1 != jx && jy - 1 >= 0  && sciIter.t_modules.trigger_bit[jy - 1]) ||
+                //     (jy + 7 != jx && jy + 7 <= 63 && sciIter.t_modules.trigger_bit[jy + 7]) ||
+                //     (jy + 8 != jx && jy + 8 <= 63 && sciIter.t_modules.trigger_bit[jy + 8]) ||
+                //     (jy + 9 != jx && jy + 9 <= 63 && sciIter.t_modules.trigger_bit[jy + 9]) ||
+                //     (jy - 7 != jx && jy - 7 >= 0  && sciIter.t_modules.trigger_bit[jy - 7]) ||
+                //     (jy - 8 != jx && jy - 8 >= 0  && sciIter.t_modules.trigger_bit[jy - 8]) ||
+                //     (jy - 9 != jx && jy - 9 >= 0  && sciIter.t_modules.trigger_bit[jy - 9]))
+                //     continue;
+                // if (jy != jx + 1 && jy != jx - 1 && jy != jx + 7 && jy != jx + 8 &&
+                //     jy != jx + 9 && jy != jx - 7 && jy != jx - 8 && jy != jx - 9 &&
+                //     sciIter.t_modules.trigger_bit[jy])
+                //     continue;
+                // if (energy_adc_vector_(jy) < 4096 && energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
+                //     continue;
+
+                xtalk_data_file.t_xtalk_data[idx].jx = jx;
+                xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
+                xtalk_data_file.t_xtalk_data[idx].jy = jy;
+                xtalk_data_file.t_xtalk_data[idx].y  = energy_adc_vector_(jy);
+                xtalk_data_file.mod_fill(idx);
             }
         }
     }
