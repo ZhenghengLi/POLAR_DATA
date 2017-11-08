@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
     // prepare histogram
     TH1D* ped_hist[64];
     for (int j = 0; j < 64; j++) {
-        ped_hist[j] = new TH1D(Form("ped_hist_%02d_%02d", options_mgr.ct_num, j + 1),
-                Form("Pedestal of CH %02d_%02d", options_mgr.ct_num, j + 1),
+        ped_hist[j] = new TH1D(Form("ped_hist_%02d_%02d", options_mgr.ct_num, j),
+                Form("Pedestal of CH %02d_%02d", options_mgr.ct_num, j),
                 PED_BINS, 0, PED_MAX);
         ped_hist[j]->SetDirectory(ped_result_file);
     }
@@ -65,8 +65,8 @@ int main(int argc, char** argv) {
     common_noise_hist->SetDirectory(ped_result_file);
     TH1D* ped_shift_hist[64];
     for (int j = 0; j < 64; j++) {
-        ped_shift_hist[j] = new TH1D(Form("ped_shift_hist_%02d_%02d", options_mgr.ct_num, j + 1),
-                Form("Pedestal shift of CH %02d_%02d", options_mgr.ct_num, j + 1),
+        ped_shift_hist[j] = new TH1D(Form("ped_shift_hist_%02d_%02d", options_mgr.ct_num, j),
+                Form("Pedestal shift of CH %02d_%02d", options_mgr.ct_num, j),
                 256, -128, 128);
         ped_shift_hist[j]->SetDirectory(ped_result_file);
     }
@@ -162,6 +162,13 @@ int main(int argc, char** argv) {
             cout << "#" << flush;
         }
         t_ped_data_tree->GetEntry(q);
+
+        // filter start
+        if (t_ped_data.aux_interval > 20) continue;
+        if (t_ped_data.fe_temp < options_mgr.low_temp) continue;
+        if (t_ped_data.fe_temp > options_mgr.high_temp) continue;
+        // filter stop
+
         common_noise_sum = 0;
         common_noise_n   = 0;
         for (int j = 0; j < 64; j++) {
