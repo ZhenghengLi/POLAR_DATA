@@ -9,15 +9,22 @@ using namespace std;
 
 class EventFilter {
 public:
-    static const UShort_t TOO_LOW   = 0x1;
-    static const UShort_t TOO_MANY  = 0x2;
-    static const UShort_t TOO_SHORT = 0x4;
+    static const UShort_t TOO_LOW     = 1;
+    static const UShort_t COSMIC      = 2;
+    static const UShort_t POST_COSMIC = 4;
+    static const UShort_t TOO_MANY    = 8;
+    static const UShort_t TOO_SHORT   = 16;
 
 private:
     static const double too_low_cut_;
     static const int    too_many_cut_1_;
     static const int    too_many_cut_2_;
     static const double too_short_cut_;
+    static const double time_wait_cut_;
+
+private:
+    bool   pre_is_cosmic_[25];
+    double cosmic_event_time_[25];
 
 private:
     double bar_timewait_cache_[4][25][64];
@@ -28,6 +35,11 @@ private:
     UShort_t check_too_low_(const POLEvent& pol_event);
     UShort_t check_too_many_(const POLEvent& pol_event);
     UShort_t check_too_short_(const POLEvent& pol_event);
+    UShort_t check_post_cosmic_(const POLEvent& pol_event);
+
+public:
+    bool  cur_time_aligned[25];
+    float cur_mod_adc_diff[25];
 
 public:
     EventFilter();

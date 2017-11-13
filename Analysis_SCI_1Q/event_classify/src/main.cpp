@@ -78,12 +78,16 @@ int main(int argc, char** argv) {
         Double_t event_time_c;
         UShort_t event_type;
         Bool_t   is_na22;
+        Float_t  mod_adc_diff[25];
+        Bool_t   time_aligned[25];
     } t_event_type;
     TTree* t_event_type_tree = new TTree("t_event_type", "Event Type");
-    t_event_type_tree->Branch("event_id_c",    &t_event_type.event_id_c,   "event_id_c/L"   );
-    t_event_type_tree->Branch("event_time_c",  &t_event_type.event_time_c, "event_time_c/D" );
-    t_event_type_tree->Branch("event_type",    &t_event_type.event_type,   "event_type/s"   );
-    t_event_type_tree->Branch("is_na22",       &t_event_type.is_na22,      "is_na22/O"      );
+    t_event_type_tree->Branch("event_id_c",         &t_event_type.event_id_c,       "event_id_c/L"         );
+    t_event_type_tree->Branch("event_time_c",       &t_event_type.event_time_c,     "event_time_c/D"       );
+    t_event_type_tree->Branch("event_type",         &t_event_type.event_type,       "event_type/s"         );
+    t_event_type_tree->Branch("is_na22",            &t_event_type.is_na22,          "is_na22/O"            );
+    t_event_type_tree->Branch("mod_adc_diff",        t_event_type.mod_adc_diff,     "mod_adc_diff[25]/F"   );
+    t_event_type_tree->Branch("time_aligned",        t_event_type.time_aligned,     "time_aligned[25]/O"   );
 
     EventFilter event_filter;
     Na22Check   na22_checker;
@@ -122,6 +126,11 @@ int main(int argc, char** argv) {
         t_event_type.event_id_c   = t_pol_event.event_id;
         t_event_type.event_time_c = t_pol_event.event_time;
         t_event_type.event_type   = event_filter.classify(t_pol_event);
+
+        for (int i = 0; i < 25; i++) {
+            t_event_type.time_aligned[i] = event_filter.cur_time_aligned[i];
+            t_event_type.mod_adc_diff[i] = event_filter.cur_mod_adc_diff[i];
+        }
 
         t_event_type.is_na22 = false;
         if (t_event_type.event_type < 1 && na22_checker.check_na22_event(t_pol_event)) {
