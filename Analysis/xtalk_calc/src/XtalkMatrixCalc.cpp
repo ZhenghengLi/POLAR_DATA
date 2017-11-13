@@ -149,6 +149,7 @@ void XtalkMatrixCalc::fill_xtalk_data(SciIterator& sciIter, XtalkDataFile& xtalk
                 //     continue;
                 // if (energy_adc_vector_(jy) < 4096 && energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.5)
                 //     continue;
+                if (energy_adc_vector_(jy) / energy_adc_vector_(jx) > 0.7) continue;
 
                 xtalk_data_file.t_xtalk_data[idx].jx = jx;
                 xtalk_data_file.t_xtalk_data[idx].x  = energy_adc_vector_(jx);
@@ -228,6 +229,7 @@ void XtalkMatrixCalc::fill_xtalk_hist(int ct_idx, XtalkDataFile& xtalk_data_file
     current_ct_idx_ = ct_idx;
     xtalk_data_file.mod_set_start(current_ct_idx_);
     while (xtalk_data_file.mod_next(current_ct_idx_)) {
+        if (xtalk_data_file.t_xtalk_data[current_ct_idx_].y / xtalk_data_file.t_xtalk_data[current_ct_idx_].x > 0.7) continue;
         xtalk_hist_[xtalk_data_file.t_xtalk_data[current_ct_idx_].jx]
             [xtalk_data_file.t_xtalk_data[current_ct_idx_].jy]->Fill(
             xtalk_data_file.t_xtalk_data[current_ct_idx_].x,

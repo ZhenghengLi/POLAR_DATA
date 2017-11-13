@@ -166,6 +166,7 @@ int main(int argc, char** argv) {
                 common_noise_n++;
             }
         }
+        if (common_noise_n < 32) continue;
         cur_common_noise = (common_noise_n > 0 ? common_noise_sum / common_noise_n : 0);
         if (common_noise_n > 0)
             common_noise_hist[idx]->Fill(cur_common_noise);
