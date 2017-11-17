@@ -79,6 +79,7 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
         cur_mod_adc_diff[i] = trig_mean - nontrig_mean;
         // if (cur_mod_adc_diff[i] < mod_adc_cut[i]) is_too_low = true;
         if (cur_mod_adc_diff[i] < too_low_cut_) is_too_low = true;
+
     }
 
     if (is_too_low) {
@@ -137,7 +138,7 @@ UShort_t EventFilter::classify(const POLEvent& pol_event) {
     UShort_t post_cosmic_res = check_post_cosmic_(pol_event);
     UShort_t cosmic_res = (pol_event.type == 0xFF00 ? COSMIC : 0);
 
-    UShort_t final_res = (too_low_res | cosmic_res | post_cosmic_res | too_many_res | too_short_res);
+    UShort_t final_res = (too_low_res | post_cosmic_res); // | too_many_res | too_short_res);
 
     return final_res;
 }

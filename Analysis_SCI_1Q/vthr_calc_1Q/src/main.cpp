@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "energy_value");
     t_pol_event.active(t_pol_event_tree, "channel_status");
     t_pol_event.active(t_pol_event_tree, "dy12_too_high");
+    t_pol_event.active(t_pol_event_tree, "common_noise");
 
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -63,12 +64,19 @@ int main(int argc, char** argv) {
     TF1*  fun_spec[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            tri_spec[i][j] = new TH1F(Form("tri_spec_%02d_%02d", i + 1, j + 1), Form("tri_spec_%02d_%02d", i + 1, j + 1), 128, vthr_min, vthr_max);
+            tri_spec[i][j] = new TH1F(Form("tri_spec_%02d_%02d", i + 1, j), Form("tri_spec_%02d_%02d", i + 1, j), 256, vthr_min, vthr_max);
             // tri_spec[i][j]->SetDirectory(NULL);
-            all_spec[i][j] = new TH1F(Form("all_spec_%02d_%02d", i + 1, j + 1), Form("all_spec_%02d_%02d", i + 1, j + 1), 128, vthr_min, vthr_max);
+            all_spec[i][j] = new TH1F(Form("all_spec_%02d_%02d", i + 1, j), Form("all_spec_%02d_%02d", i + 1, j), 256, vthr_min, vthr_max);
             all_spec[i][j]->SetDirectory(NULL);
-            fun_spec[i][j] = new TF1(Form("fun_spec_%02d_%02d", i + 1, j + 1), "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", vthr_min, vthr_max);
+            fun_spec[i][j] = new TF1(Form("fun_spec_%02d_%02d", i + 1, j), "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", vthr_min, vthr_max);
             fun_spec[i][j]->SetParameters(vthr_mean_0, vthr_sigma_0);
+        }
+    }
+    TH2F* mean_ADC_spec[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j <64; j++) {
+            mean_ADC_spec[i][j] = new TH2F(Form("mean_ADC_spec_%02d_%02d", i + 1, j), Form("mean_ADC_spec_%02d_%02d", i + 1, j),
+                    192, 0, 768, 64, 0, 256);
         }
     }
 
@@ -84,15 +92,26 @@ int main(int argc, char** argv) {
         }
         t_pol_event_tree->GetEntry(q);
 
+        // skip pedestal event
         if (t_pol_event.is_ped) continue;
+        // skip cosmic events
+        if (t_pol_event.type == 0xFF00) continue;
+
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
+            // calculate mean ADC
+            double cur_mean_ADC = 0;
+            for (int j = 0; j < 64; j++) {
+                cur_mean_ADC += t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i];
+            }
+            cur_mean_ADC /= 64.0;
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
-                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
-                all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
+                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 3) continue;
+                all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
                 if (t_pol_event.trigger_bit[i][j]) {
-                    tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
+                    tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                    mean_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i], cur_mean_ADC);
                 }
             }
         }
@@ -106,8 +125,8 @@ int main(int argc, char** argv) {
     TH1F* tri_eff[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            tri_eff[i][j] = static_cast<TH1F*>(tri_spec[i][j]->Clone(Form("tri_eff_%02d_%02d", i + 1, j + 1)));
-            tri_eff[i][j]->SetTitle(Form("tri_eff_%02d_%02d", i + 1, j + 1));
+            tri_eff[i][j] = static_cast<TH1F*>(tri_spec[i][j]->Clone(Form("tri_eff_%02d_%02d", i + 1, j)));
+            tri_eff[i][j]->SetTitle(Form("tri_eff_%02d_%02d", i + 1, j));
             for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
                 if (tri_eff[i][j]->GetBinCenter(k) < 0) {
                     tri_eff[i][j]->SetBinContent(k, 0);
@@ -127,6 +146,11 @@ int main(int argc, char** argv) {
     TVectorF vthr_adc_sigma[25];
     TVectorF vthr_adc_value_err[25];
     TVectorF vthr_adc_sigma_err[25];
+    TCanvas* canvas_vthr_pos[25];
+    TLine* vthr_line_center[25][64];
+    TLine* vthr_line_left[25][64];
+    TLine* vthr_line_right[25][64];
+    TCanvas* canvas_mean_ADC_spec[25];
     for (int i = 0; i < 25; i++) {
         canvas_spec[i] = new TCanvas(Form("canvas_spec_CT_%02d", i + 1), Form("canvas_spec_CT_%02d", i + 1), 2000, 1600);
         canvas_spec[i]->Divide(8, 8);
@@ -154,9 +178,38 @@ int main(int argc, char** argv) {
             tri_eff[i][j]->Write();
             tri_spec[i][j]->Write();
             all_spec[i][j]->Write();
+            mean_ADC_spec[i][j]->Write();
+        }
+        canvas_vthr_pos[i] = new TCanvas(Form("canvas_vthr_pos_CT_%02d", i + 1), Form("canvas_vthr_pos_CT_%02d", i + 1), 2000, 1600);
+        canvas_vthr_pos[i]->Divide(8, 8);
+        canvas_vthr_pos[i]->SetFillColor(kYellow);
+        for (int j = 0; j < 64; j++) {
+            canvas_vthr_pos[i]->cd(jtoc(j));
+            canvas_vthr_pos[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
+            tri_spec[i][j]->Draw();
+            double y_max = tri_spec[i][j]->GetMaximum();
+            vthr_line_center[i][j] = new TLine(vthr_adc_value[i](j), 0, vthr_adc_value[i](j), y_max);
+            vthr_line_left[i][j] = new TLine(vthr_adc_value[i](j) - vthr_adc_sigma[i](j), 0, vthr_adc_value[i](j) - vthr_adc_sigma[i](j), y_max);
+            vthr_line_right[i][j] = new TLine(vthr_adc_value[i](j) + vthr_adc_sigma[i](j), 0, vthr_adc_value[i](j) + vthr_adc_sigma[i](j), y_max);
+            vthr_line_center[i][j]->SetLineColor(kRed);
+            vthr_line_left[i][j]->SetLineColor(kGreen);
+            vthr_line_right[i][j]->SetLineColor(kGreen);
+            vthr_line_center[i][j]->Draw("same");
+            vthr_line_left[i][j]->Draw("same");
+            vthr_line_right[i][j]->Draw("same");
+        }
+        canvas_mean_ADC_spec[i] = new TCanvas(Form("canvas_mean_ADC_spec_CT_%02d", i + 1), Form("canvas_mean_ADC_spec_CT_%02d", i + 1), 2000, 1600);
+        canvas_mean_ADC_spec[i]->Divide(8, 8);
+        canvas_mean_ADC_spec[i]->SetFillColor(kYellow);
+        for (int j = 0; j < 64; j++) {
+            canvas_mean_ADC_spec[i]->cd(jtoc(j));
+            canvas_mean_ADC_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
+            mean_ADC_spec[i][j]->Draw("colz");
         }
         output_file->cd();
         canvas_spec[i]->Write();
+        canvas_vthr_pos[i]->Write();
+        canvas_mean_ADC_spec[i]->Write();
         vthr_adc_value[i].Write(Form("vthr_adc_value_CT_%02d", i + 1));
         vthr_adc_value_err[i].Write(Form("vthr_adc_value_err_CT_%02d", i + 1));
         vthr_adc_sigma[i].Write(Form("vthr_adc_sigma_CT_%02d", i + 1));
