@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
             cur_mean_ADC /= 64.0;
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
-                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 3) continue;
+                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
