@@ -151,6 +151,10 @@ bool SAPFileR::open(const char* filename, const char* time_begin, const char* ti
             return false;
         }
     }
+    if (entry_end_ - entry_begin_ < 10) {
+        cout << "Data in the time range maybe empty." << endl;
+        return false;
+    }
 
     return true;
 }
