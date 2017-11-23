@@ -132,10 +132,17 @@ int main(int argc, char** argv) {
                 cur_common_sum = 0.0;
                 cur_common_n   = 0;
                 for (int j = 0; j < 64; j++) {
-                    if (!t_pol_event.trigger_bit[i][j]) {
-                        cur_common_sum += t_pol_event.energy_value[i][j];
-                        cur_common_n   += 1;
-                    }
+                    if (t_pol_event.trigger_bit[i][j]) continue;
+                    if (j - 1 >= 0  && t_pol_event.trigger_bit[i][j - 1]) continue;
+                    if (j + 1 <= 63 && t_pol_event.trigger_bit[i][j + 1]) continue;
+                    if (j - 8 >= 0  && t_pol_event.trigger_bit[i][j - 8]) continue;
+                    if (j + 8 <= 63 && t_pol_event.trigger_bit[i][j + 8]) continue;
+                    if (j - 7 >= 0  && t_pol_event.trigger_bit[i][j - 7]) continue;
+                    if (j + 7 <= 63 && t_pol_event.trigger_bit[i][j + 7]) continue;
+                    if (j - 9 >= 0  && t_pol_event.trigger_bit[i][j - 9]) continue;
+                    if (j + 9 <= 63 && t_pol_event.trigger_bit[i][j + 9]) continue;
+                    cur_common_sum += t_pol_event.energy_value[i][j];
+                    cur_common_n   += 1;
                 }
                 cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
             }
