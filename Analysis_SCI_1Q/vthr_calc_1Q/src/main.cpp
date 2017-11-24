@@ -116,7 +116,9 @@ int main(int argc, char** argv) {
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
-                    max_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j], cur_max_ADC);
+                    if (j != cur_max_j) {
+                        max_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j], cur_max_ADC);
+                    }
                 }
             }
         }
