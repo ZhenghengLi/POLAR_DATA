@@ -134,10 +134,11 @@ int main(int argc, char** argv) {
                     cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0);
                     t_event.common_noise[i] = cur_common_noise;
                 } else if (t_event.compress[i] == 3) {
-                    cur_common_noise = t_event.common_noise[i];
+                    cur_common_noise = t_event.common_noise[i] * 2.0;
                 } else {
                     cur_common_noise = 0;
                 }
+                t_event.common_noise[i] = cur_common_noise;
                 // subtract common noise
                 for (int j = 0; j < 64; j++) {
                     energy_value_vector(j) -= cur_common_noise;
