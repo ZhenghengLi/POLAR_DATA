@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j <64; j++) {
             max_ADC_spec[i][j] = new TH2F(Form("max_ADC_spec_%02d_%02d", i + 1, j), Form("max_ADC_spec_%02d_%02d", i + 1, j),
-                    192, 0, 768, 64, 0, 256);
+                    192, 0, 768, 1024, 0, 4096);
         }
     }
 
