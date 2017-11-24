@@ -123,10 +123,11 @@ int main(int argc, char** argv) {
                 if (t_beam_event.compress[i] == 0 || t_beam_event.compress[i] == 2) {
                     cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0);
                 } else if (t_beam_event.compress[i] == 3) {
-                    cur_common_noise = t_beam_event.common_noise[i];
+                    cur_common_noise = t_beam_event.common_noise[i] * 2;
                 } else {
                     cur_common_noise = 0;
                 }
+                t_beam_event.common_noise[i] = cur_common_noise;
                 // subtract common noise
                 for (int j = 0; j < 64; j++) {
                     if (energy_adc_vector(j) < 4096) {
