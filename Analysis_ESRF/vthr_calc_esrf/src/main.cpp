@@ -44,7 +44,6 @@ int main(int argc, char** argv) {
         Int_t   multiplicity[25];
         Bool_t  time_aligned[25];
         Int_t   pkt_count;
-        Int_t   lost_count;
         Bool_t  trigger_bit[25][64];
         Float_t energy_value[25][64];
         Float_t common_noise[25];
@@ -54,7 +53,6 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchAddress("multiplicity",      t_event.multiplicity         );
     t_event_tree->SetBranchAddress("time_aligned",      t_event.time_aligned         );
     t_event_tree->SetBranchAddress("pkt_count",        &t_event.pkt_count            );
-    t_event_tree->SetBranchAddress("lost_count",       &t_event.lost_count           );
     t_event_tree->SetBranchAddress("trigger_bit",       t_event.trigger_bit          );
     t_event_tree->SetBranchAddress("energy_value",      t_event.energy_value         );
     t_event_tree->SetBranchAddress("common_noise",      t_event.common_noise         );
@@ -65,7 +63,6 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchStatus("multiplicity", true);
     t_event_tree->SetBranchStatus("time_aligned", true);
     t_event_tree->SetBranchStatus("pkt_count", true);
-    t_event_tree->SetBranchStatus("lost_count", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
     t_event_tree->SetBranchStatus("energy_value", true);
     t_event_tree->SetBranchStatus("common_noise", true);
@@ -110,7 +107,6 @@ int main(int argc, char** argv) {
         t_event_tree->GetEntry(i);
 
         if (t_event.type != 0x00FF) continue;
-        if (t_event.lost_count > 0) continue;
 
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
