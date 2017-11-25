@@ -3,16 +3,16 @@
 #include "CooConv.hpp"
 
 // for energy
-#define VTHR_MEAN 10.0
-#define VTHR_SIGMA 5.0
-#define VTHR_MAX 60.0
-#define VTHR_MIN -15.0
+//#define VTHR_MEAN 10.0
+//#define VTHR_SIGMA 5.0
+//#define VTHR_MAX 60.0
+//#define VTHR_MIN -15.0
 
 // for adc
-// #define VTHR_MEAN 100.0
-// #define VTHR_SIGMA 50.0
-// #define VTHR_MAX 768.0
-// #define VTHR_MIN -128.0
+#define VTHR_MEAN 100.0
+#define VTHR_SIGMA 50.0
+#define VTHR_MAX 768.0
+#define VTHR_MIN -128.0
 
 using namespace std;
 
@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
         Int_t   lost_count;
         Bool_t  trigger_bit[25][64];
         Float_t energy_value[25][64];
+        Float_t common_noise[25];
     } t_event;
     t_event_tree->SetBranchAddress("type",             &t_event.type                 );
     t_event_tree->SetBranchAddress("trigger_n",        &t_event.trigger_n            );
@@ -56,6 +57,7 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchAddress("lost_count",       &t_event.lost_count           );
     t_event_tree->SetBranchAddress("trigger_bit",       t_event.trigger_bit          );
     t_event_tree->SetBranchAddress("energy_value",      t_event.energy_value         );
+    t_event_tree->SetBranchAddress("common_noise",      t_event.common_noise         );
 
     t_event_tree->SetBranchStatus("*", false);
     t_event_tree->SetBranchStatus("type", true);
@@ -66,6 +68,7 @@ int main(int argc, char** argv) {
     t_event_tree->SetBranchStatus("lost_count", true);
     t_event_tree->SetBranchStatus("trigger_bit", true);
     t_event_tree->SetBranchStatus("energy_value", true);
+    t_event_tree->SetBranchStatus("common_noise", true);
 
     TFile* t_file_out = new TFile(tcanvas_fn.c_str(), "recreate");
     if (t_file_out->IsZombie()) {
@@ -86,6 +89,13 @@ int main(int argc, char** argv) {
             fun_spec[i][j]->SetParameters(VTHR_MEAN, VTHR_SIGMA);
         }
     }
+    TH2F* max_ADC_spec[25][64];
+    for (int i = 0; i < 25; i++) {
+        for (int j = 0; j <64; j++) {
+            max_ADC_spec[i][j] = new TH2F(Form("max_ADC_spec_%02d_%02d", i + 1, j + 1), Form("max_ADC_spec_%02d_%02d", i + 1, j + 1),
+                    128, -128, 768, 585, 0, 4096);
+        }
+    }
 
     int pre_percent = 0;
     int cur_percent = 0;
@@ -100,14 +110,28 @@ int main(int argc, char** argv) {
         t_event_tree->GetEntry(i);
 
         if (t_event.type != 0x00FF) continue;
+        if (t_event.lost_count > 0) continue;
 
         for (int i = 0; i < 25; i++) {
             if (!t_event.time_aligned[i]) continue;
+            // find the max ADC
+            double cur_max_ADC = 0;
+            int    cur_max_j = 0;
+            for (int j = 0; j < 64; j++) {
+                if (cur_max_ADC < t_event.energy_value[i][j]) {
+                    cur_max_ADC = t_event.energy_value[i][j];
+                    cur_max_j = j;
+                }
+            }
+            if (cur_max_ADC < 900) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_event.multiplicity[i] - t_event.trigger_bit[i][j] < 2) continue;
-                all_spec[i][j]->Fill(t_event.energy_value[i][j]);
+                all_spec[i][j]->Fill(t_event.energy_value[i][j] + t_event.common_noise[i]);
                 if (t_event.trigger_bit[i][j]) {
-                    tri_spec[i][j]->Fill(t_event.energy_value[i][j]);
+                    tri_spec[i][j]->Fill(t_event.energy_value[i][j] + t_event.common_noise[i]);
+                    if (j != cur_max_j) {
+                        max_ADC_spec[i][j]->Fill(t_event.energy_value[i][j], cur_max_ADC);
+                    }
                 }
             }
         }
@@ -138,6 +162,7 @@ int main(int argc, char** argv) {
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);
     TCanvas* canvas_spec[25];
+    TCanvas* canvas_max_ADC_spec[25];
     TVectorF vthr_adc_value[25];
     TVectorF vthr_adc_sigma[25];
     TVectorF vthr_adc_value_err[25];
@@ -169,9 +194,19 @@ int main(int argc, char** argv) {
             tri_eff[i][j]->Write();
             tri_spec[i][j]->Write();
             all_spec[i][j]->Write();
+            max_ADC_spec[i][j]->Write();
+        }
+        canvas_max_ADC_spec[i] = new TCanvas(Form("canvas_max_ADC_spec_CT_%02d", i + 1), Form("canvas_max_ADC_spec_CT_%02d", i + 1), 2000, 1600);
+        canvas_max_ADC_spec[i]->Divide(8, 8);
+        canvas_max_ADC_spec[i]->SetFillColor(kYellow);
+        for (int j = 0; j < 64; j++) {
+            canvas_max_ADC_spec[i]->cd(jtoc(j));
+            canvas_max_ADC_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
+            max_ADC_spec[i][j]->Draw("colz");
         }
         t_file_out->cd();
         canvas_spec[i]->Write();
+        canvas_max_ADC_spec[i]->Write();
         vthr_adc_value[i].Write(Form("vthr_adc_value_CT_%02d", i + 1));
         vthr_adc_value_err[i].Write(Form("vthr_adc_value_err_CT_%02d", i + 1));
         vthr_adc_sigma[i].Write(Form("vthr_adc_sigma_CT_%02d", i + 1));

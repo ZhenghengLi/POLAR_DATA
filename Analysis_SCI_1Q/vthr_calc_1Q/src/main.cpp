@@ -51,6 +51,7 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "channel_status");
     t_pol_event.active(t_pol_event_tree, "dy12_too_high");
     t_pol_event.active(t_pol_event_tree, "common_noise");
+    t_pol_event.active(t_pol_event_tree, "lost_count");
 
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -94,6 +95,8 @@ int main(int argc, char** argv) {
 
         // skip pedestal event
         if (t_pol_event.is_ped) continue;
+        // skip events with data lost
+        if (t_pol_event.lost_count > 0) continue;
         // skip cosmic events
         if (t_pol_event.type == 0xFF00) continue;
 
