@@ -2,7 +2,8 @@
 #include "Constants.hpp"
 
 // intialize cut constant
-const double EventFilter::too_low_cut_    = 100.0;
+const double EventFilter::too_low_cut_a_  = 100.0;
+const double EventFilter::too_low_cut_b_  = 100.0;
 const int    EventFilter::too_many_cut_1_ = 15;
 const int    EventFilter::too_many_cut_2_ = 35;
 const double EventFilter::too_short_cut_  = 1E-3;
@@ -49,15 +50,22 @@ UShort_t EventFilter::check_post_cosmic_(const POLEvent& pol_event) {
 }
 
 UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
-    bool is_too_low = false;
+    bool is_too_low_a = false;
+    bool is_too_low_b = false;
     for (int i = 0; i < 25; i++) {
-        cur_time_aligned[i] = pol_event.time_aligned[i];
-        cur_mod_adc_diff[i] = 4096;
-        if (!pol_event.time_aligned[i]) continue;
+        if (pol_event.time_aligned[i]) {
+            cur_time_aligned[i] = true;
+        } else {
+            cur_time_aligned[i] = false;
+            cur_mod_adc_diff[i] = 4096;
+            cur_mod_maxadcdm[i] = 4096;
+            continue;
+        }
 
         double trig_sum = 0;
         int    trig_n = 0;
         double trig_mean = 0;
+        double trig_max = 0;
         double nontrig_sum = 0;
         int    nontrig_n = 0;
         double nontrig_mean = 0;
@@ -66,28 +74,33 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
             if (pol_event.trigger_bit[i][j]) {
                 trig_sum += pol_event.energy_value[i][j];
                 trig_n++;
-            } else {
-                if (pol_event.channel_status[i][j] == 0 && pol_event.energy_value[i][j] > -30.0) {
-                    nontrig_sum += pol_event.energy_value[i][j];
-                    nontrig_n++;
+                if (pol_event.energy_value[i][j] > trig_max) {
+                    trig_max = pol_event.energy_value[i][j];
                 }
+            } else {
+                if (pol_event.channel_status[i][j] > 0) continue;
+                nontrig_sum += pol_event.energy_value[i][j];
+                nontrig_n++;
             }
         }
 
         trig_mean = (trig_n > 0 ? trig_sum / trig_n : 0);
         nontrig_mean = (nontrig_n > 0 ? nontrig_sum / nontrig_n : 0);
         cur_mod_adc_diff[i] = trig_mean - nontrig_mean;
-        // if (cur_mod_adc_diff[i] < mod_adc_cut[i]) is_too_low = true;
-        if (cur_mod_adc_diff[i] < too_low_cut_) is_too_low = true;
+        // if (cur_mod_adc_diff[i] < mod_adc_cut[i]) is_too_low_a = true;
+        if (cur_mod_adc_diff[i] < too_low_cut_a_) is_too_low_a = true;
+        cur_mod_maxadcdm[i] = (trig_n > 0 ? (trig_max - nontrig_mean) / trig_n : 0);
+        if (cur_mod_maxadcdm[i] < too_low_cut_b_) is_too_low_b = true;
 
     }
 
-    if (is_too_low) {
-        return TOO_LOW;
-    } else {
-        return 0;
-    }
+    UShort_t result = 0;
+    if (is_too_low_a) result |= TOO_LOW_A;
+    if (is_too_low_b) result |= TOO_LOW_B;
+
+    return result;
 }
+
 
 UShort_t EventFilter::check_too_many_(const POLEvent& pol_event) {
     if (pol_event.trigger_n > too_many_cut_2_) {
@@ -133,10 +146,9 @@ UShort_t EventFilter::classify(const POLEvent& pol_event) {
     if (pol_event.is_ped) return 0;
 
     UShort_t too_low_res = check_too_low_(pol_event);
+    UShort_t post_cosmic_res = check_post_cosmic_(pol_event);
     UShort_t too_many_res = check_too_many_(pol_event);
     UShort_t too_short_res = check_too_short_(pol_event);
-    UShort_t post_cosmic_res = check_post_cosmic_(pol_event);
-    UShort_t cosmic_res = (pol_event.type == 0xFF00 ? COSMIC : 0);
 
     UShort_t final_res = (too_low_res | post_cosmic_res); // | too_many_res | too_short_res);
 
