@@ -59,7 +59,7 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
             continue;
         }
 
-        double trig_max = 0;
+        double trig_max = -4096;
         int    trig_n  = 0;
         // int    max_j   = 0;
 
