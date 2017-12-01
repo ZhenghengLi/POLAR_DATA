@@ -133,40 +133,24 @@ int main(int argc, char** argv) {
             }
         }
 
-        // (3) subtract common noise
+        // (3) subtract common noise (not real for compress 3)
         float cur_common_sum   = 0;
         int   cur_common_n     = 0;
         float cur_common_noise = 0;
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
-            if (t_pol_event.compress[i] == 3) {
-                cur_common_noise = t_pol_event.common_noise[i] * 2.0;
-            } else if (t_pol_event.compress[i] == 1) {
-                cur_common_noise = 0.0;
-            } else {
-                cur_common_sum = 0.0;
-                cur_common_n   = 0;
-                for (int j = 0; j < 64; j++) {
-                    if (t_pol_event.trigger_bit[i][j]) continue;
-                    if (j - 1 >= 0  && t_pol_event.trigger_bit[i][j - 1]) continue;
-                    if (j + 1 <= 63 && t_pol_event.trigger_bit[i][j + 1]) continue;
-                    if (j - 8 >= 0  && t_pol_event.trigger_bit[i][j - 8]) continue;
-                    if (j + 8 <= 63 && t_pol_event.trigger_bit[i][j + 8]) continue;
-                    if (j - 7 >= 0  && t_pol_event.trigger_bit[i][j - 7]) continue;
-                    if (j + 7 <= 63 && t_pol_event.trigger_bit[i][j + 7]) continue;
-                    if (j - 9 >= 0  && t_pol_event.trigger_bit[i][j - 9]) continue;
-                    if (j + 9 <= 63 && t_pol_event.trigger_bit[i][j + 9]) continue;
-                    cur_common_sum += t_pol_event.energy_value[i][j];
-                    cur_common_n   += 1;
-                }
-                cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
+            cur_common_sum = 0.0;
+            cur_common_n   = 0;
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.trigger_bit[i][j]) continue;
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
+                cur_common_sum += t_pol_event.energy_value[i][j];
+                cur_common_n   += 1;
             }
-            if (t_pol_event.compress[i] != 1) {
-                t_pol_event.common_noise[i] = cur_common_noise;
-            }
+            cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
-                    t_pol_event.energy_value[i][j] -= cur_common_noise / 2.0;
+                    t_pol_event.energy_value[i][j] -= t_pol_event.common_noise[i];
                 } else {
                     t_pol_event.energy_value[i][j] -= cur_common_noise;
                 }
