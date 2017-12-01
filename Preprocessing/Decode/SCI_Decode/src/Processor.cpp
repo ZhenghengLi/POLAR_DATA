@@ -194,11 +194,11 @@ void Processor::sci_trigger_before_sync_() {
         }
         sci_trigger_.time_period  = cur_trigg_time_period_;
         sci_trigger_.time_wait    = static_cast<uint32_t>(tmp_time_wait);
-        int32_t tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
+        double tmp_dead_diff = static_cast<int32_t>(sci_trigger_.deadtime) - cur_trigg_pre_raw_dead_;
         cur_trigg_pre_raw_dead_ = static_cast<int32_t>(sci_trigger_.deadtime);
         tmp_dead_diff = (tmp_dead_diff >= 0 ? tmp_dead_diff : tmp_dead_diff + 65536) / 4;
         if (cur_trigg_pre_dead_diff_ready_) {
-            sci_trigger_.dead_ratio = static_cast<float>(static_cast<double>(cur_trigg_pre_dead_diff_) / static_cast<double>(sci_trigger_.time_wait));
+            sci_trigger_.dead_ratio = static_cast<float>(cur_trigg_pre_dead_diff_ / static_cast<double>(sci_trigger_.time_wait));
             cur_trigg_pre_dead_diff_ = tmp_dead_diff;
         } else {
             sci_trigger_.dead_ratio = 0;
