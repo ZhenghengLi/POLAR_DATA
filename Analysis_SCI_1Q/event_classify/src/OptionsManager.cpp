@@ -57,6 +57,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'c':
+                if (idx < argc_par - 1) {
+                    TString tmp_str = argv_par[++idx];
+                    if (tmp_str[0] == '-') {
+                        return false;
+                    } else {
+                        cut_value = tmp_str.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -78,9 +90,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-p <ped_vec_file.root>]|[-P <ped_temp_par.root>] [-o <output.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-c <cut_value>] [-p <ped_vec_file.root>]|[-P <ped_temp_par.root>] [-o <output.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
+    cout << "  -c <cut_value>                   cut value of max_ADC/multiplicity, default is 70" << endl;
     cout << "  -p <ped_vector.root>             pedestal vector file" << endl;
     cout << "  -P <ped_temp_par.root>           pedestal and temperature dependence parameters" << endl;
     cout << "  -o <output.root>                 pedestal subtracted data" << endl;
@@ -108,6 +121,7 @@ void OptionsManager::init() {
     ped_temp_par_filename.Clear();
     output_filename.Clear();
     ped_temp_flag = false;
+    cut_value = 70;
 
     version_flag_ = false;
 }

@@ -1,14 +1,16 @@
 #include "EventFilter.hpp"
 #include "Constants.hpp"
 
-// intialize cut constant
-const double EventFilter::too_low_cut_  = 70.0;
-const int    EventFilter::too_many_cut_1_ = 15;
-const int    EventFilter::too_many_cut_2_ = 35;
-const double EventFilter::too_short_cut_  = 1E-3;
-const double EventFilter::time_wait_cut_  = 100E-6;
-
 EventFilter::EventFilter() {
+
+    // set default cut value
+    too_low_cut_    = 70;
+    too_many_cut_1_ = 15;
+    too_many_cut_2_ = 35;
+    too_short_cut_  = 1E-3;
+    time_wait_cut_  = 100E-6;
+
+    // init other values
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
             for (int k = 0; k < 4; k++) {
@@ -22,10 +24,15 @@ EventFilter::EventFilter() {
         pre_is_cosmic_[i] = false;
         cosmic_event_time_[i] = 0;
     }
+
 }
 
 EventFilter::~EventFilter() {
 
+}
+
+void EventFilter::set_too_low_cut(double cut_value) {
+    too_low_cut_ = cut_value;
 }
 
 UShort_t EventFilter::check_post_cosmic_(const POLEvent& pol_event) {
@@ -75,6 +82,11 @@ UShort_t EventFilter::check_too_low_(const POLEvent& pol_event) {
 
         cur_mod_maxadcdm[i] = (trig_n > 0 ? trig_max / trig_n : 0);
         if (cur_mod_maxadcdm[i] < too_low_cut_) is_too_low = true;
+
+        // if (pol_event.channel_status[i][max_j] & POLEvent::ADC_OVERFLOW) {
+        //     cur_mod_maxadcdm[i] = 4096;
+        // }
+
 
     }
 

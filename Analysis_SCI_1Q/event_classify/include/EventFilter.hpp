@@ -16,11 +16,11 @@ public:
     static const UShort_t TOO_SHORT   = 16;
 
 private:
-    static const double too_low_cut_;
-    static const int    too_many_cut_1_;
-    static const int    too_many_cut_2_;
-    static const double too_short_cut_;
-    static const double time_wait_cut_;
+    double too_low_cut_;
+    int    too_many_cut_1_;
+    int    too_many_cut_2_;
+    double too_short_cut_;
+    double time_wait_cut_;
 
 private:
     bool   pre_is_cosmic_[25];
@@ -44,6 +44,8 @@ public:
 public:
     EventFilter();
     ~EventFilter();
+
+    void set_too_low_cut(double cut_value);
 
     UShort_t classify(const POLEvent& pol_event);
 

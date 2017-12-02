@@ -80,6 +80,8 @@ int main(int argc, char** argv) {
     EventFilter event_filter;
     Na22Check   na22_checker;
 
+    event_filter.set_too_low_cut(options_mgr.cut_value);
+
     int pre_percent = 0;
     int cur_percent = 0;
     cout << "classifying events ... " << endl;

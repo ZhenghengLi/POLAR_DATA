@@ -18,6 +18,7 @@ public:
     TString ped_temp_par_filename;  // -P
     bool    ped_temp_flag;
     TString output_filename;        // -o
+    double  cut_value;              // -c
 
 public:
     OptionsManager();
