@@ -125,7 +125,31 @@ int main(int argc, char** argv) {
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             if (t_pol_event.compress[i] == 3) {
-                cur_common_noise = t_pol_event.common_noise[i] * 2.0;
+                double sum_non_trigger = t_pol_event.common_noise[i] * 2.0 * 64;
+                // correction for common_noise calculated in-orbit
+                int neigh_count = 0;
+                int trigg_count = 0;
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j]) {
+                        trigg_count++;
+                        continue;
+                    }
+                    bool is_neigh = false;
+                    if (j - 1 >= 0  && t_pol_event.trigger_bit[i][j - 1]) is_neigh = true;
+                    if (j + 1 <= 63 && t_pol_event.trigger_bit[i][j + 1]) is_neigh = true;
+                    if (j - 8 >= 0  && t_pol_event.trigger_bit[i][j - 8]) is_neigh = true;
+                    if (j + 8 <= 63 && t_pol_event.trigger_bit[i][j + 8]) is_neigh = true;
+                    if (j - 7 >= 0  && t_pol_event.trigger_bit[i][j - 7]) is_neigh = true;
+                    if (j + 7 <= 63 && t_pol_event.trigger_bit[i][j + 7]) is_neigh = true;
+                    if (j - 9 >= 0  && t_pol_event.trigger_bit[i][j - 9]) is_neigh = true;
+                    if (j + 9 <= 63 && t_pol_event.trigger_bit[i][j + 9]) is_neigh = true;
+                    if (is_neigh) {
+                        sum_non_trigger -= t_pol_event.energy_value[i][j];
+                        neigh_count++;
+                    }
+                }
+                cur_common_noise = (trigg_count + neigh_count < 64 ? sum_non_trigger / (64 - trigg_count - neigh_count) : 0);
+
             } else if (t_pol_event.compress[i] == 1) {
                 cur_common_noise = 0.0;
             } else {
