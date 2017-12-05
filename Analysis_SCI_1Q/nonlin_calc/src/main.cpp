@@ -91,6 +91,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        cout << " DONE ]" << endl;
 
         pol_event_file->Close();
         delete pol_event_file;
