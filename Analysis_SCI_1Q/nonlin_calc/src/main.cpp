@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
     cout << "calculating cutoff and saving result ..." << endl;
 
     gROOT->SetBatch(kTRUE);
+    gErrorIgnoreLevel = kWarning;
 
     // calculate left cutoff
     TH1F* h_spec_tri = new TH1F("h_spec_tri", "h_spec_tri", max_adc_y / bin_size_y, 0, max_adc_y);
@@ -122,12 +123,27 @@ int main(int argc, char** argv) {
     int tri_stat = 0;
     TF1* f_ratio = new TF1("f_ratio", "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", 0, max_adc_y);
     TH1F* nonlin_curve[25][64];
+    TF1*  nonlin_fun[25][64];
+    TVectorF nonlin_fun_p0[25];
+    TVectorF nonlin_fun_p1[25];
+    TVectorF nonlin_fun_p2[25];
     for (int i = 0; i < 25; i++) {
+        nonlin_fun_p0[i].ResizeTo(64);
+        nonlin_fun_p1[i].ResizeTo(64);
+        nonlin_fun_p2[i].ResizeTo(64);
         for (int j = 0; j < 64; j++) {
             nonlin_curve[i][j] = new TH1F(
                     Form("nonlin_curve_%02d_%02d", i + 1, j),
                     Form("nonlin_curve_%02d_%02d", i + 1, j),
                     nbins_x, 0, 4096);
+            nonlin_fun[i][j] = new TF1(
+                    Form("nonlin_fun_%02d_%02d", i + 1, j),
+                    "[0] * (1 + [1] * x) * (1 + TMath::Erf(x / [2])) / 2",
+                    50, 3000);
+            nonlin_fun[i][j]->SetParameters(250, 2.5E-5, 300);
+            nonlin_fun[i][j]->SetParLimits(0, 10, 500);
+            nonlin_fun[i][j]->SetParLimits(1, 0, 0.01);
+            nonlin_fun[i][j]->SetParLimits(2, 10, 1000);
             for (int k = 1; k <= nbins_x; k++) {
                 tri_stat = 0;
                 // read counts
@@ -169,7 +185,12 @@ int main(int argc, char** argv) {
                 nonlin_curve[i][j]->SetBinContent(k, cutoff_pos);
                 nonlin_curve[i][j]->SetBinError(k, cutoff_err);
             }
-
+            nonlin_curve[i][j]->Fit(nonlin_fun[i][j], "RQ");
+            nonlin_curve[i][j]->Fit(nonlin_fun[i][j], "RQ");
+            nonlin_curve[i][j]->Fit(nonlin_fun[i][j], "RQ");
+            nonlin_fun_p0[i](j) = nonlin_fun[i][j]->GetParameter(0);
+            nonlin_fun_p1[i](j) = nonlin_fun[i][j]->GetParameter(1);
+            nonlin_fun_p2[i](j) = nonlin_fun[i][j]->GetParameter(2);
         }
     }
 
@@ -194,6 +215,9 @@ int main(int argc, char** argv) {
             nonlin_curve[i][j]->Draw("same HE");
         }
         canvas_non_lin[i]->Write();
+        nonlin_fun_p0[i].Write(Form("nonlin_fun_p0_%02d", i + 1));
+        nonlin_fun_p1[i].Write(Form("nonlin_fun_p1_%02d", i + 1));
+        nonlin_fun_p2[i].Write(Form("nonlin_fun_p2_%02d", i + 1));
         output_file->mkdir(Form("non_linearity_%02d", i + 1))->cd();
         for (int j = 0; j < 64; j++) {
             max_ADC_spec_tri[i][j]->Write();
