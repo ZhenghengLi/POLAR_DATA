@@ -121,15 +121,18 @@ int main(int argc, char** argv) {
     h_spec_all->SetDirectory(NULL);
     int tri_stat = 0;
     TF1* f_ratio = new TF1("f_ratio", "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", 0, max_adc_y);
-    TGraphErrors* nonlin_curve[25][64];
+    TH1F* nonlin_curve[25][64];
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
-            nonlin_curve[i][j] = new TGraphErrors();
-            nonlin_curve[i][j]->SetName(Form("nonlin_curve_%02d_%02d", i + 1, j));
-            nonlin_curve[i][j]->SetTitle(Form("nonlin_curve_%02d_%02d", i + 1, j));
+            nonlin_curve[i][j] = new TH1F(
+                    Form("nonlin_curve_%02d_%02d", i + 1, j),
+                    Form("nonlin_curve_%02d_%02d", i + 1, j),
+                    nbins_x, 0, 4096);
             for (int k = 1; k <= nbins_x; k++) {
                 tri_stat = 0;
                 // read counts
+                h_spec_tri->Reset("M");
+                h_spec_all->Reset("M");
                 for (int n = 1; n <= nbins_y; n++) {
                     int binc_tri = max_ADC_spec_tri[i][j]->GetBinContent(k, n);
                     int binc_all = max_ADC_spec_all[i][j]->GetBinContent(k, n);
@@ -163,9 +166,8 @@ int main(int argc, char** argv) {
                 h_spec_tri->Fit(f_ratio, "RQ");
                 double cutoff_pos = f_ratio->GetParameter(0);
                 double cutoff_err = f_ratio->GetParError(0);
-                double maxADC = (k - 0.5) * bin_size_x;
-                nonlin_curve[i][j]->SetPoint(k, maxADC, cutoff_pos);
-                nonlin_curve[i][j]->SetPointError(k, 0.5 * bin_size_x, cutoff_err);
+                nonlin_curve[i][j]->SetBinContent(k, cutoff_pos);
+                nonlin_curve[i][j]->SetBinError(k, cutoff_err);
             }
 
         }
@@ -188,8 +190,8 @@ int main(int argc, char** argv) {
             nonlin_curve[i][j]->SetLineColor(kBlue);
             nonlin_curve[i][j]->SetLineWidth(2);
             nonlin_curve[i][j]->SetMarkerColor(kRed);
-            nonlin_curve[i][j]->SetMarkerStyle(5);
-            nonlin_curve[i][j]->Draw("same LP");
+            nonlin_curve[i][j]->SetMarkerStyle(7);
+            nonlin_curve[i][j]->Draw("same HE");
         }
         canvas_non_lin[i]->Write();
         output_file->mkdir(Form("non_linearity_%02d", i + 1))->cd();
