@@ -122,6 +122,8 @@ int main(int argc, char** argv) {
     h_spec_all->SetDirectory(NULL);
     int tri_stat = 0;
     TF1* f_ratio = new TF1("f_ratio", "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", 0, max_adc_y);
+    f_ratio->SetParLimits(0, 10, 600);
+    f_ratio->SetParLimits(1, 1, 50);
     TH1F* nonlin_curve[25][64];
     TF1*  nonlin_fun[25][64];
     TVectorF nonlin_fun_p0[25];
@@ -136,6 +138,10 @@ int main(int argc, char** argv) {
                     Form("nonlin_curve_%02d_%02d", i + 1, j),
                     Form("nonlin_curve_%02d_%02d", i + 1, j),
                     nbins_x, 0, 4096);
+            nonlin_curve[i][j]->SetLineColor(kBlue);
+            nonlin_curve[i][j]->SetLineWidth(2);
+            nonlin_curve[i][j]->SetMarkerColor(kRed);
+            nonlin_curve[i][j]->SetMarkerStyle(5);
             nonlin_fun[i][j] = new TF1(
                     Form("nonlin_fun_%02d_%02d", i + 1, j),
                     "[0] * (1 + [1] * x) * (1 + TMath::Erf(x / [2])) / 2",
@@ -182,6 +188,8 @@ int main(int argc, char** argv) {
                 h_spec_tri->Fit(f_ratio, "RQ");
                 double cutoff_pos = f_ratio->GetParameter(0);
                 double cutoff_err = f_ratio->GetParError(0);
+                if (cutoff_err < 1) continue;
+                if (cutoff_err > 100) continue;
                 nonlin_curve[i][j]->SetBinContent(k, cutoff_pos);
                 nonlin_curve[i][j]->SetBinError(k, cutoff_err);
             }
@@ -197,6 +205,7 @@ int main(int argc, char** argv) {
 
     // save result
     TCanvas* canvas_non_lin[25];
+    TCanvas* canvas_non_lin_fitting[25];
     output_file->cd();
     for (int i = 0; i < 25; i++) {
         output_file->cd();
@@ -208,13 +217,18 @@ int main(int argc, char** argv) {
             canvas_non_lin[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
             canvas_non_lin[i]->GetPad(jtoc(j))->SetLogz();
             max_ADC_spec_tri[i][j]->Draw("colz");
-            nonlin_curve[i][j]->SetLineColor(kBlue);
-            nonlin_curve[i][j]->SetLineWidth(2);
-            nonlin_curve[i][j]->SetMarkerColor(kRed);
-            nonlin_curve[i][j]->SetMarkerStyle(7);
             nonlin_curve[i][j]->Draw("same HE");
         }
+        canvas_non_lin_fitting[i] = new TCanvas(Form("canvas_non_lin_fitting_%02d", i + 1), Form("canvas_non_lin_fitting_%02d", i + 1), 1800, 1500);
+        canvas_non_lin_fitting[i]->Divide(8, 8);
+        canvas_non_lin_fitting[i]->SetFillColor(kYellow);
+        for (int j = 0; j < 64; j++) {
+            canvas_non_lin_fitting[i]->cd(jtoc(j));
+            canvas_non_lin_fitting[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
+            nonlin_curve[i][j]->Draw("HE");
+        }
         canvas_non_lin[i]->Write();
+        canvas_non_lin_fitting[i]->Write();
         nonlin_fun_p0[i].Write(Form("nonlin_fun_p0_%02d", i + 1));
         nonlin_fun_p1[i].Write(Form("nonlin_fun_p1_%02d", i + 1));
         nonlin_fun_p2[i].Write(Form("nonlin_fun_p2_%02d", i + 1));
