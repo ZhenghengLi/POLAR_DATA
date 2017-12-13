@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     const int bin_size_x = 64;
     const int max_adc_x = 4096;
     const int bin_size_y = 4;
-    const int max_adc_y = 768;
+    const int max_adc_y = 4096;
 
     int nbins_x = max_adc_x / bin_size_x;
     int nbins_y = max_adc_y / bin_size_y;
@@ -122,8 +122,8 @@ int main(int argc, char** argv) {
     h_spec_all->SetDirectory(NULL);
     int tri_stat = 0;
     TF1* f_ratio = new TF1("f_ratio", "(TMath::Erf((x - [0]) / TMath::Sqrt(2) / [1]) + 1.0) / 2.0", 0, max_adc_y);
-    f_ratio->SetParLimits(0, 10, 600);
-    f_ratio->SetParLimits(1, 1, 50);
+    f_ratio->SetParLimits(0, 10, 3000);
+    f_ratio->SetParLimits(1, 1, 100);
     TH1F* nonlin_curve[25][64];
     TF1*  nonlin_fun[25][64];
     TVectorF nonlin_fun_p0[25];
@@ -145,11 +145,11 @@ int main(int argc, char** argv) {
             nonlin_fun[i][j] = new TF1(
                     Form("nonlin_fun_%02d_%02d", i + 1, j),
                     "[0] * (1 + [1] * x) * (1 + TMath::Erf(x / [2])) / 2",
-                    50, 3000);
-            nonlin_fun[i][j]->SetParameters(250, 2.5E-5, 300);
-            nonlin_fun[i][j]->SetParLimits(0, 10, 500);
-            nonlin_fun[i][j]->SetParLimits(1, 0, 0.01);
-            nonlin_fun[i][j]->SetParLimits(2, 10, 1000);
+                    50, 4000);
+            nonlin_fun[i][j]->SetParameters(300, 2.5E-5, 400);
+            nonlin_fun[i][j]->SetParLimits(0, 10, 3000);
+            nonlin_fun[i][j]->SetParLimits(1, 0, 0.1);
+            nonlin_fun[i][j]->SetParLimits(2, 10, 2000);
             for (int k = 1; k <= nbins_x; k++) {
                 tri_stat = 0;
                 // read counts
@@ -215,7 +215,7 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 64; j++) {
             canvas_non_lin[i]->cd(jtoc(j));
             canvas_non_lin[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
-            canvas_non_lin[i]->GetPad(jtoc(j))->SetLogz();
+            // canvas_non_lin[i]->GetPad(jtoc(j))->SetLogz();
             max_ADC_spec_tri[i][j]->Draw("colz");
             nonlin_curve[i][j]->Draw("same HE");
         }
