@@ -115,13 +115,13 @@ int main(int argc, char** argv) {
             meta->Write();
         } else if (string(key->GetName()) == "m_level_num") {
             meta = static_cast<TNamed*>(key->ReadObj());
+            meta->SetTitle("2");
             meta->Write();
         } else {
             meta = static_cast<TNamed*>(key->ReadObj());
             meta->Write();
         }
     }
-    TNamed("m_lin_flag", "true").Write();
 
     // close output file
     pol_event_file_lin->Close();

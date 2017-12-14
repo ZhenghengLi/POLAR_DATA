@@ -42,8 +42,8 @@ int main(int argc, char** argv) {
     }
     TNamed* m_level_num = static_cast<TNamed*>(pol_event_file->Get("m_level_num"));
     if (m_level_num != NULL) {
-        if (TString(m_level_num->GetTitle()).Atoi() != 2) {
-            cout << "m_level_num is not 2, need to do pedestal & common noise subtraction and crosstalk correction." << endl;
+        if (TString(m_level_num->GetTitle()).Atoi() < 3) {
+            cout << "m_level_num is less than 3, need to do pedestal & common noise subtraction, nonlinearity correction and crosstalk correction." << endl;
             return 1;
         }
     }
@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
             meta->Write();
         } else if (string(key->GetName()) == "m_level_num") {
             meta = static_cast<TNamed*>(key->ReadObj());
-            meta->SetTitle("3");
+            meta->SetTitle("4");
             meta->Write();
         } else {
             meta = static_cast<TNamed*>(key->ReadObj());

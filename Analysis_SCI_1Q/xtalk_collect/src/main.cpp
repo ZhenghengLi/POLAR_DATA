@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
     }
     TNamed* m_level_num = static_cast<TNamed*>(pol_event_file->Get("m_level_num"));
     if (m_level_num != NULL) {
-        if (TString(m_level_num->GetTitle()).Atoi() != 1) {
-            cout << "m_level_num is not 1." << endl;
+        if (TString(m_level_num->GetTitle()).Atoi() < 2) {
+            cout << "m_level_num is less than 2." << endl;
             return 1;
         }
     }
