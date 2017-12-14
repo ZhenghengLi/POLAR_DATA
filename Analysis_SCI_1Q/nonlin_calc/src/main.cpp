@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
             nonlin_fun[i][j] = new TF1(
                     Form("nonlin_fun_%02d_%02d", i + 1, j),
                     "[0] * (1 + [1] * x) * (1 + TMath::Erf(x / [2])) / 2",
-                    50, 4000);
+                    50, 3200);
             nonlin_fun[i][j]->SetParameters(300, 2.5E-5, 400);
             nonlin_fun[i][j]->SetParLimits(0, 10, 3000);
             nonlin_fun[i][j]->SetParLimits(1, 0, 0.1);
