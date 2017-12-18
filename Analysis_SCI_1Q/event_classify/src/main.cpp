@@ -187,6 +187,7 @@ int main(int argc, char** argv) {
     // write TTree
     output_file->cd();
     t_event_type_tree->Write();
+    TNamed("m_toolow_cut", Form("%f", options_mgr.cut_value));
 
 
     output_file->Close();
