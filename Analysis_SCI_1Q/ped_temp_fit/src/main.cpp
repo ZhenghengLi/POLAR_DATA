@@ -292,38 +292,38 @@ int main(int argc, char** argv) {
     double   common_noise_slope;
     for (int j = 0; j < 64; j++) {
         ped_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
-        double min_ped = ped_temp_gr[j]->Eval(min_temp);
-        double max_ped = ped_temp_gr[j]->Eval(max_temp);
-        ped_temp_ln[j]->SetParameter(0, get_b(min_temp, min_ped, max_temp, max_ped));
-        ped_temp_ln[j]->SetParameter(1, get_k(min_temp, min_ped, max_temp, max_ped));
+        double min_ped = ped_temp_gr[j]->Eval(min_temp + 0.5);
+        double max_ped = ped_temp_gr[j]->Eval(max_temp - 0.5);
+        ped_temp_ln[j]->SetParameter(0, get_b(min_temp + 0.5, min_ped, max_temp - 0.5, max_ped));
+        ped_temp_ln[j]->SetParameter(1, get_k(min_temp + 0.5, min_ped, max_temp - 0.5, max_ped));
         ped_temp_gr[j]->Fit(ped_temp_ln[j], "RQ");
         ped_const(j) = ped_temp_ln[j]->GetParameter(0);
         ped_slope(j) = ped_temp_ln[j]->GetParameter(1);
 
         total_noise_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
-        double min_total_noise = total_noise_temp_gr[j]->Eval(min_temp);
-        double max_total_noise = total_noise_temp_gr[j]->Eval(max_temp);
-        total_noise_temp_ln[j]->SetParameter(0, get_b(min_temp, min_total_noise, max_temp, max_total_noise));
-        total_noise_temp_ln[j]->SetParameter(1, get_k(min_temp, min_total_noise, max_temp, max_total_noise));
+        double min_total_noise = total_noise_temp_gr[j]->Eval(min_temp + 0.5);
+        double max_total_noise = total_noise_temp_gr[j]->Eval(max_temp - 0.5);
+        total_noise_temp_ln[j]->SetParameter(0, get_b(min_temp + 0.5, min_total_noise, max_temp - 0.5, max_total_noise));
+        total_noise_temp_ln[j]->SetParameter(1, get_k(min_temp + 0.5, min_total_noise, max_temp - 0.5, max_total_noise));
         total_noise_temp_gr[j]->Fit(total_noise_temp_ln[j], "RQ");
         total_noise_const(j) = total_noise_temp_ln[j]->GetParameter(0);
         total_noise_slope(j) = total_noise_temp_ln[j]->GetParameter(1);
 
         intrinsic_noise_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
-        double min_intrinsic_noise = intrinsic_noise_temp_gr[j]->Eval(min_temp);
-        double max_intrinsic_noise = intrinsic_noise_temp_gr[j]->Eval(max_temp);
-        intrinsic_noise_temp_ln[j]->SetParameter(0, get_b(min_temp, min_intrinsic_noise, max_temp, max_intrinsic_noise));
-        intrinsic_noise_temp_ln[j]->SetParameter(1, get_k(min_temp, min_intrinsic_noise, max_temp, max_intrinsic_noise));
+        double min_intrinsic_noise = intrinsic_noise_temp_gr[j]->Eval(min_temp + 0.5);
+        double max_intrinsic_noise = intrinsic_noise_temp_gr[j]->Eval(max_temp - 0.5);
+        intrinsic_noise_temp_ln[j]->SetParameter(0, get_b(min_temp + 0.5, min_intrinsic_noise, max_temp - 0.5, max_intrinsic_noise));
+        intrinsic_noise_temp_ln[j]->SetParameter(1, get_k(min_temp + 0.5, min_intrinsic_noise, max_temp - 0.5, max_intrinsic_noise));
         intrinsic_noise_temp_gr[j]->Fit(intrinsic_noise_temp_ln[j], "RQ");
         intrinsic_noise_const(j) = intrinsic_noise_temp_ln[j]->GetParameter(0);
         intrinsic_noise_slope(j) = intrinsic_noise_temp_ln[j]->GetParameter(1);
 
     }
     common_noise_temp_ln->SetRange(min_temp - 0.5, max_temp + 0.5);
-    double min_common_noise = common_noise_temp_gr->Eval(min_temp);
-    double max_common_noise = common_noise_temp_gr->Eval(max_temp);
-    common_noise_temp_ln->SetParameter(0, get_b(min_temp, min_common_noise, max_temp, max_common_noise));
-    common_noise_temp_ln->SetParameter(1, get_k(min_temp, min_common_noise, max_temp, max_common_noise));
+    double min_common_noise = common_noise_temp_gr->Eval(min_temp + 0.5);
+    double max_common_noise = common_noise_temp_gr->Eval(max_temp - 0.5);
+    common_noise_temp_ln->SetParameter(0, get_b(min_temp + 0.5, min_common_noise, max_temp - 0.5, max_common_noise));
+    common_noise_temp_ln->SetParameter(1, get_k(min_temp + 0.5, min_common_noise, max_temp - 0.5, max_common_noise));
     common_noise_temp_gr->Fit(common_noise_temp_ln, "RQ");
     common_noise_const = common_noise_temp_ln->GetParameter(0);
     common_noise_slope = common_noise_temp_ln->GetParameter(1);
