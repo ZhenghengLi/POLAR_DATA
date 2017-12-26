@@ -7,6 +7,7 @@ using namespace std;
 bool read_ped_temp(const char* filename,
         int& ct_num,
         TVectorF& ped_mean_vec,
+        TVectorF& ped_mean_err,
         float& temp_mean) {
 
     TFile* ped_res_file = new TFile(filename, "read");
@@ -40,6 +41,18 @@ bool read_ped_temp(const char* filename,
         return false;
     } else {
         ped_mean_vec = *tmp_vec;
+    }
+
+    // ped_mean_err
+    tmp_vec = static_cast<TVectorF*>(ped_res_file->Get("ped_mean_err"));
+    if (tmp_vec == NULL) {
+        cout << "cannot find TVectorF ped_mean_err" << endl;
+        ped_res_file->Close();
+        delete ped_res_file;
+        ped_res_file = NULL;
+        return false;
+    } else {
+        ped_mean_err = *tmp_vec;
     }
 
     // temp_mean
@@ -78,10 +91,10 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    TGraph* ped_temp_gr[64];
+    TGraphErrors* ped_temp_gr[64];
     TF1*    ped_temp_ln[64];
     for (int j = 0; j < 64; j++) {
-        ped_temp_gr[j] = new TGraph();
+        ped_temp_gr[j] = new TGraphErrors();
         ped_temp_gr[j]->SetName(Form("ped_temp_bar_%02d", j));
         ped_temp_gr[j]->SetTitle(Form("ped_temp_bar_%02d", j));
         ped_temp_ln[j] = new TF1(Form("ped_temp_lin_%02d", j), "[0] + [1] * x", 0, 100);
@@ -90,6 +103,7 @@ int main(int argc, char** argv) {
 
     int ct_num;
     TVectorF ped_mean_vec(64);
+    TVectorF ped_mean_err(64);
     float temp_mean;
 
     int g_ct_num = -1;
@@ -100,6 +114,7 @@ int main(int argc, char** argv) {
         if (read_ped_temp(argv[i],
                     ct_num,
                     ped_mean_vec,
+                    ped_mean_err,
                     temp_mean)) {
             cout << Form("ped_result of CT_%02d is read from file: ", ct_num) << argv[i] << endl;
             if (g_ct_num < 0) {
@@ -118,6 +133,7 @@ int main(int argc, char** argv) {
             }
             for (int j = 0; j < 64; j++) {
                 ped_temp_gr[j]->SetPoint(i - 2, temp_mean, ped_mean_vec(j));
+                ped_temp_gr[j]->SetPointError(i - 2, 0.5, ped_mean_err(j));
             }
         } else {
             return 1;
