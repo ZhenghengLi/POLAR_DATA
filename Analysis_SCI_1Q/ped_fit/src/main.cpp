@@ -71,9 +71,13 @@ int main(int argc, char** argv) {
         ped_shift_hist[j]->SetDirectory(ped_result_file);
     }
     TVectorF ped_mean_vec(64);
+    TVectorF ped_mean_err(64);
     TVectorF ped_sigma_vec(64);
+    TVectorF ped_sigma_err(64);
     TVectorF ped_shift_mean_vec(64);
+    TVectorF ped_shift_mean_err(64);
     TVectorF ped_shift_sigma_vec(64);
+    TVectorF ped_shift_sigma_err(64);
 
     // reading and selecting data
     int pre_percent = 0;
@@ -105,8 +109,8 @@ int main(int argc, char** argv) {
     gStyle->SetOptStat(0);
 
     cout << "Fitting pedestal ..." << endl;
-    double ped_mean_0[64], ped_mean[64];
-    double ped_sigma_0[64], ped_sigma[64];
+    double ped_mean_0[64], ped_mean[64], ped_mean_e[64];
+    double ped_sigma_0[64], ped_sigma[64], ped_sigma_e[64];
     TF1* ped_gaus[64];
     for (int j = 0; j < 64; j++) {
         ped_gaus[j] = new TF1(Form("ped_gaus_%02d_%02d", options_mgr.ct_num, j + 1), "gaus(0)", 0, PED_MAX);
@@ -133,17 +137,23 @@ int main(int argc, char** argv) {
         ped_hist[j]->Fit(ped_gaus[j], "RQ");
         ped_hist[j]->Fit(ped_gaus[j], "RQ");
         ped_mean[j]  = ped_gaus[j]->GetParameter(1);
+        ped_mean_e[j] = ped_gaus[j]->GetParError(1);
         ped_sigma[j] = abs(ped_gaus[j]->GetParameter(2));
+        ped_sigma_e[j] = abs(ped_gaus[j]->GetParError(2));
         if (ped_mean[j] < 0 || ped_mean[j] > PED_MAX) {
             cout << "- WARNING: ped_mean of CH " << options_mgr.ct_num << "_" << j + 1
                  << " is out of range, use the arithmetic mean instead." << endl;
             ped_mean[j]  = ped_mean_0[j];
+            ped_mean_e[j] = 0;
             ped_sigma[j] = ped_sigma_0[j];
+            ped_sigma_e[j] = 0;
         } else if (ped_sigma[j] / ped_sigma_0[j] > 2.0) {
             cout << "- WARNING: ped_sigma of CH " << options_mgr.ct_num << "_" << j + 1
                  << " is too large, use the arithmetic mean instead." << endl;
             ped_mean[j]  = ped_mean_0[j];
+            ped_mean_e[j] = 0;
             ped_sigma[j] = ped_sigma_0[j];
+            ped_sigma_e[j] = 0;
         }
     }
 
@@ -188,8 +198,8 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
     // refit
     cout << "Refitting after common noise subtracted ..." << endl;
-    double ped_shift_mean_0[64], ped_shift_mean[64];
-    double ped_shift_sigma_0[64], ped_shift_sigma[64];
+    double ped_shift_mean_0[64], ped_shift_mean[64], ped_shift_mean_e[64];
+    double ped_shift_sigma_0[64], ped_shift_sigma[64], ped_shift_sigma_e[64];
     TF1* ped_shift_gaus[64];
     for (int j = 0; j < 64; j++) {
         ped_shift_gaus[j] = new TF1(Form("ped_shift_gaus_%02d_%02d", options_mgr.ct_num, j + 1), "gaus(0)", -64, 64);
@@ -215,7 +225,9 @@ int main(int argc, char** argv) {
         ped_shift_hist[j]->Fit(ped_shift_gaus[j], "RQ");
         ped_shift_hist[j]->Fit(ped_shift_gaus[j], "RQ");
         ped_shift_mean[j]  = ped_shift_gaus[j]->GetParameter(1);
+        ped_shift_mean_e[j] = ped_shift_gaus[j]->GetParError(1);
         ped_shift_sigma[j] = abs(ped_shift_gaus[j]->GetParameter(2));
+        ped_shift_sigma_e[j] = abs(ped_shift_gaus[j]->GetParError(2));
         if (ped_shift_mean[j] < -128 || ped_shift_mean[j] > 128) {
             cout << "- WARNING: ped_shift_mean of CH " << options_mgr.ct_num << "_" << j + 1
                  << " is out of range, use the arithmetic mean instead." << endl;
@@ -230,8 +242,8 @@ int main(int argc, char** argv) {
     }
     // fit common noise
     cout << "Fitting common noise ..." << endl;
-    double common_noise_mean_0, common_noise_mean;
-    double common_noise_sigma_0, common_noise_sigma;
+    double common_noise_mean_0, common_noise_mean, common_noise_mean_e;
+    double common_noise_sigma_0, common_noise_sigma, common_noise_sigma_e;
     TF1* common_noise_gaus;
     common_noise_gaus = new TF1(Form("common_noise_gaus_%02d", options_mgr.ct_num), "gaus(0)", -64, 64);
     common_noise_gaus->SetParameters(1, 0, 40);
@@ -244,7 +256,9 @@ int main(int argc, char** argv) {
         cout << "- WARNING: entries of CT " << options_mgr.ct_num
              << "is too small, use the arithmetic mean and sigma instead." << endl;
         common_noise_mean = common_noise_mean_0;
+        common_noise_mean_e = 0;
         common_noise_sigma = common_noise_sigma_0;
+        common_noise_sigma_e = 0;
     } else {
         common_noise_gaus->SetParameter(1, common_noise_mean_0);
         common_noise_gaus->SetParameter(2, common_noise_sigma_0 / 2);
@@ -253,17 +267,23 @@ int main(int argc, char** argv) {
         common_noise_hist->Fit(common_noise_gaus, "RQ");
         common_noise_hist->Fit(common_noise_gaus, "RQ");
         common_noise_mean  = common_noise_gaus->GetParameter(1);
+        common_noise_mean_e = common_noise_gaus->GetParError(1);
         common_noise_sigma = abs(common_noise_gaus->GetParameter(2));
+        common_noise_sigma_e = abs(common_noise_gaus->GetParError(2));
         if (common_noise_mean < -128 || common_noise_mean > 128) {
             cout << "- WARNING: common_noise_mean of CT " << options_mgr.ct_num
                  << " is out of range, use the arithmetic mean instead." << endl;
             common_noise_mean  = common_noise_mean_0;
+            common_noise_mean_e = 0;
             common_noise_sigma = common_noise_sigma_0;
+            common_noise_sigma_e = 0;
         } else if (common_noise_sigma / common_noise_sigma_0 > 2.0) {
             cout << "- WARNING: common_noise_sigma of CT " << options_mgr.ct_num
                  << " is too large, use the arithmetic mean instead." << endl;
             common_noise_mean  = common_noise_mean_0;
+            common_noise_mean_e = 0;
             common_noise_sigma = common_noise_sigma_0;
+            common_noise_sigma_e = 0;
         }
     }
 
@@ -288,15 +308,26 @@ int main(int argc, char** argv) {
     common_noise_hist->Write();
     for (int j = 0; j < 64; j++) {
         ped_mean_vec(j) = ped_mean[j];
+        ped_mean_err(j) = ped_mean_e[j];
         ped_sigma_vec(j) = ped_sigma[j];
+        ped_sigma_err(j) = ped_sigma_e[j];
         ped_shift_mean_vec(j) = ped_shift_mean[j];
+        ped_shift_mean_err(j) = ped_shift_mean_e[j];
         ped_shift_sigma_vec(j) = ped_shift_sigma[j];
+        ped_shift_sigma_err(j) = ped_shift_sigma_e[j];
     }
     ped_mean_vec.Write("ped_mean_vec");
+    ped_mean_err.Write("ped_mean_err");
     ped_sigma_vec.Write("ped_sigma_vec");
+    ped_sigma_err.Write("ped_sigma_err");
     ped_shift_mean_vec.Write("ped_shift_mean_vec");
+    ped_shift_mean_err.Write("ped_shift_mean_err");
     ped_shift_sigma_vec.Write("ped_shift_sigma_vec");
+    ped_shift_sigma_err.Write("ped_shift_sigma_err");
     TNamed("common_noise", Form("%f", common_noise_sigma)).Write();
+    TNamed("common_noise_err", Form("%f", common_noise_sigma_e)).Write();
+    TNamed("common_mean", Form("%f", common_noise_mean)).Write();
+    TNamed("common_mean_err", Form("%f", common_noise_mean_e)).Write();
     TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
     TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
 
