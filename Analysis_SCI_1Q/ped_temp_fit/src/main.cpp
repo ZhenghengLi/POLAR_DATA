@@ -290,6 +290,7 @@ int main(int argc, char** argv) {
     TVectorF intrinsic_noise_slope(64);
     double   common_noise_const;
     double   common_noise_slope;
+    double   common_noise_slope_err;
     for (int j = 0; j < 64; j++) {
         ped_temp_ln[j]->SetRange(min_temp - 0.5, max_temp + 0.5);
         double min_ped = ped_temp_gr[j]->Eval(min_temp + 0.5);
@@ -327,6 +328,7 @@ int main(int argc, char** argv) {
     common_noise_temp_gr->Fit(common_noise_temp_ln, "RQ");
     common_noise_const = common_noise_temp_ln->GetParameter(0);
     common_noise_slope = common_noise_temp_ln->GetParameter(1);
+    common_noise_slope_err = common_noise_temp_ln->GetParError(1);
 
     TCanvas* canvas_ped_temp = new TCanvas("canvas_ped_temp", "Pedestal vs Temperature", 900, 900);
     canvas_ped_temp->Divide(8, 8);
@@ -367,6 +369,7 @@ int main(int argc, char** argv) {
     intrinsic_noise_slope.Write("intrinsic_noise_slope");
     TNamed("common_noise_const", Form("%f", common_noise_const)).Write();
     TNamed("common_noise_slope", Form("%f", common_noise_slope)).Write();
+    TNamed("common_noise_slope_err", Form("%f", common_noise_slope_err)).Write();
 
     return 0;
 }

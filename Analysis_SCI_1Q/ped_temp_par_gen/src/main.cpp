@@ -12,7 +12,8 @@ bool read_ped_temp_par(const char* filename,
         TVectorF& intrinsic_noise_const,
         TVectorF& intrinsic_noise_slope,
         double& common_noise_const,
-        double& common_noise_slope) {
+        double& common_noise_slope,
+        double& common_noise_slope_err) {
 
     TFile* ped_res_file = new TFile(filename, "read");
     if (ped_res_file->IsZombie()) {
@@ -57,6 +58,18 @@ bool read_ped_temp_par(const char* filename,
         return false;
     } else {
         common_noise_slope = TString(tmp_tnamed->GetTitle()).Atof();
+    }
+
+    // common_noise_slope_err
+    tmp_tnamed = static_cast<TNamed*>(ped_res_file->Get("common_noise_slope_err"));
+    if (tmp_tnamed == NULL) {
+        cout << "cannot find TNamed common_noise_slope_err" << endl;
+        ped_res_file->Close();
+        delete ped_res_file;
+        ped_res_file = NULL;
+        return false;
+    } else {
+        common_noise_slope_err = TString(tmp_tnamed->GetTitle()).Atof();
     }
 
     // ped_const
@@ -150,6 +163,7 @@ int main(int argc, char** argv) {
     TVectorF intrinsic_noise_slope_vec_ct[25];
     TVectorF common_noise_const_vec(25);
     TVectorF common_noise_slope_vec(25);
+    TVectorF common_noise_slope_err(25);
     bool read_flag[25];
     for (int i = 0; i < 25; i++) {
         ped_const_vec_ct[i].ResizeTo(64);
@@ -169,6 +183,7 @@ int main(int argc, char** argv) {
     TVectorF intrinsic_noise_slope_vec(64);
     double common_noise_const;
     double common_noise_slope;
+    double common_noise_slope_e;
     for (int i = 2; i < argc; i++) {
         if (read_ped_temp_par(argv[i],
                     ct_num,
@@ -179,7 +194,8 @@ int main(int argc, char** argv) {
                     intrinsic_noise_const_vec,
                     intrinsic_noise_slope_vec,
                     common_noise_const,
-                    common_noise_slope)) {
+                    common_noise_slope,
+                    common_noise_slope_e)) {
             cout << Form("ped_temp_par of CT_%02d is read from file: ", ct_num) << argv[i] << endl;
             int idx = ct_num - 1;
             ped_const_vec_ct[idx] = ped_const_vec;
@@ -190,6 +206,7 @@ int main(int argc, char** argv) {
             intrinsic_noise_slope_vec_ct[idx] = intrinsic_noise_slope_vec;
             common_noise_const_vec[idx] = common_noise_const;
             common_noise_slope_vec[idx] = common_noise_slope;
+            common_noise_slope_err[idx] = common_noise_slope_e;
             read_flag[idx] = true;
         } else {
             return 1;
@@ -220,6 +237,7 @@ int main(int argc, char** argv) {
     }
     common_noise_const_vec.Write("common_noise_const_vec");
     common_noise_slope_vec.Write("common_noise_slope_vec");
+    common_noise_slope_err.Write("common_noise_slope_err");
     ped_temp_par_file->Close();
     delete ped_temp_par_file;
     ped_temp_par_file = NULL;
