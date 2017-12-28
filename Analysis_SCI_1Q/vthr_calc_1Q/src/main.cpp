@@ -109,13 +109,15 @@ int main(int argc, char** argv) {
                 }
             }
             if (!t_pol_event.trigger_bit[i][cur_max_j]) continue;
-            if (cur_max_ADC < 1000) continue;
+            // if (cur_max_ADC < 1000) continue;
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
                 if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
                 all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                // all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
                     tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                    // tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
                     if (j != cur_max_j) {
                         max_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j], cur_max_ADC);
                     }
