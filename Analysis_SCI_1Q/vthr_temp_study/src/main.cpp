@@ -169,9 +169,9 @@ int main(int argc, char** argv) {
                 if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
                 if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
 
-                all_spec[i][j][k]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                all_spec[i][j][k]->Fill(t_pol_event.energy_value[i][j]);
                 if (t_pol_event.trigger_bit[i][j]) {
-                    tri_spec[i][j][k]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                    tri_spec[i][j][k]->Fill(t_pol_event.energy_value[i][j]);
                 }
             }
         }
@@ -210,10 +210,12 @@ int main(int argc, char** argv) {
                 // generate tri_eff
                 for (int m = 1; m <= tri_eff[i][j][k]->GetNbinsX(); m++) {
                     double tri_val = tri_spec[i][j][k]->GetBinContent(m);
+                    double tri_err = tri_spec[i][j][k]->GetBinError(m);
                     double all_val = all_spec[i][j][k]->GetBinContent(m);
                     double bin_content = tri_val / all_val;
-                    double err_pow2 = 1.0 / tri_val + 1.0 / all_val - 2.0 / TMath::Sqrt(tri_val * all_val);
-                    double bin_error = bin_content * TMath::Sqrt(err_pow2);
+                    double bin_error   = tri_err / all_val;
+                    // double err_pow2 = 1.0 / tri_val + 1.0 / all_val - 2.0 / TMath::Sqrt(tri_val * all_val);
+                    // double bin_error = bin_content * TMath::Sqrt(err_pow2);
                     if (tri_eff[i][j][k]->GetBinCenter(m) > 0 && bin_content > 0) {
                         tri_eff[i][j][k]->SetBinContent(m, bin_content);
                         tri_eff[i][j][k]->SetBinError(m, bin_error);
