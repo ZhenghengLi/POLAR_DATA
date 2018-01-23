@@ -14,10 +14,20 @@ private:
 
 public:
     TString pol_event_filename;
-    TString deadtime_filename;      // -d
     TString output_filename;        // -o
-    TString bar_mask_filename;      // -k
-    bool    no_deadtime;
+
+    // pedestal
+    TString ped_vector_filename;    // -p
+    TString ped_temp_par_filename;  // -P
+    bool    ped_temp_flag;
+    // nonlinearity
+    TString nonlin_fun_filename;    // -f
+    // crosstalk
+    TString xtalk_matrix_filename;  // -x
+    // gain
+    TString gain_vec_filename;      // -g
+    TString gain_vs_hv_filename;    // -G
+    bool    gain_hv_flag;
 
 public:
     OptionsManager();
