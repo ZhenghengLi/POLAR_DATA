@@ -209,15 +209,17 @@ int main(int argc, char** argv) {
                 }
                 cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
             }
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
+                    t_pol_event.energy_value[i][j] -= t_pol_event.common_noise[i];
+                }
+            }
             if (t_pol_event.compress[i] != 1) {
                 t_pol_event.common_noise[i] = cur_common_noise;
             }
             for (int j = 0; j < 64; j++) {
-                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
-                    t_pol_event.energy_value[i][j] -= cur_common_noise / 2.0;
-                } else {
-                    t_pol_event.energy_value[i][j] -= cur_common_noise;
-                }
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
+                t_pol_event.energy_value[i][j] -= cur_common_noise;
             }
         }
 
