@@ -11,9 +11,9 @@ DEST_BIN := $(shell cd ../bin; pwd)
 
 .PRECIOUS: src/%_Dict.cpp
 
-all: $(DEST_BIN)/nonlin_calc
+all: $(DEST_BIN)/nonlin_calc_save_fitting
 
-$(DEST_BIN)/nonlin_calc: obj/main.o obj/OptionsManager.o \
+$(DEST_BIN)/nonlin_calc_save_fitting: obj/main.o obj/OptionsManager.o \
 	$(MY_LIB)/obj/POLEvent.o
 	$(CC) $(LINK_FLAGS) $(BOOST_LIB) -o $@ $^ $(ROOT_LIBS)
 
