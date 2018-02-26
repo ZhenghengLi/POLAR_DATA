@@ -156,14 +156,18 @@ int main(int argc, char** argv) {
                 h_spec_tri->Reset("M");
                 h_spec_all->Reset("M");
                 for (int n = 1; n <= nbins_y; n++) {
-                    int binc_tri = max_ADC_spec_tri[i][j]->GetBinContent(k, n);
-                    int binc_all = max_ADC_spec_all[i][j]->GetBinContent(k, n);
+                    double binc_tri = max_ADC_spec_tri[i][j]->GetBinContent(k, n);
+                    if (binc_tri < 1) continue;
+                    double bine_tri = max_ADC_spec_tri[i][j]->GetBinError(k, n);
+                    double binc_all = max_ADC_spec_all[i][j]->GetBinContent(k, n);
+                    if (binc_all < 1) continue;
                     tri_stat += binc_tri;
-                    h_spec_tri->SetBinContent(n, binc_tri);
-                    h_spec_all->SetBinContent(n, binc_all);
+                    h_spec_tri->SetBinContent(n, binc_tri / binc_all);
+                    h_spec_tri->SetBinError(  n, bine_tri / binc_all);
+                    //h_spec_all->SetBinContent(n, binc_all);
                 }
                 if (tri_stat < 30) continue;
-                h_spec_tri->Divide(h_spec_all);
+                // h_spec_tri->Divide(h_spec_all);
                 // find first bin with ratio 1
                 int first_bin_1 = 0;
                 for (int n = 1; n <= nbins_y; n++) {
@@ -188,8 +192,8 @@ int main(int argc, char** argv) {
                 h_spec_tri->Fit(f_ratio, "RQ");
                 double cutoff_pos = f_ratio->GetParameter(0);
                 double cutoff_err = f_ratio->GetParError(0);
-                if (cutoff_err < 1) continue;
-                if (cutoff_err > 100) continue;
+                if (cutoff_err < 0.001) continue;
+                if (cutoff_err > 10) continue;
                 nonlin_curve[i][j]->SetBinContent(k, cutoff_pos);
                 nonlin_curve[i][j]->SetBinError(k, cutoff_err);
             }
