@@ -58,6 +58,17 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 't':
+                if (idx < argc_par - 1) {
+                    gain_temp_filename = argv_par[++idx];
+                    gain_temp_flag = true;
+                    if (gain_temp_filename[0] == '-') {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -79,11 +90,12 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << " <SCI_1Q.root> [-g <gain_vec_file.root>]|[-G <gain_vs_hv_file.root>] [-o <output_energy.root>]" << endl;
+    cout << "  " << SW_NAME << " <SCI_1Q.root> [-g <gain_vec.root>]|[-G <gain_vs_hv.root>] [-t <gain_temp.root>] [-o <output_energy.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -g <gain_vec.root>               gain vector file" << endl;
     cout << "  -G <gain_vs_hv.root>             gain vs HV parameters file" << endl;
+    cout << "  -t <gain_temp.root>              gain temp slope file" << endl;
     cout << "  -o <output_energy.root>          energy reconstructed data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -108,6 +120,8 @@ void OptionsManager::init() {
     gain_vec_filename.Clear();
     gain_vs_hv_filename.Clear();
     gain_hv_flag = false;
+    gain_temp_filename.Clear();
+    gain_temp_flag = false;
     output_filename.Clear();
 
     version_flag_ = false;
