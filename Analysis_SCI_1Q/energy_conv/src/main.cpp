@@ -69,6 +69,12 @@ int main(int argc, char** argv) {
             gain_obj.gen_gain();
         }
     }
+    if (options_mgr.gain_temp_flag) {
+        if (!gain_obj.read_gain_temp(options_mgr.gain_temp_filename.Data())) {
+            cout << "gain_temp read failed: " << options_mgr.gain_temp_filename.Data() << endl;
+            return 1;
+        }
+    }
 
     // read event data
     TFile* pol_event_file = new TFile(options_mgr.pol_event_filename.Data(), "read");
@@ -116,6 +122,24 @@ int main(int argc, char** argv) {
         t_pol_event_tree->GetEntry(q);
 
         // ============ pedestal ================
+
+        // (0) correct bad temperature
+        double temp_sum = 0;
+        int    temp_n = 0;
+        double temp_mean = 0;
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.fe_temp[i] >= 1) {
+                temp_sum += t_pol_event.fe_temp[i];
+                temp_n++;
+            }
+        }
+        temp_mean = (temp_n > 0 ? temp_sum / temp_n : 0);
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.fe_temp[i] < 1) {
+                t_pol_event.fe_temp[i] = round(temp_mean);
+            }
+        }
+
         // (1) store overflow flag
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
@@ -139,16 +163,7 @@ int main(int argc, char** argv) {
             if (!t_pol_event.time_aligned[i]) continue;
             if (t_pol_event.compress[i] == 3) continue;
             if (options_mgr.ped_temp_flag) {
-                if (i == 9) {
-                    double temp_sum = 0;
-                    for (int k = 0; k < 25; k++) {
-                        if (k == 9) continue;
-                        temp_sum += t_pol_event.fe_temp[k];
-                    }
-                    ped_obj.gen_pedestal(i + 1, round(temp_sum / 24.0));
-                } else {
-                    ped_obj.gen_pedestal(i + 1, t_pol_event.fe_temp[i]);
-                }
+                ped_obj.gen_pedestal(i + 1, t_pol_event.fe_temp[i]);
             }
             for (int j = 0; j < 64; j++) {
                 if (!(t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT)) {
@@ -261,11 +276,14 @@ int main(int argc, char** argv) {
                 if (options_mgr.gain_hv_flag) {
                     gain_obj.gen_gain(i + 1, t_pol_event.fe_hv[i]);
                 }
+                if (options_mgr.gain_temp_flag) {
+                    gain_obj.gen_gain_offset(i + 1, t_pol_event.fe_temp[i]);
+                }
                 for (int j = 0; j < 64; j++) {
                     if (gain_obj.bad_calib_mat(i, j)) {
                         t_pol_event.channel_status[i][j] += POLEvent::BAD_CALIB;
                     }
-                    t_pol_event.energy_value[i][j] /= gain_obj.gain_vec_CT[i](j);
+                    t_pol_event.energy_value[i][j] /= (gain_obj.gain_vec_CT[i](j) + gain_obj.gain_temp_offset[i]);
                 }
             }
         }
