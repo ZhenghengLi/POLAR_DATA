@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
         }
     }
     if (options_mgr.gain_temp_flag) {
-        if (gain_obj.read_gain_temp(options_mgr.gain_temp_filename.Data())) {
+        if (!gain_obj.read_gain_temp(options_mgr.gain_temp_filename.Data())) {
             cout << "gain_temp read failed: " << options_mgr.gain_temp_filename.Data() << endl;
             return 1;
         }
