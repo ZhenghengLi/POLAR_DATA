@@ -136,5 +136,6 @@ void Gain::gen_gain(int ct_num, double hv) {
 
 void Gain::gen_gain_offset(int ct_num, double temp) {
     int ct_idx = ct_num - 1;
-    gain_temp_offset[ct_idx] = (temp - reference_temp_vec_(ct_idx)) * gain_temp_slope_vec_(ct_idx);
+    gain_temp_offset[ct_idx] = 1.0 + (temp - reference_temp_vec_(ct_idx)) * gain_temp_slope_vec_(ct_idx);
 }
+

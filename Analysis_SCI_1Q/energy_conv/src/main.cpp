@@ -283,7 +283,7 @@ int main(int argc, char** argv) {
                     if (gain_obj.bad_calib_mat(i, j)) {
                         t_pol_event.channel_status[i][j] += POLEvent::BAD_CALIB;
                     }
-                    t_pol_event.energy_value[i][j] /= (gain_obj.gain_vec_CT[i](j) + gain_obj.gain_temp_offset[i]);
+                    t_pol_event.energy_value[i][j] /= (gain_obj.gain_vec_CT[i](j) * gain_obj.gain_temp_offset[i]);
                 }
             }
         }
