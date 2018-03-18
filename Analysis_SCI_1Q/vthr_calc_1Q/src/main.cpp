@@ -21,37 +21,6 @@ int main(int argc, char** argv) {
     double vthr_max = 1024;
     double vthr_min = -128.0;
 
-    if (options_mgr.energy_flag) {
-        vthr_mean_0 = 10.0;
-        vthr_sigma_0 = 5.0;
-        vthr_max = 60.0;
-        vthr_min = -15.0;
-    }
-
-    // open pol_event file
-    TFile* pol_event_file = new TFile(options_mgr.pol_event_filename.Data(), "read");
-    if (pol_event_file->IsZombie()) {
-        cout << "pol_event_file open failed: " << options_mgr.pol_event_filename.Data() << endl;
-        return 1;
-    }
-    TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
-    if (t_pol_event_tree == NULL) {
-        cout << "cannot find TTree t_pol_event." << endl;
-        return 1;
-    }
-    POLEvent t_pol_event;
-    t_pol_event.bind_pol_event_tree(t_pol_event_tree);
-    t_pol_event.deactive_all(t_pol_event_tree);
-    t_pol_event.active(t_pol_event_tree, "time_aligned");
-    t_pol_event.active(t_pol_event_tree, "is_ped");
-    t_pol_event.active(t_pol_event_tree, "type");
-    t_pol_event.active(t_pol_event_tree, "multiplicity");
-    t_pol_event.active(t_pol_event_tree, "trigger_bit");
-    t_pol_event.active(t_pol_event_tree, "energy_value");
-    t_pol_event.active(t_pol_event_tree, "channel_status");
-    t_pol_event.active(t_pol_event_tree, "dy12_too_high");
-    t_pol_event.active(t_pol_event_tree, "common_noise");
-
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
     if (output_file->IsZombie()) {
@@ -80,56 +49,85 @@ int main(int argc, char** argv) {
         }
     }
 
-    int pre_percent = 0;
-    int cur_percent = 0;
-    cout << "reading data ..." << endl;
-    cout << "[ " << flush;
-    for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
-        cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());
-        if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
-            pre_percent = cur_percent;
-            cout << "#" << flush;
+    for (size_t list_idx = 0; list_idx < options_mgr.pol_event_filelist.size(); list_idx++) {
+
+        // open pol_event file
+        TFile* pol_event_file = new TFile(options_mgr.pol_event_filelist[list_idx], "read");
+        if (pol_event_file->IsZombie()) {
+            cout << "pol_event_file open failed: " << options_mgr.pol_event_filelist[list_idx] << endl;
+            return 1;
         }
-        t_pol_event_tree->GetEntry(q);
+        TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
+        if (t_pol_event_tree == NULL) {
+            cout << "cannot find TTree t_pol_event." << endl;
+            return 1;
+        }
+        POLEvent t_pol_event;
+        t_pol_event.bind_pol_event_tree(t_pol_event_tree);
+        t_pol_event.deactive_all(t_pol_event_tree);
+        t_pol_event.active(t_pol_event_tree, "time_aligned");
+        t_pol_event.active(t_pol_event_tree, "is_ped");
+        t_pol_event.active(t_pol_event_tree, "type");
+        t_pol_event.active(t_pol_event_tree, "multiplicity");
+        t_pol_event.active(t_pol_event_tree, "trigger_bit");
+        t_pol_event.active(t_pol_event_tree, "energy_value");
+        t_pol_event.active(t_pol_event_tree, "channel_status");
+        t_pol_event.active(t_pol_event_tree, "dy12_too_high");
+        t_pol_event.active(t_pol_event_tree, "common_noise");
 
-        // skip pedestal event
-        if (t_pol_event.is_ped) continue;
-        // skip cosmic events
-        if (t_pol_event.type == 0xFF00) continue;
-
-        for (int i = 0; i < 25; i++) {
-            if (!t_pol_event.time_aligned[i]) continue;
-            // calculate max ADC
-            double cur_max_ADC = 0;
-            int cur_max_j = 0;
-            for (int j = 0; j < 64; j++) {
-                if (cur_max_ADC < t_pol_event.energy_value[i][j]) {
-                    cur_max_ADC = t_pol_event.energy_value[i][j];
-                    cur_max_j = j;
-                }
+        int pre_percent = 0;
+        int cur_percent = 0;
+        cout << "reading data: " << options_mgr.pol_event_filelist[list_idx] << " ..." << endl;
+        cout << "[ " << flush;
+        for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
+            cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());
+            if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
+                pre_percent = cur_percent;
+                cout << "#" << flush;
             }
-            if (!t_pol_event.trigger_bit[i][cur_max_j]) continue;
-            // if (cur_max_ADC < 1000) continue;
-            for (int j = 0; j < 64; j++) {
-                if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
-                if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
-                // all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
-                all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
-                if (t_pol_event.trigger_bit[i][j]) {
-                    // tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
-                    tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
-                    if (j != cur_max_j) {
-                        max_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j], cur_max_ADC);
+            t_pol_event_tree->GetEntry(q);
+
+            // skip pedestal event
+            if (t_pol_event.is_ped) continue;
+            // skip cosmic events
+            if (t_pol_event.type == 0xFF00) continue;
+
+            for (int i = 0; i < 25; i++) {
+                if (!t_pol_event.time_aligned[i]) continue;
+                // calculate max ADC
+                double cur_max_ADC = 0;
+                int cur_max_j = 0;
+                for (int j = 0; j < 64; j++) {
+                    if (cur_max_ADC < t_pol_event.energy_value[i][j]) {
+                        cur_max_ADC = t_pol_event.energy_value[i][j];
+                        cur_max_j = j;
+                    }
+                }
+                if (!t_pol_event.trigger_bit[i][cur_max_j]) continue;
+                // if (cur_max_ADC < 1000) continue;
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) continue;
+                    if (t_pol_event.multiplicity[i] - t_pol_event.trigger_bit[i][j] < 2) continue;
+                    // all_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                    all_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
+                    if (t_pol_event.trigger_bit[i][j]) {
+                        // tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j] + t_pol_event.common_noise[i]);
+                        tri_spec[i][j]->Fill(t_pol_event.energy_value[i][j]);
+                        if (j != cur_max_j) {
+                            max_ADC_spec[i][j]->Fill(t_pol_event.energy_value[i][j], cur_max_ADC);
+                        }
                     }
                 }
             }
+
         }
+        cout << " DONE ]" << endl;
+        pol_event_file->Close();
+        delete pol_event_file;
+        pol_event_file = NULL;
 
     }
-    cout << " DONE ]" << endl;
-    pol_event_file->Close();
-    delete pol_event_file;
-    pol_event_file = NULL;
+
 
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
@@ -147,6 +145,8 @@ int main(int argc, char** argv) {
     }
 
     // write spec
+    output_file->cd();
+
     gROOT->SetBatch(kTRUE);
     gStyle->SetOptStat(11);
     gStyle->SetOptFit(111);

@@ -13,8 +13,7 @@ private:
     bool version_flag_;
 
 public:
-    TString pol_event_filename;
-    bool    energy_flag;          // -e
+    vector<TString> pol_event_filelist;
     TString output_filename;      // -o
 
 public:
