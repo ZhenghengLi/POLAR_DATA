@@ -56,6 +56,7 @@ void HitmapCanvas::draw_count_map() {
     canvas_count_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_count"));
     if (canvas_count_ == NULL) {
         canvas_count_ = new TCanvas("canvas_count", "total trigger counts of 25 modules", 600, 600);
+        canvas_count_->SetGrid();
         canvas_count_->Connect("Closed()", "HitmapCanvas", this, "CloseWindow()");
         // canvas_count_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "HitmapCanvas",
         //                        this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
