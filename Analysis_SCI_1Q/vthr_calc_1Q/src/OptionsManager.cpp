@@ -36,21 +36,14 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
-            case 'e':
-                energy_flag = true;
-                break;
             default:
                 return false;
             }
         } else {
-            if (pol_event_filename.IsNull()) {
-                pol_event_filename = cur_par_str;
-            } else {
-                return false;
-            }
+            pol_event_filelist.push_back(cur_par_str);
         }
     }
-    if (pol_event_filename.IsNull()) return false;
+    if (pol_event_filelist.empty()) return false;
     if (output_filename.IsNull()) {
         output_filename = "vthr_output.root";
     }
@@ -59,10 +52,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-e] [-o <output_subped.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q_1.root> <SCI_1Q_2.root> <...> [-o <output_subped.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
-    cout << "  -e                               calculate vthr at keV level, default is ADC level" << endl;
     cout << "  -o <output_subped.root>          pedestal subtracted data" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
@@ -83,8 +75,7 @@ void OptionsManager::print_options() {
 }
 
 void OptionsManager::init() {
-    pol_event_filename.Clear();
-    energy_flag = false;
+    pol_event_filelist.clear();
     output_filename.Clear();
 
     version_flag_ = false;

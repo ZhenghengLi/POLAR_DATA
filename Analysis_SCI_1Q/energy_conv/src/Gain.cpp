@@ -6,9 +6,12 @@ Gain::Gain() {
     gain_vs_hv_p0_mat_.ResizeTo(25, 64);
     gain_vs_hv_p1_mat_.ResizeTo(25, 64);
     bad_calib_mat.ResizeTo(25, 64);
+    gain_temp_slope_vec_.ResizeTo(25);
+    reference_temp_vec_.ResizeTo(25);
     for (int i = 0; i < 25; i++) {
         adc_per_kev_CT_[i].ResizeTo(64);
         gain_vec_CT[i].ResizeTo(64);
+        gain_temp_offset[i] = 0;
     }
 }
 
@@ -88,6 +91,34 @@ bool Gain::read_gain_vs_hv(const char* gain_vs_hv_filename) {
     return true;
 }
 
+bool Gain::read_gain_temp(const char* gain_temp_filename) {
+    TFile* gain_temp_file = new TFile(gain_temp_filename, "read");
+    if (gain_temp_file->IsZombie()) {
+        cout << "gain_temp_file open failed: " << gain_temp_filename << endl;
+        return false;
+    }
+    TVectorF* tmp_vec = NULL;
+    tmp_vec = static_cast<TVectorF*>(gain_temp_file->Get("gain_temp_slope_vec"));
+    if (tmp_vec == NULL) {
+        cout << "cannot find TVectorF gain_temp_slope_vec." << endl;
+        return false;
+    } else {
+        gain_temp_slope_vec_ = *tmp_vec;
+    }
+    tmp_vec = static_cast<TVectorF*>(gain_temp_file->Get("reference_temp_vec"));
+    if (tmp_vec == NULL) {
+        cout << "cannot find TVectorF reference_temp_vec." << endl;
+        return false;
+    } else {
+        reference_temp_vec_ = *tmp_vec;
+    }
+    gain_temp_file->Close();
+    delete gain_temp_file;
+    gain_temp_file = NULL;
+
+    return true;
+}
+
 void Gain::gen_gain() {
     for (int i = 0; i < 25; i++) {
         for (int j = 0; j < 64; j++) {
@@ -101,5 +132,10 @@ void Gain::gen_gain(int ct_num, double hv) {
     for (int j = 0; j < 64; j++) {
         gain_vec_CT[ct_idx](j) = TMath::Exp(gain_vs_hv_p0_mat_(ct_idx, j) + gain_vs_hv_p1_mat_(ct_idx, j) * TMath::Log(hv));
     }
+}
+
+void Gain::gen_gain_offset(int ct_num, double temp) {
+    int ct_idx = ct_num - 1;
+    gain_temp_offset[ct_idx] = 1.0 + (temp - reference_temp_vec_(ct_idx)) * gain_temp_slope_vec_(ct_idx);
 }
 

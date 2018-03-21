@@ -17,6 +17,8 @@ public:
     TString gain_vec_filename;      // -g
     TString gain_vs_hv_filename;    // -G
     bool    gain_hv_flag;
+    TString gain_temp_filename;     // -t
+    bool    gain_temp_flag;
     TString output_filename;        // -o
 
 public:
