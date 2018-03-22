@@ -103,6 +103,7 @@ int main(int argc, char** argv) {
     // prepare histograms
     TH1D* modcur_bkg = new TH1D("modcur_bkg", "modcur_bkg", options_mgr.nbins, 0, 360);
     TH1D* modcur_grb_with_bkg = new TH1D("modcur_grb_with_bkg", "modcur_grb_with_bkg", options_mgr.nbins, 0, 360);
+    TH1D* modcur_grb_sub_bkg = new TH1D("modcur_grb_sub_bkg", "modcur_grb_sub_bkg", options_mgr.nbins, 0, 360);
 
     // read angle
     int pre_percent = 0;
@@ -124,15 +125,15 @@ int main(int argc, char** argv) {
         if (t_pol_angle.weight <= 0) continue;
         // fill angle
         if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
-            modcur_grb_with_bkg->Fill(t_pol_angle.event_time, t_pol_angle.weight);
+            modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
             continue;
         }
         if (t_pol_angle.event_time > options_mgr.bkg_before_start && t_pol_angle.event_time < options_mgr.bkg_before_stop) {
-            modcur_bkg->Fill(t_pol_angle.event_time, t_pol_angle.weight);
+            modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
             continue;
         }
         if (t_pol_angle.event_time > options_mgr.bkg_after_start && t_pol_angle.event_time < options_mgr.bkg_after_stop) {
-            modcur_bkg->Fill(t_pol_angle.event_time, t_pol_angle.weight);
+            modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
             continue;
         }
     }
@@ -149,12 +150,23 @@ int main(int argc, char** argv) {
         return 1;
     }
     double bkg_scale = grb_time_duration / bkg_time_duration;
-    modcur_bkg->Scale(bkg_scale);
+    // modcur_bkg->Scale(bkg_scale);
+    for (int i = 0; i < options_mgr.nbins; i++) {
+        double cur_binc = modcur_bkg->GetBinContent(i + 1);
+        double cur_bine = modcur_bkg->GetBinError(i + 1);
+        modcur_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
+        modcur_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
+    }
 
     // subtract background
-    TH1D* modcur_grb_sub_bkg = static_cast<TH1D*>(modcur_grb_with_bkg->Clone("modcur_grb_sub_bkg"));
-    modcur_grb_sub_bkg->SetTitle("modcur_grb_sub_bkg");
-    modcur_grb_sub_bkg->Add(modcur_bkg, -1);
+    for (int i = 0; i < options_mgr.nbins; i++) {
+        double grb_binc = modcur_grb_with_bkg->GetBinContent(i + 1);
+        double grb_bine = modcur_grb_with_bkg->GetBinError(i + 1);
+        double bkg_binc = modcur_bkg->GetBinContent(i + 1);
+        double bkg_bine = modcur_bkg->GetBinError(i + 1);
+        modcur_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
+        modcur_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
+    }
 
     output_file->cd();
     modcur_grb_sub_bkg->Write();
