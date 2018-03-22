@@ -10,6 +10,37 @@
 
 using namespace std;
 
+bool is_neighbour(bool trigger_bit[64], int j) {
+    // first neighbour
+    if (j - 1 >= 0  && trigger_bit[j - 1]) return true;
+    if (j + 1 <= 63 && trigger_bit[j + 1]) return true;
+    if (j - 8 >= 0  && trigger_bit[j - 8]) return true;
+    if (j + 8 <= 63 && trigger_bit[j + 8]) return true;
+    if (j - 7 >= 0  && trigger_bit[j - 7]) return true;
+    if (j + 7 <= 63 && trigger_bit[j + 7]) return true;
+    if (j - 9 >= 0  && trigger_bit[j - 9]) return true;
+    if (j + 9 <= 63 && trigger_bit[j + 9]) return true;
+    // second neighbour
+    // if (j - 2 >= 0  && trigger_bit[j - 2]) return true;
+    // if (j + 2 <= 63 && trigger_bit[j + 2]) return true;
+    // if (j - 6 >= 0  && trigger_bit[j - 6]) return true;
+    // if (j + 6 <= 63 && trigger_bit[j + 6]) return true;
+    // if (j - 10 >= 0  && trigger_bit[j - 10]) return true;
+    // if (j + 10 <= 63 && trigger_bit[j + 10]) return true;
+    // if (j - 14 >= 0  && trigger_bit[j - 14]) return true;
+    // if (j + 14 <= 63 && trigger_bit[j + 14]) return true;
+    // if (j - 15 >= 0  && trigger_bit[j - 15]) return true;
+    // if (j + 15 <= 63 && trigger_bit[j + 15]) return true;
+    // if (j - 16 >= 0  && trigger_bit[j - 16]) return true;
+    // if (j + 16 <= 63 && trigger_bit[j + 16]) return true;
+    // if (j - 17 >= 0  && trigger_bit[j - 17]) return true;
+    // if (j + 17 <= 63 && trigger_bit[j + 17]) return true;
+    // if (j - 18 >= 0  && trigger_bit[j - 18]) return true;
+    // if (j + 18 <= 63 && trigger_bit[j + 18]) return true;
+
+    return false;
+}
+
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
     if (!options_mgr.parse(argc, argv)) {
@@ -188,16 +219,7 @@ int main(int argc, char** argv) {
                         trigg_count++;
                         continue;
                     }
-                    bool is_neigh = false;
-                    if (j - 1 >= 0  && t_pol_event.trigger_bit[i][j - 1]) is_neigh = true;
-                    if (j + 1 <= 63 && t_pol_event.trigger_bit[i][j + 1]) is_neigh = true;
-                    if (j - 8 >= 0  && t_pol_event.trigger_bit[i][j - 8]) is_neigh = true;
-                    if (j + 8 <= 63 && t_pol_event.trigger_bit[i][j + 8]) is_neigh = true;
-                    if (j - 7 >= 0  && t_pol_event.trigger_bit[i][j - 7]) is_neigh = true;
-                    if (j + 7 <= 63 && t_pol_event.trigger_bit[i][j + 7]) is_neigh = true;
-                    if (j - 9 >= 0  && t_pol_event.trigger_bit[i][j - 9]) is_neigh = true;
-                    if (j + 9 <= 63 && t_pol_event.trigger_bit[i][j + 9]) is_neigh = true;
-                    if (is_neigh) {
+                    if (is_neighbour(t_pol_event.trigger_bit[i], j)) {
                         sum_non_trigger -= t_pol_event.energy_value[i][j];
                         neigh_count++;
                     }
@@ -211,14 +233,7 @@ int main(int argc, char** argv) {
                 cur_common_n   = 0;
                 for (int j = 0; j < 64; j++) {
                     if (t_pol_event.trigger_bit[i][j]) continue;
-                    if (j - 1 >= 0  && t_pol_event.trigger_bit[i][j - 1]) continue;
-                    if (j + 1 <= 63 && t_pol_event.trigger_bit[i][j + 1]) continue;
-                    if (j - 8 >= 0  && t_pol_event.trigger_bit[i][j - 8]) continue;
-                    if (j + 8 <= 63 && t_pol_event.trigger_bit[i][j + 8]) continue;
-                    if (j - 7 >= 0  && t_pol_event.trigger_bit[i][j - 7]) continue;
-                    if (j + 7 <= 63 && t_pol_event.trigger_bit[i][j + 7]) continue;
-                    if (j - 9 >= 0  && t_pol_event.trigger_bit[i][j - 9]) continue;
-                    if (j + 9 <= 63 && t_pol_event.trigger_bit[i][j + 9]) continue;
+                    if (is_neighbour(t_pol_event.trigger_bit[i], j)) continue;
                     cur_common_sum += t_pol_event.energy_value[i][j];
                     cur_common_n   += 1;
                 }
