@@ -81,6 +81,15 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // scale background
+    double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
+    double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
+    if (bkg_time_duration < 10) {
+        cout << "bkg_time_duration is too short." << endl;
+        return 1;
+    }
+    double bkg_scale = grb_time_duration / bkg_time_duration;
+
     // print time range
     string grb_range = Form("GRB: %15.6f => %15.6f",
             options_mgr.grb_start,
@@ -143,14 +152,6 @@ int main(int argc, char** argv) {
     angle_file->Close();
     delete angle_file;
 
-    // scale background
-    double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
-    double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
-    if (bkg_time_duration < 10) {
-        cout << "bkg_time_duration is too short." << endl;
-        return 1;
-    }
-    double bkg_scale = grb_time_duration / bkg_time_duration;
     // modcur_bkg->Scale(bkg_scale);
     for (int i = 0; i < options_mgr.nbins; i++) {
         double cur_binc = modcur_bkg->GetBinContent(i + 1);
