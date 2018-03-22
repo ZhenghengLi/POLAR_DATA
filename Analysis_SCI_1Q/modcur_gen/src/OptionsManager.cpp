@@ -120,6 +120,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 't':
+                if (idx < argc_par - 1) {
+                    TString tmp_str = argv_par[++idx];
+                    if (tmp_str[0] == '-') {
+                        return false;
+                    } else {
+                        energy_thr = tmp_str.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             default:
                 return false;
             }
@@ -153,7 +165,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -n <nbins> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4> -x <grb1> -y <grb2>" << endl;
+    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -t <thr> -n <nbins> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4> -x <grb1> -y <grb2>" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -o <output.root>                 output data" << endl;
@@ -165,6 +177,7 @@ void OptionsManager::print_help() {
     cout << "  -x <grb1>                        grb_start" << endl;
     cout << "  -y <grb2>                        grb_stop" << endl;
     cout << "  -n <nbins>                       nbins, default is 30" << endl;
+    cout << "  -t <energy_thr>                  energy_thr, default is 15" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -201,6 +214,7 @@ void OptionsManager::init() {
     grb_start = -1;
     grb_stop = -1;
     nbins = -1;
+    energy_thr = 15.0;
 
     version_flag_ = false;
 }

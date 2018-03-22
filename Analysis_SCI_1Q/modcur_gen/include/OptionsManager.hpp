@@ -22,6 +22,7 @@ public:
     double  grb_stop;               // -y
     TString output_filename;        // -o
     int     nbins;                  // -n
+    double  energy_thr;             // -t
 
 public:
     OptionsManager();

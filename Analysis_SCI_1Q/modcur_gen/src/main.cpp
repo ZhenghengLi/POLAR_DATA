@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
         if (t_pol_angle.with_badch) continue;
         if (t_pol_angle.is_adjacent) continue;
         if (t_pol_angle.weight <= 0) continue;
+        if (t_pol_angle.second_energy < options_mgr.energy_thr) continue;
         // fill angle
         if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
             modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
@@ -174,6 +175,7 @@ int main(int argc, char** argv) {
     modcur_bkg->Write();
     TNamed("grb_range", grb_range.c_str()).Write();
     TNamed("bkg_range", bkg_range.c_str()).Write();
+    TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
 
     output_file->Close();
     delete output_file;
