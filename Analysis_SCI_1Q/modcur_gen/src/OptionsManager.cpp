@@ -148,22 +148,22 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     }
 
     if (angle_filename.IsNull()) return false;
-    if (bkg_before_start < 0) return false;
-    if (bkg_before_stop < 0) return false;
-    if (bkg_after_start < 0) return false;
-    if (bkg_after_stop < 0) return false;
-    if (grb_start < 0) return false;
-    if (grb_stop < 0) return false;
-    bool invalid_range = true;
-    if (subbkg_flag
-            && bkg_before_start < bkg_before_stop
-            && bkg_before_stop < grb_start
-            && grb_start < grb_stop
-            && grb_stop < bkg_after_start
-            && bkg_after_start < bkg_after_stop) {
-        invalid_range = false;
+    if (subbkg_flag) {
+        if (bkg_before_start < 0) return false;
+        if (bkg_before_stop < 0) return false;
+        if (bkg_after_start < 0) return false;
+        if (bkg_after_stop < 0) return false;
+        if (grb_start < 0) return false;
+        if (grb_stop < 0) return false;
+        if (!(bkg_before_start < bkg_before_stop
+                && bkg_before_stop < grb_start
+                && grb_start < grb_stop
+                && grb_stop < bkg_after_start
+                && bkg_after_start < bkg_after_stop)
+            ) {
+            return false;
+        }
     }
-    if (invalid_range) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_modcur.root";
     }
