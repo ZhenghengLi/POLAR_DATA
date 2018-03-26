@@ -132,6 +132,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'S':
+                subbkg_flag = true;
+                break;
             default:
                 return false;
             }
@@ -152,9 +155,14 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     if (grb_start < 0) return false;
     if (grb_stop < 0) return false;
     bool invalid_range = true;
-    if (bkg_before_start < bkg_before_stop && bkg_before_stop < grb_start && grb_start < grb_stop
-            && grb_stop < bkg_after_start && bkg_after_start < bkg_after_stop)
+    if (subbkg_flag
+            && bkg_before_start < bkg_before_stop
+            && bkg_before_stop < grb_start
+            && grb_start < grb_stop
+            && grb_stop < bkg_after_start
+            && bkg_after_start < bkg_after_stop) {
         invalid_range = false;
+    }
     if (invalid_range) return false;
     if (output_filename.IsNull()) {
         output_filename = "output_modcur.root";
@@ -165,19 +173,19 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -t <thr> -n <nbins> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4> -x <grb1> -y <grb2>" << endl;
+    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -t <thr> -n <nbins> -S -x <grb1> -y <grb2> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4>" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -o <output.root>                 output data" << endl;
+    cout << "  -t <energy_thr>                  energy_thr, default is 15" << endl;
     cout << "  -n <nbins>                       nbins, default is 30" << endl;
+    cout << "  -S                               subbkg_flag" << endl;
+    cout << "  -x <grb1>                        grb_start" << endl;
+    cout << "  -y <grb2>                        grb_stop" << endl;
     cout << "  -a <bkg1>                        bkg_before_start" << endl;
     cout << "  -b <bkg2>                        bkg_before_stop" << endl;
     cout << "  -c <bkg3>                        bkg_after_start" << endl;
     cout << "  -d <bkg4>                        bkg_after_stop" << endl;
-    cout << "  -x <grb1>                        grb_start" << endl;
-    cout << "  -y <grb2>                        grb_stop" << endl;
-    cout << "  -n <nbins>                       nbins, default is 30" << endl;
-    cout << "  -t <energy_thr>                  energy_thr, default is 15" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -207,6 +215,7 @@ void OptionsManager::print_options() {
 void OptionsManager::init() {
     angle_filename.Clear();
     output_filename.Clear();
+    subbkg_flag = false;
     bkg_before_start = -1;
     bkg_before_stop = -1;
     bkg_after_start = -1;

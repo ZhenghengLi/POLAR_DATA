@@ -64,43 +64,41 @@ int main(int argc, char** argv) {
     t_pol_angle_tree->SetBranchAddress("latitude",          &t_pol_angle.latitude             );
     t_pol_angle_tree->SetBranchAddress("longitude",         &t_pol_angle.longitude            );
 
-    // read first/last time
-    t_pol_angle_tree->GetEntry(0);
-    double first_time = t_pol_angle.event_time;
     Long64_t total_entries = t_pol_angle_tree->GetEntries();
-    t_pol_angle_tree->GetEntry(total_entries - 1);
-    double last_time = t_pol_angle.event_time;
 
-    // range check
-    if (first_time > options_mgr.bkg_before_start) {
-        cout << "bkg_before_start < first_time" << endl;
-        return 1;
-    }
-    if (last_time < options_mgr.bkg_after_stop) {
-        cout << "bkg_after_stop > last_time" << endl;
-        return 1;
-    }
+    string grb_range = "NULL";
+    string bkg_range = "NULL";
 
-    // scale background
-    double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
-    double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
-    if (bkg_time_duration < 10) {
-        cout << "bkg_time_duration is too short." << endl;
-        return 1;
+    if (options_mgr.subbkg_flag) {
+        // read first/last time
+        t_pol_angle_tree->GetEntry(0);
+        double first_time = t_pol_angle.event_time;
+        t_pol_angle_tree->GetEntry(total_entries - 1);
+        double last_time = t_pol_angle.event_time;
+        // range check
+        if (first_time > options_mgr.bkg_before_start) {
+            cout << "bkg_before_start < first_time" << endl;
+            return 1;
+        }
+        if (last_time < options_mgr.bkg_after_stop) {
+            cout << "bkg_after_stop > last_time" << endl;
+            return 1;
+        }
+        // print time range
+        grb_range = Form("GRB: %15.6f => %15.6f",
+                options_mgr.grb_start,
+                options_mgr.grb_stop);
+        bkg_range = Form("BKG: %15.6f => %15.6f; %15.6f => %15.6f",
+                options_mgr.bkg_before_start,
+                options_mgr.bkg_before_stop,
+                options_mgr.bkg_after_start,
+                options_mgr.bkg_after_stop);
+        cout << "Do background subtraction." << endl;
+        cout << grb_range << endl;
+        cout << bkg_range << endl;
+    } else {
+        cout << "No background subtraction: read all data." << endl;
     }
-    double bkg_scale = grb_time_duration / bkg_time_duration;
-
-    // print time range
-    string grb_range = Form("GRB: %15.6f => %15.6f",
-            options_mgr.grb_start,
-            options_mgr.grb_stop);
-    string bkg_range = Form("BKG: %15.6f => %15.6f; %15.6f => %15.6f",
-            options_mgr.bkg_before_start,
-            options_mgr.bkg_before_stop,
-            options_mgr.bkg_after_start,
-            options_mgr.bkg_after_stop);
-    cout << grb_range << endl;
-    cout << bkg_range << endl;
 
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -134,17 +132,22 @@ int main(int argc, char** argv) {
         if (t_pol_angle.weight <= 0) continue;
         if (t_pol_angle.second_energy < options_mgr.energy_thr) continue;
         // fill angle
-        if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
+        if (options_mgr.subbkg_flag) {
+            if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
+                modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                continue;
+            }
+            if (t_pol_angle.event_time > options_mgr.bkg_before_start && t_pol_angle.event_time < options_mgr.bkg_before_stop) {
+                modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                continue;
+            }
+            if (t_pol_angle.event_time > options_mgr.bkg_after_start && t_pol_angle.event_time < options_mgr.bkg_after_stop) {
+                modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                continue;
+            }
+        } else {
+            modcur_grb_sub_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
             modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
-            continue;
-        }
-        if (t_pol_angle.event_time > options_mgr.bkg_before_start && t_pol_angle.event_time < options_mgr.bkg_before_stop) {
-            modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
-            continue;
-        }
-        if (t_pol_angle.event_time > options_mgr.bkg_after_start && t_pol_angle.event_time < options_mgr.bkg_after_stop) {
-            modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
-            continue;
         }
     }
     cout << " DONE ]" << endl;
@@ -152,31 +155,42 @@ int main(int argc, char** argv) {
     angle_file->Close();
     delete angle_file;
 
-    // modcur_bkg->Scale(bkg_scale);
-    for (int i = 0; i < options_mgr.nbins; i++) {
-        double cur_binc = modcur_bkg->GetBinContent(i + 1);
-        double cur_bine = modcur_bkg->GetBinError(i + 1);
-        modcur_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
-        modcur_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
-    }
+    if (options_mgr.subbkg_flag) {
+        // scale background
+        double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
+        double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
+        if (bkg_time_duration < 10) {
+            cout << "bkg_time_duration is too short." << endl;
+            return 1;
+        }
+        double bkg_scale = grb_time_duration / bkg_time_duration;
 
-    // subtract background
-    for (int i = 0; i < options_mgr.nbins; i++) {
-        double grb_binc = modcur_grb_with_bkg->GetBinContent(i + 1);
-        double grb_bine = modcur_grb_with_bkg->GetBinError(i + 1);
-        double bkg_binc = modcur_bkg->GetBinContent(i + 1);
-        double bkg_bine = modcur_bkg->GetBinError(i + 1);
-        modcur_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
-        modcur_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
+        for (int i = 0; i < options_mgr.nbins; i++) {
+            double cur_binc = modcur_bkg->GetBinContent(i + 1);
+            double cur_bine = modcur_bkg->GetBinError(i + 1);
+            modcur_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
+            modcur_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
+        }
+
+        // subtract background
+        for (int i = 0; i < options_mgr.nbins; i++) {
+            double grb_binc = modcur_grb_with_bkg->GetBinContent(i + 1);
+            double grb_bine = modcur_grb_with_bkg->GetBinError(i + 1);
+            double bkg_binc = modcur_bkg->GetBinContent(i + 1);
+            double bkg_bine = modcur_bkg->GetBinError(i + 1);
+            modcur_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
+            modcur_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
+        }
     }
 
     output_file->cd();
     modcur_grb_sub_bkg->Write();
     modcur_grb_with_bkg->Write();
     modcur_bkg->Write();
+    TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
+    TNamed("nbins", Form("%d", options_mgr.nbins)).Write();
     TNamed("grb_range", grb_range.c_str()).Write();
     TNamed("bkg_range", bkg_range.c_str()).Write();
-    TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
 
     output_file->Close();
     delete output_file;

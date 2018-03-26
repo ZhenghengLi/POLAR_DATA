@@ -14,6 +14,7 @@ private:
 
 public:
     TString angle_filename;
+    bool    subbkg_flag;            // -S
     double  bkg_before_start;       // -a
     double  bkg_before_stop;        // -b
     double  bkg_after_start;        // -c
