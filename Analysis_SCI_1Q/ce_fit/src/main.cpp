@@ -3,9 +3,9 @@
 #include "OptionsManager.hpp"
 #include "CooConv.hpp"
 
-#define SPEC_BINS 64
+#define SPEC_BINS 100
 #define ADC_MIN   300
-#define FUNC_MIN  400
+#define FUNC_MIN  700
 #define FUNC_MAX  4096
 
 using namespace std;
@@ -74,12 +74,21 @@ int main(int argc, char** argv) {
     TH1F* spec_hist[64];
     for (int j = 0; j < 64; j++) {
         spec_hist[j] = new TH1F(Form("spec_hist_%02d_%02d", options_mgr.ct_num, j),
-                Form("Spectrum of CH %02d_%02d", options_mgr.ct_num, j), SPEC_BINS, 0, 4096);
+                Form("Spectrum of CH %02d_%02d", options_mgr.ct_num, j), SPEC_BINS, 0, FUNC_MAX);
         spec_func[j] = new TF1(Form("spec_func_%02d_%02d", options_mgr.ct_num, j),
                 "[0] + [1] * TMath::Erfc((x-[2]) / TMath::Sqrt(2) / [3])", FUNC_MIN, FUNC_MAX);
         spec_func[j]->SetParName(2, "CE");
 		spec_func[j]->SetParLimits(2, FUNC_MIN, FUNC_MAX);
         spec_func[j]->SetParName(3, "Sigma");
+
+        int i = options_mgr.ct_num - 1;
+
+        // setting for each channel
+        // ## Start ######################################################
+
+
+        // ## Stop #######################################################
+
     }
 
     int ct_idx = options_mgr.ct_num - 1;
@@ -127,8 +136,11 @@ int main(int argc, char** argv) {
     cout << " DONE ]" << endl;
 
     Double_t erfc_p[64][4];
+    Double_t erfc_p_err[64][4];
     TVectorF adc_per_kev(64);
     TVectorF gain_sigma(64);
+    TVectorF adc_per_kev_err(64);
+    TVectorF gain_sigma_err(64);
 
     cout << "Fitting compton edge of CT_" << options_mgr.ct_num << " ..." << endl;
     // fit
@@ -207,14 +219,28 @@ int main(int argc, char** argv) {
         if (erfc_p[j][2] > 200 && erfc_p[j][2] < 4095 && erfc_p[j][3] > 100 && erfc_p[j][3] < 2000)
             continue;
     }
+
+    // refit
+    for (int j = 0; j < 64; j++) {
+        spec_hist[j]->Fit(spec_func[j], "RNQ");
+        for (int k = 0; k < 4; k++) {
+            erfc_p[j][k] = spec_func[j]->GetParameter(k);
+            erfc_p_err[j][k] = spec_func[j]->GetParError(k);
+        }
+    }
+
     const float CE_Na22  = 340.667;
     for (int j = 0; j < 64; j++) {
         if (erfc_p[j][2] > 200 && erfc_p[j][2] < 4095 && erfc_p[j][3] > 100 && erfc_p[j][3] < 2000) {
             adc_per_kev(j) = erfc_p[j][2] / CE_Na22;
             gain_sigma(j) = erfc_p[j][3] / CE_Na22;
+            adc_per_kev_err(j) = erfc_p_err[j][2] / CE_Na22;
+            gain_sigma_err(j) = erfc_p_err[j][3] / CE_Na22;
         } else {
             adc_per_kev(j) = 0;
             gain_sigma(j) = 0;
+            adc_per_kev_err(j) = 0;
+            gain_sigma_err(j) = 0;
         }
     }
 
@@ -245,6 +271,8 @@ int main(int argc, char** argv) {
     canvas_spec_hist->Write();
     adc_per_kev.Write("adc_per_kev");
     gain_sigma.Write("gain_sigma");
+    adc_per_kev_err.Write("adc_per_kev_err");
+    gain_sigma_err.Write("gain_sigma_err");
     TNamed("low_temp", Form("%f", options_mgr.low_temp)).Write();
     TNamed("high_temp", Form("%f", options_mgr.high_temp)).Write();
     TNamed("low_hv", Form("%f", options_mgr.low_hv)).Write();

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-bool is_neighbour(bool trigger_bit[64], int j) {
+bool neigh_to_trigger(bool trigger_bit[64], int j) {
     // first neighbour
     if (j - 1 >= 0  && trigger_bit[j - 1]) return true;
     if (j + 1 <= 63 && trigger_bit[j + 1]) return true;
@@ -209,6 +209,11 @@ int main(int argc, char** argv) {
         float cur_common_noise = 0;
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
+                    t_pol_event.energy_value[i][j] -= t_pol_event.common_noise[i];
+                }
+            }
             if (t_pol_event.compress[i] == 3) {
                 double sum_non_trigger = t_pol_event.common_noise[i] * 2.0 * 64;
                 // correction for common_noise calculated in-orbit
@@ -219,7 +224,8 @@ int main(int argc, char** argv) {
                         trigg_count++;
                         continue;
                     }
-                    if (is_neighbour(t_pol_event.trigger_bit[i], j)) {
+                    if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
+                    if (neigh_to_trigger(t_pol_event.trigger_bit[i], j)) {
                         sum_non_trigger -= t_pol_event.energy_value[i][j];
                         neigh_count++;
                     }
@@ -233,16 +239,11 @@ int main(int argc, char** argv) {
                 cur_common_n   = 0;
                 for (int j = 0; j < 64; j++) {
                     if (t_pol_event.trigger_bit[i][j]) continue;
-                    if (is_neighbour(t_pol_event.trigger_bit[i], j)) continue;
+                    if (neigh_to_trigger(t_pol_event.trigger_bit[i], j)) continue;
                     cur_common_sum += t_pol_event.energy_value[i][j];
                     cur_common_n   += 1;
                 }
                 cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
-            }
-            for (int j = 0; j < 64; j++) {
-                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
-                    t_pol_event.energy_value[i][j] -= t_pol_event.common_noise[i];
-                }
             }
             if (t_pol_event.compress[i] != 1) {
                 t_pol_event.common_noise[i] = cur_common_noise;

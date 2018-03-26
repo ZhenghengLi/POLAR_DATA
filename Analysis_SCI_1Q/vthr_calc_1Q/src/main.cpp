@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     double vthr_mean_0 = 150.0;
     double vthr_sigma_0 = 15.0;
     double vthr_max = 1024;
-    double vthr_min = -128.0;
+    double vthr_min = 0;
 
     // open output file
     TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -173,6 +173,7 @@ int main(int argc, char** argv) {
             canvas_spec[i]->cd(jtoc(j));
             canvas_spec[i]->GetPad(jtoc(j))->SetFillColor(kWhite);
             for (int k = 1; k < tri_eff[i][j]->GetNbinsX(); k++) {
+                if (tri_eff[i][j]->GetBinCenter(k) < 70) continue;
                 if (tri_eff[i][j]->GetBinContent(k) > 0.5) {
                     fun_spec[i][j]->SetParameter(0, tri_eff[i][j]->GetBinCenter(k));
                     break;
