@@ -154,6 +154,9 @@ int main(int argc, char** argv) {
     chi2_map->Write();
     chi2_map_inter->Write();
     delta_chi2_map_inter->Write();
+    TNamed("min_chi2", Form("%f", min_chi2)).Write();
+    TNamed("min_pol_degree", Form("%f", min_pol_degree)).Write();
+    TNamed("min_pol_direction", Form("%f", min_pol_direction)).Write();
 
     output_file->Close();
     delete output_file;
