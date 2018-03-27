@@ -42,6 +42,26 @@ bool read_modcur(const char* filename, TH1D& modcur) {
     return true;
 }
 
+bool read_modcur_array(const char* filename, TH1D modcur_array[45][50]) {
+    TFile* modcur_array_file = new TFile(filename, "read");
+    if (modcur_array_file->IsZombie()) return false;
+    TH1D* modcur_hist = NULL;
+    for (int i = 0; i < 45; i++) {
+        for (int j = 0; j < 50; j++) {
+            modcur_hist = static_cast<TH1D*>(modcur_array_file->Get(Form("pol_direction_%03d/modcur_%03d_%03d", i * 4 + 2, i * 4 + 2, j * 2 + 1)));
+            if (modcur_hist == NULL) {
+                cout << "cannot find TH1D " << Form("pol_direction_%03d/modcur_%03d_%03d", i * 4 + 2, i * 4 + 2, j * 2 + 1) << endl;
+                return false;
+            }
+            modcur_array[i][j] = *modcur_hist;
+            modcur_array[i][j].SetDirectory(NULL);
+        }
+    }
+    modcur_array_file->Close();
+    delete modcur_array_file;
+    return true;
+}
+
 
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
@@ -54,6 +74,57 @@ int main(int argc, char** argv) {
         return 2;
     }
 
+    double modcur_array_chi2[45][50];
+
+    TH1D modcur_array[45][50];
+    TH1D modcur_meas;
+
+    // read modcur
+    if (read_modcur_array(options_mgr.modcur_array_filename.Data(), modcur_array)) {
+        cout << "modcur_array read done." << endl;
+    } else {
+        cout << "modcur_array read failed: " << options_mgr.modcur_array_filename.Data() << endl;
+        return 1;
+    }
+    if (read_modcur(options_mgr.modcur_filename.Data(), modcur_meas)) {
+        cout << "modcur_meas read done." << endl;
+    } else {
+        cout << "modcur_meas read failed: " << options_mgr.modcur_filename.Data() << endl;
+        return 1;
+    }
+
+    // calculate chi2 array
+    double min_chi2 = 10000000000;
+    for (int i = 0; i < 45; i++) {
+        for (int j = 0; j < 50; j++) {
+            modcur_array_chi2[i][j] = modcur_meas.Chi2Test(&modcur_array[i][j], "WW CHI2");
+            if (modcur_array_chi2[i][j] < min_chi2) min_chi2 = modcur_array_chi2[i][j];
+        }
+    }
+    // subtract minimum chi2
+    for (int i = 0; i < 45; i++) {
+        for (int j = 0; j < 50; j++) {
+            modcur_array_chi2[i][j] -= min_chi2;
+        }
+    }
+
+    // generate contour map
+    TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
+    if (output_file->IsZombie()) {
+        cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
+        return 1;
+    }
+    TH2D* delta_chi2_map = new TH2D("delta_chi2_map", "delta_chi2_map", 50, 0, 100, 45, 0, 180);
+    for (int i = 0; i < 45; i++) {
+        for (int j = 0; j < 50; j++) {
+            delta_chi2_map->SetBinContent(j + 1, i + 1, modcur_array_chi2[i][j]);
+        }
+    }
+    output_file->cd();
+    delta_chi2_map->Write();
+
+    output_file->Close();
+    delete output_file;
 
     return 0;
 }
