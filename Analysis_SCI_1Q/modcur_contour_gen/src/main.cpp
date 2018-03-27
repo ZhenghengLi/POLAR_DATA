@@ -150,9 +150,19 @@ int main(int argc, char** argv) {
         }
     }
 
+    double levels[3];
+    levels[0] = min_chi2 + 1;
+    levels[1] = min_chi2 + 4;
+    levels[2] = min_chi2 + 9;
+    TH1D* chi2_map_inter_cont3 = static_cast<TH1D*>(chi2_map_inter->Clone("chi2_map_inter_cont3"));
+    chi2_map_inter_cont3->SetContour(3, levels);
+    chi2_map_inter_cont3->SetLineColor(kRed);
+    chi2_map_inter_cont3->SetLineWidth(2);
+
     output_file->cd();
     chi2_map->Write();
     chi2_map_inter->Write();
+    chi2_map_inter_cont3->Write();
     delta_chi2_map_inter->Write();
     TNamed("min_chi2", Form("%f", min_chi2)).Write();
     TNamed("min_pol_degree", Form("%f", min_pol_degree)).Write();
