@@ -11,24 +11,13 @@
 // MODULATION CURVE ARRAY
 /////////////////////////////////////////////////////////////
 //
-// pol_direction: h1(45, 0, 180) => 2, 6, 10, ... , 174, 178
+// pol_direction: h1(180, 0, 180) => 0.5, 1.5, 2.5, ... , 179.5
 //
-// pol_degree: h1(50, 0, 100) => 1, 3, 5, 7, 9, ... , 97, 99
+// pol_degree: h1(100, 0, 100) => 0.5, 1.5, 2.5, ... , 99.5
 //
 /////////////////////////////////////////////////////////////
 
 using namespace std;
-
-// filename_XXX.mac.root
-int extract_pol_direction(const char* filename) {
-    string filename_str = filename;
-    size_t start_pos = filename_str.length() - 12;
-    string pol_direction_str = filename_str.substr(start_pos, 3);
-    int pol_direction = atoi(pol_direction_str.c_str());
-    if (pol_direction < 2 || pol_direction > 178) return -1;
-    if ((pol_direction - 2) % 4 != 0) return -1;
-    return pol_direction;
-}
 
 bool read_modcur(const char* filename, TH1D& modcur) {
     TFile* modcur_file = new TFile(filename, "read");
@@ -42,19 +31,19 @@ bool read_modcur(const char* filename, TH1D& modcur) {
     return true;
 }
 
-bool read_modcur_array(const char* filename, TH1D modcur_array[45][50]) {
+bool read_modcur_array(const char* filename, TH1D* modcur_array[180][100]) {
     TFile* modcur_array_file = new TFile(filename, "read");
     if (modcur_array_file->IsZombie()) return false;
     TH1D* modcur_hist = NULL;
-    for (int i = 0; i < 45; i++) {
-        for (int j = 0; j < 50; j++) {
-            modcur_hist = static_cast<TH1D*>(modcur_array_file->Get(Form("pol_direction_%03d/modcur_%03d_%03d", i * 4 + 2, i * 4 + 2, j * 2 + 1)));
+    for (int i = 0; i < 180; i++) {
+        for (int j = 0; j < 100; j++) {
+            modcur_hist = static_cast<TH1D*>(modcur_array_file->Get(Form("pol_direction_%03d/modcur_%03d_%03d", i, i, j)));
             if (modcur_hist == NULL) {
-                cout << "cannot find TH1D " << Form("pol_direction_%03d/modcur_%03d_%03d", i * 4 + 2, i * 4 + 2, j * 2 + 1) << endl;
+                cout << "cannot find TH1D " << Form("pol_direction_%03d/modcur_%03d_%03d", i, i, j) << endl;
                 return false;
             }
-            modcur_array[i][j] = *modcur_hist;
-            modcur_array[i][j].SetDirectory(NULL);
+            modcur_array[i][j] = static_cast<TH1D*>(modcur_hist->Clone());
+            modcur_array[i][j]->SetDirectory(NULL);
         }
     }
     modcur_array_file->Close();
@@ -74,9 +63,9 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    double modcur_array_chi2[45][50];
+    double modcur_array_chi2[180][100];
 
-    TH1D modcur_array[45][50];
+    TH1D* modcur_array[180][100];
     TH1D modcur_meas;
 
     // read modcur
@@ -94,9 +83,9 @@ int main(int argc, char** argv) {
     }
 
     // calculate chi2 array
-    for (int i = 0; i < 45; i++) {
-        for (int j = 0; j < 50; j++) {
-            modcur_array_chi2[i][j] = modcur_meas.Chi2Test(&modcur_array[i][j], "WW CHI2");
+    for (int i = 0; i < 180; i++) {
+        for (int j = 0; j < 100; j++) {
+            modcur_array_chi2[i][j] = modcur_meas.Chi2Test(modcur_array[i][j], "WW CHI2");
         }
     }
 
@@ -106,19 +95,10 @@ int main(int argc, char** argv) {
         cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
         return 1;
     }
-    TH2D* chi2_map = new TH2D("chi2_map", "chi2_map", 50, 0, 100, 45, 0, 180);
-    for (int i = 0; i < 45; i++) {
-        for (int j = 0; j < 50; j++) {
+    TH2D* chi2_map = new TH2D("chi2_map", "chi2_map", 100, 0, 100, 180, 0, 180);
+    for (int i = 0; i < 180; i++) {
+        for (int j = 0; j < 100; j++) {
             chi2_map->SetBinContent(j + 1, i + 1, modcur_array_chi2[i][j]);
-        }
-    }
-    TH2D* chi2_map_inter = new TH2D("chi2_map_inter", "chi2_map_inter", 100, 0, 100, 180, 0, 180);
-    for (int i = 0; i < 100; i++) {
-        for (int j = 0; j < 180; j++) {
-            double x = i + 0.5;
-            double y = j + 0.5;
-            double binc = chi2_map->Interpolate(x, y);
-            chi2_map_inter->SetBinContent(i + 1, j + 1, binc);
         }
     }
     double min_chi2 = 10000000000;
@@ -126,7 +106,7 @@ int main(int argc, char** argv) {
     double min_pol_direction = 0;
     for (int i = 0; i < 100; i++) {
         for (int j = 0; j < 180; j++) {
-            double binc = chi2_map_inter->GetBinContent(i + 1, j + 1);
+            double binc = chi2_map->GetBinContent(i + 1, j + 1);
             if (binc < min_chi2) {
                 min_chi2 = binc;
                 min_pol_degree = i + 0.5;
@@ -141,12 +121,12 @@ int main(int argc, char** argv) {
     cout << "min_pol_direction = " << min_pol_direction << endl;
     cout << "========================================" << endl;
 
-    TH2D* delta_chi2_map_inter = new TH2D("delta_chi2_map_inter", "delta_chi2_map_inter", 100, 0, 100, 180, 0, 180);
+    TH2D* delta_chi2_map = new TH2D("delta_chi2_map", "delta_chi2_map", 100, 0, 100, 180, 0, 180);
 
     for (int i = 0; i < 100; i++) {
         for (int j = 0; j < 180; j++) {
-            double binc = chi2_map_inter->GetBinContent(i + 1, j + 1) - min_chi2 + 1;
-            delta_chi2_map_inter->SetBinContent(i + 1, j + 1, binc);
+            double binc = chi2_map->GetBinContent(i + 1, j + 1) - min_chi2 + 0.00001;
+            delta_chi2_map->SetBinContent(i + 1, j + 1, binc);
         }
     }
 
@@ -154,16 +134,20 @@ int main(int argc, char** argv) {
     levels[0] = min_chi2 + 1;
     levels[1] = min_chi2 + 4;
     levels[2] = min_chi2 + 9;
-    TH1D* chi2_map_inter_cont3 = static_cast<TH1D*>(chi2_map_inter->Clone("chi2_map_inter_cont3"));
-    chi2_map_inter_cont3->SetContour(3, levels);
-    chi2_map_inter_cont3->SetLineColor(kRed);
-    chi2_map_inter_cont3->SetLineWidth(2);
+    TH1D* chi2_map_cont3 = static_cast<TH1D*>(chi2_map->Clone("chi2_map_cont3"));
+    chi2_map_cont3->SetContour(3, levels);
+    chi2_map_cont3->SetLineColor(kRed);
+    chi2_map_cont3->SetLineWidth(2);
+    TH1D* delta_chi2_map_cont3 = static_cast<TH1D*>(chi2_map->Clone("delta_chi2_map_cont3"));
+    delta_chi2_map_cont3->SetContour(3, levels);
+    delta_chi2_map_cont3->SetLineColor(kRed);
+    delta_chi2_map_cont3->SetLineWidth(2);
 
     output_file->cd();
     chi2_map->Write();
-    chi2_map_inter->Write();
-    chi2_map_inter_cont3->Write();
-    delta_chi2_map_inter->Write();
+    chi2_map_cont3->Write();
+    delta_chi2_map->Write();
+    delta_chi2_map_cont3->Write();
     TNamed("min_chi2", Form("%f", min_chi2)).Write();
     TNamed("min_pol_degree", Form("%f", min_pol_degree)).Write();
     TNamed("min_pol_direction", Form("%f", min_pol_direction)).Write();
