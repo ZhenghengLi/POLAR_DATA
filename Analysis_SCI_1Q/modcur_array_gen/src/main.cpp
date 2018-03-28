@@ -11,23 +11,22 @@
 // MODULATION CURVE ARRAY
 /////////////////////////////////////////////////////////////
 //
-// pol_direction: h1(45, 0, 180) => 2, 6, 10, ... , 174, 178
+// pol_direction: h1(180, 0, 180) => 0.5, 1.5, 2.5, ... , 179.5
 //
-// pol_degree: h1(50, 0, 100) => 1, 3, 5, 7, 9, ... , 97, 99
+// pol_degree: h1(100, 0, 100) => 0.5, 1.5, 2.5, ... , 99.5
 //
 /////////////////////////////////////////////////////////////
 
 using namespace std;
 
 // filename_XXX.mac.root
-int extract_pol_direction(const char* filename) {
+int extract_idx(const char* filename) {
     string filename_str = filename;
     size_t start_pos = filename_str.length() - 12;
-    string pol_direction_str = filename_str.substr(start_pos, 3);
-    int pol_direction = atoi(pol_direction_str.c_str());
-    if (pol_direction < 2 || pol_direction > 178) return -1;
-    if ((pol_direction - 2) % 4 != 0) return -1;
-    return pol_direction;
+    string idx_str = filename_str.substr(start_pos, 3);
+    int idx = atoi(idx_str.c_str());
+    if (idx < 0 || idx > 179) return -1;
+    return idx;
 }
 
 bool read_modcur(const char* filename, TH1D& modcur) {
@@ -54,21 +53,20 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    TH1D pol_modcur[45];
+    TH1D pol_modcur[180];
     TH1D nopol_modcur;
 
     ///////////////////////////////////////////////////////
     // read pol files
-    bool pol_modcur_readflag[45];
-    for (int i = 0; i < 45; i++) {
+    bool pol_modcur_readflag[180];
+    for (int i = 0; i < 180; i++) {
         pol_modcur_readflag[i] = false;
     }
     for (size_t i = 0; i < options_mgr.pol_modcur_filelist.size(); i++) {
-        int pol_direction = extract_pol_direction(options_mgr.pol_modcur_filelist[i].Data());
-        if (pol_direction < 0) {
+        int idx = extract_idx(options_mgr.pol_modcur_filelist[i].Data());
+        if (idx < 0) {
             return 1;
         } else {
-            int idx = (pol_direction - 2) / 4;
             if (read_modcur(options_mgr.pol_modcur_filelist[i].Data(), pol_modcur[idx])) {
                 pol_modcur_readflag[idx] = true;
             } else {
@@ -78,7 +76,7 @@ int main(int argc, char** argv) {
         }
     }
     bool all_read = true;
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 180; i++) {
         if (!pol_modcur_readflag[i]) {
             all_read = false;
             break;
@@ -87,10 +85,10 @@ int main(int argc, char** argv) {
     if (all_read) {
         cout << "all pol_modcur read done." << endl;
     } else {
-        cout << "the files of pol_direction not read: " << flush;
-        for (int i = 0; i < 45; i++) {
+        cout << "the file for pol_direction not read: " << flush;
+        for (int i = 0; i < 180; i++) {
             if (!pol_modcur_readflag[i]) {
-                cout << i * 4 + 2 << " ";
+                cout << i + 0.5 << " ";
             }
         }
         cout << endl;
@@ -103,17 +101,18 @@ int main(int argc, char** argv) {
         cout << "nopol_modcur read failed: " << options_mgr.nopol_modcur_filename.Data() << endl;
         return 1;
     }
+    // get number of bins
     int nbins = nopol_modcur.GetNbinsX();
     ///////////////////////////////////////////////
 
     // generate modcur_array
     TFile* modcur_array_file = new TFile(options_mgr.modcur_array_filename.Data(), "recreate");
     modcur_array_file->cd();
-    TH1D* modcur_array[45][50];
-    for (int i = 0; i < 45; i++) {
-        for (int j = 0; j < 50; j++) {
-            modcur_array[i][j] = new TH1D(Form("modcur_%03d_%03d", i * 4 + 2, j * 2 + 1), Form("modcur_%03d_%03d", i * 4 + 2, j * 2 + 1), nbins, 0, 360);
-            double pol_degree = (j * 2.0 + 1.0) / 100.0;
+    TH1D* modcur_array[180][100];
+    for (int i = 0; i < 180; i++) {
+        for (int j = 0; j < 100; j++) {
+            modcur_array[i][j] = new TH1D(Form("modcur_%03d_%03d", i, j), Form("modcur_%03d_%03d", i, j), nbins, 0, 360);
+            double pol_degree = (j + 0.5) / 100.0;
             double nopol_degree = 1 - pol_degree;
             for (int k = 0; k < nbins; k++) {
                 double pol_binc = pol_modcur[i].GetBinContent(k + 1);
@@ -126,10 +125,10 @@ int main(int argc, char** argv) {
         }
     }
     // write modcur_array
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 180; i++) {
         modcur_array_file->cd();
-        modcur_array_file->mkdir(Form("pol_direction_%03d", i * 4 + 2))->cd();
-        for (int j = 0; j < 50; j++) {
+        modcur_array_file->mkdir(Form("pol_direction_%03d", i))->cd();
+        for (int j = 0; j < 100; j++) {
             modcur_array[i][j]->Write();
         }
     }
