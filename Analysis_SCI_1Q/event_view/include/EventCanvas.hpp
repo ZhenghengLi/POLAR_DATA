@@ -10,6 +10,7 @@
 #include "RootInc.hpp"
 #include "CooConv.hpp"
 #include "POLEvent.hpp"
+#include "TArrow.h"
 #endif /* __ROOTCLING__ || __CINT __ */
 #include "RQ_OBJECT.h"
 
@@ -28,6 +29,8 @@ public: // slots
 private:
 #if !(defined(__ROOTCLING__) || defined(__CINT__))
     TCanvas* canvas_event_;
+    TCanvas* canvas_angle_;
+    TArrow*  angle_arrow_;
     TH2F*    trigger_map_;
     TH2F*    energy_map_;
     THStack* h_stack_;
@@ -38,6 +41,10 @@ private:
     Long64_t entry_current_;
     bool            queue_flag_;
     queue<Long64_t> entry_queue_;
+    // functions
+    bool find_first_two(const POLEvent& pol_event,
+            int first_ij[2], int second_ij[2],
+            double& first_energy, double& second_energy);
 #endif /* __ROOTCLING__ || __CINT __ */
 
 public:

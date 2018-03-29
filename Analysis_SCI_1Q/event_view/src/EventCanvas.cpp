@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cstdio>
 #include <fstream>
+#include <queue>
+#include "BarPos.hpp"
 
 using namespace std;
 
@@ -14,6 +16,7 @@ EventCanvas::EventCanvas() {
     energy_map_ = NULL;
     h_stack_ = NULL;
     queue_flag_ = false;
+    angle_arrow_ = NULL;
 }
 
 EventCanvas::~EventCanvas() {
@@ -62,17 +65,81 @@ void EventCanvas::ProcessAction(Int_t event, Int_t px, Int_t py, TObject* select
     draw_event();
 }
 
+bool EventCanvas::find_first_two(const POLEvent& pol_event,
+        int first_ij[2], int second_ij[2],
+        double& first_energy, double& second_energy) {
+
+    priority_queue<Bar> bar_queue;
+    Bar first_bar;
+    Pos first_pos;
+    Bar second_bar;
+    Pos second_pos;
+    // clear bar_queue
+    while (!bar_queue.empty()) bar_queue.pop();
+    // find the first two bars'
+    bool is_bad_event = false;
+    for (int i = 0; i < 25; i++) {
+        if (!pol_event.time_aligned[i]) continue;
+        for (int j = 0; j < 64; j++) {
+            if (pol_event.trigger_bit[i][j] && pol_event.channel_status[i][j] > 0 && pol_event.channel_status[i][j] != 0x4) {
+               is_bad_event = true;
+               break;
+            }
+            if (pol_event.trigger_bit[i][j]) {
+                bar_queue.push(Bar(pol_event.energy_value[i][j], i, j));
+            }
+        }
+        if (is_bad_event) break;
+    }
+    if (is_bad_event) {
+        return false;
+    }
+    // get first bar
+    if (bar_queue.empty()) {
+        return false;
+    }
+    first_bar = bar_queue.top();
+    bar_queue.pop();
+    first_pos.randomize(first_bar.i, first_bar.j);
+    // get second bar
+    if (bar_queue.empty()) {
+        return false;
+    }
+    second_bar = bar_queue.top();
+    bar_queue.pop();
+    second_pos.randomize(second_bar.i, second_bar.j);
+    if (first_pos.is_adjacent_to(second_pos)) {
+        return false;
+    } else {
+        first_ij[0]     = first_pos.i;
+        first_ij[1]     = first_pos.j;
+        second_ij[0]    = second_pos.i;
+        second_ij[1]    = second_pos.j;
+        first_energy    = pol_event.energy_value[first_pos.i][first_pos.j];
+        second_energy   = pol_event.energy_value[second_pos.i][second_pos.j];
+        return true;
+    }
+
+}
+
 void EventCanvas::draw_event() {
     if (t_pol_event_tree_ == NULL)
         return;
     canvas_event_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_event"));
     if (canvas_event_ == NULL) {
-        canvas_event_ = new TCanvas("canvas_event", "POLAR Event Viewer", 1000, 1000);
+        canvas_event_ = new TCanvas("canvas_event", "POLAR Event Viewer", 800, 800);
         canvas_event_->Connect("Closed()", "EventCanvas", this, "CloseWindow()");
         canvas_event_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "EventCanvas",
                                  this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
     }
-    canvas_event_->cd();
+    canvas_angle_ = static_cast<TCanvas*>(gROOT->FindObject("canvas_angle"));
+    if (canvas_angle_ == NULL) {
+        canvas_angle_ = new TCanvas("canvas_angle", "POLAR Event Viewer", 800, 800);
+        // canvas_angle_->Connect("Closed()", "EventCanvas", this, "CloseWindow()");
+        canvas_angle_->Connect("ProcessedEvent(Int_t, Int_t, Int_t, TObject*)", "EventCanvas",
+                                 this, "ProcessAction(Int_t, Int_t, Int_t, TObject*)");
+    }
+    // read event
     if (queue_flag_) {
         if (entry_queue_.empty()) return;
         entry_current_ = entry_queue_.front();
@@ -199,8 +266,44 @@ void EventCanvas::draw_event() {
     h_stack_->Add(energy_map_);
     h_stack_->Add(trigger_map_);
     h_stack_->SetTitle(Form("Event: %ld", static_cast<long int>(entry_current_)));
+
+    gStyle->SetOptStat(0);
+
+    canvas_event_->cd();
     h_stack_->Draw("lego1 0");
     canvas_event_->Update();
+
+    canvas_angle_->cd();
+    trigger_map_->SetTitle(Form("event_time: %.9f", t_pol_event_.event_time));
+    trigger_map_->Draw("colz");
+
+    if (angle_arrow_ != NULL) {
+        delete angle_arrow_;
+        angle_arrow_ = NULL;
+    }
+
+    int first_ij[2], second_ij[2];
+    double first_energy, second_energy;
+    if (find_first_two(t_pol_event_, first_ij, second_ij, first_energy, second_energy)) {
+        int i1 = first_ij[0];
+        int j1 = first_ij[1];
+        int i2 = second_ij[0];
+        int j2 = second_ij[1];
+        double point_x1 = ijtox(i1, j1) + ijtox(i1, j1) / 8 + 0.5;
+        double point_y1 = ijtoy(i1, j1) + ijtoy(i1, j1) / 8 + 0.5;
+        double point_x2 = ijtox(i2, j2) + ijtox(i2, j2) / 8 + 0.5;
+        double point_y2 = ijtoy(i2, j2) + ijtoy(i2, j2) / 8 + 0.5;
+        angle_arrow_ = new TArrow(point_x1, point_y1, point_x2, point_y2, 0.02, ">");
+        angle_arrow_->SetLineColor(kRed);
+        angle_arrow_->SetLineWidth(2);
+        angle_arrow_->Draw();
+        cout << Form("CT_%02d_%02d => CT_%02d_%02d; %f => %f",
+                i1 + 1, j1,
+                i2 + 1, j2,
+                first_energy, second_energy) << endl;
+    }
+
+    canvas_angle_->Update();
 }
 
 bool EventCanvas::read_entry_queue(const char* filename) {
