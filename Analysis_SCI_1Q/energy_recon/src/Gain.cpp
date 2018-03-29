@@ -11,7 +11,7 @@ Gain::Gain() {
     for (int i = 0; i < 25; i++) {
         adc_per_kev_CT_[i].ResizeTo(64);
         gain_vec_CT[i].ResizeTo(64);
-        gain_temp_offset[i] = 0;
+        gain_temp_offset[i] = 1;
     }
 }
 
