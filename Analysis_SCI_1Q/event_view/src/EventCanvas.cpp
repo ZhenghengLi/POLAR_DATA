@@ -202,8 +202,8 @@ void EventCanvas::draw_event() {
         if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
             if ((t_pol_event_.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) == 0) {
-                int cur_x = ijtoxb(i, j) + ijtoxb(i, j) / 8 + 1;
-                int cur_y = ijtoyb(i, j) + ijtoyb(i, j) / 8 + 1;
+                int cur_x = ijtox(i, j) + ijtox(i, j) / 8 + 1;
+                int cur_y = ijtoy(i, j) + ijtoy(i, j) / 8 + 1;
                 double cur_energy = t_pol_event_.energy_value[i][j];
                 if (cur_energy > max_energy) max_energy = cur_energy;
                 if (cur_energy < min_energy) min_energy = cur_energy;
@@ -253,8 +253,8 @@ void EventCanvas::draw_event() {
         if (!t_pol_event_.time_aligned[i]) continue;
         for (int j = 0; j < 64; j++) {
             if (t_pol_event_.trigger_bit[i][j]) {
-                int cur_x = ijtoxb(i, j) + ijtoxb(i, j) / 8 + 1;
-                int cur_y = ijtoyb(i, j) + ijtoyb(i, j) / 8 + 1;
+                int cur_x = ijtox(i, j) + ijtox(i, j) / 8 + 1;
+                int cur_y = ijtoy(i, j) + ijtoy(i, j) / 8 + 1;
                 double cur_energy = energy_map_->GetBinContent(cur_x, cur_y);
                 trigger_map_->SetBinContent(cur_x, cur_y, cur_energy);
                 energy_map_->SetBinContent(cur_x, cur_y, 0);
@@ -292,10 +292,10 @@ void EventCanvas::draw_event() {
         int j1 = first_ij[1];
         int i2 = second_ij[0];
         int j2 = second_ij[1];
-        double point_x1 = ijtoxb(i1, j1) + ijtoxb(i1, j1) / 8 + 0.5;
-        double point_y1 = ijtoyb(i1, j1) + ijtoyb(i1, j1) / 8 + 0.5;
-        double point_x2 = ijtoxb(i2, j2) + ijtoxb(i2, j2) / 8 + 0.5;
-        double point_y2 = ijtoyb(i2, j2) + ijtoyb(i2, j2) / 8 + 0.5;
+        double point_x1 = ijtox(i1, j1) + ijtox(i1, j1) / 8 + 0.5;
+        double point_y1 = ijtoy(i1, j1) + ijtoy(i1, j1) / 8 + 0.5;
+        double point_x2 = ijtox(i2, j2) + ijtox(i2, j2) / 8 + 0.5;
+        double point_y2 = ijtoy(i2, j2) + ijtoy(i2, j2) / 8 + 0.5;
         angle_arrow_ = new TArrow(point_x1, point_y1, point_x2, point_y2, 0.02, ">");
         angle_arrow_->SetLineColor(kRed);
         angle_arrow_->SetLineWidth(2);
