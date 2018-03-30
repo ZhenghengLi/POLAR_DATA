@@ -18,6 +18,7 @@ public:
     TString output_filename;        // -o
     TString bar_mask_filename;      // -k
     bool    no_deadtime;
+    bool    strict_flag;            // -s
 
 public:
     OptionsManager();

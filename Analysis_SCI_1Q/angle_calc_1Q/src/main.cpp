@@ -296,7 +296,6 @@ int main(int argc, char** argv) {
         while (!bar_queue.empty()) bar_queue.pop();
 
         // find the first two bars'
-        bool found_not_adjacent = false;
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
@@ -309,21 +308,35 @@ int main(int argc, char** argv) {
             t_pol_angle_tree->Fill();
             continue;
         }
+        // get first bar
         first_bar = bar_queue.top();
         bar_queue.pop();
         first_pos.randomize(first_bar.i, first_bar.j);
-        while (!bar_queue.empty()) {
+
+        if (options_mgr.strict_flag) {
+            // get second bar
+            if (bar_queue.empty()) {
+                t_pol_angle_tree->Fill();
+                continue;
+            }
             second_bar = bar_queue.top();
             bar_queue.pop();
             second_pos.randomize(second_bar.i, second_bar.j);
-            if (!first_pos.is_adjacent_to(second_pos)) {
-                found_not_adjacent = true;
-                break;
+        } else {
+            bool found_not_adjacent = false;
+            while (!bar_queue.empty()) {
+                second_bar = bar_queue.top();
+                bar_queue.pop();
+                second_pos.randomize(second_bar.i, second_bar.j);
+                if (!first_pos.is_adjacent_to(second_pos)) {
+                    found_not_adjacent = true;
+                    break;
+                }
             }
-        }
-        if (!found_not_adjacent) {
-            t_pol_angle_tree->Fill();
-            continue;
+            if (!found_not_adjacent) {
+                t_pol_angle_tree->Fill();
+                continue;
+            }
         }
 
         // calculate angle according to the first two bars
@@ -335,6 +348,7 @@ int main(int argc, char** argv) {
         t_pol_angle.rand_distance   = first_pos.distance_to(second_pos);
         t_pol_angle.first_energy    = t_pol_event.energy_value[first_pos.i][first_pos.j];
         t_pol_angle.second_energy   = t_pol_event.energy_value[second_pos.i][second_pos.j];
+        t_pol_angle.is_adjacent     = first_pos.is_adjacent_to(second_pos);
         if (options_mgr.no_deadtime) {
             t_pol_angle.weight = 1.0;
         } else {
@@ -352,6 +366,11 @@ int main(int argc, char** argv) {
 
     t_pol_angle_file->cd();
     t_pol_angle_tree->Write();
+    if (options_mgr.strict_flag) {
+        TNamed("strict_mode", "true").Write();
+    } else {
+        TNamed("strict_mode", "false").Write();
+    }
     t_pol_angle_file->Close();
 
     pol_event_file->Close();

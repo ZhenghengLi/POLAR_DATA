@@ -56,6 +56,9 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 's':
+                strict_flag = true;
+                break;
             default:
                 return false;
             }
@@ -79,9 +82,10 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<SCI_1Q.root> [-d <deadtime_file.root>] [-k <bar_mask.txt>] [-o <output_angle.root>]" << endl;
+    cout << "  " << SW_NAME << "<SCI_1Q.root> [-s] [-d <deadtime_file.root>] [-k <bar_mask.txt>] [-o <output_angle.root>]" << endl;
     cout << endl;
     cout << "Options:" << endl;
+    cout << "  -s                               turn on strict mode" << endl;
     cout << "  -d <deadtime_file.root>          deadtime file" << endl;
     cout << "  -k <bar_mask.txt>                a text file to store bad channels" << endl;
     cout << "  -o <output_xtalkcorr.root>       crosstalk corrected data" << endl;
@@ -109,6 +113,7 @@ void OptionsManager::init() {
     bar_mask_filename.Clear();
     output_filename.Clear();
     no_deadtime = false;
+    strict_flag = false;
 
     version_flag_ = false;
 }
