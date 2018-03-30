@@ -8,6 +8,37 @@
 
 using namespace std;
 
+bool neigh_to_trigger(bool trigger_bit[64], int j) {
+    // first neighbour
+    if (j - 1 >= 0  && trigger_bit[j - 1]) return true;
+    if (j + 1 <= 63 && trigger_bit[j + 1]) return true;
+    if (j - 8 >= 0  && trigger_bit[j - 8]) return true;
+    if (j + 8 <= 63 && trigger_bit[j + 8]) return true;
+    if (j - 7 >= 0  && trigger_bit[j - 7]) return true;
+    if (j + 7 <= 63 && trigger_bit[j + 7]) return true;
+    if (j - 9 >= 0  && trigger_bit[j - 9]) return true;
+    if (j + 9 <= 63 && trigger_bit[j + 9]) return true;
+    // second neighbour
+    // if (j - 2 >= 0  && trigger_bit[j - 2]) return true;
+    // if (j + 2 <= 63 && trigger_bit[j + 2]) return true;
+    // if (j - 6 >= 0  && trigger_bit[j - 6]) return true;
+    // if (j + 6 <= 63 && trigger_bit[j + 6]) return true;
+    // if (j - 10 >= 0  && trigger_bit[j - 10]) return true;
+    // if (j + 10 <= 63 && trigger_bit[j + 10]) return true;
+    // if (j - 14 >= 0  && trigger_bit[j - 14]) return true;
+    // if (j + 14 <= 63 && trigger_bit[j + 14]) return true;
+    // if (j - 15 >= 0  && trigger_bit[j - 15]) return true;
+    // if (j + 15 <= 63 && trigger_bit[j + 15]) return true;
+    // if (j - 16 >= 0  && trigger_bit[j - 16]) return true;
+    // if (j + 16 <= 63 && trigger_bit[j + 16]) return true;
+    // if (j - 17 >= 0  && trigger_bit[j - 17]) return true;
+    // if (j + 17 <= 63 && trigger_bit[j + 17]) return true;
+    // if (j - 18 >= 0  && trigger_bit[j - 18]) return true;
+    // if (j + 18 <= 63 && trigger_bit[j + 18]) return true;
+
+    return false;
+}
+
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
     if (!options_mgr.parse(argc, argv)) {
@@ -135,29 +166,57 @@ int main(int argc, char** argv) {
             }
         }
 
-        // (3) subtract common noise (not real for compress 3)
+        // (3) subtract common noise
         float cur_common_sum   = 0;
         int   cur_common_n     = 0;
         float cur_common_noise = 0;
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
-            cur_common_sum = 0.0;
-            cur_common_n   = 0;
-            for (int j = 0; j < 64; j++) {
-                if (t_pol_event.trigger_bit[i][j]) continue;
-                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
-                cur_common_sum += t_pol_event.energy_value[i][j];
-                cur_common_n   += 1;
-            }
-            cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
             for (int j = 0; j < 64; j++) {
                 if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) {
                     t_pol_event.energy_value[i][j] -= t_pol_event.common_noise[i];
-                } else {
-                    t_pol_event.energy_value[i][j] -= cur_common_noise;
                 }
             }
+            if (t_pol_event.compress[i] == 3) {
+                double sum_non_trigger = t_pol_event.common_noise[i] * 2.0 * 64;
+                // correction for common_noise calculated in-orbit
+                int neigh_count = 0;
+                int trigg_count = 0;
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j]) {
+                        trigg_count++;
+                        continue;
+                    }
+                    if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
+                    if (neigh_to_trigger(t_pol_event.trigger_bit[i], j)) {
+                        sum_non_trigger -= t_pol_event.energy_value[i][j];
+                        neigh_count++;
+                    }
+                }
+                cur_common_noise = (trigg_count + neigh_count < 64 ? sum_non_trigger / (64 - trigg_count - neigh_count) : 0);
+
+            } else if (t_pol_event.compress[i] == 1) {
+                cur_common_noise = 0.0;
+            } else {
+                cur_common_sum = 0.0;
+                cur_common_n   = 0;
+                for (int j = 0; j < 64; j++) {
+                    if (t_pol_event.trigger_bit[i][j]) continue;
+                    if (neigh_to_trigger(t_pol_event.trigger_bit[i], j)) continue;
+                    cur_common_sum += t_pol_event.energy_value[i][j];
+                    cur_common_n   += 1;
+                }
+                cur_common_noise = (cur_common_n > 0 ? cur_common_sum / cur_common_n : 0.0);
+            }
+            if (t_pol_event.compress[i] != 1) {
+                t_pol_event.common_noise[i] = cur_common_noise;
+            }
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT) continue;
+                t_pol_event.energy_value[i][j] -= cur_common_noise;
+            }
         }
+
 
         // classify events after pedestal and common noise subtraction
         t_event_type.event_id_c   = t_pol_event.event_id;
@@ -187,7 +246,7 @@ int main(int argc, char** argv) {
     // write TTree
     output_file->cd();
     t_event_type_tree->Write();
-    TNamed("m_toolow_cut", Form("%f", options_mgr.cut_value));
+    TNamed("m_toolow_cut", Form("%f", options_mgr.cut_value)).Write();
 
 
     output_file->Close();

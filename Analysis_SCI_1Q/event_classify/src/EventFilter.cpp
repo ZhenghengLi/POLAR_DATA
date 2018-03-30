@@ -1,5 +1,6 @@
 #include "EventFilter.hpp"
 #include "Constants.hpp"
+#include <cmath>
 
 EventFilter::EventFilter() {
 
@@ -9,6 +10,7 @@ EventFilter::EventFilter() {
     too_many_cut_2_ = 35;
     too_short_cut_  = 1E-3;
     time_wait_cut_  = 100E-6;
+    common_noise_too_large_cut_ = 90.0;
 
     // init other values
     for (int i = 0; i < 25; i++) {
@@ -139,6 +141,16 @@ UShort_t EventFilter::check_too_short_(const POLEvent& pol_event) {
     return 0;
 }
 
+UShort_t EventFilter::check_common_noise_too_large_(const POLEvent& pol_event) {
+    for (int i = 0; i < 25; i++) {
+        if (!pol_event.time_aligned[i]) continue;
+        if (abs(pol_event.common_noise[i]) > common_noise_too_large_cut_) {
+            return COMMON_NOISE_TOO_LARGE;
+        }
+    }
+    return 0;
+}
+
 UShort_t EventFilter::classify(const POLEvent& pol_event) {
     if (pol_event.is_ped) return 0;
 
@@ -149,7 +161,9 @@ UShort_t EventFilter::classify(const POLEvent& pol_event) {
     UShort_t too_many_res = check_too_many_(pol_event);
     UShort_t too_short_res = check_too_short_(pol_event);
 
-    UShort_t final_res = (too_low_res | post_cosmic_res | cosmic_res); // | too_many_res | too_short_res);
+    UShort_t common_noise_too_large_res = check_common_noise_too_large_(pol_event);
+
+    UShort_t final_res = (too_low_res | too_many_res | common_noise_too_large_res); // | post_cosmic_res | cosmic_res); // | too_many_res | too_short_res);
 
     return final_res;
 }
