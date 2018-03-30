@@ -6,6 +6,7 @@
 #include "POLEvent.hpp"
 #include "Na22Check.hpp"
 #include "BarPos.hpp"
+#include "PosConv.hpp"
 
 using namespace std;
 
@@ -104,48 +105,16 @@ int main(int argc, char** argv) {
         }
     }
 
-    // open weight file
-    TFile* pol_weight_file = new TFile(options_mgr.weight_filename.Data(), "read");
-    if (pol_weight_file->IsZombie()) {
-        cout << "pol_weight_file open failed." << endl;
-        return 1;
-    }
-    struct {
-        Double_t event_time_2;
-        Float_t  ch_weight[25][64];
-        Float_t  mod_weight[25];
-        Float_t  event_weight;
-    } t_pol_weight;
-    TTree* t_pol_weight_tree = static_cast<TTree*>(pol_weight_file->Get("t_pol_weight"));
-    if (t_pol_weight_tree == NULL) {
-        cout << "cannot find TTree t_pol_weight" << endl;
-        return 1;
-    }
-    t_pol_weight_tree->SetBranchAddress("event_time_2",     &t_pol_weight.event_time_2     );
-    t_pol_weight_tree->SetBranchAddress("ch_weight",         t_pol_weight.ch_weight        );
-    t_pol_weight_tree->SetBranchAddress("mod_weight",        t_pol_weight.mod_weight       );
-    t_pol_weight_tree->SetBranchAddress("event_weight",     &t_pol_weight.event_weight     );
-    if (t_pol_weight_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
-        cout << "Entries is different between TTree t_pol_weight and t_pol_event" << endl;
-        return 1;
-    } else {
-        t_pol_event_tree->AddFriend(t_pol_weight_tree);
-    }
-
     t_pol_event.deactive_all(t_pol_event_tree);
-    Long64_t begin_entry = 0;
-    Long64_t end_entry = t_pol_event_tree->GetEntries();
     t_pol_event.active(t_pol_event_tree, "event_time");
     t_pol_event.active(t_pol_event_tree, "time_aligned");
     t_pol_event.active(t_pol_event_tree, "trigger_bit");
-    t_pol_event.active(t_pol_event_tree, "trigger_n");
-    t_pol_event.active(t_pol_event_tree, "multiplicity");
     t_pol_event.active(t_pol_event_tree, "energy_value");
     t_pol_event.active(t_pol_event_tree, "channel_status");
     t_pol_event.active(t_pol_event_tree, "is_ped");
     t_pol_event.active(t_pol_event_tree, "pkt_count");
     t_pol_event.active(t_pol_event_tree, "lost_count");
-    t_pol_event.active(t_pol_event_tree, "ch_weight");
+    t_pol_event.active(t_pol_event_tree, "wgs84_xyz");
     if (!options_mgr.no_deadtime) {
         t_pol_event.active(t_pol_event_tree, "module_dead_ratio");
     }
@@ -159,12 +128,13 @@ int main(int argc, char** argv) {
         Float_t   rand_distance;
         Float_t   first_energy;
         Float_t   second_energy;
-        Bool_t    is_valid;
+        Bool_t    is_adjacent;
         Bool_t    is_na22;
         Bool_t    is_bad_calib;
         Bool_t    with_badch;
-        Float_t   deadtime_weight;
-        Float_t   efficiency_weight;
+        Float_t   weight;
+        Float_t   latitude;
+        Float_t   longitude;
     } t_pol_angle;
 
     TFile* t_pol_angle_file = new TFile(options_mgr.output_filename.Data(), "recreate");
@@ -180,13 +150,17 @@ int main(int argc, char** argv) {
     t_pol_angle_tree->Branch("rand_distance",     &t_pol_angle.rand_distance,      "rand_distance/F"     );
     t_pol_angle_tree->Branch("first_energy",      &t_pol_angle.first_energy,       "first_energy/F"      );
     t_pol_angle_tree->Branch("second_energy",     &t_pol_angle.second_energy,      "second_energy/F"     );
-    t_pol_angle_tree->Branch("is_valid",          &t_pol_angle.is_valid,           "is_valid/O"          );
+    t_pol_angle_tree->Branch("is_adjacent",       &t_pol_angle.is_adjacent,        "is_adjacent/O"       );
     t_pol_angle_tree->Branch("is_na22",           &t_pol_angle.is_na22,            "is_na22/O"           );
     t_pol_angle_tree->Branch("is_bad_calib",      &t_pol_angle.is_bad_calib,       "is_bad_calib/O"      );
-    t_pol_angle_tree->Branch("with_badch",        &t_pol_angle.with_badch,         "with_badch/O"      );
-    t_pol_angle_tree->Branch("deadtime_weight",   &t_pol_angle.deadtime_weight,    "deadtime_weight/F"   );
-    t_pol_angle_tree->Branch("efficiency_weight", &t_pol_angle.efficiency_weight,  "efficiency_weight/F" );
+    t_pol_angle_tree->Branch("with_badch",        &t_pol_angle.with_badch,         "with_badch/O"        );
+    t_pol_angle_tree->Branch("weight",            &t_pol_angle.weight,             "weight/F"            );
+    t_pol_angle_tree->Branch("latitude",          &t_pol_angle.latitude,           "latitude/F"          );
+    t_pol_angle_tree->Branch("longitude",         &t_pol_angle.longitude,          "longitude/F"         );
 
+    // print file info
+    Long64_t begin_entry = 0;
+    Long64_t end_entry = t_pol_event_tree->GetEntries();
     t_pol_event_tree->GetEntry(begin_entry);
     int begin_time = static_cast<int>(t_pol_event.event_time);
     t_pol_event_tree->GetEntry(end_entry - 1);
@@ -215,19 +189,24 @@ int main(int argc, char** argv) {
 
         // start init angle
         t_pol_angle.event_time = t_pol_event.event_time;
+        t_pol_angle.latitude = wgs84_to_latitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]);
+        t_pol_angle.longitude = wgs84_to_longitude(t_pol_event.wgs84_xyz[0], t_pol_event.wgs84_xyz[1], t_pol_event.wgs84_xyz[2]);
         for (int i = 0; i < 2; i++) {
             t_pol_angle.first_ij[i] = -1;
             t_pol_angle.second_ij[i] = -1;
         }
         t_pol_angle.rand_angle = -1;
+        t_pol_angle.rand_distance = -1;
         t_pol_angle.first_energy = -1;
         t_pol_angle.second_energy = -1;
-        t_pol_angle.is_valid = false;
+        t_pol_angle.is_adjacent = false;
         t_pol_angle.is_na22 = false;
-        t_pol_angle.deadtime_weight = 0;
-        t_pol_angle.efficiency_weight = 0;
+        t_pol_angle.is_bad_calib = false;
+        t_pol_angle.with_badch = false;
+        t_pol_angle.weight = 0;
         // stop init angle
 
+        //////////////////////////////////////////////////////////////////////
         bool not_ready = false;
         // ped check
         if (t_pol_event.is_ped) not_ready = true;
@@ -239,10 +218,46 @@ int main(int argc, char** argv) {
             t_pol_angle_tree->Fill();
             continue;
         }
+
+        // overflow check
+        int num_of_overflow = 0;
+        for (int i = 0; i < 25; i++) {
+            if (!t_pol_event.time_aligned[i]) continue;
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.channel_status[i][j] & POLEvent::ADC_OVERFLOW) {
+                    num_of_overflow++;
+                }
+            }
+        }
+        if (num_of_overflow > 2) {
+            t_pol_angle_tree->Fill();
+            continue;
+        }
+
+        // bad event check
+        bool is_bad_event = false;
+        for (int i = 0; i < 25; i++) {
+            if (!t_pol_event.time_aligned[i]) continue;
+            for (int j = 0; j < 64; j++) {
+                if (t_pol_event.trigger_bit[i][j] && (t_pol_event.channel_status[i][j] & POLEvent::ADC_NOT_READOUT)) {
+                    is_bad_event = true;
+                    break;
+                }
+            }
+            if (is_bad_event) break;
+        }
+        if (is_bad_event) {
+            t_pol_angle_tree->Fill();
+            continue;
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
         // na22 check
         if (na22_checker.check_na22_event(t_pol_event)) {
             t_pol_angle.is_na22 = true;
         }
+
         // bad calib check
         bool cur_is_bad_calib = false;
         for (int i = 0; i < 25; i++) {
@@ -257,6 +272,7 @@ int main(int argc, char** argv) {
             if (cur_is_bad_calib) break;
         }
         t_pol_angle.is_bad_calib = cur_is_bad_calib;
+
         // bad channel check
         bool cur_with_badch = false;
         for (int i = 0; i < 25; i++) {
@@ -272,29 +288,22 @@ int main(int argc, char** argv) {
         }
         t_pol_angle.with_badch = cur_with_badch;
 
+        ///////////////////////////////////////////////////////////////////////////
+
         // start angle calculating
         priority_queue<Bar> bar_queue;
         // clear bar_queue
         while (!bar_queue.empty()) bar_queue.pop();
+
         // find the first two bars'
-        bool is_bad_event = false;
         bool found_not_adjacent = false;
         for (int i = 0; i < 25; i++) {
             if (!t_pol_event.time_aligned[i]) continue;
             for (int j = 0; j < 64; j++) {
-                if (t_pol_event.trigger_bit[i][j] && t_pol_event.channel_status[i][j] > 0 && t_pol_event.channel_status[i][j] != 0x4) {
-                   is_bad_event = true;
-                   break;
-                }
                 if (t_pol_event.trigger_bit[i][j]) {
                     bar_queue.push(Bar(t_pol_event.energy_value[i][j], i, j));
                 }
             }
-            if (is_bad_event) break;
-        }
-        if (is_bad_event) {
-            t_pol_angle_tree->Fill();
-            continue;
         }
         if (bar_queue.empty()) {
             t_pol_angle_tree->Fill();
@@ -326,18 +335,16 @@ int main(int argc, char** argv) {
         t_pol_angle.rand_distance   = first_pos.distance_to(second_pos);
         t_pol_angle.first_energy    = t_pol_event.energy_value[first_pos.i][first_pos.j];
         t_pol_angle.second_energy   = t_pol_event.energy_value[second_pos.i][second_pos.j];
-        t_pol_angle.is_valid = true;
         if (options_mgr.no_deadtime) {
-            t_pol_angle.deadtime_weight = 1.0;
+            t_pol_angle.weight = 1.0;
         } else {
             if (first_pos.i == second_pos.i) {
-                t_pol_angle.deadtime_weight = 1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i]);
+                t_pol_angle.weight = 1.0 / (1.0 - t_dead_ratio.module_dead_ratio[first_pos.i]);
             } else {
-                t_pol_angle.deadtime_weight = (1 / (1 - t_dead_ratio.module_dead_ratio[first_pos.i])) *
+                t_pol_angle.weight = (1.0 / (1.0 - t_dead_ratio.module_dead_ratio[first_pos.i])) *
                     (1 / (1 - t_dead_ratio.module_dead_ratio[second_pos.i]));
             }
         }
-        t_pol_angle.efficiency_weight = t_pol_weight.ch_weight[first_pos.i][first_pos.j] * t_pol_weight.ch_weight[second_pos.i][second_pos.j];
         // save angle
         t_pol_angle_tree->Fill();
     }
@@ -348,7 +355,6 @@ int main(int argc, char** argv) {
     t_pol_angle_file->Close();
 
     pol_event_file->Close();
-    pol_weight_file->Close();
     if (deadtime_file != NULL) {
         deadtime_file->Close();
     }
