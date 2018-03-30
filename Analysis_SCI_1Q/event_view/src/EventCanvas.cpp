@@ -230,7 +230,7 @@ void EventCanvas::draw_event() {
         }
         trig_mean = trig_adc_sum / trig_n;
         nontrig_mean = nontrig_adc_sum / nontrig_n;
-        cout << "CT_" << i + 1 << ": " << trig_mean - nontrig_mean << "   " << t_pol_event_.multiplicity[i] << endl;
+        cout << "CT_" << i + 1 << ": " << trig_mean - nontrig_mean << "   " << t_pol_event_.multiplicity[i] << "   " << t_pol_event_.common_noise[i] << endl;
 
         trig_adc_tot_sum += trig_mean;
         trig_tot_n++;
