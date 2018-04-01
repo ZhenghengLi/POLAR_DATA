@@ -108,9 +108,20 @@ int main(int argc, char** argv) {
     }
 
     // prepare histograms
+    // modulation curve
     TH1D* modcur_bkg = new TH1D("modcur_bkg", "modcur_bkg", options_mgr.nbins, 0, 360);
     TH1D* modcur_grb_with_bkg = new TH1D("modcur_grb_with_bkg", "modcur_grb_with_bkg", options_mgr.nbins, 0, 360);
     TH1D* modcur_grb_sub_bkg = new TH1D("modcur_grb_sub_bkg", "modcur_grb_sub_bkg", options_mgr.nbins, 0, 360);
+    // distance
+    int   distance_nbins = 100;
+    TH1D* distance_bkg = new TH1D("distance_bkg", "distance_bkg", distance_nbins, 0, 300);
+    TH1D* distance_grb_with_bkg = new TH1D("distance_grb_with_bkg", "distance_grb_with_bkg", distance_nbins, 0, 300);
+    TH1D* distance_grb_sub_bkg = new TH1D("distance_grb_sub_bkg", "distance_grb_sub_bkg", distance_nbins, 0, 300);
+    // energy
+    int   energy_nbins = 100;
+    TH1D* energy_bkg = new TH1D("energy_bkg", "energy_bkg", energy_nbins, 0, 300);
+    TH1D* energy_grb_with_bkg = new TH1D("energy_grb_with_bkg", "energy_grb_with_bkg", energy_nbins, 0, 300);
+    TH1D* energy_grb_sub_bkg = new TH1D("energy_grb_sub_bkg", "energy_grb_sub_bkg", energy_nbins, 0, 300);
 
     // read angle
     int pre_percent = 0;
@@ -134,20 +145,42 @@ int main(int argc, char** argv) {
         // fill angle
         if (options_mgr.subbkg_flag) {
             if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
+                //modulation curve
                 modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                // distance
+                distance_grb_with_bkg->Fill(t_pol_angle.rand_distance, t_pol_angle.weight);
+                // energy
+                energy_grb_with_bkg->Fill(t_pol_angle.first_energy + t_pol_angle.second_energy, t_pol_angle.weight);
                 continue;
             }
             if (t_pol_angle.event_time > options_mgr.bkg_before_start && t_pol_angle.event_time < options_mgr.bkg_before_stop) {
+                // modulation curve
                 modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                // distance
+                distance_bkg->Fill(t_pol_angle.rand_distance, t_pol_angle.weight);
+                // energy
+                energy_bkg->Fill(t_pol_angle.first_energy + t_pol_angle.second_energy, t_pol_angle.weight);
                 continue;
             }
             if (t_pol_angle.event_time > options_mgr.bkg_after_start && t_pol_angle.event_time < options_mgr.bkg_after_stop) {
+                // modulation curve
                 modcur_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+                // distance
+                distance_bkg->Fill(t_pol_angle.rand_distance, t_pol_angle.weight);
+                // energy
+                energy_bkg->Fill(t_pol_angle.first_energy + t_pol_angle.second_energy, t_pol_angle.weight);
                 continue;
             }
         } else {
+            // modulation curve
             modcur_grb_sub_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
             modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
+            // distance
+            distance_grb_sub_bkg->Fill(t_pol_angle.rand_distance, t_pol_angle.weight);
+            distance_grb_with_bkg->Fill(t_pol_angle.rand_distance, t_pol_angle.weight);
+            // energy
+            energy_grb_sub_bkg->Fill(t_pol_angle.first_energy + t_pol_angle.second_energy, t_pol_angle.weight);
+            energy_grb_with_bkg->Fill(t_pol_angle.first_energy + t_pol_angle.second_energy, t_pol_angle.weight);
         }
     }
     cout << " DONE ]" << endl;
@@ -156,7 +189,7 @@ int main(int argc, char** argv) {
     delete angle_file;
 
     if (options_mgr.subbkg_flag) {
-        // scale background
+
         double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
         double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
         if (bkg_time_duration < 10) {
@@ -165,14 +198,33 @@ int main(int argc, char** argv) {
         }
         double bkg_scale = grb_time_duration / bkg_time_duration;
 
+        // scale background
+
+        // modulation curve
         for (int i = 0; i < options_mgr.nbins; i++) {
             double cur_binc = modcur_bkg->GetBinContent(i + 1);
             double cur_bine = modcur_bkg->GetBinError(i + 1);
             modcur_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
             modcur_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
         }
+        // distance
+        for (int i = 0; i < distance_nbins; i++) {
+            double cur_binc = distance_bkg->GetBinContent(i + 1);
+            double cur_bine = distance_bkg->GetBinError(i + 1);
+            distance_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
+            distance_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
+        }
+        // energy
+        for (int i = 0; i < energy_nbins; i++) {
+            double cur_binc = energy_bkg->GetBinContent(i + 1);
+            double cur_bine = energy_bkg->GetBinError(i + 1);
+            energy_bkg->SetBinContent(i + 1, cur_binc * bkg_scale);
+            energy_bkg->SetBinError(  i + 1, cur_bine * bkg_scale);
+        }
 
         // subtract background
+
+        // modulation curve
         for (int i = 0; i < options_mgr.nbins; i++) {
             double grb_binc = modcur_grb_with_bkg->GetBinContent(i + 1);
             double grb_bine = modcur_grb_with_bkg->GetBinError(i + 1);
@@ -181,12 +233,41 @@ int main(int argc, char** argv) {
             modcur_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
             modcur_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
         }
+        // distance
+        for (int i = 0; i < distance_nbins; i++) {
+            double grb_binc = distance_grb_with_bkg->GetBinContent(i + 1);
+            double grb_bine = distance_grb_with_bkg->GetBinError(i + 1);
+            double bkg_binc = distance_bkg->GetBinContent(i + 1);
+            double bkg_bine = distance_bkg->GetBinError(i + 1);
+            distance_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
+            distance_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
+        }
+        // energy
+        for (int i = 0; i < energy_nbins; i++) {
+            double grb_binc = energy_grb_with_bkg->GetBinContent(i + 1);
+            double grb_bine = energy_grb_with_bkg->GetBinError(i + 1);
+            double bkg_binc = energy_bkg->GetBinContent(i + 1);
+            double bkg_bine = energy_bkg->GetBinError(i + 1);
+            energy_grb_sub_bkg->SetBinContent(i + 1, grb_binc - bkg_binc);
+            energy_grb_sub_bkg->SetBinError(i + 1, TMath::Sqrt(grb_bine * grb_bine + bkg_bine * bkg_bine));
+        }
+
     }
 
     output_file->cd();
+    // modulation curve
     modcur_grb_sub_bkg->Write();
     modcur_grb_with_bkg->Write();
     modcur_bkg->Write();
+    // distance
+    distance_grb_sub_bkg->Write();
+    distance_grb_with_bkg->Write();
+    distance_bkg->Write();
+    // energy
+    energy_grb_sub_bkg->Write();
+    energy_grb_with_bkg->Write();
+    energy_bkg->Write();
+
     TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
     TNamed("nbins", Form("%d", options_mgr.nbins)).Write();
     TNamed("grb_range", grb_range.c_str()).Write();
