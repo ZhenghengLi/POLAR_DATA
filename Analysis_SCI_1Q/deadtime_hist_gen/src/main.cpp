@@ -144,6 +144,10 @@ int main(int argc, char** argv) {
         double deadtime_FEE = (is_compressed ? deadtime_FEE_3 : deadtime_FEE_0);
         double f_FEE_ratio = f_modules / 25.0;
         double f_CT_ratio  = 1.0 - f_FEE_ratio;
+        if (f_modules > 2) {
+            f_single_ratio = 1.0;
+            f_multi_ratio  = 0.0;
+        }
         double event_deadtime = f_single_ratio * (f_FEE_ratio * deadtime_FEE + f_CT_ratio * deadtime_CT) + f_multi_ratio * deadtime_CT;
 
         event_dead_ratio_hist->Fill(t_pol_event.event_time, event_deadtime);
