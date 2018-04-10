@@ -71,11 +71,17 @@ int main(int argc, char** argv) {
         module_dead_ratio_hist[i] = new TH1D(Form("module_dead_ratio_hist_CT_%02d", i + 1),
                 Form("module_dead_ratio_hist_CT_%02d", i + 1), nbins, begin_time, end_time);
         module_dead_ratio_hist[i]->SetDirectory(NULL);
+        module_dead_ratio_hist[i]->Sumw2();
     }
     TH1D* event_dead_ratio_hist = new TH1D("event_dead_ratio_hist", "event_dead_ratio_hist", nbins, begin_time, end_time);
+    event_dead_ratio_hist->SetDirectory(NULL);
+    event_dead_ratio_hist->Sumw2();
     TH1D* trigger_rate_hist = new TH1D("trigger_rate_hist", "trigger_rate_hist", nbins, begin_time, end_time);
+    trigger_rate_hist->SetDirectory(NULL);
+    trigger_rate_hist->Sumw2();
     TH1D* trigger_rate_dc_hist = new TH1D("trigger_rate_dc_hist", "trigger_rate_dc_hist", nbins, begin_time, end_time);
-
+    trigger_rate_dc_hist->SetDirectory(NULL);
+    trigger_rate_dc_hist->Sumw2();
 
     bool is_first = true;
     deque<int> n_mods_deque;
@@ -150,6 +156,12 @@ int main(int argc, char** argv) {
     }
     cout << " DONE ]" << endl;
 
+    // calculate dead ratio
+    for (int i = 0; i < 25; i++) {
+        module_dead_ratio_hist[i]->Scale(1, "width");
+    }
+    event_dead_ratio_hist->Scale(1, "width");
+
     // deadtime correction for trigger_rate
     for (int b = 1; b <= trigger_rate_dc_hist->GetNbinsX(); b++) {
         double binc = trigger_rate_hist->GetBinContent(b);
@@ -159,12 +171,8 @@ int main(int argc, char** argv) {
         trigger_rate_dc_hist->SetBinContent(b, binc / (1 - dead_ratio));
         trigger_rate_dc_hist->SetBinError(  b, bine / (1 - dead_ratio));
     }
-
-    // calculate dead ratio
-    for (int i = 0; i < 25; i++) {
-        module_dead_ratio_hist[i]->Scale(1, "width");
-    }
-    event_dead_ratio_hist->Scale(1, "width");
+    trigger_rate_hist->Scale(1, "width");
+    trigger_rate_dc_hist->Scale(1, "width");
 
     cout << "write dead ratio histogram ... " << flush;
     // open dead_ratio_file
@@ -173,7 +181,6 @@ int main(int argc, char** argv) {
         cout << "deadtime_file open failed." << endl;
         return 1;
     }
-
     deadtime_file->cd();
     for (int i = 0; i < 25; i++) {
         module_dead_ratio_hist[i]->Write();
