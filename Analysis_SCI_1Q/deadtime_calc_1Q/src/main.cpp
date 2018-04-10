@@ -41,8 +41,8 @@ int main(int argc, char** argv) {
     t_pol_event_tree->GetEntry(end_entry - 1);
     double end_time = t_pol_event.event_time;
     cout << options_mgr.pol_event_filename.Data()
-         << " { " << begin_time << "[" << begin_entry << "] => "
-         << end_time << "[" << end_entry - 1 << "] }" << endl;
+         << " { " << Form("%.6f", begin_time) << "[" << begin_entry << "] => "
+         << Form("%.6f", end_time) << "[" << end_entry - 1 << "] }" << endl;
 
     // read deadtime ratio histogram
     cout << "reading deadtime ratio histogram ..." << endl;
