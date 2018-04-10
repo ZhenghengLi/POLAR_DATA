@@ -89,19 +89,10 @@ int main(int argc, char** argv) {
             pre_percent = cur_percent;
             cout << "#" << flush;
         }
-        t_pol_event_tree->GetEntry(q);
-
-        // calculate module dead ratio hist
-        for (int i = 0; i < 25; i++) {
-            if (t_pol_event.time_aligned[i]) {
-                module_dead_ratio_hist[i]->Fill(t_pol_event.event_time, t_pol_event.fe_time_wait[i] * t_pol_event.fe_dead_ratio[i]);
-            }
-        }
 
         //////////////////////////////////////////////////////////
-        // calculate event dead ratio hist
-        //////////////////////////////////////////////////////////
 
+        // calculate single module ratio
         if (is_first) {
             is_first = false;
             for (Long64_t t = q; t < q + 1000; t++) {
@@ -126,6 +117,15 @@ int main(int argc, char** argv) {
         double f_multi_ratio  = 1.0 - f_single_ratio;
 
         t_pol_event_tree->GetEntry(q);
+
+        // calculate and fill module dead ratio hist
+        for (int i = 0; i < 25; i++) {
+            if (t_pol_event.time_aligned[i]) {
+                module_dead_ratio_hist[i]->Fill(t_pol_event.event_time, t_pol_event.fe_time_wait[i] * t_pol_event.fe_dead_ratio[i]);
+            }
+        }
+
+        // calculate and fill event dead ratio hist
         double f_modules = 0;
         bool is_compressed = false;
         for (int i = 0; i < 25; i++) {
@@ -150,6 +150,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 25; i++) {
         module_dead_ratio_hist[i]->Scale(1, "width");
     }
+    event_dead_ratio_hist->Scale(1, "width");
 
     cout << "write dead ratio histogram ... " << flush;
     // open dead_ratio_file
