@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
         double f_CT_ratio  = 1.0 - f_FEE_ratio;
         double event_deadtime = f_single_ratio * (f_FEE_ratio * deadtime_FEE + f_CT_ratio * deadtime_CT) + f_multi_ratio * deadtime_CT;
 
-        event_dead_ratio_hist->Fill(event_deadtime);
+        event_dead_ratio_hist->Fill(t_pol_event.event_time, event_deadtime);
 
         //////////////////////////////////////////////////////////
 
