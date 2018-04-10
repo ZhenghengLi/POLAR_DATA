@@ -53,7 +53,6 @@ int main(int argc, char** argv) {
     t_pol_event.active(t_pol_event_tree, "fe_time_wait");
     t_pol_event.active(t_pol_event_tree, "fe_dead_ratio");
     t_pol_event.active(t_pol_event_tree, "compress");
-    cout << options_mgr.pol_event_filename.Data() << endl;
     Long64_t begin_entry = 0;
     Long64_t end_entry = t_pol_event_tree->GetEntries();
     t_pol_event_tree->GetEntry(begin_entry);
