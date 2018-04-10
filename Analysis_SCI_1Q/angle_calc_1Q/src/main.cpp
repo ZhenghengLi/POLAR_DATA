@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     // open deadtime_file
     struct {
         Double_t event_time_d;
-        Float_t  module_dead_ratio[25];
+        Double_t event_dead_ratio;
     } t_dead_ratio;
     TFile* deadtime_file = NULL;
     TTree* t_dead_ratio_tree = NULL;
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
             return 1;
         }
         t_dead_ratio_tree->SetBranchAddress("event_time_d",         &t_dead_ratio.event_time_d        );
-        t_dead_ratio_tree->SetBranchAddress("module_dead_ratio",     t_dead_ratio.module_dead_ratio   );
+        t_dead_ratio_tree->SetBranchAddress("event_dead_ratio",     &t_dead_ratio.event_dead_ratio    );
         if (t_dead_ratio_tree->GetEntries() != t_pol_event_tree->GetEntries()) {
             cout << "Entries is different between TTree t_dead_ratio and t_pol_event" << endl;
             return 1;
@@ -352,12 +352,7 @@ int main(int argc, char** argv) {
         if (options_mgr.no_deadtime) {
             t_pol_angle.weight = 1.0;
         } else {
-            if (first_pos.i == second_pos.i) {
-                t_pol_angle.weight = 1.0 / (1.0 - t_dead_ratio.module_dead_ratio[first_pos.i]);
-            } else {
-                t_pol_angle.weight = (1.0 / (1.0 - t_dead_ratio.module_dead_ratio[first_pos.i])) *
-                    (1 / (1 - t_dead_ratio.module_dead_ratio[second_pos.i]));
-            }
+            t_pol_angle.weight = 1.0 / (1.0 - t_dead_ratio.event_dead_ratio);
         }
         // save angle
         t_pol_angle_tree->Fill();
