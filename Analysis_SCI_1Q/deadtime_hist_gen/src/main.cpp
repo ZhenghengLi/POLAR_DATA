@@ -73,6 +73,8 @@ int main(int argc, char** argv) {
         module_dead_ratio_hist[i]->SetDirectory(NULL);
     }
     TH1D* event_dead_ratio_hist = new TH1D("event_dead_ratio_hist", "event_dead_ratio_hist", nbins, begin_time, end_time);
+    TH1D* trigger_rate_hist = new TH1D("trigger_rate_hist", "trigger_rate_hist", nbins, begin_time, end_time);
+    TH1D* trigger_rate_dc_hist = new TH1D("trigger_rate_dc_hist", "trigger_rate_dc_hist", nbins, begin_time, end_time);
 
 
     bool is_first = true;
@@ -141,10 +143,22 @@ int main(int argc, char** argv) {
 
         event_dead_ratio_hist->Fill(t_pol_event.event_time, event_deadtime);
 
+        trigger_rate_hist->Fill(t_pol_event.event_time);
+
         //////////////////////////////////////////////////////////
 
     }
     cout << " DONE ]" << endl;
+
+    // deadtime correction for trigger_rate
+    for (int b = 1; b <= trigger_rate_dc_hist->GetNbinsX(); b++) {
+        double binc = trigger_rate_hist->GetBinContent(b);
+        double bine = trigger_rate_hist->GetBinError(b);
+        double event_time = trigger_rate_hist->GetBinCenter(b);
+        double dead_ratio = event_dead_ratio_hist->Interpolate(event_time);
+        trigger_rate_dc_hist->SetBinContent(b, binc / (1 - dead_ratio));
+        trigger_rate_dc_hist->SetBinError(  b, bine / (1 - dead_ratio));
+    }
 
     // calculate dead ratio
     for (int i = 0; i < 25; i++) {
@@ -165,6 +179,8 @@ int main(int argc, char** argv) {
         module_dead_ratio_hist[i]->Write();
     }
     event_dead_ratio_hist->Write();
+    trigger_rate_hist->Write();
+    trigger_rate_dc_hist->Write();
     TNamed("begin_time", Form("%d", begin_time)).Write();
     TNamed("end_time", Form("%d", end_time)).Write();
     TNamed("binsize", Form("%f", options_mgr.binw)).Write();
