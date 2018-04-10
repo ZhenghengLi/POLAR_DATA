@@ -37,9 +37,9 @@ int main(int argc, char** argv) {
     Long64_t begin_entry = 0;
     Long64_t end_entry = t_pol_event_tree->GetEntries();
     t_pol_event_tree->GetEntry(begin_entry);
-    int begin_time = static_cast<int>(t_pol_event.event_time);
+    double begin_time = t_pol_event.event_time;
     t_pol_event_tree->GetEntry(end_entry - 1);
-    int end_time = static_cast<int>(t_pol_event.event_time);
+    double end_time = t_pol_event.event_time;
     cout << options_mgr.pol_event_filename.Data()
          << " { " << begin_time << "[" << begin_entry << "] => "
          << end_time << "[" << end_entry - 1 << "] }" << endl;
@@ -57,8 +57,8 @@ int main(int argc, char** argv) {
         cout << "cannot find event_dead_ratio_hist" << endl;
         return 1;
     }
-    int hist_begin_time = 0;
-    int hist_end_time = 0;
+    double hist_begin_time = 0;
+    double hist_end_time = 0;
     double hist_binsize = 0;
     TNamed* tmp_tnamed;
     tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("begin_time"));
@@ -66,14 +66,14 @@ int main(int argc, char** argv) {
         cout << "cannot find TNamed begin_time" << endl;
         return 1;
     } else {
-        hist_begin_time = TString(tmp_tnamed->GetTitle()).Atoi();
+        hist_begin_time = TString(tmp_tnamed->GetTitle()).Atof();
     }
     tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("end_time"));
     if (tmp_tnamed == NULL) {
         cout << "cannot find TNamed end_time" << endl;
         return 1;
     } else {
-        hist_end_time = TString(tmp_tnamed->GetTitle()).Atoi();
+        hist_end_time = TString(tmp_tnamed->GetTitle()).Atof();
     }
     tmp_tnamed = static_cast<TNamed*>(deadtime_ratio_file->Get("binsize"));
     if (tmp_tnamed == NULL) {
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     } else {
         hist_binsize = TString(tmp_tnamed->GetTitle()).Atof();
     }
-    if (hist_begin_time > begin_time || hist_end_time < end_time) {
+    if (hist_begin_time > begin_time + 0.1 || hist_end_time < end_time - 0.1) {
         cout << "the deadtime_ratio file does not match" << endl;
         return 1;
     }

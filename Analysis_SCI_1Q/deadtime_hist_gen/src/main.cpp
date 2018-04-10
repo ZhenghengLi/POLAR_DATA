@@ -57,9 +57,9 @@ int main(int argc, char** argv) {
     Long64_t begin_entry = 0;
     Long64_t end_entry = t_pol_event_tree->GetEntries();
     t_pol_event_tree->GetEntry(begin_entry);
-    int begin_time = static_cast<int>(t_pol_event.event_time);
+    double begin_time = t_pol_event.event_time;
     t_pol_event_tree->GetEntry(end_entry - 1);
-    int end_time = static_cast<int>(t_pol_event.event_time);
+    double end_time = t_pol_event.event_time;
     cout << options_mgr.pol_event_filename.Data()
          << " { " << begin_time << "[" << begin_entry << "] => "
          << end_time << "[" << end_entry - 1 << "] }" << endl;
@@ -188,8 +188,8 @@ int main(int argc, char** argv) {
     event_dead_ratio_hist->Write();
     trigger_rate_hist->Write();
     trigger_rate_dc_hist->Write();
-    TNamed("begin_time", Form("%d", begin_time)).Write();
-    TNamed("end_time", Form("%d", end_time)).Write();
+    TNamed("begin_time", Form("%f", begin_time)).Write();
+    TNamed("end_time", Form("%f", end_time)).Write();
     TNamed("binsize", Form("%f", options_mgr.binw)).Write();
     deadtime_file->Close();
 
