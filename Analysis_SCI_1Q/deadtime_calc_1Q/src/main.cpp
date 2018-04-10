@@ -46,18 +46,16 @@ int main(int argc, char** argv) {
 
     // read deadtime ratio histogram
     cout << "reading deadtime ratio histogram ..." << endl;
-    TH1D* dead_ratio_hist[25];
+    TH1D* event_dead_ratio_hist;
     TFile* deadtime_ratio_file = new TFile(options_mgr.deadtime_ratio_filename.Data(), "read");
     if (deadtime_ratio_file->IsZombie()) {
         cout << "deadtime ratio file open failed: " << options_mgr.deadtime_ratio_filename.Data() << endl;
         return 1;
     }
-    for (int i = 0; i < 25; i++) {
-        dead_ratio_hist[i] = static_cast<TH1D*>(deadtime_ratio_file->Get(Form("dead_ratio_hist_CT_%02d", i + 1)));
-        if (dead_ratio_hist[i] == NULL) {
-            cout << "cannot find dead_ratio_hist" << endl;
-            return 1;
-        }
+    event_dead_ratio_hist = static_cast<TH1D*>(deadtime_ratio_file->Get("event_dead_ratio_hist"));
+    if (event_dead_ratio_hist == NULL) {
+        cout << "cannot find event_dead_ratio_hist" << endl;
+        return 1;
     }
     int hist_begin_time = 0;
     int hist_end_time = 0;
@@ -92,7 +90,7 @@ int main(int argc, char** argv) {
     // open dead_ratio_file
     struct {
         Double_t event_time_d;
-        Float_t  module_dead_ratio[25];
+        Double_t event_dead_ratio;
     } t_dead_ratio;
     TFile* deadtime_file = new TFile(options_mgr.output_filename.Data(), "recreate");
     if (deadtime_file->IsZombie()) {
@@ -101,7 +99,7 @@ int main(int argc, char** argv) {
     }
     TTree* t_dead_ratio_tree = new TTree("t_dead_ratio", "deadtime ratio calculated by a larger bin size");
     t_dead_ratio_tree->Branch("event_time_d",         &t_dead_ratio.event_time_d,        "event_time_d/D"            );
-    t_dead_ratio_tree->Branch("module_dead_ratio",     t_dead_ratio.module_dead_ratio,   "module_dead_ratio[25]/F"   );
+    t_dead_ratio_tree->Branch("event_dead_ratio",     &t_dead_ratio.event_dead_ratio,    "event_dead_ratio/D"        );
 
     int pre_percent = 0;
     int cur_percent = 0;
@@ -115,9 +113,7 @@ int main(int argc, char** argv) {
         }
         t_pol_event_tree->GetEntry(q);
         t_dead_ratio.event_time_d = t_pol_event.event_time;
-        for (int i = 0; i < 25; i++) {
-            t_dead_ratio.module_dead_ratio[i] = dead_ratio_hist[i]->Interpolate(t_pol_event.event_time);
-        }
+        t_dead_ratio.event_dead_ratio = event_dead_ratio_hist->Interpolate(t_pol_event.event_time);
         t_dead_ratio_tree->Fill();
     }
     cout << " DONE ]" << endl;
