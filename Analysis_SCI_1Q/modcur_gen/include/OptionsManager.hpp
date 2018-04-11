@@ -24,6 +24,7 @@ public:
     TString output_filename;        // -o
     int     nbins;                  // -n
     double  energy_thr;             // -t
+    double  rate_binw;              // -w
 
 public:
     OptionsManager();

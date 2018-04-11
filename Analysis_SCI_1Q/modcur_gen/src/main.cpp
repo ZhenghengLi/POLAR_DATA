@@ -9,6 +9,33 @@
 
 using namespace std;
 
+class BkgFun {
+public:
+    static Double_t bkg_range_a;
+    static Double_t bkg_range_b;
+    static Double_t bkg_range_c;
+    static Double_t bkg_range_d;
+public:
+    static Double_t fun(Double_t* x, Double_t* par);
+};
+
+Double_t BkgFun::bkg_range_a = 1;
+Double_t BkgFun::bkg_range_b = 2;
+Double_t BkgFun::bkg_range_c = 3;
+Double_t BkgFun::bkg_range_d = 4;
+
+Double_t BkgFun::fun(Double_t* x, Double_t* par) {
+    if (x[0] < bkg_range_a || x[0] > bkg_range_d) {
+        TF1::RejectPoint();
+        return 0;
+    }
+    if (x[0] > bkg_range_b && x[0] < bkg_range_c) {
+        TF1::RejectPoint();
+        return 0;
+    }
+    return par[0] + par[1] * x[0] + par[2] * x[0] * x[0];
+}
+
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
     if (!options_mgr.parse(argc, argv)) {
@@ -66,15 +93,16 @@ int main(int argc, char** argv) {
 
     Long64_t total_entries = t_pol_angle_tree->GetEntries();
 
+    // read first/last time
+    t_pol_angle_tree->GetEntry(0);
+    double first_time = t_pol_angle.event_time;
+    t_pol_angle_tree->GetEntry(total_entries - 1);
+    double last_time = t_pol_angle.event_time;
+
     string grb_range = "NULL";
     string bkg_range = "NULL";
 
     if (options_mgr.subbkg_flag) {
-        // read first/last time
-        t_pol_angle_tree->GetEntry(0);
-        double first_time = t_pol_angle.event_time;
-        t_pol_angle_tree->GetEntry(total_entries - 1);
-        double last_time = t_pol_angle.event_time;
         // range check
         if (first_time > options_mgr.bkg_before_start) {
             cout << "bkg_before_start < first_time" << endl;
@@ -108,6 +136,20 @@ int main(int argc, char** argv) {
     }
 
     // prepare histograms
+    // angle rate
+    TH1D*  angle_rate = NULL;
+    TF1*   bkg_fun = NULL;
+    if (options_mgr.subbkg_flag) {
+        int angle_rate_nbins = (last_time - first_time) / options_mgr.rate_binw;
+        angle_rate = new TH1D("angle_rate", "angle_rate", angle_rate_nbins, first_time, last_time);
+        angle_rate->Sumw2();
+        BkgFun::bkg_range_a = options_mgr.bkg_before_start;
+        BkgFun::bkg_range_b = options_mgr.bkg_before_stop;
+        BkgFun::bkg_range_c = options_mgr.bkg_after_start;
+        BkgFun::bkg_range_d = options_mgr.bkg_after_stop;
+        bkg_fun = new TF1("bkg_fun", BkgFun::fun, first_time, last_time);
+
+    }
     // modulation curve
     TH1D* modcur_bkg = new TH1D("modcur_bkg", "modcur_bkg", options_mgr.nbins, 0, 360);
     TH1D* modcur_grb_with_bkg = new TH1D("modcur_grb_with_bkg", "modcur_grb_with_bkg", options_mgr.nbins, 0, 360);
@@ -144,6 +186,9 @@ int main(int argc, char** argv) {
         if (t_pol_angle.second_energy < options_mgr.energy_thr) continue;
         // fill angle
         if (options_mgr.subbkg_flag) {
+            // fill angle rate
+            angle_rate->Fill(t_pol_angle.event_time, t_pol_angle.weight);
+            // fill modcur distance energy
             if (t_pol_angle.event_time > options_mgr.grb_start && t_pol_angle.event_time < options_mgr.grb_stop) {
                 //modulation curve
                 modcur_grb_with_bkg->Fill(t_pol_angle.rand_angle, t_pol_angle.weight);
@@ -188,17 +233,17 @@ int main(int argc, char** argv) {
     angle_file->Close();
     delete angle_file;
 
+    gROOT->SetBatch(kTRUE);
+
     if (options_mgr.subbkg_flag) {
 
-        double bkg_time_duration = (options_mgr.bkg_before_stop - options_mgr.bkg_before_start) + (options_mgr.bkg_after_stop - options_mgr.bkg_after_start);
-        double grb_time_duration = options_mgr.grb_stop - options_mgr.grb_start;
-        if (bkg_time_duration < 10) {
-            cout << "bkg_time_duration is too short." << endl;
-            return 1;
-        }
-        double bkg_scale = grb_time_duration / bkg_time_duration;
-
         // scale background
+        angle_rate->Scale(1, "width");
+        angle_rate->Fit(bkg_fun, "RQ");
+        double bkg_before_duration = bkg_fun->Integral(options_mgr.bkg_before_start, options_mgr.bkg_before_stop);
+        double bkg_after_duration = bkg_fun->Integral(options_mgr.bkg_after_start, options_mgr.bkg_after_stop);
+        double bkg_grb_duration = bkg_fun->Integral(options_mgr.grb_start, options_mgr.grb_stop);
+        double bkg_scale = bkg_grb_duration / (bkg_before_duration + bkg_after_duration);
 
         // modulation curve
         for (int i = 0; i < options_mgr.nbins; i++) {
@@ -267,11 +312,18 @@ int main(int argc, char** argv) {
     energy_grb_sub_bkg->Write();
     energy_grb_with_bkg->Write();
     energy_bkg->Write();
+    // angle_rate
+    if (options_mgr.subbkg_flag) {
+        angle_rate->Write();
+    }
 
     TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
     TNamed("nbins", Form("%d", options_mgr.nbins)).Write();
     TNamed("grb_range", grb_range.c_str()).Write();
     TNamed("bkg_range", bkg_range.c_str()).Write();
+    if (options_mgr.subbkg_flag) {
+        TNamed("rate_binw", Form("%f", options_mgr.rate_binw)).Write();
+    }
 
     output_file->Close();
     delete output_file;

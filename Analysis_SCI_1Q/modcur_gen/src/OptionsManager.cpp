@@ -132,6 +132,18 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
                     return false;
                 }
                 break;
+            case 'w':
+                if (idx < argc_par - 1) {
+                    TString tmp_str = argv_par[++idx];
+                    if (tmp_str[0] == '-') {
+                        return false;
+                    } else {
+                        rate_binw = tmp_str.Atof();
+                    }
+                } else {
+                    return false;
+                }
+                break;
             case 'S':
                 subbkg_flag = true;
                 break;
@@ -173,7 +185,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
 
 void OptionsManager::print_help() {
     cout << "Usage:" << endl;
-    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -t <thr> -n <nbins> -S -x <grb1> -y <grb2> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4>" << endl;
+    cout << "  " << SW_NAME << "<angle_file.root> -o <out.root> -t <thr> -n <nbins> -S -x <grb1> -y <grb2> -a <bkg1> -b <bkg2> -c <bkg3> -d <bkg4> -w <binw>" << endl;
     cout << endl;
     cout << "Options:" << endl;
     cout << "  -o <output.root>                 output data" << endl;
@@ -186,6 +198,7 @@ void OptionsManager::print_help() {
     cout << "  -b <bkg2>                        bkg_before_stop" << endl;
     cout << "  -c <bkg3>                        bkg_after_start" << endl;
     cout << "  -d <bkg4>                        bkg_after_stop" << endl;
+    cout << "  -w <binw>                        binw for angle rate" << endl;
     cout << endl;
     cout << "  --version                        print version and author information" << endl;
     cout << endl;
@@ -224,6 +237,7 @@ void OptionsManager::init() {
     grb_stop = -1;
     nbins = -1;
     energy_thr = 15.0;
+    rate_binw = 0.2;
 
     version_flag_ = false;
 }
