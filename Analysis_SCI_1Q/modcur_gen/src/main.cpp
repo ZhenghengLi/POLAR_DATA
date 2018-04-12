@@ -27,11 +27,9 @@ Double_t BkgFun::bkg_range_d = 4;
 Double_t BkgFun::fun(Double_t* x, Double_t* par) {
     if (x[0] < bkg_range_a || x[0] > bkg_range_d) {
         TF1::RejectPoint();
-        return 0;
     }
     if (x[0] > bkg_range_b && x[0] < bkg_range_c) {
         TF1::RejectPoint();
-        return 0;
     }
     return par[0] + par[1] * x[0] + par[2] * x[0] * x[0];
 }
@@ -147,7 +145,7 @@ int main(int argc, char** argv) {
         BkgFun::bkg_range_b = options_mgr.bkg_before_stop;
         BkgFun::bkg_range_c = options_mgr.bkg_after_start;
         BkgFun::bkg_range_d = options_mgr.bkg_after_stop;
-        bkg_fun = new TF1("bkg_fun", BkgFun::fun, first_time, last_time);
+        bkg_fun = new TF1("bkg_fun", BkgFun::fun, first_time, last_time, 3);
 
     }
     // modulation curve
