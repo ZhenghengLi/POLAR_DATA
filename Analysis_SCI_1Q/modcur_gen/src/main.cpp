@@ -232,6 +232,7 @@ int main(int argc, char** argv) {
     delete angle_file;
 
     gROOT->SetBatch(kTRUE);
+    gErrorIgnoreLevel = kWarning;
 
     if (options_mgr.subbkg_flag) {
 
@@ -312,7 +313,37 @@ int main(int argc, char** argv) {
     energy_bkg->Write();
     // angle_rate
     if (options_mgr.subbkg_flag) {
-        angle_rate->Write();
+        // angle_rate->Write();
+        TCanvas* canvas_angle_rate = new TCanvas("canvas_angle_rate", "canvas_angle_rate", 800, 600);
+        canvas_angle_rate->cd();
+        int max_bin = angle_rate->GetMaximumBin();
+        double max_rate = angle_rate->GetBinContent(max_bin);
+        TLine* line_bkg_before_start = new TLine(options_mgr.bkg_before_start, 0, options_mgr.bkg_before_start, max_rate);
+        TLine* line_bkg_before_stop = new TLine(options_mgr.bkg_before_stop, 0, options_mgr.bkg_before_stop, max_rate);
+        TLine* line_bkg_after_start = new TLine(options_mgr.bkg_after_start, 0, options_mgr.bkg_after_start, max_rate);
+        TLine* line_bkg_after_stop = new TLine(options_mgr.bkg_after_stop, 0, options_mgr.bkg_after_stop, max_rate);
+        TLine* line_grb_start = new TLine(options_mgr.grb_start, 0, options_mgr.grb_start, max_rate);
+        TLine* line_grb_stop = new TLine(options_mgr.grb_stop, 0, options_mgr.grb_stop, max_rate);
+        angle_rate->Draw("eh");
+        line_bkg_before_start->SetLineColor(kGreen);
+        line_bkg_before_start->SetLineStyle(7);
+        line_bkg_before_start->Draw();
+        line_bkg_before_stop->SetLineColor(kGreen);
+        line_bkg_before_stop->SetLineStyle(7);
+        line_bkg_before_stop->Draw();
+        line_bkg_after_start->SetLineColor(kGreen);
+        line_bkg_after_start->SetLineStyle(7);
+        line_bkg_after_start->Draw();
+        line_bkg_after_stop->SetLineColor(kGreen);
+        line_bkg_after_stop->SetLineStyle(7);
+        line_bkg_after_stop->Draw();
+        line_grb_start->SetLineColor(kRed);
+        line_grb_start->SetLineStyle(7);
+        line_grb_start->Draw();
+        line_grb_stop->SetLineColor(kRed);
+        line_grb_stop->SetLineStyle(7);
+        line_grb_stop->Draw();
+        canvas_angle_rate->Write();
     }
 
     TNamed("energy_thr", Form("%f", options_mgr.energy_thr)).Write();
