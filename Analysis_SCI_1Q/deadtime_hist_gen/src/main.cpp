@@ -9,6 +9,67 @@
 
 using namespace std;
 
+double prob_FEE(int n, int k) {
+    if (k > n) return 0;
+    if (n > 25) return 0;
+    return TMath::Binomial(n, k) / TMath::Binomial(25, k);
+}
+
+double event_deadtime_calc(const deque<POLEvent>& event_deque, int n_modules, bool is_compressed) {
+    if (n_modules < 1 || n_modules > 25 || event_deque.size() < 500) {
+        return -1;
+    }
+    // calculate module ratio
+    double f_module_count[25];
+    for (int i = 0; i < 25; i++) {
+        f_module_count[i] = 0;
+    }
+    for (deque<POLEvent>::const_iterator iter = event_deque.begin(); iter != event_deque.end(); iter++) {
+        int n_mods = accumulate(iter->trig_accepted, iter->trig_accepted + 25, 0);
+        if (n_mods < 1 || n_mods > 25) return -1;
+        f_module_count[n_mods - 1] += 1.0;
+    }
+    double f_module_ratio[25];
+    for (int i = 0; i < 25; i++) {
+        f_module_ratio[i] = f_module_count[i] / static_cast<double>(event_deque.size());
+    }
+
+    double deadtime_FEE = (is_compressed ? deadtime_FEE_3 : deadtime_FEE_0);
+    double event_deadtime = 0;
+    for (int n_next = 1; n_next <= 25; n_next++) {
+        double p_FEE = prob_FEE(n_modules, n_next);
+        double deadtime_next = p_FEE * deadtime_FEE + (1 - p_FEE) * deadtime_CT;
+        event_deadtime += deadtime_next * f_module_ratio[n_next - 1];
+    }
+
+    return event_deadtime;
+}
+
+void fill_hist(const POLEvent& t_pol_event, const deque<POLEvent>& event_deque,
+    TH1D* module_dead_ratio_hist[25], TH1D* event_dead_ratio_hist, TH1D* trigger_rate_hist) {
+
+    // calculate and fill module dead ratio hist
+    for (int i = 0; i < 25; i++) {
+        if (t_pol_event.time_aligned[i]) {
+            module_dead_ratio_hist[i]->Fill(t_pol_event.event_time, t_pol_event.fe_time_wait[i] * t_pol_event.fe_dead_ratio[i]);
+        }
+    }
+
+    // calculate and fill event dead ratio hist
+    int n_modules = 0;
+    bool is_compressed = false;
+    for (int i = 0; i < 25; i++) {
+        if (t_pol_event.trig_accepted[i]) {
+            n_modules++;
+            if (t_pol_event.compress[i] == 3) is_compressed = true;
+        }
+    }
+
+    double event_deadtime = event_deadtime_calc(event_deque, n_modules, is_compressed);
+    event_dead_ratio_hist->Fill(t_pol_event.event_time, event_deadtime);
+    trigger_rate_hist->Fill(t_pol_event.event_time);
+}
+
 int main(int argc, char** argv) {
     OptionsManager options_mgr;
     if (!options_mgr.parse(argc, argv)) {
@@ -26,15 +87,6 @@ int main(int argc, char** argv) {
         cout << "pol_event_file open failed: " << options_mgr.pol_event_filename.Data() << endl;
         return 1;
     }
-    // TNamed* m_level_num = static_cast<TNamed*>(pol_event_file->Get("m_level_num"));
-    // if (m_level_num == NULL) {
-    //     cout << "cannot find TNamed m_level_num." << endl;
-    //     return 1;
-    // }
-    // if (TString(m_level_num->GetTitle()).Atoi() != 0) {
-    //     cout << "m_level_num is not 0." << endl;
-    //     return 1;
-    // }
     TTree* t_pol_event_tree = static_cast<TTree*>(pol_event_file->Get("t_pol_event"));
     if (t_pol_event_tree == NULL) {
         cout << "cannot find TTree t_pol_event." << endl;
@@ -82,15 +134,24 @@ int main(int argc, char** argv) {
     trigger_rate_dc_hist->SetDirectory(NULL);
     trigger_rate_dc_hist->Sumw2();
 
-    bool is_first = true;
-    deque<int> n_mods_deque;
+    deque<POLEvent> event_deque;
+
+    // pre-read
+    cout << "pre-read 1000 events ..." << endl;
+    for (Long64_t q = 0; q < 1000; q++) {
+        t_pol_event_tree->GetEntry(q);
+        event_deque.push_back(t_pol_event);
+    }
+    for (deque<POLEvent>::const_iterator iter = event_deque.begin(); iter != event_deque.end(); iter++) {
+        fill_hist(*iter, event_deque, module_dead_ratio_hist, event_dead_ratio_hist, trigger_rate_hist);
+    }
 
     // collecting deadtime data
     int pre_percent = 0;
     int cur_percent = 0;
-    cout << "reading data ... " << endl;
+    cout << "reading all events ... " << endl;
     cout << "[ " << flush;
-    for (Long64_t q = 0; q < t_pol_event_tree->GetEntries(); q++) {
+    for (Long64_t q = 1000; q < t_pol_event_tree->GetEntries(); q++) {
         cur_percent = static_cast<int>(q * 100.0 / t_pol_event_tree->GetEntries());
         if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
             pre_percent = cur_percent;
@@ -98,62 +159,11 @@ int main(int argc, char** argv) {
         }
 
         //////////////////////////////////////////////////////////
-
-        // calculate single module ratio
-        if (is_first) {
-            is_first = false;
-            for (Long64_t t = q; t < q + 1000; t++) {
-                t_pol_event_tree->GetEntry(t);
-                int n_mods = accumulate(t_pol_event.trig_accepted, t_pol_event.trig_accepted + 25, 0);
-                n_mods_deque.push_back(n_mods);
-            }
-        } else {
-            Long64_t t = q + 999;
-            if (t < t_pol_event_tree->GetEntries()) {
-                t_pol_event_tree->GetEntry(t);
-                int n_mods = accumulate(t_pol_event.trig_accepted, t_pol_event.trig_accepted + 25, 0);
-                n_mods_deque.pop_front();
-                n_mods_deque.push_back(n_mods);
-            }
-        }
-        double f_single = 0;
-        for (deque<int>::iterator iter = n_mods_deque.begin(); iter != n_mods_deque.end(); iter++) {
-            if (*iter < 2) f_single += 1.0;
-        }
-        double f_single_ratio = f_single / static_cast<double>(n_mods_deque.size());
-        double f_multi_ratio  = 1.0 - f_single_ratio;
-
         t_pol_event_tree->GetEntry(q);
-
-        // calculate and fill module dead ratio hist
-        for (int i = 0; i < 25; i++) {
-            if (t_pol_event.time_aligned[i]) {
-                module_dead_ratio_hist[i]->Fill(t_pol_event.event_time, t_pol_event.fe_time_wait[i] * t_pol_event.fe_dead_ratio[i]);
-            }
-        }
-
-        // calculate and fill event dead ratio hist
-        double f_modules = 0;
-        bool is_compressed = false;
-        for (int i = 0; i < 25; i++) {
-            if (t_pol_event.trig_accepted[i]) {
-                f_modules += 1.0;
-                if (t_pol_event.compress[i] == 3) is_compressed = true;
-            }
-        }
-        double deadtime_FEE = (is_compressed ? deadtime_FEE_3 : deadtime_FEE_0);
-        double f_FEE_ratio = f_modules / 25.0;
-        double f_CT_ratio  = 1.0 - f_FEE_ratio;
-        if (f_modules > 2) {
-            f_single_ratio = 1.0;
-            f_multi_ratio  = 0.0;
-        }
-        double event_deadtime = f_single_ratio * (f_FEE_ratio * deadtime_FEE + f_CT_ratio * deadtime_CT) + f_multi_ratio * deadtime_CT;
-
-        event_dead_ratio_hist->Fill(t_pol_event.event_time, event_deadtime);
-
-        trigger_rate_hist->Fill(t_pol_event.event_time);
-
+        event_deque.pop_front();
+        event_deque.push_back(t_pol_event);
+        //////////////////////////////////////////////////////////
+        fill_hist(t_pol_event, event_deque, module_dead_ratio_hist, event_dead_ratio_hist, trigger_rate_hist);
         //////////////////////////////////////////////////////////
 
     }
