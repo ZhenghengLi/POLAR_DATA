@@ -1,6 +1,7 @@
 #include <iostream>
 #include <deque>
 #include <algorithm>
+#include <cassert>
 #include <numeric>
 #include <cmath>
 #include "RootInc.hpp"
@@ -16,9 +17,7 @@ double prob_FEE(int n, int k) {
 }
 
 double event_deadtime_calc(const deque<POLEvent>& event_deque, int n_modules, bool is_compressed) {
-    if (n_modules < 1 || n_modules > 25 || event_deque.size() < 500) {
-        return 0;
-    }
+    assert(n_modules >= 1 && n_modules <= 25 && event_deque.size() > 500);
     // calculate module ratio
     double f_module_count[25];
     for (int i = 0; i < 25; i++) {
@@ -26,7 +25,7 @@ double event_deadtime_calc(const deque<POLEvent>& event_deque, int n_modules, bo
     }
     for (deque<POLEvent>::const_iterator iter = event_deque.begin(); iter != event_deque.end(); iter++) {
         int n_mods = accumulate(iter->trig_accepted, iter->trig_accepted + 25, 0);
-        if (n_mods < 1 || n_mods > 25) return 0;
+        assert(n_mods >= 1 && n_mods <= 25);
         f_module_count[n_mods - 1] += 1.0;
     }
     double f_module_ratio[25];
