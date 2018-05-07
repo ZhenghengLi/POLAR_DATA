@@ -15,7 +15,7 @@ if [[ $PATH =~ $my_path ]]; then
     echo "POLAR_RawData_Decode_Project is already in PATH"
 else
     export PATH=$my_path:$PATH
-    export LD_LIBRARY_PATH=$my_lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=$my_path:$LD_LIBRARY_PATH
     if [ $BOOST_PREFIX ] && ! [ $BOOST_INC ] && ! [ $BOOST_LIB ]; then
         export BOOST_INC=-I$BOOST_PREFIX/include
         export BOOST_LIB=-L$BOOST_PREFIX/lib
