@@ -511,7 +511,15 @@ bool SciDataFile::bit_extract_(T data, size_t n) {
 }
 
 int SciDataFile::week_of_gps6_(const uint64_t raw_gps) {
-    return static_cast<int>((raw_gps >> 32) & 0xFFFF);
+    int week = static_cast<int>((raw_gps >> 32) & 0xFFFF);
+    if (week < 1024) {
+        if (week > 629) {
+            week += 1024;
+        } else {
+            week += 2048;
+        }
+    }
+    return week;
 }
 
 double SciDataFile::second_of_gps6_(const uint64_t raw_gps) {
