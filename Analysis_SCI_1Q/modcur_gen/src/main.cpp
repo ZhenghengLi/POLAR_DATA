@@ -234,15 +234,19 @@ int main(int argc, char** argv) {
     gROOT->SetBatch(kTRUE);
     gErrorIgnoreLevel = kWarning;
 
+    double grb_with_bkg_entries = modcur_grb_with_bkg->Integral();
+    double bkg_at_grb_entries = 0;
+    double bkg_scale = 0;
+
     if (options_mgr.subbkg_flag) {
 
         // scale background
         angle_rate->Scale(1, "width");
         angle_rate->Fit(bkg_fun, "RQ");
-        double bkg_before_duration = bkg_fun->Integral(options_mgr.bkg_before_start, options_mgr.bkg_before_stop);
-        double bkg_after_duration = bkg_fun->Integral(options_mgr.bkg_after_start, options_mgr.bkg_after_stop);
-        double bkg_grb_duration = bkg_fun->Integral(options_mgr.grb_start, options_mgr.grb_stop);
-        double bkg_scale = bkg_grb_duration / (bkg_before_duration + bkg_after_duration);
+        double bkg_before_entries = bkg_fun->Integral(options_mgr.bkg_before_start, options_mgr.bkg_before_stop);
+        double bkg_after_entries = bkg_fun->Integral(options_mgr.bkg_after_start, options_mgr.bkg_after_stop);
+        bkg_at_grb_entries = bkg_fun->Integral(options_mgr.grb_start, options_mgr.grb_stop);
+        bkg_scale = bkg_at_grb_entries / (bkg_before_entries + bkg_after_entries);
 
         // modulation curve
         for (int i = 0; i < options_mgr.nbins; i++) {
@@ -353,6 +357,9 @@ int main(int argc, char** argv) {
     if (options_mgr.subbkg_flag) {
         TNamed("rate_binw", Form("%f", options_mgr.rate_binw)).Write();
     }
+    TNamed("grb_with_bkg_entries", Form("%d", static_cast<int>(grb_with_bkg_entries))).Write();
+    TNamed("bkg_at_grb_entries", Form("%d", static_cast<int>(bkg_at_grb_entries))).Write();
+    TNamed("bkg_scale", Form("%f", bkg_scale)).Write();
 
     output_file->Close();
     delete output_file;

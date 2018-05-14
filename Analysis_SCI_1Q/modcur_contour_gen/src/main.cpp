@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 3; i++) {
         delta_levels[i] = non_zero + level_list[i];
     }
-    TH1D* delta_chi2_map_inter_cont3 = static_cast<TH1D*>(chi2_map_inter->Clone("delta_chi2_map_inter_cont3"));
+    TH1D* delta_chi2_map_inter_cont3 = static_cast<TH1D*>(delta_chi2_map_inter->Clone("delta_chi2_map_inter_cont3"));
     delta_chi2_map_inter_cont3->SetContour(3, delta_levels);
     delta_chi2_map_inter_cont3->SetLineColor(kRed);
     delta_chi2_map_inter_cont3->SetLineWidth(2);
