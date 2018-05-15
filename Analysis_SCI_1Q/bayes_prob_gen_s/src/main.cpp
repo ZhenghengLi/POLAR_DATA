@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
     }
     int grb_entries = grb_with_bkg_entries - bkg_at_grb_entries;
 
-    TFile* output_file = new TFile(options_mgr.output_filename.Data());
+    TFile* output_file = new TFile(options_mgr.output_filename.Data(), "recreate");
     if (output_file->IsZombie()) {
         cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
         return 1;
