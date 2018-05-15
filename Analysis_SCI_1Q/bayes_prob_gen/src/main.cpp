@@ -19,7 +19,7 @@
 
 using namespace std;
 
-bool read_modcur(const char* filename, TH1D* modcur_grb_sub_bkg, TH1D* modcur_bkg, int& grb_with_bkg_entries, int& bkg_at_grb_entries) {
+bool read_modcur(const char* filename, TH1D*& modcur_grb_sub_bkg, TH1D*& modcur_bkg, int& grb_with_bkg_entries, int& bkg_at_grb_entries) {
     TFile* modcur_file = new TFile(filename, "read");
     if (modcur_file->IsZombie()) return false;
 
@@ -132,6 +132,10 @@ void generate_rand_modcur(TH1D* modcur_array[90][50], int pa_idx, int pd_idx,
         modcur_grb->SetBinContent(b, binc_grb);
         modcur_grb->SetBinError(b, bine_grb);
     }
+    // clean
+    delete modcur_grb_sub_bkg_rand;
+    delete modcur_bkg_rand;
+    delete modcur_grb_with_bkg;
 }
 
 int main(int argc, char** argv) {
@@ -182,7 +186,8 @@ int main(int argc, char** argv) {
         for (int j = 0; j < 50; j++) {
             cout << "Generating probability map for " << Form("PA_%03d_PD_%03d", i * 2 + 1, j * 2 + 1) << " ..." << endl;
             prob_map->Reset();
-            for (int k = 0; k < rand_N; k++) {
+            for (int k = 1; k <= rand_N; k++) {
+                if (k % 1000 == 0) cout << k << " " << flush;
                 generate_rand_modcur(modcur_array, i, j, modcur_rand, grb_entries, modcur_bkg, bkg_at_grb_entries);
                 PA_PD papd_rand = find_best_pa_pd(modcur_rand, modcur_array);
                 prob_map->Fill(papd_rand.pd, papd_rand.pa);
@@ -190,6 +195,7 @@ int main(int argc, char** argv) {
             double prob_m = prob_map->GetBinContent(papd_meas.pd_idx + 1, papd_meas.pa_idx + 1) / rand_N;
             prob_m_map->SetBinContent(j + 1, i + 1, prob_m);
             prob_sum += prob_m;
+            cout << "=> " << prob_m << endl;
         }
     }
 
