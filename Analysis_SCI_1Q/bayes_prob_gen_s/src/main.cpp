@@ -171,43 +171,40 @@ int main(int argc, char** argv) {
     }
     int grb_entries = grb_with_bkg_entries - bkg_at_grb_entries;
 
+    TFile* output_file = new TFile(options_mgr.output_filename.Data());
+    if (output_file->IsZombie()) {
+        cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
+        return 1;
+    }
+
     // find measured best pa and pd
     PA_PD papd_meas = find_best_pa_pd(modcur_grb_sub_bkg, modcur_array);
 
     int nbins = modcur_grb_sub_bkg->GetNbinsX();
     TH1D* modcur_rand = new TH1D("modcur_rand", "modcur_rand", nbins, 0, 360);
     TH2D* prob_map = new TH2D("prob_map", "prob_map", 50, 0, 100, 90, 0, 180);
-    TH2D* prob_m_map = new TH2D("prob_m_map", "prob_m_map", 50, 0, 100, 90, 0, 180);
-    double prob_sum = 0;
 
     int rand_N = 10000;
 
-    ofstream output_file(options_mgr.output_filename.Data());
-    if (!output_file.is_open()) {
-        cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
-        return 1;
+    cout << "Generating probability map for " << Form("PA_%03d_PD_%03d", options_mgr.pa_idx * 2 + 1, options_mgr.pd_idx * 2 + 1) << " ..." << endl;
+    for (int k = 1; k <= rand_N; k++) {
+        if (k % 1000 == 0) cout << k << " " << flush;
+        generate_rand_modcur(modcur_array, options_mgr.pa_idx, options_mgr.pd_idx, modcur_rand, grb_entries, modcur_bkg, bkg_at_grb_entries);
+        PA_PD papd_rand = find_best_pa_pd(modcur_rand, modcur_array);
+        prob_map->Fill(papd_rand.pd, papd_rand.pa);
     }
+    double prob_m = prob_map->GetBinContent(papd_meas.pd_idx + 1, papd_meas.pa_idx + 1) / rand_N;
+    cout << "=> " << prob_m << endl;
 
-    for (int i = 0; i < 90; i++) {
-        for (int j = 0; j < 50; j++) {
-            if (i != options_mgr.pa_idx || j != options_mgr.pd_idx) continue;
-            cout << "Generating probability map for " << Form("PA_%03d_PD_%03d", i * 2 + 1, j * 2 + 1) << " ..." << endl;
-            prob_map->Reset();
-            for (int k = 1; k <= rand_N; k++) {
-                if (k % 1000 == 0) cout << k << " " << flush;
-                generate_rand_modcur(modcur_array, i, j, modcur_rand, grb_entries, modcur_bkg, bkg_at_grb_entries);
-                PA_PD papd_rand = find_best_pa_pd(modcur_rand, modcur_array);
-                prob_map->Fill(papd_rand.pd, papd_rand.pa);
-            }
-            double prob_m = prob_map->GetBinContent(papd_meas.pd_idx + 1, papd_meas.pa_idx + 1) / rand_N;
-            prob_m_map->SetBinContent(j + 1, i + 1, prob_m);
-            prob_sum += prob_m;
-            cout << "=> " << prob_m << endl;
-            output_file << i << " " << j << " " << Form("%.6f", prob_m) << endl;
-        }
-    }
+    output_file->cd();
+    prob_map->Scale(1.0 / rand_N);
+    prob_map->Write();
+    TNamed("pa_idx", Form("%d", options_mgr.pa_idx)).Write();
+    TNamed("pd_idx", Form("%d", options_mgr.pd_idx)).Write();
+    TNamed("prob_m", Form("%.6f", prob_m)).Write();
+    TNamed("rand_N", Form("%d", rand_N)).Write();
 
-    output_file.close();
+    output_file->Close();
 
     return 0;
 }
