@@ -91,6 +91,7 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     }
     if (pd_idx < 0 || pd_idx > 49) {
         cout << "pd_idx is out of range [0-49]: " << pd_idx << endl;
+        return false;
     }
 
     return true;

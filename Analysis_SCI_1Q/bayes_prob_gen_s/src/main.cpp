@@ -182,7 +182,7 @@ int main(int argc, char** argv) {
 
     int rand_N = 10000;
 
-    ofstream output_file(options_mgr.modcur_filename.Data());
+    ofstream output_file(options_mgr.output_filename.Data());
     if (!output_file.is_open()) {
         cout << "output_file open failed: " << options_mgr.output_filename.Data() << endl;
         return 1;
@@ -202,6 +202,7 @@ int main(int argc, char** argv) {
             double prob_m = prob_map->GetBinContent(papd_meas.pd_idx + 1, papd_meas.pa_idx + 1) / rand_N;
             prob_m_map->SetBinContent(j + 1, i + 1, prob_m);
             prob_sum += prob_m;
+            cout << "=> " << prob_m << endl;
             output_file << i << " " << j << " " << Form("%.6f", prob_m) << endl;
         }
     }
