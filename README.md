@@ -2,7 +2,7 @@
 
 ## Introduction 
 
-This project was started on 19th Sep 2015 after I came to [IHEP](http://english.ihep.cas.cn) and proposed to do the decoding of the raw data produced by [POLAR](http://polar.ihep.ac.cn/en) detector and all the latter related scientific analysis. C++ is the main program language and the ROOT library is used. Python is also used mainly for the pipeline scripts.
+This project was started on 19th Sep 2015 after I came to [IHEP](http://english.ihep.cas.cn) and proposed to do the decoding of the raw data produced by [POLAR](http://polar.ihep.ac.cn/en) detector and all the latter related scientific analysis. C++ is the main program language and the [ROOT](https://root.cern.ch) library is used. Python is also used mainly for the pipeline scripts.
 
 This project was initially started on GitHub ([github.com/ZhenghengLi/POLAR_RawData_Decode_Project](https://github.com/ZhenghengLi/POLAR_RawData_Decode_Project)) as opensource, then moved to private on 28th August 2016 due to involving confidential information which is mainly about the decoding of the platform parameters data.
 
