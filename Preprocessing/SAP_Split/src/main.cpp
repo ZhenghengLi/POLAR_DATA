@@ -62,11 +62,11 @@ int main(int argc, char** argv) {
                         }
                         return 1;
                     } else if (sapfile_r_arr[i].get_time_first() - sapfile_r_arr[i - 1].get_time_last() < -1) {
-                        cout << "Error: two files have overlap in MET time." << endl;
-                        for (size_t j = 0; j <= i; j++) {
-                            sapfile_r_arr[j].close();
-                        }
-                        return 1;
+                        cout << "Warning: two files have overlap in MET time, overlap data will be jumped" << endl;
+                        // for (size_t j = 0; j <= i; j++) {
+                        //     sapfile_r_arr[j].close();
+                        // }
+                        // return 1;
                     }
                 }
                 // check matching of energy_unit and level_num
