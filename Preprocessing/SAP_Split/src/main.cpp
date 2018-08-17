@@ -102,6 +102,7 @@ int main(int argc, char** argv) {
         cerr << "output file open failed: " << options_mgr.out_file.Data() << endl;
         return 1;
     }
+    double pre_event_time = 0;
     for (size_t i = 0; i < sapfile_r_len; i++) {
         cout << "-----------------------------------------------------------------------------" << endl;
         cout << "Processing file: " << options_mgr.raw_file_vector[i] << " ... " << endl;
@@ -115,6 +116,12 @@ int main(int argc, char** argv) {
             if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
                 pre_percent = cur_percent;
                 cout << "#" << flush;
+            }
+            double cur_event_time = sapfile_r_arr[i].t_pol_event.event_time;
+            if (cur_event_time <= pre_event_time) {
+                continue;
+            } else {
+                pre_event_time = cur_event_time;
             }
             sapfile_w.t_pol_event = sapfile_r_arr[i].t_pol_event;
             sapfile_w.fill_entry();
