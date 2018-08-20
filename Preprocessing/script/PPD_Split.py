@@ -53,8 +53,8 @@ else:
                         ppd_file_r_objs[j].close_file()
                     exit(1)
                 elif ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec < -1:
-                    print 'Warning: two files have overlap in UTC time: ' \\
-                            + str(ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec) \\
+                    print 'Warning: two files have overlap in UTC time: ' \
+                            + str(ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec) \
                             + ', the repeated packets will be jumped.'
                     # for j in xrange(i + 1):
                     #     ppd_file_r_objs[j].close_file()
