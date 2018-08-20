@@ -70,12 +70,12 @@ bool OptionsManager::parse(int argc_par, char** argv_par) {
     } else {
         if (met_begin.IsNull()) {
             met_begin = "begin";
-        } else if (!met_begin.IsFloat()) {
+        } else if (met_begin != "begin" && !met_begin.IsFloat()) {
             return false;
         }
         if (met_end.IsNull()) {
             met_end = "end";
-        } else if (!met_end.IsFloat()) {
+        } else if (met_end != "end" && !met_end.IsFloat()) {
             return false;
         }
         if (out_file.IsNull())
