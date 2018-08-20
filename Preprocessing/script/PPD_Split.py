@@ -53,10 +53,12 @@ else:
                         ppd_file_r_objs[j].close_file()
                     exit(1)
                 elif ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec < -1:
-                    print 'Error: two files have overlap in UTC time: ' + str(ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec)
-                    for j in xrange(i + 1):
-                        ppd_file_r_objs[j].close_file()
-                    exit(1)
+                    print 'Warning: two files have overlap in UTC time: ' \\
+                            + str(ppd_file_r_objs[i].first_utc_time_sec - ppd_file_r_objs[i - 1].last_utc_time_sec) \\
+                            + ', the repeated packets will be jumped.'
+                    # for j in xrange(i + 1):
+                    #     ppd_file_r_objs[j].close_file()
+                    # exit(1)
         else:
             print 'Error: root file open failed: ' + args.filelist[i]
             for j in xrange(i + 1):
@@ -77,12 +79,18 @@ first_valid_index    = 0
 last_valid_index     = 0
 total_valid_cnt      = 0
 
+pre_utc_time_sec = 0
 for i in xrange(number_of_files):
     print "-----------------------------------------------------------------------------"
     print "Processing file: " + args.filelist[i] + " ... "
     print "Copying ppd data from " + basename(args.filelist[i]) + " ..."
     for j in tqdm(xrange(ppd_file_r_objs[i].begin_entry, ppd_file_r_objs[i].end_entry)):
         ppd_file_r_objs[i].t_tree_ppd.get_entry(j)
+        cur_utc_time_sec = ppd_file_r_objs[i].t_tree_ppd.utc_time_sec
+        if cur_utc_time_sec < pre_utc_time_sec:
+            continue
+        else:
+            pre_utc_time_sec = cur_utc_time_sec
         ppd_file_w_obj.fill_data(ppd_file_r_objs[i].t_tree_ppd)
         cur_tree_index += 1
         if ppd_file_r_objs[i].t_tree_ppd.flag_of_pos != 0x55: continue
