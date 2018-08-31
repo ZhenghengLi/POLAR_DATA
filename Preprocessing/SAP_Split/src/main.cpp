@@ -62,11 +62,11 @@ int main(int argc, char** argv) {
                         }
                         return 1;
                     } else if (sapfile_r_arr[i].get_time_first() - sapfile_r_arr[i - 1].get_time_last() < -1) {
-                        cout << "Error: two files have overlap in MET time." << endl;
-                        for (size_t j = 0; j <= i; j++) {
-                            sapfile_r_arr[j].close();
-                        }
-                        return 1;
+                        cout << "Warning: two files have overlap in MET time, overlap data will be jumped" << endl;
+                        // for (size_t j = 0; j <= i; j++) {
+                        //     sapfile_r_arr[j].close();
+                        // }
+                        // return 1;
                     }
                 }
                 // check matching of energy_unit and level_num
@@ -102,6 +102,7 @@ int main(int argc, char** argv) {
         cerr << "output file open failed: " << options_mgr.out_file.Data() << endl;
         return 1;
     }
+    double pre_event_time = 0;
     for (size_t i = 0; i < sapfile_r_len; i++) {
         cout << "-----------------------------------------------------------------------------" << endl;
         cout << "Processing file: " << options_mgr.raw_file_vector[i] << " ... " << endl;
@@ -115,6 +116,12 @@ int main(int argc, char** argv) {
             if (cur_percent - pre_percent > 0 && cur_percent % 2 == 0) {
                 pre_percent = cur_percent;
                 cout << "#" << flush;
+            }
+            double cur_event_time = sapfile_r_arr[i].t_pol_event.event_time;
+            if (cur_event_time <= pre_event_time) {
+                continue;
+            } else {
+                pre_event_time = cur_event_time;
             }
             sapfile_w.t_pol_event = sapfile_r_arr[i].t_pol_event;
             sapfile_w.fill_entry();
