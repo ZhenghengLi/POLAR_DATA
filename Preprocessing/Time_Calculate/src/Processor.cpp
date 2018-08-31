@@ -180,6 +180,10 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
                                             hkgpsiter.cur_ticks_per_second);
         if (!hkgpsiter.is_passed_last()) { // not passed last
             if (hkgpsiter.after_gps_sync.first - hkgpsiter.before_gps_sync.first > MAX_OFFSET) {
+                phy_error_count_++;
+                if (can_log()) {
+                    os_logfile_ << "phy " << scitran.get_trigger_cur_index() << " : big pair gap" << endl;
+                }
                 scitran.t_trigger.abs_gps_week = -1;
                 scitran.t_trigger.abs_gps_second = -1;
                 scitran.t_trigger.abs_gps_valid = false;
@@ -348,6 +352,10 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
                                             hkgpsiter.cur_ticks_per_second);
         if (!hkgpsiter.is_passed_last()) { // not passed last
             if (hkgpsiter.after_gps_sync.first - hkgpsiter.before_gps_sync.first > MAX_OFFSET) {
+                ped_error_count_++;
+                if (can_log()) {
+                    os_logfile_ << "ped " << scitran.get_ped_trigger_cur_index() << " : big pair gap" << endl;
+                }
                 scitran.t_ped_trigger.abs_gps_week = -1;
                 scitran.t_ped_trigger.abs_gps_second = -1;
                 scitran.t_ped_trigger.abs_gps_valid = false;
