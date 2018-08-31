@@ -179,6 +179,14 @@ void Processor::calc_time_trigger(SciTransfer& scitran, HkGPSIterator& hkgpsiter
                                             scitran.phy_cur_timestamp,
                                             hkgpsiter.cur_ticks_per_second);
         if (!hkgpsiter.is_passed_last()) { // not passed last
+            if (hkgpsiter.after_gps_sync.first - hkgpsiter.before_gps_sync.first > MAX_OFFSET) {
+                scitran.t_trigger.abs_gps_week = -1;
+                scitran.t_trigger.abs_gps_second = -1;
+                scitran.t_trigger.abs_gps_valid = false;
+                scitran.t_trigger.abs_ship_second = -1;
+                scitran.trigger_fill();
+                continue;
+            }
             cur_abs_gps_after = calc_abs_time_(hkgpsiter.after_gps_sync,
                                                scitran.phy_cur_gps,
                                                scitran.phy_cur_timestamp,
@@ -339,6 +347,14 @@ void Processor::calc_time_ped_trigger(SciTransfer& scitran, HkGPSIterator& hkgps
                                             scitran.ped_cur_timestamp,
                                             hkgpsiter.cur_ticks_per_second);
         if (!hkgpsiter.is_passed_last()) { // not passed last
+            if (hkgpsiter.after_gps_sync.first - hkgpsiter.before_gps_sync.first > MAX_OFFSET) {
+                scitran.t_ped_trigger.abs_gps_week = -1;
+                scitran.t_ped_trigger.abs_gps_second = -1;
+                scitran.t_ped_trigger.abs_gps_valid = false;
+                scitran.t_ped_trigger.abs_ship_second = -1;
+                scitran.ped_trigger_fill();
+                continue;
+            }
             cur_abs_gps_after = calc_abs_time_(hkgpsiter.after_gps_sync,
                                                scitran.ped_cur_gps,
                                                scitran.ped_cur_timestamp,
