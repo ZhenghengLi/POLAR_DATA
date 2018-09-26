@@ -2,7 +2,7 @@
 
 ## Introduction 
 
-POLAR is a Gamma-Ray Bursts (GRB) polarization detector and was launched as a payload of China's space laboratory Tiangong-2 on September 15th, 2016.
+POLAR is a Gamma-Ray Bursts (GRB) polarization detector and was launched as a payload of China's space laboratory Tiangong-2 on September 15th 2016.
 This project was started on September 19th 2015 by Zhengheng Li after he came to [IHEP](http://english.ihep.cas.cn). This project aims to do the decoding of the raw data produced by [POLAR](http://polar.ihep.ac.cn/en) detector and generating the high level data products for POLAR project as well as all the latter related scientific data analysis like the in-orbit calibration and the polarization analysis for the detected GRB data sample. In the project C++ is the main program language while the [ROOT](https://root.cern.ch) and [boost](https://www.boost.org) libraries are widely used in the project. Python is also used mainly for the pipeline scripts.
 
 The paper describing all the details of the in-orbit calibration for POLAR was published on 22nd May 2018:  
