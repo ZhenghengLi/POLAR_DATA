@@ -2,7 +2,11 @@ CC := g++
 MY_LIB := ../lib
 MY_LIB_INC := $(MY_LIB)/include
 CC_FLAGS := -Wall -O2 -I ./include -I $(MY_LIB)/include
-LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
+ifeq ($(shell uname), Darwin)
+    LINK_FLAGS := -lboost_regex
+else
+    LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
+endif
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 DEST_BIN := $(shell cd ../bin; pwd)

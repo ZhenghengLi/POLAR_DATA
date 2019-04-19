@@ -1,6 +1,10 @@
 CC := g++
 CC_FLAGS := -Wall -O2 -I./include
-LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
+ifeq ($(shell uname), Darwin)
+    LINK_FLAGS := -lboost_regex
+else
+    LINK_FLAGS := -Wl,--no-as-needed -lboost_regex
+endif
 ROOT_FLAGS := $(shell root-config --cflags)
 ROOT_LIBS := $(shell root-config --libs)
 CPP_FILES := $(wildcard src/*.cpp)
